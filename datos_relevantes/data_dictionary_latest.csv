@@ -1,0 +1,66 @@
+campo,tipo_sugerido,obligatoriedad_mvp,cobertura_actual_pct,descripcion,regla_calculo,fuente_preferente
+source,text,deseable,100%,Nombre de fuente de origen.,,Portales inmobiliarios + base Viva
+captured_at,timestamp/date,deseable,100%,Fecha y hora de captura.,,Portales inmobiliarios + base Viva
+source_url,text,critico,100%,URL trazable del dato.,,Portales inmobiliarios + base Viva
+source_type,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+extraction_method,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+project_id,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+project_slug,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+agency_name,text,critico,100%,Nombre publicado de inmobiliaria/desarrollador.,,Portales inmobiliarios + base Viva
+project_name,text,critico,100%,Nombre publicado del proyecto.,,Portales inmobiliarios + base Viva
+district,text,critico,100%,Distrito normalizado.,,Portales inmobiliarios + base Viva
+province,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+department,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+address,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+latitude,decimal,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+longitude,decimal,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+sales_start_year,integer,deseable,0%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+delivery_year,integer,critico,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+delivery_date,timestamp/date,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+update_date,timestamp/date,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+project_phase,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+floor_count,integer,deseable,19%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+parking_count,integer,deseable,3%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+view,text,deseable,0%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+typology,text,critico,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+bedrooms,integer,critico,99%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+bedrooms_min,integer,deseable,99%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+bedrooms_max,integer,deseable,99%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+bathrooms_min,integer,deseable,99%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+bathrooms_max,integer,deseable,99%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+built_area,decimal,deseable,0%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+free_area,decimal,deseable,0%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+total_area_min,decimal,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+total_area_max,decimal,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+area_min,decimal,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+area_max,decimal,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+total_area,decimal,critico,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+unit_status,text,critico,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+unit_count,integer,critico,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+price_min,decimal,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+currency,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+list_price_avg,decimal,critico,100%,Precio publicado o precio desde; no equivale a precio real de venta.,,Portales inmobiliarios + base Viva
+sale_price_avg,decimal,deseable,0%,"Precio real de venta, solo desde fuente interna/autorizada.",,Base Viva/CRM
+price_per_m2_list,decimal,deseable,100%,Campo canonico de evaluacion Viva.,list_price_avg / total_area cuando ambos existen.,Portales inmobiliarios + base Viva
+price_per_m2_sale,decimal,deseable,0%,Campo canonico de evaluacion Viva.,sale_price_avg / total_area cuando ambos existen.,Base Viva/CRM
+sale_year,integer,deseable,0%,Campo canonico de evaluacion Viva.,,Base Viva/CRM
+sale_month,integer,deseable,0%,Campo canonico de evaluacion Viva.,,Base Viva/CRM
+sale_date,timestamp/date,deseable,0%,Campo canonico de evaluacion Viva.,,Base Viva/CRM
+income,decimal,deseable,99%,Ingreso estimado calculado; no debe presentarse como ingreso real.,Estimado: precio publicado o venta * unidades; separar de ingresos reales.,Portales inmobiliarios + base Viva
+total_m2,decimal,deseable,99%,Campo canonico de evaluacion Viva.,total_area * unit_count cuando ambos existen.,Portales inmobiliarios + base Viva
+financing_banks,text,deseable,100%,Campo canonico de evaluacion Viva.,,Nexo + webs propias
+amenities,text,deseable,99%,Campo canonico de evaluacion Viva.,,Nexo + webs propias
+project_description,text,deseable,100%,Campo canonico de evaluacion Viva.,,Nexo + webs propias
+project_contact,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+project_email,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+project_phone,text,deseable,96%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+project_whatsapp,text,deseable,98%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+builder_slug,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+builder_description,text,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+price_history_count,integer,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+latest_price_history_date,timestamp/date,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+latest_price_history_from,decimal,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+latest_price_history_status,decimal,deseable,100%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+visit_count,integer,deseable,0%,Campo canonico de evaluacion Viva.,,Portales inmobiliarios + base Viva
+field_confidence,text,deseable,100%,Confianza preliminar del registro/campo.,,Portales inmobiliarios + base Viva
+missing_required_fields,text,deseable,1%,Campo canonico de evaluacion Viva.,Lista de campos criticos ausentes.,Portales inmobiliarios + base Viva

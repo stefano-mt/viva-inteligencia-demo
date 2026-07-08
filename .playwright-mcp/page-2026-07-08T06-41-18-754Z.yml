@@ -1,0 +1,412 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]: VI
+      - generic [ref=e7]:
+        - strong [ref=e8]: Viva Inteligencia
+        - generic [ref=e9]: Estrategia comercial
+    - navigation "Modulos principales" [ref=e10]:
+      - button "Radar comercial Decision del distrito" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12]: Radar comercial
+        - generic [ref=e13]: Decision del distrito
+      - button "Proyectos comparables Competidores y detalle" [ref=e14] [cursor=pointer]:
+        - generic [ref=e15]: Proyectos comparables
+        - generic [ref=e16]: Competidores y detalle
+      - button "Benchmark distrital Oferta, precios y jugadores" [ref=e17] [cursor=pointer]:
+        - generic [ref=e18]: Benchmark distrital
+        - generic [ref=e19]: Oferta, precios y jugadores
+      - button "Comparador estrategico Posicionamiento lado a lado" [ref=e20] [cursor=pointer]:
+        - generic [ref=e21]: Comparador estrategico
+        - generic [ref=e22]: Posicionamiento lado a lado
+      - button "Checklist comercial Preparacion de campana" [ref=e23] [cursor=pointer]:
+        - generic [ref=e24]: Checklist comercial
+        - generic [ref=e25]: Preparacion de campana
+      - button "Asistente de estrategia Lectura ejecutiva" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: Asistente de estrategia
+        - generic [ref=e28]: Lectura ejecutiva
+      - button "Senales del mercado Cambios y alertas" [ref=e29] [cursor=pointer]:
+        - generic [ref=e30]: Senales del mercado
+        - generic [ref=e31]: Cambios y alertas
+  - generic [ref=e32]:
+    - banner [ref=e33]:
+      - generic [ref=e34]:
+        - paragraph [ref=e35]: Inteligencia comercial inmobiliaria
+        - heading "Radar comercial" [level=1] [ref=e36]
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - generic [ref=e39]: Distrito objetivo
+          - combobox "Distrito objetivo" [ref=e40]:
+            - option "Arequipa"
+            - option "Asia"
+            - option "Ate"
+            - option "Barranco"
+            - option "Bellavista"
+            - option "Breña"
+            - option "Callao"
+            - option "Carabayllo"
+            - option "Casma"
+            - option "Castilla"
+            - option "Catacaos"
+            - option "Cayma"
+            - option "Cercado de lima"
+            - option "Cerro Colorado"
+            - option "Chilca"
+            - option "Chorrillos"
+            - option "Comas"
+            - option "Culebras"
+            - option "Grocio Prado"
+            - option "Independencia"
+            - option "Jesus Maria"
+            - option "Jose Luis Bustamante Y Rivero"
+            - option "La Cruz"
+            - option "La Molina"
+            - option "La Victoria"
+            - option "Lince"
+            - option "Los Olivos"
+            - option "Lurin"
+            - option "Magdalena Del Mar"
+            - option "Mala"
+            - option "Miraflores" [selected]
+            - option "Pimentel"
+            - option "Piura"
+            - option "Pueblo Libre"
+            - option "Rimac"
+            - option "San Bartolo"
+            - option "San Borja"
+            - option "San Isidro"
+            - option "San Juan De Lurigancho"
+            - option "San Luis"
+            - option "San Miguel"
+            - option "Santiago De Surco"
+            - option "Sullana"
+            - option "Surquillo"
+            - option "Tarapoto"
+        - button "Reiniciar escenario" [ref=e41] [cursor=pointer]
+    - main [ref=e42]:
+      - generic [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - generic [ref=e46]: Alta competencia
+            - heading "Miraflores bajo lectura comercial" [level=2] [ref=e47]
+            - paragraph [ref=e48]: Miraflores muestra alta competencia, 90 proyectos visibles y una mediana de S/ 8,992 / m2.
+            - generic [ref=e49]:
+              - strong [ref=e50]: Recomendacion comercial
+              - generic [ref=e51]: Priorizar diferenciacion por ubicacion, entrega y atributos visibles.
+          - generic [ref=e52]:
+            - generic [ref=e57]:
+              - generic [ref=e58]: S/ 7,564 / m2
+              - generic [ref=e59]: Mediana S/ 8,992 / m2
+              - generic [ref=e60]: S/ 9,923 / m2
+            - generic [ref=e61]:
+              - strong [ref=e62]: Benchmark general
+              - generic [ref=e63]: Sin precio objetivo; la lectura se concentra en oferta, presion competitiva y rango del distrito.
+        - generic [ref=e64]:
+          - article [ref=e65]:
+            - generic [ref=e66]: Proyectos comparables
+            - strong [ref=e67]: "90"
+            - generic [ref=e68]: Oferta visible para el escenario
+          - article [ref=e69]:
+            - generic [ref=e70]: Unidades publicadas
+            - strong [ref=e71]: "972"
+            - generic [ref=e72]: Oferta observada en la zona
+          - article [ref=e73]:
+            - generic [ref=e74]: Promedio / m2
+            - strong [ref=e75]: S/ 8,186 / m2
+            - generic [ref=e76]: Referencia comercial del distrito
+          - article [ref=e77]:
+            - generic [ref=e78]: Mediana / m2
+            - strong [ref=e79]: S/ 8,992 / m2
+            - generic [ref=e80]: Punto medio del mercado
+          - article [ref=e81]:
+            - generic [ref=e82]: Inmobiliarias activas
+            - strong [ref=e83]: "57"
+            - generic [ref=e84]: Jugadores con presencia visible
+          - article [ref=e85]:
+            - generic [ref=e86]: Rango competitivo
+            - strong [ref=e87]: S/ 7,564 / m2 - S/ 9,923 / m2
+            - generic [ref=e88]: Banda central de precios
+        - generic [ref=e89]:
+          - generic [ref=e91]:
+            - heading "Planificador de estrategia comercial" [level=2] [ref=e92]
+            - paragraph [ref=e93]: Configura un escenario y contrasta el precio objetivo contra el distrito.
+          - generic [ref=e94]:
+            - generic [ref=e95]:
+              - generic [ref=e96]: Distrito objetivo
+              - combobox "Distrito objetivo" [ref=e97]:
+                - option "Arequipa"
+                - option "Asia"
+                - option "Ate"
+                - option "Barranco"
+                - option "Bellavista"
+                - option "Breña"
+                - option "Callao"
+                - option "Carabayllo"
+                - option "Casma"
+                - option "Castilla"
+                - option "Catacaos"
+                - option "Cayma"
+                - option "Cercado de lima"
+                - option "Cerro Colorado"
+                - option "Chilca"
+                - option "Chorrillos"
+                - option "Comas"
+                - option "Culebras"
+                - option "Grocio Prado"
+                - option "Independencia"
+                - option "Jesus Maria"
+                - option "Jose Luis Bustamante Y Rivero"
+                - option "La Cruz"
+                - option "La Molina"
+                - option "La Victoria"
+                - option "Lince"
+                - option "Los Olivos"
+                - option "Lurin"
+                - option "Magdalena Del Mar"
+                - option "Mala"
+                - option "Miraflores" [selected]
+                - option "Pimentel"
+                - option "Piura"
+                - option "Pueblo Libre"
+                - option "Rimac"
+                - option "San Bartolo"
+                - option "San Borja"
+                - option "San Isidro"
+                - option "San Juan De Lurigancho"
+                - option "San Luis"
+                - option "San Miguel"
+                - option "Santiago De Surco"
+                - option "Sullana"
+                - option "Surquillo"
+                - option "Tarapoto"
+            - generic [ref=e98]:
+              - generic [ref=e99]: Tipo de inmueble
+              - combobox "Tipo de inmueble" [ref=e100]:
+                - option "Todos" [selected]
+                - option "Casa"
+                - option "Departamento"
+                - option "Lote"
+                - option "Oficina"
+            - generic [ref=e101]:
+              - generic [ref=e102]: Dormitorios objetivo
+              - combobox "Dormitorios objetivo" [ref=e103]:
+                - option "Todos" [selected]
+                - option "1"
+                - option "2"
+                - option "3"
+                - option "4"
+                - option "5"
+            - generic [ref=e104]:
+              - generic [ref=e105]: Area estimada m2
+              - spinbutton "Area estimada m2" [ref=e106]
+            - generic [ref=e107]:
+              - generic [ref=e108]: Precio objetivo S/
+              - spinbutton "Precio objetivo S/" [ref=e109]
+            - generic [ref=e110]:
+              - generic [ref=e111]: Entrega
+              - combobox "Entrega" [ref=e112]:
+                - option "Todos" [selected]
+                - option "2019"
+                - option "2022"
+                - option "2023"
+                - option "2024"
+                - option "2025"
+                - option "2026"
+                - option "2027"
+                - option "2028"
+                - option "2029"
+          - generic [ref=e113]:
+            - generic [ref=e114]:
+              - generic [ref=e115]: Precio objetivo / m2
+              - strong [ref=e116]: Sin precio objetivo
+            - generic [ref=e117]:
+              - generic [ref=e118]: Promedio distrito / m2
+              - strong [ref=e119]: S/ 8,186 / m2
+            - generic [ref=e120]:
+              - generic [ref=e121]: Mediana distrito / m2
+              - strong [ref=e122]: S/ 8,992 / m2
+            - generic [ref=e123]:
+              - generic [ref=e124]: Rango competitivo
+              - strong [ref=e125]: S/ 7,564 / m2 - S/ 9,923 / m2
+            - generic [ref=e126]:
+              - generic [ref=e127]: Comparables
+              - strong [ref=e128]: "90"
+            - generic [ref=e129]:
+              - generic [ref=e130]: Inmobiliarias activas
+              - strong [ref=e131]: "57"
+          - generic [ref=e132]:
+            - generic [ref=e133]: Diagnostico
+            - strong [ref=e134]: Miraflores muestra alta presion competitiva.
+            - generic [ref=e135]: Implicancia
+            - paragraph [ref=e136]: Conviene definir precio objetivo y comparar contra la mediana antes de cerrar el mensaje comercial.
+            - generic [ref=e137]: Accion sugerida
+            - paragraph [ref=e138]: Priorizar diferenciacion por ubicacion, entrega y atributos visibles.
+          - generic [ref=e139]:
+            - strong [ref=e140]: Competidores principales
+            - generic [ref=e141]:
+              - generic [ref=e142]: Founder
+              - generic [ref=e143]: Esparq 140
+              - generic [ref=e144]: ASTER REDUCTO
+              - generic [ref=e145]: ROOSEVELT 64
+        - generic [ref=e146]:
+          - generic [ref=e147]:
+            - generic [ref=e148]:
+              - heading "Mapa de posicionamiento" [level=2] [ref=e149]
+              - paragraph [ref=e150]: Precio por m2 frente al area publicada de proyectos comparables.
+            - generic [ref=e151]: 90 comparables
+          - img "Precio por metro cuadrado frente a area" [ref=e153]:
+            - generic [ref=e154]: S/ m2
+            - generic [ref=e155]: Area m2
+            - generic "Arequipa - S/ 8,232 / m2" [ref=e156]
+            - generic "Piknik Park - S/ 7,627 / m2" [ref=e157]
+            - generic "SONHOS - S/ 8,890 / m2" [ref=e158]
+            - generic "Barrio Verde - S/ 6,653 / m2" [ref=e159]
+            - generic "CENTRIK - S/ 9,929 / m2" [ref=e160]
+            - generic "HENKO - S/ 10,436 / m2" [ref=e161]
+            - generic "RAMON ZAVALA II - S/ 9,699 / m2" [ref=e162]
+            - generic "MANDRA - S/ 7,068 / m2" [ref=e163]
+            - generic "PARDO 669 - S/ 14,111 / m2" [ref=e164]
+            - generic "ROSARIO IN - S/ 8,723 / m2" [ref=e165]
+            - generic "LARCO 791 - S/ 11,947 / m2" [ref=e166]
+            - generic "Gracia - S/ 8,571 / m2" [ref=e167]
+            - generic "Central - Apartments La Mar - S/ 9,250 / m2" [ref=e168]
+            - generic "Reducto 1421 - S/ 9,202 / m2" [ref=e169]
+            - generic "Founder - S/ 8,568 / m2" [ref=e170]
+            - generic "OLIVE - S/ 7,788 / m2" [ref=e171]
+            - generic "Abstract - S/ 12,638 / m2" [ref=e172]
+            - generic "PARDO COAST - S/ 9,784 / m2" [ref=e173]
+            - generic "Checor - S/ 9,887 / m2" [ref=e174]
+            - generic "MF Work & Living Apartments - S/ 9,612 / m2" [ref=e175]
+            - generic "Centrix 28 - S/ 9,500 / m2" [ref=e176]
+            - generic "Upper 28 - S/ 11,047 / m2" [ref=e177]
+            - generic "Albamar - S/ 9,568 / m2" [ref=e178]
+            - generic "Milano - 28 de Julio - S/ 9,222 / m2" [ref=e179]
+            - generic "Caserta - S/ 10,413 / m2" [ref=e180]
+            - generic "Casa Paraud - S/ 10,558 / m2" [ref=e181]
+            - generic "Parque Córdova 2 - S/ 3,420 / m2" [ref=e182]
+            - generic "Mendiburu 1290 - S/ 7,543 / m2" [ref=e183]
+            - generic "Urban Heights - S/ 10,478 / m2" [ref=e184]
+            - generic "ROOSEVELT 64 - S/ 10,812 / m2" [ref=e185]
+            - generic "Taller - S/ 10,866 / m2" [ref=e186]
+            - generic "Concepto One Place - S/ 9,102 / m2" [ref=e187]
+            - generic "Esparq 140 - S/ 2,351 / m2" [ref=e188]
+            - generic "Albamar - S/ 9,636 / m2" [ref=e189]
+            - generic "Boloña 256 - S/ 7,181 / m2" [ref=e190]
+            - generic "POP - S/ 10,306 / m2" [ref=e191]
+            - generic "Vanderghen 400 - S/ 3,043 / m2" [ref=e192]
+            - generic "TOMMY - S/ 7,456 / m2" [ref=e193]
+            - generic "SUCRE 45 - S/ 11,591 / m2" [ref=e194]
+            - generic "ESCUDERO - S/ 8,583 / m2" [ref=e195]
+            - generic "ASTER REDUCTO - S/ 9,809 / m2" [ref=e196]
+            - generic "Brick - Reducto 894 - S/ 9,052 / m2" [ref=e197]
+            - generic "BRERA - S/ 2,350 / m2" [ref=e198]
+            - generic "BRISA MIRAFLORES - S/ 8,844 / m2" [ref=e199]
+            - generic "Francisco Del Castillo 252 - S/ 9,032 / m2" [ref=e200]
+            - generic "Vasco Núñez 141 - S/ 3,557 / m2" [ref=e201]
+            - generic "Affinity - S/ 10,673 / m2" [ref=e202]
+            - generic "Atahualpa 448 - S/ 8,463 / m2" [ref=e203]
+            - generic "Pardo 1453 - S/ 11,064 / m2" [ref=e204]
+            - generic "Antonia - S/ 10,070 / m2" [ref=e205]
+            - generic "CATENA - S/ 2,543 / m2" [ref=e206]
+            - generic "Nuvo - S/ 10,208 / m2" [ref=e207]
+            - generic "Monument - S/ 11,020 / m2" [ref=e208]
+            - generic "ACACIAS - S/ 11,175 / m2" [ref=e209]
+            - generic "Riva - S/ 10,078 / m2" [ref=e210]
+            - generic "LUMO - S/ 11,645 / m2" [ref=e211]
+            - generic "Atria - S/ 8,984 / m2" [ref=e212]
+            - generic "Piura - S/ 2,952 / m2" [ref=e213]
+            - generic "Larco 1036 Atemporal Flats Miraflores - S/ 3,125 / m2" [ref=e214]
+            - generic "Pardo 664 - S/ 9,903 / m2" [ref=e215]
+            - generic "Arica 1090 - S/ 3,053 / m2" [ref=e216]
+            - generic "Torre Luxor - S/ 7,243 / m2" [ref=e217]
+            - generic "Barrio Verde 2 - S/ 8,162 / m2" [ref=e218]
+            - generic "Tempus La Paz - S/ 9,375 / m2" [ref=e219]
+            - generic "THE WAVE - S/ 3,291 / m2" [ref=e220]
+            - generic "Éccolo - S/ 7,803 / m2" [ref=e221]
+            - generic "SAMUEL MARQUEZ 231 - S/ 2,725 / m2" [ref=e222]
+            - generic "LIMA 15 - S/ 8,317 / m2" [ref=e223]
+            - generic "VERSIA - S/ 10,000 / m2" [ref=e224]
+            - generic "Oslo Apartments - S/ 2,608 / m2" [ref=e225]
+            - generic "ALMENDRA - S/ 8,252 / m2" [ref=e226]
+            - generic "PARQUE CORREA ELIAS - S/ 2,933 / m2" [ref=e227]
+            - generic "OPHERA - S/ 7,847 / m2" [ref=e228]
+            - generic "Legacy - S/ 10,270 / m2" [ref=e229]
+            - generic "Albamar - S/ 8,704 / m2" [ref=e230]
+            - generic "Áncora - S/ 8,999 / m2" [ref=e231]
+            - generic "Parque Gladiolos - S/ 9,777 / m2" [ref=e232]
+            - generic "Apartamentos Essenziale Miraflores - S/ 8,908 / m2" [ref=e233]
+            - generic "Mirahome - S/ 9,360 / m2" [ref=e234]
+            - generic "Benavides 1361 - S/ 8,144 / m2" [ref=e235]
+            - generic "BOLOGNESI 267 - S/ 9,213 / m2" [ref=e236]
+            - generic "SIENNA - S/ 7,744 / m2" [ref=e237]
+            - generic "Chacaltana 361 - S/ 8,972 / m2" [ref=e238]
+            - generic "PARQUE NU - S/ 9,271 / m2" [ref=e239]
+            - generic "Córdova - S/ 8,411 / m2" [ref=e240]
+            - generic "Merino 190 - S/ 3,395 / m2" [ref=e241]
+            - generic "INDEPENDENCIA & TERUEL - S/ 2,930 / m2" [ref=e242]
+            - generic "Menta - S/ 9,235 / m2" [ref=e243]
+            - generic "San Fernando 455 - S/ 3,430 / m2" [ref=e244]
+            - generic "KILLA - S/ 2,529 / m2" [ref=e245]
+        - generic [ref=e246]:
+          - generic [ref=e247]:
+            - generic [ref=e248]:
+              - heading "Competidores a revisar primero" [level=2] [ref=e249]
+              - paragraph [ref=e250]: Proyectos con mayor cercania por distrito, precio, metraje o dormitorios.
+            - button "Ver comparables" [ref=e251] [cursor=pointer]
+          - generic [ref=e252]:
+            - article [ref=e253]:
+              - generic [ref=e254]:
+                - text: ALERCES INMOBILIARIA
+                - strong [ref=e255]: Founder
+              - generic [ref=e256]:
+                - generic [ref=e257]: S/ 8,568 / m2
+                - generic [ref=e258]: 60.1 m2
+              - paragraph [ref=e259]: Conviene revisar atributos, entrega y financiamiento antes de definir comparacion.
+            - article [ref=e260]:
+              - generic [ref=e261]:
+                - text: ESPARQ EOM
+                - strong [ref=e262]: Esparq 140
+              - generic [ref=e263]:
+                - generic [ref=e264]: S/ 2,351 / m2
+                - generic [ref=e265]: 60.4 m2
+              - paragraph [ref=e266]: Compite por precio frente a la mediana del distrito.
+            - article [ref=e267]:
+              - generic [ref=e268]:
+                - text: ASTER HOMES
+                - strong [ref=e269]: ASTER REDUCTO
+              - generic [ref=e270]:
+                - generic [ref=e271]: S/ 9,809 / m2
+                - generic [ref=e272]: 61.2 m2
+              - paragraph [ref=e273]: Se ubica en rango premium frente al distrito.
+            - article [ref=e274]:
+              - generic [ref=e275]:
+                - text: VIDARQ
+                - strong [ref=e276]: ROOSEVELT 64
+              - generic [ref=e277]:
+                - generic [ref=e278]: S/ 10,812 / m2
+                - generic [ref=e279]: 65.3 m2
+              - paragraph [ref=e280]: Se ubica en rango premium frente al distrito.
+            - article [ref=e281]:
+              - generic [ref=e282]:
+                - text: INVERPLUS
+                - strong [ref=e283]: Apartamentos Essenziale Miraflores
+              - generic [ref=e284]:
+                - generic [ref=e285]: S/ 8,908 / m2
+                - generic [ref=e286]: 68.0 m2
+              - paragraph [ref=e287]: Conviene revisar atributos, entrega y financiamiento antes de definir comparacion.
+        - generic [ref=e288]:
+          - generic [ref=e290]:
+            - heading "Oportunidades y riesgos" [level=2] [ref=e291]
+            - paragraph [ref=e292]: Senales comerciales para preparar la decision de campana.
+          - generic [ref=e293]:
+            - article [ref=e294]:
+              - generic [ref=e295]: Alta presion competitiva
+              - paragraph [ref=e296]: 90 proyectos y 57 inmobiliarias activas en la lectura.
+            - article [ref=e297]:
+              - generic [ref=e298]: Benchmark general
+              - paragraph [ref=e299]: Sin precio objetivo; la lectura se concentra en oferta, presion competitiva y rango del distrito.
+            - article [ref=e300]:
+              - generic [ref=e301]: EDIFICA concentra presencia
+              - paragraph [ref=e302]: 8% de proyectos visibles pertenecen a este jugador.
+            - article [ref=e303]:
+              - generic [ref=e304]: Oferta con entrega inmediata
+              - paragraph [ref=e305]: 17 proyectos pueden competir con urgencia de entrega.

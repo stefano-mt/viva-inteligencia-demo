@@ -1,0 +1,733 @@
+{
+  "metadata": {
+    "captured_at": "2026-05-25T17:33:37.999Z",
+    "run_id": "2026-05-25T17-33-37Z",
+    "dataset_run_id": "2026-05-24T18-37-51Z",
+    "record_count": 714,
+    "mode": "catalog_read_only_no_llm"
+  },
+  "guardrails": {
+    "read_only": true,
+    "sql_execution": false,
+    "external_calls": false,
+    "pii_allowed": false,
+    "tables_allowed": [
+      "multisource_sample_latest",
+      "data/model/*.csv"
+    ],
+    "row_limit_default": 25
+  },
+  "results": [
+    {
+      "id": "Q01",
+      "question": "Cual es el precio por m2 promedio en Miraflores para departamentos de 2 dormitorios?",
+      "answer": {
+        "status": "ok",
+        "data": {
+          "metric": "avg_price_m2_list",
+          "value": 8380.6,
+          "currency": "PEN por m2",
+          "records": 81,
+          "filters": {
+            "district": "Miraflores",
+            "bedrooms": "2",
+            "typology": "Departamento"
+          },
+          "sample_projects": [
+            {
+              "project_name": "Arequipa",
+              "agency_name": "ACTUAL",
+              "district": "Miraflores",
+              "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/arequipa-1988"
+            },
+            {
+              "project_name": "Piknik Park",
+              "agency_name": "SEMBRA INMOBILIARIA",
+              "district": "Miraflores",
+              "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/piknik-park-2417"
+            },
+            {
+              "project_name": "SONHOS",
+              "agency_name": "CONSTRUCTORA INARCO",
+              "district": "Miraflores",
+              "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/sonhos-2490"
+            },
+            {
+              "project_name": "Barrio Verde",
+              "agency_name": "BELGICA EDIFICACIONES",
+              "district": "Miraflores",
+              "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/barrio-verde-2491"
+            },
+            {
+              "project_name": "CENTRIK",
+              "agency_name": "INMOBILIARIA ARES",
+              "district": "Miraflores",
+              "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/centrik-2509"
+            }
+          ]
+        }
+      },
+      "acceptance": "Devuelve precio/m2, conteo y filtros usados; no inventa si no hay muestra.",
+      "passed": true,
+      "elapsed_ms": 2,
+      "guardrails": "read_only_catalog_query; no_sql_execution; no_pii; no_external_calls"
+    },
+    {
+      "id": "Q02",
+      "question": "Que inmobiliarias tienen proyectos activos en Jesus Maria?",
+      "answer": {
+        "status": "ok",
+        "data": {
+          "district": "Jesus Maria",
+          "agencies": [
+            {
+              "agency": "Cygnus Grupo Inmobiliario",
+              "projects": 8,
+              "units": 8
+            },
+            {
+              "agency": "ABRIL GRUPO INMOBILIARIO",
+              "projects": 7,
+              "units": 7
+            },
+            {
+              "agency": "LUGANO",
+              "projects": 4,
+              "units": 4
+            },
+            {
+              "agency": "CIUDARIS",
+              "projects": 3,
+              "units": 155
+            },
+            {
+              "agency": "DITRENZZO",
+              "projects": 3,
+              "units": 44
+            },
+            {
+              "agency": "GRUPO SOL",
+              "projects": 3,
+              "units": 33
+            },
+            {
+              "agency": "BARQUEROS INMOBILIARIA",
+              "projects": 2,
+              "units": 2
+            },
+            {
+              "agency": "BECA INMOBILIARIA",
+              "projects": 2,
+              "units": 44
+            },
+            {
+              "agency": "GRANADERO INMOBILIARIA",
+              "projects": 2,
+              "units": 53
+            },
+            {
+              "agency": "GRUPO MG",
+              "projects": 2,
+              "units": 149
+            },
+            {
+              "agency": "GRUPO TyC",
+              "projects": 2,
+              "units": 128
+            },
+            {
+              "agency": "MAXX GRUPO INMOBILIARIO",
+              "projects": 2,
+              "units": 2
+            },
+            {
+              "agency": "TORATTO GRUPO INMOBILIARIO",
+              "projects": 2,
+              "units": 2
+            },
+            {
+              "agency": "ACTUAL",
+              "projects": 1,
+              "units": 1
+            },
+            {
+              "agency": "ALBAMAR GRUPO INMOBILIARIO",
+              "projects": 1,
+              "units": 2
+            },
+            {
+              "agency": "ARTECO",
+              "projects": 1,
+              "units": 1
+            },
+            {
+              "agency": "BALANCE GRUPO INMOBILIARIO",
+              "projects": 1,
+              "units": 86
+            },
+            {
+              "agency": "BRAZIL GRUPO INMOBILIARIO",
+              "projects": 1,
+              "units": 1
+            },
+            {
+              "agency": "DALIA INMOBILIARIA",
+              "projects": 1,
+              "units": 4
+            },
+            {
+              "agency": "EDIFIKARTE",
+              "projects": 1,
+              "units": 1
+            },
+            {
+              "agency": "FLAT",
+              "projects": 1,
+              "units": 1
+            },
+            {
+              "agency": "FORTEM GESTORA INMOBILIARIA",
+              "projects": 1,
+              "units": 1
+            },
+            {
+              "agency": "HL DESARROLLOS INMOBILIARIOS",
+              "projects": 1,
+              "units": 1
+            },
+            {
+              "agency": "IFI INMOBILIARIA",
+              "projects": 1,
+              "units": 4
+            },
+            {
+              "agency": "INFINITY GROUP",
+              "projects": 1,
+              "units": 1
+            }
+          ],
+          "total_agencies": 37
+        }
+      },
+      "acceptance": "Lista inmobiliarias y numero de proyectos publicados por distrito.",
+      "passed": true,
+      "elapsed_ms": 7,
+      "guardrails": "read_only_catalog_query; no_sql_execution; no_pii; no_external_calls"
+    },
+    {
+      "id": "Q03",
+      "question": "Que proyectos nuevos aparecieron esta semana?",
+      "answer": {
+        "status": "ok",
+        "data": {
+          "since": "2026-05-17T17:26:59.827Z",
+          "latest_snapshot": "2026-05-24T17:26:59.827Z",
+          "projects": [
+            {
+              "project_name": "Costanova",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Alto Metro Park",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En construccion",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Concepto Ocean Breath",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Icaro 164 Chorrillos",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "ALLURE - JESÚS MARÍA",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Torre Nápoles",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "INCA RÍPAC",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En construccion",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "VALLES DE SANTA MARÍA 2",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En construccion",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Pasaje 118 Surco",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "SEIKA",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En construccion",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "VYVE SULLANA",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En construccion",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "ROOTS",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Malena Family Apartments",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En construccion",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Lucca",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "FLAT BELISARIO",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "CATALINA PARK",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "OPEN MARSANO",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "PORTOFINO",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "CUATTRO MAMBO ETAPA III",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "HUB",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Málaga 257",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En construccion",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Residencial Santa Susana",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En construccion",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "RESIDENCIAL RECUAY",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En construccion",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Gran Parque Norte - Etapa 1",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            },
+            {
+              "project_name": "Olivo",
+              "first_seen_at": "2026-05-24T17:26:59.827Z",
+              "status": "En planos",
+              "confidence_score": "100"
+            }
+          ],
+          "note": "El historico local cubre pocos dias; validar con mas snapshots antes de usar como KPI semanal definitivo."
+        }
+      },
+      "acceptance": "Usa first_seen_at del modelo historico; si el historico es corto, lo declara.",
+      "passed": true,
+      "elapsed_ms": 1,
+      "guardrails": "read_only_catalog_query; no_sql_execution; no_pii; no_external_calls"
+    },
+    {
+      "id": "Q04",
+      "question": "Que proyectos tuvieron mayor variacion de precio publicado?",
+      "answer": {
+        "status": "ok",
+        "data": {
+          "projects": [
+            {
+              "project_name": "INCA RÍPAC",
+              "agency_name": "DITRENZZO",
+              "district": "Jesus Maria",
+              "current_list_price": 364516,
+              "latest_history_price": 38720,
+              "delta": 325796,
+              "delta_pct": 841.42,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/jesus-maria/inca-ripac-3902"
+            },
+            {
+              "project_name": "Navarra 360",
+              "agency_name": "EE INMOBILIARIA",
+              "district": "Santiago De Surco",
+              "current_list_price": 749000,
+              "latest_history_price": 163000,
+              "delta": 586000,
+              "delta_pct": 359.51,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/santiago-de-surco/navarra-360-3540"
+            },
+            {
+              "project_name": "Sunny Park - La Molina",
+              "agency_name": "MIRANO",
+              "district": "La Molina",
+              "current_list_price": 738626.45,
+              "latest_history_price": 244182.44,
+              "delta": 494444.01,
+              "delta_pct": 202.49,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/la-molina/sunny-park-la-molina-3445"
+            },
+            {
+              "project_name": "Alba",
+              "agency_name": "ZAFIRA INMOBILIARIA",
+              "district": "San Isidro",
+              "current_list_price": 425000,
+              "latest_history_price": 196000,
+              "delta": 229000,
+              "delta_pct": 116.84,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/san-isidro/alba-3240"
+            },
+            {
+              "project_name": "Raíces",
+              "agency_name": "ZAFIRA INMOBILIARIA",
+              "district": "San Isidro",
+              "current_list_price": 541000,
+              "latest_history_price": 262000,
+              "delta": 279000,
+              "delta_pct": 106.49,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/san-isidro/raices-4139"
+            },
+            {
+              "project_name": "PRAD",
+              "agency_name": "ART INMOBILIARIA",
+              "district": "San Borja",
+              "current_list_price": 0,
+              "latest_history_price": 726875,
+              "delta": -726875,
+              "delta_pct": -100,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/san-borja/prad-3735"
+            },
+            {
+              "project_name": "Bertolotto - Etapa III",
+              "agency_name": "GRUPO TyC",
+              "district": "San Miguel",
+              "current_list_price": 322410.2,
+              "latest_history_price": 588014.7,
+              "delta": -265604.5,
+              "delta_pct": -45.17,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/san-miguel/bertolotto-etapa-iii-2587"
+            },
+            {
+              "project_name": "TINTO",
+              "agency_name": "AVENIR GRUPO INMOBILIARIO",
+              "district": "Magdalena Del Mar",
+              "current_list_price": 290000,
+              "latest_history_price": 395000,
+              "delta": -105000,
+              "delta_pct": -26.58,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/magdalena-del-mar/tinto-4010"
+            },
+            {
+              "project_name": "Atahualpa 448",
+              "agency_name": "FRANCA INMOBILIARIA",
+              "district": "Miraflores",
+              "current_list_price": 698210.53,
+              "latest_history_price": 940736.84,
+              "delta": -242526.31,
+              "delta_pct": -25.78,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/atahualpa-448-3528"
+            },
+            {
+              "project_name": "La Fuente 281",
+              "agency_name": "TALE INMOBILIARIA",
+              "district": "San Isidro",
+              "current_list_price": 382200,
+              "latest_history_price": 512000,
+              "delta": -129800,
+              "delta_pct": -25.35,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/san-isidro/la-fuente-281-3313"
+            },
+            {
+              "project_name": "San Felipe",
+              "agency_name": "ACTUAL",
+              "district": "Jesus Maria",
+              "current_list_price": 482166,
+              "latest_history_price": 390360,
+              "delta": 91806,
+              "delta_pct": 23.52,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/jesus-maria/san-felipe-3060"
+            },
+            {
+              "project_name": "HENKO",
+              "agency_name": "CONSTRUCTORA INARCO",
+              "district": "Miraflores",
+              "current_list_price": 627000,
+              "latest_history_price": 790900,
+              "delta": -163900,
+              "delta_pct": -20.72,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/henko-2570"
+            },
+            {
+              "project_name": "PARQUE FÁTIMA",
+              "agency_name": "AVENIR GRUPO INMOBILIARIO",
+              "district": "Chorrillos",
+              "current_list_price": 210000,
+              "latest_history_price": 260000,
+              "delta": -50000,
+              "delta_pct": -19.23,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/chorrillos/parque-fatima-4012"
+            },
+            {
+              "project_name": "Hernández 1273",
+              "agency_name": "RB GRUPO INMOBILIARIO",
+              "district": "Pueblo Libre",
+              "current_list_price": 239900,
+              "latest_history_price": 290000,
+              "delta": -50100,
+              "delta_pct": -17.28,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/pueblo-libre/hernandez-1273-3198"
+            },
+            {
+              "project_name": "Salaverry",
+              "agency_name": "SEMBRA INMOBILIARIA",
+              "district": "Jesus Maria",
+              "current_list_price": 302600,
+              "latest_history_price": 272340,
+              "delta": 30260,
+              "delta_pct": 11.11,
+              "source_url": "https://nexoinmobiliario.pe/departamentos/jesus-maria/salaverry-3596"
+            }
+          ],
+          "records": 15
+        }
+      },
+      "acceptance": "Usa precio actual vs ultimo precio historico publicado disponible.",
+      "passed": true,
+      "elapsed_ms": 0,
+      "guardrails": "read_only_catalog_query; no_sql_execution; no_pii; no_external_calls"
+    },
+    {
+      "id": "Q05",
+      "question": "Donde hay mayor stock publicado por tipologia?",
+      "answer": {
+        "status": "ok",
+        "data": {
+          "groups": [
+            {
+              "typology": "Departamento",
+              "district": "Cercado de lima",
+              "units": 1658,
+              "projects": 40,
+              "avg_price_m2_list": 6488.48
+            },
+            {
+              "typology": "Departamento",
+              "district": "Miraflores",
+              "units": 972,
+              "projects": 88,
+              "avg_price_m2_list": 8186.02
+            },
+            {
+              "typology": "Departamento",
+              "district": "Chorrillos",
+              "units": 915,
+              "projects": 34,
+              "avg_price_m2_list": 6277.86
+            },
+            {
+              "typology": "Departamento",
+              "district": "Jesus Maria",
+              "units": 863,
+              "projects": 66,
+              "avg_price_m2_list": 8170.13
+            },
+            {
+              "typology": "Departamento",
+              "district": "San Miguel",
+              "units": 791,
+              "projects": 63,
+              "avg_price_m2_list": 6729.9
+            },
+            {
+              "typology": "Departamento",
+              "district": "Surquillo",
+              "units": 787,
+              "projects": 34,
+              "avg_price_m2_list": 7686.51
+            },
+            {
+              "typology": "Departamento",
+              "district": "Lince",
+              "units": 648,
+              "projects": 39,
+              "avg_price_m2_list": 8392.28
+            },
+            {
+              "typology": "Departamento",
+              "district": "Pueblo Libre",
+              "units": 619,
+              "projects": 37,
+              "avg_price_m2_list": 6966.07
+            },
+            {
+              "typology": "Departamento",
+              "district": "Santiago De Surco",
+              "units": 563,
+              "projects": 87,
+              "avg_price_m2_list": 7443.18
+            },
+            {
+              "typology": "Departamento",
+              "district": "La Victoria",
+              "units": 552,
+              "projects": 23,
+              "avg_price_m2_list": 7130.62
+            },
+            {
+              "typology": "Departamento",
+              "district": "Magdalena Del Mar",
+              "units": 538,
+              "projects": 42,
+              "avg_price_m2_list": 7998.38
+            },
+            {
+              "typology": "Departamento",
+              "district": "San Isidro",
+              "units": 281,
+              "projects": 40,
+              "avg_price_m2_list": 8581.7
+            },
+            {
+              "typology": "Departamento",
+              "district": "Barranco",
+              "units": 224,
+              "projects": 14,
+              "avg_price_m2_list": 8673.75
+            },
+            {
+              "typology": "Departamento",
+              "district": "Breña",
+              "units": 190,
+              "projects": 15,
+              "avg_price_m2_list": 6159.27
+            },
+            {
+              "typology": "Departamento",
+              "district": "San Borja",
+              "units": 127,
+              "projects": 24,
+              "avg_price_m2_list": 7929.92
+            },
+            {
+              "typology": "Departamento",
+              "district": "Los Olivos",
+              "units": 5,
+              "projects": 2,
+              "avg_price_m2_list": 5173
+            },
+            {
+              "typology": "Departamento",
+              "district": "San Luis",
+              "units": 3,
+              "projects": 3,
+              "avg_price_m2_list": 6492.14
+            },
+            {
+              "typology": "Departamento",
+              "district": "Bellavista",
+              "units": 3,
+              "projects": 3,
+              "avg_price_m2_list": 5105.79
+            },
+            {
+              "typology": "Departamento",
+              "district": "Cerro Colorado",
+              "units": 3,
+              "projects": 3,
+              "avg_price_m2_list": 4863.27
+            },
+            {
+              "typology": "Casa",
+              "district": "Castilla",
+              "units": 3,
+              "projects": 3,
+              "avg_price_m2_list": 2021.5
+            }
+          ]
+        }
+      },
+      "acceptance": "Agrupa unidades publicadas por tipologia y distrito.",
+      "passed": true,
+      "elapsed_ms": 1,
+      "guardrails": "read_only_catalog_query; no_sql_execution; no_pii; no_external_calls"
+    },
+    {
+      "id": "Q06",
+      "question": "Que fuente tiene mejor cobertura para acabados y areas comunes?",
+      "answer": {
+        "status": "ok",
+        "data": {
+          "field": "amenities",
+          "sources": [
+            {
+              "source": "Nexo Inmobiliario",
+              "records": 714,
+              "coverage_pct": 98.6
+            }
+          ]
+        }
+      },
+      "acceptance": "Compara cobertura del campo amenities por fuente.",
+      "passed": true,
+      "elapsed_ms": 1,
+      "guardrails": "read_only_catalog_query; no_sql_execution; no_pii; no_external_calls"
+    }
+  ],
+  "score": {
+    "passed": 6,
+    "total": 6,
+    "pass_rate": 1
+  }
+}

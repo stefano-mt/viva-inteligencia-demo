@@ -1,0 +1,310 @@
+{
+  "captured_at": "2026-06-11T18:02:05.632Z",
+  "dataset_run_id": "2026-05-24T18-37-51Z",
+  "record_count": 714,
+  "overall_decision": "Go Nexo: scraping tecnico viable y CSV generado segun parametros.",
+  "completeness_pct": {
+    "source": "100%",
+    "captured_at": "100%",
+    "source_url": "100%",
+    "source_type": "100%",
+    "extraction_method": "100%",
+    "project_id": "100%",
+    "project_slug": "100%",
+    "agency_name": "100%",
+    "project_name": "100%",
+    "district": "100%",
+    "province": "100%",
+    "department": "100%",
+    "address": "100%",
+    "latitude": "100%",
+    "longitude": "100%",
+    "sales_start_year": "0%",
+    "delivery_year": "100%",
+    "delivery_date": "100%",
+    "update_date": "100%",
+    "project_phase": "100%",
+    "floor_count": "19%",
+    "parking_count": "3%",
+    "view": "0%",
+    "typology": "100%",
+    "bedrooms": "99%",
+    "bedrooms_min": "99%",
+    "bedrooms_max": "99%",
+    "bathrooms_min": "99%",
+    "bathrooms_max": "99%",
+    "built_area": "0%",
+    "free_area": "0%",
+    "total_area_min": "100%",
+    "total_area_max": "100%",
+    "area_min": "100%",
+    "area_max": "100%",
+    "total_area": "100%",
+    "unit_status": "100%",
+    "unit_count": "100%",
+    "price_min": "100%",
+    "currency": "100%",
+    "list_price_avg": "100%",
+    "sale_price_avg": "0%",
+    "price_per_m2_list": "100%",
+    "price_per_m2_sale": "0%",
+    "sale_year": "0%",
+    "sale_month": "0%",
+    "sale_date": "0%",
+    "income": "99%",
+    "total_m2": "99%",
+    "financing_banks": "100%",
+    "amenities": "99%",
+    "project_description": "100%",
+    "project_contact": "100%",
+    "project_email": "100%",
+    "project_phone": "96%",
+    "project_whatsapp": "98%",
+    "builder_slug": "100%",
+    "builder_description": "100%",
+    "price_history_count": "100%",
+    "latest_price_history_date": "100%",
+    "latest_price_history_from": "100%",
+    "latest_price_history_status": "100%",
+    "visit_count": "0%",
+    "field_confidence": "100%",
+    "missing_required_fields": "1%"
+  },
+  "critical_completeness_pct": {
+    "source_url": "100%",
+    "agency_name": "100%",
+    "project_name": "100%",
+    "district": "100%",
+    "typology": "100%",
+    "bedrooms": "99%",
+    "total_area": "100%",
+    "unit_status": "100%",
+    "unit_count": "100%",
+    "list_price_avg": "100%",
+    "delivery_year": "100%"
+  },
+  "source_breakdown": [
+    {
+      "source": "nexo",
+      "records": 714,
+      "critical_coverage_pct": "100%",
+      "missing_source_url": 0,
+      "missing_project_name": 0
+    }
+  ],
+  "duplicate_candidates": [
+    {
+      "key": "grupo_lar|elant|la_victoria",
+      "count": 2,
+      "projects": [
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Elant",
+          "agency_name": "GRUPO LAR",
+          "district": "La Victoria",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/la-victoria/elant-fase-2-2194"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Elant",
+          "agency_name": "GRUPO LAR",
+          "district": "La Victoria",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/la-victoria/elant-fase-3-3661"
+        }
+      ]
+    },
+    {
+      "key": "grupo_lar|zendai|la_victoria",
+      "count": 2,
+      "projects": [
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Zendai",
+          "agency_name": "GRUPO LAR",
+          "district": "La Victoria",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/la-victoria/zendai-fase-1-2847"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Zendai",
+          "agency_name": "GRUPO LAR",
+          "district": "La Victoria",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/la-victoria/zendai-fase-2-3891"
+        }
+      ]
+    },
+    {
+      "key": "albamar_grupo_inmobiliario|albamar|cercado_de_lima",
+      "count": 4,
+      "projects": [
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Cercado de lima",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/cercado-de-lima/albamar-arenales-2996"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Cercado de lima",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/cercado-de-lima/albamar-re-3385"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Cercado de lima",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/cercado-de-lima/albamar-bea-3684"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Cercado de lima",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/cercado-de-lima/albamar-flex-3953"
+        }
+      ]
+    },
+    {
+      "key": "albamar_grupo_inmobiliario|albamar|miraflores",
+      "count": 3,
+      "projects": [
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Miraflores",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/albamar-o2-3165"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Miraflores",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/albamar-parktown-3250"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Miraflores",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/albamar-move-4088"
+        }
+      ]
+    },
+    {
+      "key": "albamar_grupo_inmobiliario|albamar|surquillo",
+      "count": 2,
+      "projects": [
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Surquillo",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/surquillo/albamar-oasis-3258"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Surquillo",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/surquillo/albamar-aura-3683"
+        }
+      ]
+    },
+    {
+      "key": "albamar_grupo_inmobiliario|albamar|jesus_maria",
+      "count": 2,
+      "projects": [
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Jesus Maria",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/jesus-maria/albamar-paseo-paz-3296"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Jesus Maria",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/jesus-maria/albamar-alma-4086"
+        }
+      ]
+    },
+    {
+      "key": "albamar_grupo_inmobiliario|albamar|chorrillos",
+      "count": 2,
+      "projects": [
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Chorrillos",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/chorrillos/albamar-miralba-3663"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Chorrillos",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/chorrillos/albamar-brisana-3781"
+        }
+      ]
+    },
+    {
+      "key": "albamar_grupo_inmobiliario|albamar|brena",
+      "count": 2,
+      "projects": [
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Breña",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/brena/albamar-quadra-3954"
+        },
+        {
+          "source": "Nexo Inmobiliario",
+          "project_name": "Albamar",
+          "agency_name": "ALBAMAR GRUPO INMOBILIARIO",
+          "district": "Breña",
+          "source_url": "https://nexoinmobiliario.pe/departamentos/brena/albamar-gran-cornejo-4092"
+        }
+      ]
+    }
+  ],
+  "outliers": [
+    {
+      "source": "Nexo Inmobiliario",
+      "project_name": "PRAD",
+      "agency_name": "ART INMOBILIARIA",
+      "list_price_avg": 0,
+      "total_area": 90,
+      "price_per_m2_list": null,
+      "source_url": "https://nexoinmobiliario.pe/departamentos/san-borja/prad-3735"
+    }
+  ],
+  "issues": [
+    {
+      "severity": "medium",
+      "code": "DUPLICATE_CANDIDATES",
+      "field": "project_identity",
+      "detail": "8 claves con posibles duplicados por inmobiliaria/proyecto/distrito."
+    },
+    {
+      "severity": "medium",
+      "code": "NUMERIC_OUTLIERS",
+      "field": "price_area",
+      "detail": "1 registros con precio/area fuera de umbrales preliminares."
+    }
+  ],
+  "acceptance": {
+    "has_records": true,
+    "has_traceability": true,
+    "has_source_matrix": true,
+    "needs_viva_base": true,
+    "needs_legal_review": true
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "viva-inteligencia-prototipo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Prototipo visual interactivo para equipo comercial de Viva Inmobiliaria.",
+  "scripts": {
+    "dev": "node server-static.js",
+    "check": "node --check server-static.js && node --check public/app.js && node --check scripts/build-demo-data.js",
+    "data:build": "node scripts/build-demo-data.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
