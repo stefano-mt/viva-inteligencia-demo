@@ -256,30 +256,6 @@ function renderDashboard() {
       <section class="panel span-7">
         <div class="panel-header">
           <div>
-            <h2>Mapa de posicionamiento</h2>
-            <p>Precio por m2 frente al área publicada de proyectos comparables.</p>
-          </div>
-          <span class="tag neutral">${formatNumber(comparableProjects.length)} comparables</span>
-        </div>
-        ${scatterPlot(comparableProjects.slice(0, 90), state.strategy)}
-      </section>
-
-      <section class="panel span-7">
-        <div class="panel-header">
-          <div>
-            <h2>Competidores a revisar primero</h2>
-            <p>Proyectos con mayor cercanía por distrito, precio, metraje o dormitorios.</p>
-          </div>
-          <button class="text-button" type="button" data-view="projects">Ver comparables</button>
-        </div>
-        <div class="competitor-grid">
-          ${competitors.map((project) => competitorCard(project, "compact")).join("") || emptyState("Sin competidores", "Selecciona otro distrito para ampliar la lectura.")}
-        </div>
-      </section>
-
-      <section class="panel span-5">
-        <div class="panel-header">
-          <div>
             <h2>Oportunidades y riesgos</h2>
             <p>Señales comerciales para preparar la decisión de campaña.</p>
           </div>
@@ -287,6 +263,31 @@ function renderDashboard() {
         <div class="signal-cards">
           ${signals.map((signal) => signalCard(signal)).join("")}
         </div>
+      </section>
+
+      <section class="panel span-12">
+        <div class="panel-header">
+          <div>
+            <h2>Competidores a revisar primero</h2>
+            <p>Proyectos con mayor cercanía por distrito, precio, metraje o dormitorios.</p>
+          </div>
+          <button class="text-button" type="button" data-view="projects">Ver comparables</button>
+        </div>
+        <div class="competitor-grid dashboard-competitors">
+          ${competitors.map((project) => competitorCard(project, "compact")).join("") || emptyState("Sin competidores", "Selecciona otro distrito para ampliar la lectura.")}
+        </div>
+      </section>
+
+      <section class="panel positioning-panel span-12">
+        <div class="panel-header positioning-header">
+          <div>
+            <span class="section-kicker">Lectura competitiva</span>
+            <h2>Mapa de posicionamiento</h2>
+            <p>Compara área, precio por m² y volumen publicado. Explora cada punto para identificar el proyecto y su posición.</p>
+          </div>
+          <span class="tag neutral">${formatNumber(comparableProjects.length)} comparables</span>
+        </div>
+        ${scatterPlot(comparableProjects.slice(0, 90), state.strategy)}
       </section>
     </section>
   `;
@@ -1651,37 +1652,107 @@ function scatterPlot(projects, strategy) {
     return emptyState("Información insuficiente para este cálculo", "Revisa proyectos comparables del distrito.");
   }
 
-  const width = 720;
-  const height = 280;
-  const pad = 34;
+  const width = 1080;
+  const height = 480;
+  const plot = { left: 86, right: 34, top: 38, bottom: 66 };
   const areas = points.map((point) => point.area);
   const prices = points.map((point) => point.ppm);
-  const minArea = Math.min(...areas);
-  const maxArea = Math.max(...areas);
-  const minPrice = Math.min(...prices);
-  const maxPrice = Math.max(...prices);
+  const niceStep = (range, intervals = 5) => {
+    const rough = Math.max(range, 1) / intervals;
+    const power = 10 ** Math.floor(Math.log10(rough));
+    const normalized = rough / power;
+    const factor = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 2.5 ? 2.5 : normalized <= 5 ? 5 : 10;
+    return factor * power;
+  };
+  const axis = (values, intervals = 5) => {
+    const rawMin = Math.min(...values);
+    const rawMax = Math.max(...values);
+    const step = niceStep(rawMax - rawMin, intervals);
+    const min = Math.floor(rawMin / step) * step;
+    const max = Math.ceil(rawMax / step) * step || min + step;
+    const ticks = [];
+    for (let value = min; value <= max + step * 0.01 && ticks.length < 10; value += step) ticks.push(value);
+    return { min, max, step, ticks };
+  };
+  const areaAxis = axis(areas, 6);
+  const priceAxis = axis(prices, 6);
+  const medianArea = percentile(areas, 50);
+  const medianPrice = percentile(prices, 50);
   const targetArea = positiveNumber(strategy.area);
   const targetPriceM2 = getTargetPriceM2(strategy);
-  const x = (value) => pad + ((value - minArea) / Math.max(maxArea - minArea, 1)) * (width - pad * 2);
-  const y = (value) => height - pad - ((value - minPrice) / Math.max(maxPrice - minPrice, 1)) * (height - pad * 2);
+  const x = (value) => plot.left + ((value - areaAxis.min) / Math.max(areaAxis.max - areaAxis.min, 1)) * (width - plot.left - plot.right);
+  const y = (value) => height - plot.bottom - ((value - priceAxis.min) / Math.max(priceAxis.max - priceAxis.min, 1)) * (height - plot.top - plot.bottom);
+  const compactText = (value, length = 34) => {
+    const text = String(value || "No informado");
+    return text.length > length ? `${text.slice(0, length - 1)}…` : text;
+  };
+  const axisPrice = (value) => value >= 1000 ? `S/ ${formatNumber(value / 1000, value % 1000 ? 1 : 0)}k` : `S/ ${formatNumber(value)}`;
 
   return `
     <div class="scatter-wrap">
-      <svg class="scatter-plot" viewBox="0 0 ${width} ${height}" role="img" aria-label="Precio por metro cuadrado frente a área">
-        <line x1="${pad}" y1="${height - pad}" x2="${width - pad}" y2="${height - pad}" class="axis"></line>
-        <line x1="${pad}" y1="${pad}" x2="${pad}" y2="${height - pad}" class="axis"></line>
-        <text x="${pad}" y="18" class="axis-label">S/ m2</text>
-        <text x="${width - 86}" y="${height - 8}" class="axis-label">Área m2</text>
-        ${points.map((point) => `
-          <circle cx="${x(point.area).toFixed(1)}" cy="${y(point.ppm).toFixed(1)}" r="${clamp(Math.sqrt(numberOrZero(point.project.unit_count)) + 4, 4, 12).toFixed(1)}" class="scatter-point">
-            <title>${escapeHtml(point.project.project_name)} - ${priceM2(point.ppm)}</title>
-          </circle>
+      <div class="scatter-meta">
+        <div class="scatter-legend" aria-label="Leyenda del mapa">
+          <span><i class="legend-dot below"></i>En o bajo la mediana</span>
+          <span><i class="legend-dot above"></i>Sobre la mediana</span>
+          <span><i class="legend-bubble"></i>Tamaño = unidades publicadas</span>
+          ${targetArea && targetPriceM2 ? '<span><i class="legend-target"></i>Escenario objetivo</span>' : ""}
+        </div>
+        <p><strong>Referencia:</strong> mediana ${priceM2(medianPrice)} y ${formatNumber(medianArea, 1)} m².</p>
+      </div>
+      <div class="scatter-canvas" tabindex="0" aria-label="Área desplazable del mapa de posicionamiento">
+      <svg class="scatter-plot" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="scatter-title scatter-description">
+        <title id="scatter-title">Mapa de precio por metro cuadrado y área publicada</title>
+        <desc id="scatter-description">Cada círculo representa un proyecto comparable. El tamaño indica unidades publicadas y el color muestra su posición frente a la mediana de precio por metro cuadrado.</desc>
+        ${priceAxis.ticks.map((value) => `
+          <g class="axis-tick">
+            <line x1="${plot.left}" y1="${y(value).toFixed(1)}" x2="${width - plot.right}" y2="${y(value).toFixed(1)}" class="grid-line"></line>
+            <text x="${plot.left - 13}" y="${(y(value) + 4).toFixed(1)}" text-anchor="end" class="tick-label">${axisPrice(value)}</text>
+          </g>
         `).join("")}
+        ${areaAxis.ticks.map((value) => `
+          <g class="axis-tick">
+            <line x1="${x(value).toFixed(1)}" y1="${plot.top}" x2="${x(value).toFixed(1)}" y2="${height - plot.bottom}" class="grid-line"></line>
+            <text x="${x(value).toFixed(1)}" y="${height - plot.bottom + 25}" text-anchor="middle" class="tick-label">${formatNumber(value)}</text>
+          </g>
+        `).join("")}
+        <line x1="${plot.left}" y1="${height - plot.bottom}" x2="${width - plot.right}" y2="${height - plot.bottom}" class="axis"></line>
+        <line x1="${plot.left}" y1="${plot.top}" x2="${plot.left}" y2="${height - plot.bottom}" class="axis"></line>
+        <line x1="${plot.left}" y1="${y(medianPrice).toFixed(1)}" x2="${width - plot.right}" y2="${y(medianPrice).toFixed(1)}" class="median-line"></line>
+        <line x1="${x(medianArea).toFixed(1)}" y1="${plot.top}" x2="${x(medianArea).toFixed(1)}" y2="${height - plot.bottom}" class="median-line"></line>
+        <text x="${plot.left}" y="22" class="axis-label">Precio por m² (S/)</text>
+        <text x="${width - plot.right}" y="${height - 12}" text-anchor="end" class="axis-label">Área publicada (m²)</text>
+        <text x="${width - plot.right - 6}" y="${(y(medianPrice) - 8).toFixed(1)}" text-anchor="end" class="median-label">Mediana de precio</text>
+        <text x="${(x(medianArea) + 8).toFixed(1)}" y="${plot.top + 15}" class="median-label">Mediana de área</text>
+        ${points.map((point) => {
+          const cx = x(point.area);
+          const cy = y(point.ppm);
+          const radius = clamp(Math.sqrt(numberOrZero(point.project.unit_count)) + 4, 5, 13);
+          const tooltipWidth = 260;
+          const tooltipHeight = 88;
+          const tooltipX = cx > width - plot.right - tooltipWidth - 18 ? cx - tooltipWidth - 14 : cx + 14;
+          const tooltipY = cy < plot.top + tooltipHeight + 14 ? cy + 14 : cy - tooltipHeight - 14;
+          const units = numberOrZero(point.project.unit_count);
+          const ariaLabel = `${point.project.project_name || "Proyecto no informado"}, ${priceM2(point.ppm)}, ${formatNumber(point.area, 1)} metros cuadrados, ${units ? `${formatNumber(units)} unidades publicadas` : "unidades no informadas"}, ${point.project.agency_name || "inmobiliaria no informada"}`;
+          return `
+            <g class="scatter-node ${point.ppm > medianPrice ? "above" : "below"}">
+              <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${Math.max(radius + 7, 16).toFixed(1)}" class="scatter-hit" tabindex="0" focusable="true" role="img" aria-label="${escapeAttr(ariaLabel)}"></circle>
+              <circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${radius.toFixed(1)}" class="scatter-point"></circle>
+              <g class="scatter-tooltip" transform="translate(${tooltipX.toFixed(1)} ${tooltipY.toFixed(1)})">
+                <rect width="${tooltipWidth}" height="${tooltipHeight}" rx="9"></rect>
+                <text x="14" y="22" class="tooltip-title">${escapeHtml(compactText(point.project.project_name))}</text>
+                <text x="14" y="45" class="tooltip-value">${priceM2(point.ppm)} · ${formatNumber(point.area, 1)} m² · ${units ? `${formatNumber(units)} unid.` : "Sin unidades"}</text>
+                <text x="14" y="68" class="tooltip-meta">${escapeHtml(compactText(point.project.agency_name, 26))} · ${escapeHtml(point.project.district || "Sin distrito")}</text>
+              </g>
+            </g>
+          `;
+        }).join("")}
         ${targetArea && targetPriceM2 ? `
           <circle cx="${x(targetArea).toFixed(1)}" cy="${y(targetPriceM2).toFixed(1)}" r="9" class="target-point"></circle>
-          <text x="${clamp(x(targetArea) + 12, 48, width - 110).toFixed(1)}" y="${clamp(y(targetPriceM2) - 10, 24, height - 42).toFixed(1)}" class="target-label">Objetivo</text>
+          <text x="${clamp(x(targetArea) + 14, plot.left, width - 120).toFixed(1)}" y="${clamp(y(targetPriceM2) - 12, 24, height - plot.bottom).toFixed(1)}" class="target-label">Objetivo</text>
         ` : ""}
       </svg>
+      </div>
+      <p class="scatter-help">Pasa el puntero o usa Tab para consultar cada proyecto. Las líneas discontinuas marcan las medianas del escenario.</p>
     </div>
   `;
 }
