@@ -129,18 +129,30 @@ select {
 
 .brand-block {
   display: grid;
-  grid-template-columns: 66px minmax(0, 1fr);
+  grid-template-columns: 86px minmax(0, 1fr);
   gap: 10px;
   align-items: center;
 }
 
-.brand-mark {
-  color: var(--teal-bright);
-  font-family: "Arial Narrow", "Aptos Display", "Segoe UI", sans-serif;
-  font-size: 25px;
-  font-weight: 900;
-  letter-spacing: -1.5px;
-  line-height: 1;
+.brand-logo {
+  position: relative;
+  width: 86px;
+  height: 36px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #eaeaea;
+}
+
+.brand-logo img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 86px;
+  height: 86px;
+  display: block;
+  max-width: none;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
 }
 
 .brand-block strong,

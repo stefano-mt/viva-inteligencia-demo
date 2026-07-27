@@ -119,7 +119,14 @@ function render() {
       <aside class="sidebar" id="primary-sidebar" aria-label="Navegación de Viva Inteligencia">
         <div class="sidebar-header">
           <div class="brand-block">
-            <div class="brand-mark" aria-hidden="true">VIVA</div>
+            <span class="brand-logo">
+              <img
+                src="assets/viva-negocio-inmobiliario-logo.jpg"
+                alt="VIVA"
+                width="200"
+                height="200"
+              />
+            </span>
             <div>
               <strong>Inteligencia Comercial</strong>
               <span>Viva Inmobiliaria</span>
