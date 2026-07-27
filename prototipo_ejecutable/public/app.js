@@ -1,6 +1,7 @@
 const state = {
   data: null,
   view: "dashboard",
+  mobileNavOpen: false,
   selectedDistrict: "",
   strategy: {
     district: "",
@@ -25,13 +26,13 @@ const state = {
 };
 
 const views = [
-  { id: "dashboard", label: "Radar comercial", hint: "Decisión del distrito" },
-  { id: "projects", label: "Proyectos comparables", hint: "Competidores y detalle" },
-  { id: "market", label: "Benchmark distrital", hint: "Oferta, precios y jugadores" },
-  { id: "compare", label: "Comparador estratégico", hint: "Posicionamiento lado a lado" },
-  { id: "trust", label: "Checklist comercial", hint: "Preparación de campaña" },
-  { id: "assistant", label: "Asistente de estrategia", hint: "Lectura ejecutiva" },
-  { id: "activity", label: "Señales del mercado", hint: "Cambios y alertas" },
+  { id: "dashboard", label: "Radar comercial", hint: "Decisión del distrito", group: "Análisis" },
+  { id: "projects", label: "Proyectos comparables", hint: "Competidores y detalle", group: "Análisis" },
+  { id: "market", label: "Benchmark distrital", hint: "Oferta, precios y jugadores", group: "Análisis" },
+  { id: "compare", label: "Comparador estratégico", hint: "Posicionamiento lado a lado", group: "Análisis" },
+  { id: "trust", label: "Checklist comercial", hint: "Preparación de campaña", group: "Decisión" },
+  { id: "assistant", label: "Asistente de estrategia", hint: "Lectura ejecutiva", group: "Decisión" },
+  { id: "activity", label: "Señales del mercado", hint: "Cambios y alertas", group: "Decisión" },
 ];
 
 const legacyRoutes = {
@@ -65,7 +66,15 @@ async function init() {
     initializeScenario();
     window.addEventListener("hashchange", () => {
       state.view = viewFromHash();
+      state.mobileNavOpen = false;
       render();
+    });
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && state.mobileNavOpen) {
+        state.mobileNavOpen = false;
+        render();
+        document.getElementById("menu-toggle")?.focus();
+      }
     });
     render();
   } catch (error) {
@@ -104,32 +113,52 @@ function render() {
   }[state.view]?.() ?? renderDashboard();
 
   root.innerHTML = `
-    <div class="app-shell">
-      <aside class="sidebar">
-        <div class="brand-block">
-          <div class="brand-mark">VI</div>
-          <div>
-            <strong>Viva Inteligencia</strong>
-            <span>Estrategia comercial</span>
+    <a class="skip-link" href="#main-content">Ir al contenido principal</a>
+    <div class="app-shell ${state.mobileNavOpen ? "nav-is-open" : ""}">
+      <button class="nav-scrim" type="button" data-nav-close aria-label="Cerrar navegación"></button>
+      <aside class="sidebar" id="primary-sidebar" aria-label="Navegación de Viva Inteligencia">
+        <div class="sidebar-header">
+          <div class="brand-block">
+            <div class="brand-mark" aria-hidden="true">VIVA</div>
+            <div>
+              <strong>Inteligencia Comercial</strong>
+              <span>Viva Inmobiliaria</span>
+            </div>
           </div>
+          <button class="icon-button sidebar-close" type="button" data-nav-close aria-label="Cerrar menú">
+            ${interfaceIcon("close")}
+          </button>
         </div>
-        <nav class="nav-list" aria-label="Modulos principales">
-          ${views.map((view) => `
-            <button class="nav-item ${state.view === view.id ? "active" : ""}" type="button" data-view="${escapeAttr(view.id)}">
-              <span>${escapeHtml(view.label)}</span>
-              <small>${escapeHtml(view.hint)}</small>
-            </button>
+        <nav class="nav-list" aria-label="Módulos principales">
+          ${["Análisis", "Decisión"].map((group) => `
+            <section class="nav-section" aria-labelledby="nav-${escapeAttr(normalizeSearch(group))}">
+              <p class="nav-section-label" id="nav-${escapeAttr(normalizeSearch(group))}">${escapeHtml(group)}</p>
+              ${views.filter((view) => view.group === group).map((view) => `
+                <button
+                  class="nav-item ${state.view === view.id ? "active" : ""}"
+                  type="button"
+                  data-view="${escapeAttr(view.id)}"
+                  ${state.view === view.id ? 'aria-current="page"' : ""}
+                >
+                  <span class="nav-icon" aria-hidden="true">${viewIcon(view.id)}</span>
+                  <span class="nav-copy">
+                    <strong>${escapeHtml(view.label)}</strong>
+                    <small>${escapeHtml(view.hint)}</small>
+                  </span>
+                </button>
+              `).join("")}
+            </section>
           `).join("")}
         </nav>
         <div class="sidebar-footer">
-          <span>Última lectura disponible</span>
+          <span>Datos actualizados</span>
           <strong>${escapeHtml(formatDate(metadataDate()))}</strong>
           <small>${formatNumber(getProjects().length)} proyectos observados</small>
         </div>
       </aside>
       <div class="workspace">
         ${renderTopbar()}
-        <main class="content">${content}</main>
+        <main class="content" id="main-content" tabindex="-1">${content}</main>
       </div>
     </div>
   `;
@@ -141,9 +170,24 @@ function render() {
 function renderTopbar() {
   return `
     <header class="topbar">
-      <div>
-        <p class="eyebrow">Inteligencia comercial inmobiliaria</p>
-        <h1>${escapeHtml(activeView().label)}</h1>
+      <div class="topbar-heading">
+        <button
+          class="icon-button menu-toggle"
+          id="menu-toggle"
+          type="button"
+          aria-controls="primary-sidebar"
+          aria-expanded="${state.mobileNavOpen ? "true" : "false"}"
+          aria-label="Abrir menú principal"
+        >
+          ${interfaceIcon("menu")}
+        </button>
+        <div>
+          <p class="eyebrow">Viva Inteligencia / ${escapeHtml(activeView().group)}</p>
+          <div class="title-row">
+            <h1>${escapeHtml(activeView().label)}</h1>
+            <span class="view-context">${escapeHtml(activeView().hint)}</span>
+          </div>
+        </div>
       </div>
       <div class="topbar-actions">
         <label class="field-control compact-control" for="top-district">
@@ -732,7 +776,26 @@ function renderActivity() {
 function bindEvents() {
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
-      window.location.hash = button.dataset.view;
+      const nextView = button.dataset.view;
+      state.mobileNavOpen = false;
+      if (viewFromHash() === nextView) {
+        render();
+      } else {
+        window.location.hash = nextView;
+      }
+    });
+  });
+
+  document.getElementById("menu-toggle")?.addEventListener("click", () => {
+    state.mobileNavOpen = true;
+    render();
+    document.querySelector(".sidebar-close")?.focus();
+  });
+  document.querySelectorAll("[data-nav-close]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.mobileNavOpen = false;
+      render();
+      document.getElementById("menu-toggle")?.focus();
     });
   });
 
@@ -1651,6 +1714,26 @@ function defaultDistrict() {
 
 function activeView() {
   return views.find((view) => view.id === state.view) ?? views[0];
+}
+
+function viewIcon(view) {
+  const icons = {
+    dashboard: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle><path d="M12 4v2M20 12h-2M12 20v-2M4 12h2"></path></svg>',
+    projects: '<svg viewBox="0 0 24 24"><path d="M4 20V8l7-4v16M11 9h9v11M7 11h1M7 15h1M14 12h2M14 16h2"></path></svg>',
+    market: '<svg viewBox="0 0 24 24"><path d="M5 19V9M12 19V5M19 19v-7M3 19h18"></path></svg>',
+    compare: '<svg viewBox="0 0 24 24"><path d="M7 7h12l-3-3M19 7l-3 3M17 17H5l3-3M5 17l3 3"></path></svg>',
+    trust: '<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.6-2.9 7.8-7 10-4.1-2.2-7-5.4-7-10V6l7-3zM8.5 12l2.2 2.2 4.8-5"></path></svg>',
+    assistant: '<svg viewBox="0 0 24 24"><path d="M6 5h12a3 3 0 013 3v7a3 3 0 01-3 3h-6l-4 3v-3H6a3 3 0 01-3-3V8a3 3 0 013-3zM8 11h.01M12 11h.01M16 11h.01"></path></svg>',
+    activity: '<svg viewBox="0 0 24 24"><path d="M3 12h4l2-6 4 12 2-6h6"></path></svg>',
+  };
+  return icons[view] ?? icons.dashboard;
+}
+
+function interfaceIcon(icon) {
+  if (icon === "close") {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>';
 }
 
 function viewFromHash() {
