@@ -18,6 +18,7 @@ const state = {
     query: "",
     sort: "direct",
   },
+  projectLimit: 18,
   selectedProjectId: null,
   compareProjectIds: [],
   compareQuery: "",
@@ -52,6 +53,44 @@ const suggestedQuestions = [
   "¿Dónde conviene enfocar una campaña de lanzamiento?",
   "¿Qué atributos debería destacar frente a competidores?",
 ];
+
+const sectionGuides = {
+  dashboard: {
+    purpose: "Convierte un escenario de distrito, precio y producto en una recomendación comercial inicial.",
+    steps: ["Define el escenario", "Lee el diagnóstico y sus riesgos", "Contrasta competidores y posicionamiento"],
+    outcome: "Una hipótesis comercial priorizada para continuar el análisis.",
+  },
+  projects: {
+    purpose: "Encuentra proyectos comparables y revisa el detalle que sustenta su cercanía competitiva.",
+    steps: ["Filtra la oferta", "Selecciona un proyecto", "Revisa precio, atributos y fuente"],
+    outcome: "Una lista corta de competidores con evidencia visible.",
+  },
+  market: {
+    purpose: "Explica la presión competitiva de un distrito y la compara con otras zonas.",
+    steps: ["Elige el distrito", "Revisa oferta y jugadores", "Explora las zonas del mapa conceptual"],
+    outcome: "Una lectura de mercado para priorizar distritos y referencias de precio.",
+  },
+  compare: {
+    purpose: "Compara dos o tres proyectos con los mismos criterios para evitar decisiones por intuición.",
+    steps: ["Busca comparables", "Selecciona hasta tres", "Revisa diferencias y conclusión"],
+    outcome: "Una posición relativa clara en precio, área, unidades y atributos.",
+  },
+  trust: {
+    purpose: "Valida si el escenario está listo para convertirse en argumento y campaña comercial.",
+    steps: ["Confirma precio", "Revisa competencia y mensaje", "Prioriza riesgos y siguiente acción"],
+    outcome: "Un checklist accionable antes de activar la campaña.",
+  },
+  assistant: {
+    purpose: "Transforma una pregunta comercial en una lectura ejecutiva basada en el escenario activo.",
+    steps: ["Elige o redacta una pregunta", "Genera la lectura", "Valida referencias y cautelas"],
+    outcome: "Una recomendación resumida para discusión y toma de decisión.",
+  },
+  activity: {
+    purpose: "Resume cambios del mercado y prepara los temas de la reunión comercial semanal.",
+    steps: ["Revisa señales recientes", "Identifica impacto", "Lleva prioridades a gerencia"],
+    outcome: "Una agenda semanal enfocada en movimientos que requieren seguimiento.",
+  },
+};
 
 const root = document.getElementById("root");
 let restoreFocus = null;
@@ -165,7 +204,10 @@ function render() {
       </aside>
       <div class="workspace">
         ${renderTopbar()}
-        <main class="content" id="main-content" tabindex="-1">${content}</main>
+        <main class="content" id="main-content" tabindex="-1">
+          ${renderSectionGuide(state.view)}
+          ${content}
+        </main>
       </div>
     </div>
   `;
@@ -259,6 +301,7 @@ function renderDashboard() {
             <h2>Oportunidades y riesgos</h2>
             <p>Señales comerciales para preparar la decisión de campaña.</p>
           </div>
+          ${componentHelp("Oportunidades y riesgos", "Prioriza señales que pueden fortalecer o presionar el escenario. Empieza por las alertas y conviértelas en preguntas para el comparador.")}
         </div>
         <div class="signal-cards">
           ${signals.map((signal) => signalCard(signal)).join("")}
@@ -271,7 +314,11 @@ function renderDashboard() {
             <h2>Competidores a revisar primero</h2>
             <p>Proyectos con mayor cercanía por distrito, precio, metraje o dormitorios.</p>
           </div>
-          <button class="text-button" type="button" data-view="projects">Ver comparables</button>
+          ${panelActions(
+            '<button class="text-button" type="button" data-view="projects">Revisar comparables</button>',
+            "Competidores prioritarios",
+            "Muestra los proyectos más cercanos al escenario por precio, metraje, dormitorios y ubicación. Úsalos como primera lista de revisión."
+          )}
         </div>
         <div class="competitor-grid dashboard-competitors">
           ${competitors.map((project) => competitorCard(project, "compact")).join("") || emptyState("Sin competidores", "Selecciona otro distrito para ampliar la lectura.")}
@@ -285,7 +332,11 @@ function renderDashboard() {
             <h2>Mapa de posicionamiento</h2>
             <p>Compara área, precio por m² y volumen publicado. Explora cada punto para identificar el proyecto y su posición.</p>
           </div>
-          <span class="tag neutral">${formatNumber(comparableProjects.length)} comparables</span>
+          ${panelActions(
+            `<span class="tag neutral">${formatNumber(comparableProjects.length)} comparables</span>`,
+            "Mapa de posicionamiento",
+            "Cada punto es un proyecto. El eje horizontal representa área, el vertical precio por m² y el tamaño del círculo las unidades publicadas."
+          )}
         </div>
         ${scatterPlot(comparableProjects.slice(0, 90), state.strategy)}
       </section>
@@ -304,6 +355,7 @@ function renderStrategyPlanner(benchmark, comparableProjects) {
         <h2>Planificador de estrategia comercial</h2>
         <p>Configura un escenario y contrasta el precio objetivo contra el distrito.</p>
       </div>
+      ${componentHelp("Planificador", "Completa solo los criterios que ya conoces. El sistema recalcula comparables, precio por m² y recomendación con cada cambio.")}
     </div>
     <div class="planner-form">
       <label class="field-control" for="strategy-district">
@@ -332,14 +384,19 @@ function renderStrategyPlanner(benchmark, comparableProjects) {
       </label>
     </div>
 
-    <div class="planner-results">
+    <div class="planner-results primary-results">
       ${miniMetric("Precio objetivo / m2", targetPriceM2 ? priceM2(targetPriceM2) : "Sin precio objetivo")}
       ${miniMetric("Promedio distrito / m2", priceM2(benchmark.avgPriceM2))}
-      ${miniMetric("Mediana distrito / m2", priceM2(benchmark.medianPriceM2))}
       ${miniMetric("Rango competitivo", formatRange(benchmark.lowPriceM2, benchmark.highPriceM2))}
-      ${miniMetric("Comparables", formatNumber(comparableProjects.length))}
-      ${miniMetric("Inmobiliarias activas", formatNumber(benchmark.agencies))}
     </div>
+    <details class="secondary-metrics">
+      <summary>Ver referencias adicionales</summary>
+      <div class="planner-results">
+        ${miniMetric("Mediana distrito / m2", priceM2(benchmark.medianPriceM2))}
+        ${miniMetric("Comparables", formatNumber(comparableProjects.length))}
+        ${miniMetric("Inmobiliarias activas", formatNumber(benchmark.agencies))}
+      </div>
+    </details>
 
     <div class="recommendation-card ${recommendation.tone}">
       <span>Diagnóstico</span>
@@ -371,7 +428,11 @@ function renderProjects() {
             <h2>Explorador de competidores</h2>
             <p>Revisa proyectos por distrito, precio, metraje, etapa y cercanía al escenario.</p>
           </div>
-          <span class="tag neutral">${formatNumber(projects.length)} resultados</span>
+          ${panelActions(
+            `<span class="tag neutral">${formatNumber(projects.length)} resultados</span>`,
+            "Explorador de competidores",
+            "Filtra primero y luego selecciona una tarjeta. El detalle de la derecha explica por qué el proyecto puede competir con tu escenario."
+          )}
         </div>
         <div class="local-controls">
           <label class="field-control" for="project-district">
@@ -408,8 +469,14 @@ function renderProjects() {
           </label>
         </div>
         <div class="project-card-list">
-          ${projects.slice(0, 80).map((project) => projectListCard(project, selected?.id === project.id)).join("") || emptyState("Sin proyectos", "Ajusta filtros o cambia de distrito para revisar comparables.")}
+          ${projects.slice(0, state.projectLimit).map((project) => projectListCard(project, selected?.id === project.id)).join("") || emptyState("Sin proyectos", "Ajusta filtros o cambia de distrito para revisar comparables.")}
         </div>
+        ${projects.length > state.projectLimit ? `
+          <div class="catalog-footer">
+            <span>Mostrando ${formatNumber(state.projectLimit)} de ${formatNumber(projects.length)} proyectos</span>
+            <button class="secondary-button" id="load-more-projects" type="button">Ver 18 más</button>
+          </div>
+        ` : ""}
       </section>
       <aside class="detail-panel">
         ${selected ? renderProjectDetail(selected) : emptyState("Sin detalle", "Selecciona un proyecto comparable.")}
@@ -426,9 +493,12 @@ function renderProjectDetail(project) {
 
   return `
     <div class="detail-header">
-      <div class="detail-kicker">
-        <span class="tag success">${escapeHtml(project.district || "Distrito no disponible")}</span>
-        <span class="tag neutral">${escapeHtml(project.project_phase || "Fase no disponible")}</span>
+      <div class="detail-header-row">
+        <div class="detail-kicker">
+          <span class="tag success">${escapeHtml(project.district || "Distrito no disponible")}</span>
+          <span class="tag neutral">${escapeHtml(project.project_phase || "Fase no disponible")}</span>
+        </div>
+        ${componentHelp("Detalle del proyecto", "Resume evidencia visible del comparable seleccionado. Contrasta precio, área y atributos antes de abrir la publicación original.")}
       </div>
       <h2>${escapeHtml(project.project_name || "Proyecto sin nombre")}</h2>
       <p>${escapeHtml(project.agency_name || "Inmobiliaria no registrada")}</p>
@@ -465,7 +535,7 @@ function renderProjectDetail(project) {
       <div class="chip-list muted-chips">${toArray(project.financing_banks).slice(0, 8).map(chip).join("") || chip("No registrado para este proyecto")}</div>
     </div>
     <div class="detail-section">
-      <h3>Publicacion</h3>
+      <h3>Publicación</h3>
       ${url ? `<a class="text-link" href="${escapeAttr(url)}" target="_blank" rel="noreferrer">Abrir fuente visible</a>` : `<p>No disponible en la información visible.</p>`}
     </div>
   `;
@@ -503,24 +573,34 @@ function renderMarket() {
         ${kpiCard("Rango competitivo", formatRange(selectedBenchmark.lowPriceM2, selectedBenchmark.highPriceM2), "Banda central observada")}
       </div>
 
-      <section class="panel span-5">
+      <section class="panel span-12 market-ranking">
         <div class="panel-header">
           <div>
             <h2>Ranking de distritos</h2>
             <p>Zonas con mayor oferta visible para benchmark comercial.</p>
           </div>
+          ${componentHelp("Ranking de distritos", "Ordena las zonas por oferta visible. Selecciona una fila para cambiar el distrito activo y actualizar toda la lectura.")}
         </div>
         <div class="bar-list">
-          ${districts.slice(0, 12).map((row) => barRow(row.district, row.projects, districts[0]?.projects ?? 1, `${formatNumber(row.projects)} proyectos`, priceM2(row.medianPriceM2), "data-district-chip")).join("")}
+          ${districts.slice(0, 8).map((row) => barRow(row.district, row.projects, districts[0]?.projects ?? 1, `${formatNumber(row.projects)} proyectos`, priceM2(row.medianPriceM2), "data-district-chip")).join("")}
         </div>
+        ${districts.length > 8 ? `
+          <details class="content-expander">
+            <summary>Ver ${formatNumber(Math.min(districts.length, 12) - 8)} distritos adicionales</summary>
+            <div class="bar-list">
+              ${districts.slice(8, 12).map((row) => barRow(row.district, row.projects, districts[0]?.projects ?? 1, `${formatNumber(row.projects)} proyectos`, priceM2(row.medianPriceM2), "data-district-chip")).join("")}
+            </div>
+          </details>
+        ` : ""}
       </section>
 
-      <section class="panel span-7">
+      <section class="panel span-12 market-depth">
         <div class="panel-header">
           <div>
             <h2>Lectura profunda del distrito</h2>
             <p>Composición de oferta, inmobiliarias activas y proyectos representativos.</p>
           </div>
+          ${componentHelp("Lectura profunda", "Separa la oferta por fase y muestra quiénes concentran presencia. Los proyectos inferiores funcionan como referencias concretas.")}
         </div>
         <div class="district-grid">
           <div class="phase-stack">
@@ -543,10 +623,19 @@ function renderMarket() {
             <h2>Mapa conceptual de presión competitiva</h2>
             <p>Cada bloque resume oferta, precio medio y presencia por distrito.</p>
           </div>
+          ${componentHelp("Presión competitiva", "Los bloques más intensos concentran mayor oferta visible. Selecciona uno para llevar ese distrito al benchmark.")}
         </div>
         <div class="heat-grid">
-          ${districts.slice(0, 24).map((row) => districtTile(row, districts[0]?.projects ?? 1)).join("")}
+          ${districts.slice(0, 9).map((row) => districtTile(row, districts[0]?.projects ?? 1)).join("")}
         </div>
+        ${districts.length > 9 ? `
+          <details class="content-expander">
+            <summary>Explorar ${formatNumber(Math.min(districts.length, 24) - 9)} distritos adicionales</summary>
+            <div class="heat-grid">
+              ${districts.slice(9, 24).map((row) => districtTile(row, districts[0]?.projects ?? 1)).join("")}
+            </div>
+          </details>
+        ` : ""}
       </section>
     </section>
   `;
@@ -565,7 +654,11 @@ function renderCompare() {
             <h2>Selecciona 2 o 3 proyectos</h2>
             <p>Prioriza comparables directos para decidir posicionamiento comercial.</p>
           </div>
-          <span class="tag neutral">${formatNumber(selected.length)} seleccionados</span>
+          ${panelActions(
+            `<span class="tag neutral">${formatNumber(selected.length)} seleccionados</span>`,
+            "Selección de comparables",
+            "Elige entre dos y tres proyectos del mismo escenario. Una selección pequeña hace que las diferencias sean más fáciles de interpretar."
+          )}
         </div>
         <div class="local-controls single-row">
           <label class="field-control search-control" for="compare-query">
@@ -574,8 +667,16 @@ function renderCompare() {
           </label>
         </div>
         <div class="compare-candidates">
-          ${candidates.slice(0, 18).map((project) => compareCandidate(project, selected.some((item) => item.id === project.id))).join("") || emptyState("Sin candidatos", "Cambia el distrito objetivo para revisar otros proyectos.")}
+          ${candidates.slice(0, 9).map((project) => compareCandidate(project, selected.some((item) => item.id === project.id))).join("") || emptyState("Sin candidatos", "Cambia el distrito objetivo para revisar otros proyectos.")}
         </div>
+        ${candidates.length > 9 ? `
+          <details class="content-expander">
+            <summary>Ver ${formatNumber(Math.min(candidates.length, 18) - 9)} comparables adicionales</summary>
+            <div class="compare-candidates">
+              ${candidates.slice(9, 18).map((project) => compareCandidate(project, selected.some((item) => item.id === project.id))).join("")}
+            </div>
+          </details>
+        ` : ""}
       </section>
 
       <section class="panel compare-board">
@@ -584,6 +685,7 @@ function renderCompare() {
             <h2>Posicionamiento lado a lado</h2>
             <p>Compara precio, metraje, etapa, entrega y atributos visibles.</p>
           </div>
+          ${componentHelp("Comparación lado a lado", "Busca diferencias relevantes, no solo el menor valor. La conclusión final resume la posición relativa de la selección.")}
         </div>
         ${selected.length >= 2 ? `
           <div class="comparison-cards">
@@ -632,34 +734,49 @@ function renderChecklist() {
         <button class="primary-button" type="button" data-view="compare">Revisar comparador</button>
       </section>
 
-      <section class="check-block span-6">
-        <h2>Precio y posicionamiento</h2>
+      <section class="check-block workflow-step span-12">
+        <div class="check-block-title">
+          <div><span class="step-label">Paso 1</span><h2>Precio y posicionamiento</h2></div>
+          ${componentHelp("Precio y posicionamiento", "Confirma si el precio objetivo está alineado y si existe un argumento claro para explicar cualquier prima frente al mercado.")}
+        </div>
         ${checkItem("¿El precio esta por debajo, cerca o por encima del mercado?", pricePosition.summary, pricePosition.tone)}
         ${checkItem("¿El diferencial se puede justificar?", recommendation.implication, recommendation.tone)}
         ${checkItem("¿Hay competidores más agresivos?", lowerCompetitors.length ? `${formatNumber(lowerCompetitors.length)} proyectos muestran menor precio por m2.` : "No se detecta presión fuerte por menor precio en el escenario.", lowerCompetitors.length ? "warning" : "success")}
       </section>
 
-      <section class="check-block span-6">
-        <h2>Competencia directa</h2>
+      <section class="check-block workflow-step span-12">
+        <div class="check-block-title">
+          <div><span class="step-label">Paso 2</span><h2>Competencia directa</h2></div>
+          ${componentHelp("Competencia directa", "Identifica la cantidad de comparables, los jugadores dominantes y los proyectos que deben revisarse antes del lanzamiento.")}
+        </div>
         ${checkItem("¿Cuantos proyectos similares existen?", `${formatNumber(comparableProjects.length)} proyectos comparables en el escenario.`, competitionClass(benchmark))}
         ${checkItem("¿Qué inmobiliarias tienen mayor presencia?", benchmark.topAgencies.slice(0, 3).map((row) => row.name).join(", ") || "Información insuficiente para este cálculo.", "neutral")}
         ${checkItem("¿Que proyectos conviene revisar antes de lanzar?", getCompetitors(state.strategy, 3).map((project) => project.project_name).join(", ") || "Revisar proyectos comparables del distrito.", "neutral")}
       </section>
 
-      <section class="check-block span-4">
-        <h2>Mensaje comercial sugerido</h2>
+      <section class="check-block workflow-step span-12">
+        <div class="check-block-title">
+          <div><span class="step-label">Paso 3</span><h2>Mensaje comercial sugerido</h2></div>
+          ${componentHelp("Mensaje comercial", "Convierte los diferenciales del escenario en argumentos simples que la fuerza de ventas pueda reconocer y explicar.")}
+        </div>
         <div class="chip-list prominent-chips">${angles.map(chip).join("")}</div>
       </section>
 
-      <section class="check-block span-4">
-        <h2>Riesgos antes de campaña</h2>
+      <section class="check-block workflow-step span-12">
+        <div class="check-block-title">
+          <div><span class="step-label">Paso 4</span><h2>Riesgos antes de campaña</h2></div>
+          ${componentHelp("Riesgos antes de campaña", "Revisa primero las alertas que pueden afectar conversión, comparación por precio o claridad del mensaje.")}
+        </div>
         <div class="risk-list">
           ${risks.map((risk) => signalCard(risk)).join("")}
         </div>
       </section>
 
-      <section class="check-block span-4">
-        <h2>Siguiente acción</h2>
+      <section class="check-block workflow-step final-step span-12">
+        <div class="check-block-title">
+          <div><span class="step-label">Paso 5</span><h2>Siguiente acción</h2></div>
+          ${componentHelp("Siguiente acción", "Cierra el checklist con una tarea concreta que puede asignarse y verificarse antes de activar la promoción.")}
+        </div>
         <div class="next-action-card">
           <strong>${escapeHtml(recommendation.action)}</strong>
           <p>Preparar argumento para fuerza de ventas y contrastarlo contra los competidores principales antes de activar la promoción.</p>
@@ -680,12 +797,21 @@ function renderAssistant() {
             <h2>Preguntas de estrategia</h2>
             <p>Consultas orientadas a precio, distrito, competencia y mensaje de campaña.</p>
           </div>
+          ${componentHelp("Preguntas de estrategia", "Elige una pregunta sugerida o redacta una propia. La respuesta siempre toma como contexto el distrito y escenario activos.")}
         </div>
         <div class="suggestion-list">
-          ${suggestedQuestions.map((question) => `
+          ${suggestedQuestions.slice(0, 4).map((question) => `
             <button class="suggestion-button ${state.assistantInput === question ? "active" : ""}" type="button" data-suggest="${escapeAttr(question)}">${escapeHtml(question)}</button>
           `).join("")}
         </div>
+        <details class="more-suggestions">
+          <summary>Ver ${formatNumber(suggestedQuestions.length - 4)} preguntas adicionales</summary>
+          <div class="suggestion-list">
+            ${suggestedQuestions.slice(4).map((question) => `
+              <button class="suggestion-button ${state.assistantInput === question ? "active" : ""}" type="button" data-suggest="${escapeAttr(question)}">${escapeHtml(question)}</button>
+            `).join("")}
+          </div>
+        </details>
         <form class="assistant-composer" id="assistant-form">
           <label class="field-control" for="assistant-input">
             <span>Pregunta comercial</span>
@@ -697,7 +823,10 @@ function renderAssistant() {
 
       <section class="answer-panel">
         <div class="answer-header">
-          <span class="status-badge success">Respuesta ejecutiva</span>
+          <div class="answer-header-row">
+            <span class="status-badge success">Respuesta ejecutiva</span>
+            ${componentHelp("Respuesta ejecutiva", "Empieza por el resumen y la acción recomendada. Usa métricas y referencias para validar la recomendación antes de compartirla.")}
+          </div>
           <h2>${escapeHtml(response.title)}</h2>
           <p>${escapeHtml(response.summary)}</p>
         </div>
@@ -739,12 +868,13 @@ function renderActivity() {
         </div>
       </section>
 
-      <section class="panel span-8">
+      <section class="panel span-12">
         <div class="panel-header">
           <div>
             <h2>Línea de tiempo comercial</h2>
             <p>Eventos redactados como señales de negocio para seguimiento ejecutivo.</p>
           </div>
+          ${componentHelp("Línea de tiempo", "Lee las señales desde la más reciente y usa sus etiquetas para reconocer distrito, precio o competidor afectado.")}
         </div>
         <div class="timeline">
           ${events.map((event) => `
@@ -761,12 +891,13 @@ function renderActivity() {
         </div>
       </section>
 
-      <section class="panel span-4">
+      <section class="panel span-12 management-panel">
         <div class="panel-header">
           <div>
             <h2>Para gerencia</h2>
             <p>Puntos concretos para revisar antes de activar acciones.</p>
           </div>
+          ${componentHelp("Prioridades para gerencia", "Resume los temas que requieren decisión, responsable o seguimiento en la siguiente reunión comercial.")}
         </div>
         <div class="weekly-list">
           ${weekly.map((item) => `
@@ -840,9 +971,15 @@ function bindEvents() {
   document.querySelectorAll("[data-project-filter]").forEach((control) => {
     control.addEventListener(control.tagName === "INPUT" ? "input" : "change", (event) => {
       state.projectFilters[event.target.dataset.projectFilter] = event.target.value;
+      state.projectLimit = 18;
       rememberFocus(event.target);
       render();
     });
+  });
+
+  document.getElementById("load-more-projects")?.addEventListener("click", () => {
+    state.projectLimit += 18;
+    render();
   });
 
   document.querySelectorAll("[data-select-project]").forEach((button) => {
@@ -896,6 +1033,7 @@ function changeDistrict(district) {
   state.selectedDistrict = district;
   state.strategy.district = district;
   if (state.projectFilters.district !== "Todos") state.projectFilters.district = district;
+  state.projectLimit = 18;
   seedSelectionsForDistrict();
   render();
 }
@@ -918,6 +1056,7 @@ function resetScenario() {
     sort: "direct",
   };
   state.compareQuery = "";
+  state.projectLimit = 18;
   seedSelectionsForDistrict();
   state.assistantInput = suggestedQuestions[0];
   state.assistantResponse = buildAssistantResponse(state.assistantInput);
@@ -1753,6 +1892,59 @@ function scatterPlot(projects, strategy) {
       </svg>
       </div>
       <p class="scatter-help">Pasa el puntero o usa Tab para consultar cada proyecto. Las líneas discontinuas marcan las medianas del escenario.</p>
+    </div>
+  `;
+}
+
+function renderSectionGuide(viewId) {
+  const guide = sectionGuides[viewId] ?? sectionGuides.dashboard;
+  return `
+    <details class="section-guide">
+      <summary>
+        <span class="guide-icon" aria-hidden="true">i</span>
+        <span class="guide-summary">
+          <strong>Cómo usar esta sección</strong>
+          <small>${escapeHtml(guide.purpose)}</small>
+        </span>
+        <span class="guide-toggle" aria-hidden="true">Ver guía</span>
+      </summary>
+      <div class="section-guide-body">
+        <div class="guide-purpose">
+          <span>Para qué sirve</span>
+          <p>${escapeHtml(guide.purpose)}</p>
+        </div>
+        <div>
+          <span>Cómo usarla</span>
+          <ol class="guide-steps">
+            ${guide.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
+          </ol>
+        </div>
+        <div class="guide-outcome">
+          <span>Resultado que obtienes</span>
+          <p>${escapeHtml(guide.outcome)}</p>
+        </div>
+      </div>
+    </details>
+  `;
+}
+
+function componentHelp(title, copy) {
+  return `
+    <details class="component-help">
+      <summary aria-label="Información sobre ${escapeAttr(title)}">i</summary>
+      <div class="component-help-popover" role="note">
+        <strong>${escapeHtml(title)}</strong>
+        <p>${escapeHtml(copy)}</p>
+      </div>
+    </details>
+  `;
+}
+
+function panelActions(content, helpTitle, helpCopy) {
+  return `
+    <div class="panel-header-actions">
+      ${content || ""}
+      ${componentHelp(helpTitle, helpCopy)}
     </div>
   `;
 }
