@@ -128,6 +128,14 @@ Los tres reader-tests del plan F2 terminaron en `FAIL`, aunque el último fue es
 
 **Fecha:** 2026-07-28
 
-**Estado:** propuesta revisada; pendiente HUMAN-GATE-A
+**Estado:** aceptada
 
-El plan F2 propone un snapshot fijo de siete relaciones OpenStreetMap bajo ODbL 1.0. La geometría se conserva separada del dataset inmobiliario, con atribución visible, aviso share-alike, timestamp y hashes; la demo no consulta servicios cartográficos en runtime. RENLIM permanece como referencia legal y OSM no se presenta como límite oficial. El checker independiente emitió `PASS WITH RISKS`; P2-01 solo puede iniciar después de aprobación humana explícita y `APPROVAL.md`.
+F2 usa un snapshot fijo de siete relaciones OpenStreetMap bajo ODbL 1.0. La geometría se conserva separada del dataset inmobiliario, con atribución visible, aviso share-alike, timestamp y hashes; la demo no consulta servicios cartográficos en runtime. RENLIM permanece como referencia legal y OSM no se presenta como límite oficial. El checker independiente emitió `PASS WITH RISKS`; HUMAN-GATE-A fue aprobada y persistida en `APPROVAL.md`.
+
+## D-017 — HUMAN-GATE-A habilita P2-01
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+Stefano aprobó explícitamente la ruta OSM/ODbL y el inicio de Fase 2. `APPROVAL.md` registra fuente, relaciones, licencia, atribución, riesgos aceptados/rechazados, timestamp y hashes de los documentos revisados. Cualquier cambio de esas condiciones reactiva la stop rule y exige repetir assessment, checker y aprobación.

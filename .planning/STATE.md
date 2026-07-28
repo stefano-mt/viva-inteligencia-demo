@@ -6,7 +6,7 @@
 
 **Última fase completada:** Fase 1 — datos, contratos y cobertura
 
-**Estado:** Fase 0 y Fase 1 completadas; Fase 1 cerró con veredicto independiente `PASS WITH RISKS`; el plan de Fase 2 fue redactado y remediado, pero los tres reader-tests concluyeron `FAIL`; no ha iniciado implementación.
+**Estado:** Fase 0 y Fase 1 completadas; Fase 1 cerró con veredicto independiente `PASS WITH RISKS`; Fase 2 tiene plan `PASS WITH RISKS`, HUMAN-GATE-A aprobada y P2-00C registrada; P2-01 está habilitada.
 
 **Rama activa de planificación:** `feat/phase-2-geography-scenario`, creada desde `main` en el merge `a8f0284`.
 
@@ -72,19 +72,17 @@ a7f68af35d97c6fbc066b4213ebb12d525d630fa366a0e75826d2349087d8141
 - Plan: [phases/02-geography-scenario/PLAN.md](phases/02-geography-scenario/PLAN.md).
 - Evaluación de fuente: [phases/02-geography-scenario/SOURCE-ASSESSMENT.md](phases/02-geography-scenario/SOURCE-ASSESSMENT.md).
 - Revisión del plan: [phases/02-geography-scenario/PLAN_REVIEW.md](phases/02-geography-scenario/PLAN_REVIEW.md).
-- Fuente cartográfica propuesta: snapshot fijo de siete relaciones OpenStreetMap bajo ODbL 1.0; checker `PASS WITH RISKS`; pendiente de HUMAN-GATE-A.
+- Fuente cartográfica aprobada: snapshot fijo de siete relaciones OpenStreetMap bajo ODbL 1.0; checker `PASS WITH RISKS`; HUMAN-GATE-A registrada en `APPROVAL.md`.
 - RENLIM se usa como referencia jurídica; los cuadrantes se etiquetan como analíticos, nunca oficiales.
 - Escenario propuesto: distrito, cuadrante o radio, serializado en URL y compartido por todos los consumidores.
-- Los gaps finales del checker fueron remediados documentalmente, pero no recibieron un cuarto reader-test.
-- Implementación bloqueada hasta nueva validación independiente favorable, verificación de licencia/permiso, HUMAN-GATE-A y registro P2-00C.
+- La revalidación independiente posterior emitió `PASS WITH RISKS`.
+- P2-01 puede iniciar bajo la fuente, atribución, riesgos y stop rules de `APPROVAL.md`.
 
 ## Próxima acción recomendada
 
-1. Someter la remediación posterior al ciclo 3 a una nueva validación independiente.
-2. Si el veredicto es favorable, obtener HUMAN-GATE-A para OSM/ODbL, atribución visible, share-alike del GeoJSON y carácter referencial.
-3. Ejecutar HUMAN-GATE-A sobre la versión/hash exactos del plan.
-4. Versionar `APPROVAL.md` mediante P2-00C.
-5. Ejecutar P2-01 únicamente después de ese registro.
+1. Commit y push de P2-00C.
+2. Ejecutar P2-01 con una adquisición única y cacheada.
+3. Detener si fuente, licencia, relaciones o atribución difieren de `APPROVAL.md`.
 
 ## Regla para actualizar este archivo
 
