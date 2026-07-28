@@ -1,14 +1,83 @@
+import { createHash } from "node:crypto";
+import { existsSync } from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  parseCsv,
+  validateAgencyArtifacts
+} from "./data/agencies.js";
+import { buildEvidenceBundle } from "./data/evidence.js";
+import { materializeMeasureRecords } from "./data/measures.js";
+import {
+  loadContractSchema,
+  validateFixture,
+  validatePrivacy,
+  validateRootDocument
+} from "./data/validate.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, "..");
-const DATA_DIR = path.resolve(ROOT, "..", "datos_relevantes");
-const PUBLIC_DEMO_DIR = path.join(ROOT, "public", "demo-data");
-const OUTPUT_PATH = path.join(PUBLIC_DEMO_DIR, "viva-platform-demo.json");
+const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 
-const CRITICAL_FIELDS = [
+export const DEFAULT_REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, "../..");
+export const DEFAULT_OUTPUT_PATH = path.join(
+  DEFAULT_REPOSITORY_ROOT,
+  "prototipo_ejecutable",
+  "public",
+  "demo-data",
+  "viva-platform-demo.json"
+);
+
+export const DATASET_ID = "dataset:viva-platform-demo-2026-07-28";
+export const GENERATED_AT = "2026-07-28T01:24:28Z";
+export const CUTOFF_AT = "2026-07-28T01:24:28Z";
+
+const PATHS = Object.freeze({
+  schema: "prototipo_ejecutable/contracts/demo-v2.schema.json",
+  nexo: "datos_relevantes/viva_minimum_dataset_latest.csv",
+  scope: "datos_relevantes/service_scope_matrix.csv",
+  discovery: "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+  web: "datos_relevantes/webs_propias_sample_dataset.csv",
+  matching: "datos_relevantes/nexo_web_project_match.csv",
+  feasibility:
+    "datos_relevantes/webs_propias_source_field_feasibility.csv",
+  quality: "datos_relevantes/data_quality_latest.json",
+  assistant: "datos_relevantes/assistant_validation_latest.json",
+  agencies: "datos_relevantes/demo-pilot/agencies.json",
+  pilotSelection: "datos_relevantes/demo-pilot/pilot-selection.json",
+  sources: "datos_relevantes/demo-pilot/sources.json",
+  observations: "datos_relevantes/demo-pilot/observations.json",
+  documents: "datos_relevantes/demo-pilot/documents.json",
+  evidence: "datos_relevantes/demo-pilot/evidence.json",
+  transcriptions:
+    "datos_relevantes/demo-pilot/evidence/ct-g-transcriptions.json",
+  authorizedEvidence:
+    "datos_relevantes/demo-pilot/evidence/ct-d-countertop-fragment.txt",
+  typologies: "datos_relevantes/demo-pilot/typologies.json",
+  facts: "datos_relevantes/demo-pilot/facts.json",
+  issues: "datos_relevantes/demo-pilot/issues.json",
+  events: "datos_relevantes/demo-pilot/events.json",
+  fixtureA: "datos_relevantes/demo-pilot/fixtures/ct-a.json",
+  fixtureB: "datos_relevantes/demo-pilot/fixtures/ct-b.json",
+  fixtureD: "datos_relevantes/demo-pilot/fixtures/ct-d.json",
+  fixtureE: "datos_relevantes/demo-pilot/fixtures/ct-e.json",
+  fixtureG: "datos_relevantes/demo-pilot/fixtures/ct-g.json",
+  fixtureH: "datos_relevantes/demo-pilot/fixtures/ct-h.json"
+});
+
+export const REQUIRED_INPUT_PATHS = Object.freeze(
+  [...new Set(Object.values(PATHS))].sort(compareText)
+);
+
+const FIXTURE_KEYS = Object.freeze([
+  "fixtureA",
+  "fixtureB",
+  "fixtureD",
+  "fixtureE",
+  "fixtureG",
+  "fixtureH"
+]);
+
+const CRITICAL_FIELDS = Object.freeze([
   "source_url",
   "agency_name",
   "project_name",
@@ -19,185 +88,604 @@ const CRITICAL_FIELDS = [
   "unit_status",
   "unit_count",
   "list_price_avg",
-  "delivery_year",
-];
+  "delivery_year"
+]);
 
-async function main() {
-  const projects = normalizeProjects(await readCsv(path.join(DATA_DIR, "viva_minimum_dataset_latest.csv")));
-  const scope = normalizeScope(await readCsv(path.join(DATA_DIR, "service_scope_matrix.csv")));
-  const matching = normalizeMatching(await readCsv(path.join(DATA_DIR, "nexo_web_project_match.csv")));
-  const coverageRows = await readCsv(path.join(DATA_DIR, "webs_propias_source_field_feasibility.csv"));
-  const quality = await readJson(path.join(DATA_DIR, "data_quality_latest.json"), {});
-  const assistant = await readJson(path.join(DATA_DIR, "assistant_validation_latest.json"), {});
+const CONTACT_FIELD_NAMES = new Set([
+  "contact",
+  "email",
+  "phone",
+  "whatsapp",
+  "project_contact",
+  "project_email",
+  "project_phone",
+  "project_whatsapp"
+]);
 
-  const payload = {
-    metadata: buildMetadata(projects, scope, matching, coverageRows, quality, assistant),
-    executive: buildExecutive(projects),
-    rankings: {
-      districts: aggregateProjects(projects, "district").slice(0, 18),
-      agencies: aggregateProjects(projects, "agency_name").slice(0, 18),
-      typologies: aggregateProjects(projects, "typology").slice(0, 12),
-      phases: aggregateProjects(projects, "project_phase").slice(0, 12),
-    },
-    projects,
-    sourceScope: scope,
-    scopeSummary: buildScopeSummary(scope),
-    matching: {
-      summary: countBy(matching, "match_class"),
-      rows: matching,
-    },
-    coverage: buildCoverage(coverageRows),
-    quality: normalizeQuality(quality),
-    assistant: normalizeAssistant(assistant),
-    pipeline: buildPipeline(),
-    deployment: {
-      mode: "static_mock_plus_local_backend",
-      github_pages_ready: true,
-      local_api_endpoints: [
-        "/api/demo/platform",
-        "/api/dashboard/latest",
-        "/api/runs/latest",
-      ],
-      static_data_path: "demo-data/viva-platform-demo.json",
-    },
-  };
-
-  await fs.mkdir(PUBLIC_DEMO_DIR, { recursive: true });
-  await fs.writeFile(OUTPUT_PATH, `${JSON.stringify(payload, null, 2)}\n`, "utf8");
-  console.log(`Demo data written: ${path.relative(ROOT, OUTPUT_PATH)}`);
-  console.log(`Projects: ${projects.length}`);
-  console.log(`Sources: ${scope.length}`);
-  console.log(`Matching rows: ${matching.length}`);
-  console.log(`Coverage rows: ${coverageRows.length}`);
+function compareText(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
 }
 
-async function readJson(filePath, fallback) {
+function compareById(idField) {
+  return (left, right) => compareText(left[idField], right[idField]);
+}
+
+function logicalAbsolutePath(repositoryRoot, logicalPath) {
+  return path.join(repositoryRoot, ...logicalPath.split("/"));
+}
+
+function clean(value) {
+  const normalized = String(value ?? "").replace(/\s+/g, " ").trim();
+  return normalized || null;
+}
+
+function requiredText(value, label, fallback = null) {
+  const normalized = clean(value) ?? fallback;
+  if (!normalized) throw new Error(`${label} must be a non-empty string`);
+  return normalized;
+}
+
+function publicText(value) {
+  const normalized = clean(value);
+  if (normalized === null) return null;
+  return validatePrivacy(normalized).length === 0 ? normalized : null;
+}
+
+function number(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(String(value).replace("%", ""));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function boolean(value) {
+  return ["true", "1", "yes", "si", "sí"].includes(
+    String(value ?? "").trim().toLowerCase()
+  );
+}
+
+function splitList(value, separator = "|") {
+  return String(value ?? "")
+    .split(separator)
+    .map((item) => clean(item))
+    .filter(Boolean);
+}
+
+function round(value, digits = 2) {
+  if (typeof value !== "number" || !Number.isFinite(value)) return null;
+  const factor = 10 ** digits;
+  return Math.round((value + Number.EPSILON) * factor) / factor;
+}
+
+function sum(rows, field) {
+  return rows.reduce((total, row) => total + (number(row[field]) ?? 0), 0);
+}
+
+function average(rows, field) {
+  const values = rows
+    .map((row) => number(row[field]))
+    .filter((value) => value !== null);
+  return values.length
+    ? values.reduce((total, value) => total + value, 0) / values.length
+    : null;
+}
+
+function normalizeCurrency(value) {
+  if (value === "PEN" || value === "USD") return value;
+  return "unknown";
+}
+
+function normalizeConfidence(value) {
+  const normalized = String(value ?? "").trim().toLowerCase();
+  if (["alta", "high"].includes(normalized)) return "high";
+  if (["media", "medium"].includes(normalized)) return "medium";
+  if (["baja", "low"].includes(normalized)) return "low";
+  return "unknown";
+}
+
+function normalizeDateTime(value, label) {
+  const normalized = clean(value);
+  if (normalized === null) return null;
+  if (
+    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(
+      normalized
+    )
+  ) {
+    return normalized;
+  }
+  if (/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+    return `${normalized}T00:00:00Z`;
+  }
+  const sqlLike =
+    /^(\d{4}-\d{2}-\d{2})[ ](\d{2}:\d{2}:\d{2})$/.exec(normalized);
+  if (sqlLike) return `${sqlLike[1]}T${sqlLike[2]}Z`;
+  throw new Error(`${label} is not a supported deterministic date-time`);
+}
+
+function stableJson(value) {
+  if (Array.isArray(value)) return value.map(stableJson);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(
+    Object.keys(value)
+      .sort(compareText)
+      .map((key) => [key, stableJson(value[key])])
+  );
+}
+
+function equalJson(left, right) {
+  return JSON.stringify(stableJson(left)) === JSON.stringify(stableJson(right));
+}
+
+export function sha256(value) {
+  return createHash("sha256").update(value).digest("hex");
+}
+
+async function readRequiredInputs(repositoryRoot) {
+  const buffers = new Map();
+  for (const logicalPath of REQUIRED_INPUT_PATHS) {
+    const absolutePath = logicalAbsolutePath(repositoryRoot, logicalPath);
+    let content;
+    try {
+      content = await fs.readFile(absolutePath);
+    } catch (error) {
+      throw new Error(
+        `Required input is missing or unreadable: ${logicalPath}: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
+    }
+    buffers.set(logicalPath, content);
+  }
+  return buffers;
+}
+
+function inputText(inputs, logicalPath) {
+  const value = inputs.get(logicalPath);
+  if (!value) throw new Error(`Required input was not loaded: ${logicalPath}`);
+  return value.toString("utf8");
+}
+
+function parseRequiredJson(inputs, logicalPath, expectedType) {
+  let value;
   try {
-    return JSON.parse(await fs.readFile(filePath, "utf8"));
-  } catch {
-    return fallback;
+    value = JSON.parse(inputText(inputs, logicalPath));
+  } catch (error) {
+    throw new Error(
+      `Invalid JSON in ${logicalPath}: ${
+        error instanceof Error ? error.message : String(error)
+      }`
+    );
   }
+  if (expectedType === "array" && !Array.isArray(value)) {
+    throw new Error(`${logicalPath} must contain a JSON array`);
+  }
+  if (
+    expectedType === "object" &&
+    (!value || typeof value !== "object" || Array.isArray(value))
+  ) {
+    throw new Error(`${logicalPath} must contain a JSON object`);
+  }
+  return value;
 }
 
-async function readCsv(filePath) {
-  const text = await fs.readFile(filePath, "utf8");
-  const rows = parseCsv(text);
-  if (rows.length < 2) return [];
-  const headers = rows[0].map((header) => header.trim());
-  return rows.slice(1).filter((row) => row.some(Boolean)).map((row) => {
-    const out = {};
-    headers.forEach((header, index) => {
-      out[header] = row[index] ?? "";
-    });
-    return out;
-  });
-}
-
-function parseCsv(text) {
-  const rows = [];
-  let row = [];
-  let cell = "";
-  let quoted = false;
-
-  for (let i = 0; i < text.length; i += 1) {
-    const char = text[i];
-    const next = text[i + 1];
-    if (quoted) {
-      if (char === '"' && next === '"') {
-        cell += '"';
-        i += 1;
-      } else if (char === '"') {
-        quoted = false;
-      } else {
-        cell += char;
-      }
-      continue;
-    }
-    if (char === '"') {
-      quoted = true;
-    } else if (char === ",") {
-      row.push(cell);
-      cell = "";
-    } else if (char === "\n") {
-      row.push(cell);
-      rows.push(row);
-      row = [];
-      cell = "";
-    } else if (char !== "\r") {
-      cell += char;
-    }
-  }
-
-  if (cell || row.length) {
-    row.push(cell);
-    rows.push(row);
-  }
-
+function parseRequiredCsv(inputs, logicalPath) {
+  const rows = parseCsv(inputText(inputs, logicalPath));
+  if (rows.length === 0) throw new Error(`${logicalPath} must not be empty`);
   return rows;
 }
 
-function normalizeProjects(rows) {
+function buildInputFingerprints(inputs) {
+  return REQUIRED_INPUT_PATHS.map((logicalPath, index) => ({
+    input_id: `input:${String(index + 1).padStart(3, "0")}`,
+    path: logicalPath,
+    sha256: sha256(inputs.get(logicalPath))
+  }));
+}
+
+function normalizeLegacyProjects(rows) {
+  const seen = new Set();
   return rows.map((row, index) => {
+    const id = requiredText(
+      row.project_id,
+      `legacy source row ${index + 1}.project_id`
+    );
+    if (seen.has(id)) throw new Error(`Duplicate legacy project ID: ${id}`);
+    seen.add(id);
+
     const listPrice = number(row.list_price_avg || row.price_min);
-    const area = number(row.total_area || row.total_area_min || row.area_min);
+    const totalArea = number(
+      row.total_area || row.total_area_min || row.area_min
+    );
     const unitCount = number(row.unit_count);
     const latestHistory = number(row.latest_price_history_from);
-    const delta = listPrice !== null && latestHistory !== null ? listPrice - latestHistory : null;
-    const deltaPct = delta !== null && latestHistory ? (delta / latestHistory) * 100 : null;
+    const delta =
+      listPrice !== null && latestHistory !== null
+        ? listPrice - latestHistory
+        : null;
+    const deltaPct =
+      delta !== null && latestHistory !== null && latestHistory !== 0
+        ? (delta / latestHistory) * 100
+        : null;
+    const missing = splitList(row.missing_required_fields, ",").filter(
+      (field) => !CONTACT_FIELD_NAMES.has(field)
+    );
+
     return {
-      id: row.project_id || `project_${index + 1}`,
-      source: clean(row.source),
-      source_type: clean(row.source_type),
-      captured_at: row.captured_at,
-      source_url: row.source_url,
-      extraction_method: clean(row.extraction_method),
-      agency_name: clean(row.agency_name) || "Sin inmobiliaria",
-      project_name: clean(row.project_name) || "Sin proyecto",
-      district: clean(row.district) || "Sin distrito",
-      province: clean(row.province) || "Lima",
-      department: clean(row.department) || "Lima",
-      address: clean(row.address),
+      id,
+      source: requiredText(
+        row.source,
+        `legacy project ${id}.source`,
+        "Nexo Inmobiliario"
+      ),
+      source_type: requiredText(
+        row.source_type,
+        `legacy project ${id}.source_type`,
+        "portal"
+      ),
+      captured_at: normalizeDateTime(
+        row.captured_at,
+        `legacy project ${id}.captured_at`
+      ),
+      source_url: clean(row.source_url),
+      extraction_method: requiredText(
+        row.extraction_method,
+        `legacy project ${id}.extraction_method`,
+        "versioned_snapshot"
+      ),
+      agency_name: requiredText(
+        row.agency_name,
+        `legacy project ${id}.agency_name`,
+        "Sin inmobiliaria"
+      ),
+      project_name: requiredText(
+        row.project_name,
+        `legacy project ${id}.project_name`,
+        "Sin proyecto"
+      ),
+      district: requiredText(
+        row.district,
+        `legacy project ${id}.district`,
+        "Sin distrito"
+      ),
+      province: clean(row.province),
+      department: clean(row.department),
+      address: publicText(row.address),
       latitude: number(row.latitude),
       longitude: number(row.longitude),
-      project_phase: clean(row.project_phase || row.unit_status) || "Sin estado",
-      typology: clean(row.typology) || "Sin tipologia",
+      project_phase: clean(row.project_phase || row.unit_status),
+      typology: clean(row.typology),
       bedrooms: clean(row.bedrooms),
       bedrooms_min: number(row.bedrooms_min),
       bedrooms_max: number(row.bedrooms_max),
       total_area_min: number(row.total_area_min || row.area_min),
       total_area_max: number(row.total_area_max || row.area_max),
-      total_area: area,
+      total_area: totalArea,
       unit_status: clean(row.unit_status),
       unit_count: unitCount,
-      currency: clean(row.currency || "PEN"),
+      currency: normalizeCurrency(clean(row.currency)),
       list_price_avg: listPrice,
       price_min: number(row.price_min),
       price_per_m2_list: number(row.price_per_m2_list),
       latest_price_history_from: latestHistory,
-      latest_price_history_date: row.latest_price_history_date,
+      latest_price_history_date: normalizeDateTime(
+        row.latest_price_history_date,
+        `legacy project ${id}.latest_price_history_date`
+      ),
       price_delta: delta === null ? null : round(delta, 2),
       price_delta_pct: deltaPct === null ? null : round(deltaPct, 2),
       delivery_year: number(row.delivery_year),
-      delivery_date: row.delivery_date,
-      update_date: row.update_date,
-      income: number(row.income) ?? ((unitCount ?? 0) * (listPrice ?? 0)),
-      total_m2: number(row.total_m2) ?? ((unitCount ?? 0) * (area ?? 0)),
+      delivery_date: normalizeDateTime(
+        row.delivery_date,
+        `legacy project ${id}.delivery_date`
+      ),
+      update_date: normalizeDateTime(
+        row.update_date,
+        `legacy project ${id}.update_date`
+      ),
+      income:
+        number(row.income) ??
+        (unitCount === null || listPrice === null
+          ? null
+          : unitCount * listPrice),
+      total_m2:
+        number(row.total_m2) ??
+        (unitCount === null || totalArea === null
+          ? null
+          : unitCount * totalArea),
       financing_banks: splitList(row.financing_banks),
       amenities: splitList(row.amenities),
       project_description: clean(row.project_description),
-      project_contact: clean(row.project_contact),
-      project_email: clean(row.project_email),
-      project_phone: clean(row.project_phone),
-      project_whatsapp: clean(row.project_whatsapp),
-      field_confidence: clean(row.field_confidence || "media"),
-      missing_required_fields: splitList(row.missing_required_fields, ","),
+      field_confidence: normalizeConfidence(row.field_confidence),
+      missing_required_fields: [...new Set(missing)].sort(compareText)
     };
   });
 }
 
+function buildAuthoritativeProjects({
+  nexoRows,
+  agencies,
+  aliases,
+  fixtures
+}) {
+  const agencyIds = new Set(agencies.map((agency) => agency.agency_id));
+  const aliasToAgency = new Map(
+    aliases.map((alias) => [alias.alias_original, alias.agency_id])
+  );
+  const projects = [];
+  const unresolvedLegacyIds = [];
+
+  for (const row of nexoRows) {
+    const agencyId = aliasToAgency.get(row.agency_name) ?? null;
+    if (agencyId === null) {
+      unresolvedLegacyIds.push(row.project_id);
+      continue;
+    }
+    if (!agencyIds.has(agencyId)) {
+      throw new Error(
+        `Nexo project ${row.project_id} resolves to missing ${agencyId}`
+      );
+    }
+    projects.push({
+      project_id: `project:nexo-${row.project_id}`,
+      agency_id: agencyId,
+      canonical_name: requiredText(
+        row.project_name,
+        `Nexo project ${row.project_id}.project_name`
+      ),
+      source_names: [
+        requiredText(
+          row.project_name,
+          `Nexo project ${row.project_id}.project_name`
+        )
+      ],
+      location: {
+        district: clean(row.district),
+        province: clean(row.province),
+        department: clean(row.department),
+        address: publicText(row.address),
+        latitude: number(row.latitude),
+        longitude: number(row.longitude)
+      },
+      status: clean(row.project_phase || row.unit_status),
+      first_seen_at: normalizeDateTime(
+        row.captured_at,
+        `Nexo project ${row.project_id}.captured_at`
+      ),
+      last_seen_at: normalizeDateTime(
+        row.captured_at,
+        `Nexo project ${row.project_id}.captured_at`
+      ),
+      quality_status: "reviewable"
+    });
+  }
+
+  const byId = new Map(
+    projects.map((project) => [project.project_id, project])
+  );
+  for (const fixture of fixtures) {
+    for (const project of fixture.input.projects ?? []) {
+      const existing = byId.get(project.project_id);
+      if (existing) {
+        if (fixture.case_id !== "CT-G") {
+          throw new Error(
+            `Unexpected authoritative project collision: ${project.project_id}`
+          );
+        }
+        existing.source_names = [
+          ...new Set([...existing.source_names, ...project.source_names])
+        ].sort(compareText);
+        existing.status = project.status;
+        existing.last_seen_at = project.last_seen_at;
+        existing.quality_status = project.quality_status;
+        continue;
+      }
+      if (!agencyIds.has(project.agency_id)) {
+        throw new Error(
+          `Controlled project ${project.project_id} references missing ${project.agency_id}`
+        );
+      }
+      const cloned = structuredClone(project);
+      projects.push(cloned);
+      byId.set(cloned.project_id, cloned);
+    }
+  }
+
+  const ordered = projects.sort(compareById("project_id"));
+  if (new Set(ordered.map((project) => project.project_id)).size !== ordered.length) {
+    throw new Error("Authoritative projects contain duplicate IDs");
+  }
+  return {
+    projects: ordered,
+    unresolvedLegacyIds: unresolvedLegacyIds.sort(compareText)
+  };
+}
+
+function controlledAgencies(fixtures) {
+  const result = [];
+  const seen = new Set();
+  for (const fixture of fixtures) {
+    if (!["CT-A", "CT-B", "CT-D", "CT-E"].includes(fixture.case_id)) {
+      continue;
+    }
+    for (const agency of fixture.input.agencies ?? []) {
+      if (seen.has(agency.agency_id)) {
+        throw new Error(`Duplicate controlled agency ${agency.agency_id}`);
+      }
+      seen.add(agency.agency_id);
+      result.push(structuredClone(agency));
+    }
+  }
+  return result.sort(compareById("agency_id"));
+}
+
+function assertCatalogParity(actual, expected, label) {
+  if (!equalJson(actual, expected)) {
+    throw new Error(`${label} differs from its deterministic fixture union`);
+  }
+}
+
+function buildPilot(pilotSelection, legacyProjects) {
+  const districtCounts = new Map();
+  for (const project of legacyProjects) {
+    districtCounts.set(
+      project.district,
+      (districtCounts.get(project.district) ?? 0) + 1
+    );
+  }
+  const districts = [...districtCounts.entries()]
+    .sort(
+      (left, right) =>
+        right[1] - left[1] || compareText(left[0], right[0])
+    )
+    .slice(0, 7)
+    .map(([district]) => district)
+    .sort(compareText);
+  const counts = pilotSelection.counts;
+  return {
+    pilot_id: "pilot:viva-demo-2026-07-28",
+    version: pilotSelection.version,
+    selected_at: GENERATED_AT,
+    selection_rule:
+      "Selección versionada de P1-03: obligatorias, elegibilidad local y ranking determinista.",
+    selection_reason:
+      "Demostrar cobertura base, enriquecida y profunda sin resolver aliases ambiguos por intuición.",
+    agency_ids: [...pilotSelection.selected_agency_ids].sort(compareText),
+    districts,
+    counts: {
+      market_raw_count: counts.market_raw_count,
+      base_count: counts.base_count,
+      enriched_count: counts.enriched_count,
+      deep_count: counts.deep_count
+    }
+  };
+}
+
+function buildCertifiedAggregates(facts) {
+  const groups = new Map();
+  for (const fact of facts) {
+    if (
+      fact.benchmark_eligible !== true ||
+      fact.quality_status !== "certified" ||
+      typeof fact.normalized_value !== "number" ||
+      !Number.isFinite(fact.normalized_value)
+    ) {
+      continue;
+    }
+    const dimensions = {
+      semantic_type: fact.semantic_type,
+      unit: fact.unit,
+      currency: fact.currency,
+      price_type: fact.price_type,
+      area_type: fact.area_type,
+      denominator_area_type: fact.denominator_area_type
+    };
+    const key = JSON.stringify(dimensions);
+    const group = groups.get(key) ?? { ...dimensions, values: [] };
+    group.values.push(fact.normalized_value);
+    groups.set(key, group);
+  }
+  return [...groups.values()]
+    .map(({ values, ...dimensions }) => ({
+      ...dimensions,
+      count: values.length,
+      mean: round(
+        values.reduce((total, value) => total + value, 0) / values.length,
+        2
+      ),
+      minimum: Math.min(...values),
+      maximum: Math.max(...values)
+    }))
+    .sort((left, right) =>
+      compareText(
+        JSON.stringify([
+          left.semantic_type,
+          left.currency,
+          left.price_type,
+          left.area_type,
+          left.denominator_area_type,
+          left.unit
+        ]),
+        JSON.stringify([
+          right.semantic_type,
+          right.currency,
+          right.price_type,
+          right.area_type,
+          right.denominator_area_type,
+          right.unit
+        ])
+      )
+    );
+}
+
+function monetaryRows(projects, currency = "PEN") {
+  return projects.filter((project) => project.currency === currency);
+}
+
+function buildExecutive(projects, certifiedAggregates) {
+  const penRows = monetaryRows(projects, "PEN");
+  return {
+    active_projects: new Set(projects.map(projectKey)).size,
+    published_units: round(sum(projects, "unit_count"), 0),
+    estimated_income: round(sum(penRows, "income"), 2),
+    monetary_currency: "PEN",
+    total_m2: round(sum(projects, "total_m2"), 2),
+    avg_price_m2_list: round(average(penRows, "price_per_m2_list"), 2),
+    price_per_m2_denominator_area_type: "total",
+    avg_list_price: round(average(penRows, "list_price_avg"), 2),
+    districts: new Set(projects.map((project) => project.district)).size,
+    agencies: new Set(projects.map((project) => project.agency_name)).size,
+    certified_aggregates: certifiedAggregates,
+    latest_price_changes: projects
+      .filter(
+        (project) =>
+          project.currency === "PEN" && project.price_delta_pct !== null
+      )
+      .sort(
+        (left, right) =>
+          Math.abs(right.price_delta_pct) -
+            Math.abs(left.price_delta_pct) ||
+          compareText(left.id, right.id)
+      )
+      .slice(0, 15)
+  };
+}
+
+function aggregateProjects(projects, field) {
+  const groups = new Map();
+  for (const project of projects) {
+    const key = project[field] || "Sin dato";
+    const rows = groups.get(key) ?? [];
+    rows.push(project);
+    groups.set(key, rows);
+  }
+  return [...groups.entries()]
+    .map(([name, rows]) => {
+      const penRows = monetaryRows(rows, "PEN");
+      return {
+        name,
+        projects: new Set(rows.map(projectKey)).size,
+        units: round(sum(rows, "unit_count"), 0),
+        estimated_income: round(sum(penRows, "income"), 2),
+        monetary_currency: "PEN",
+        total_m2: round(sum(rows, "total_m2"), 2),
+        avg_price_m2_list: round(
+          average(penRows, "price_per_m2_list"),
+          2
+        ),
+        price_per_m2_denominator_area_type: "total",
+        avg_list_price: round(average(penRows, "list_price_avg"), 2)
+      };
+    })
+    .sort(
+      (left, right) =>
+        right.projects - left.projects ||
+        right.units - left.units ||
+        compareText(left.name, right.name)
+    );
+}
+
 function normalizeScope(rows) {
   return rows.map((row) => ({
-    run_id: row.run_id,
+    run_id: requiredText(row.run_id, "scope.run_id"),
     scope_level: clean(row.scope_level),
     agency_name: clean(row.agency_name),
     domain: clean(row.domain),
@@ -212,21 +700,21 @@ function normalizeScope(rows) {
     final_decision: clean(row.final_decision),
     included_in_mvp: boolean(row.included_in_mvp),
     condition_or_exclusion_reason: clean(row.condition_or_exclusion_reason),
-    next_action: clean(row.next_action),
+    next_action: clean(row.next_action)
   }));
 }
 
 function normalizeMatching(rows) {
   return rows.map((row) => ({
-    run_id: row.run_id,
+    run_id: requiredText(row.run_id, "matching.run_id"),
     agency_name: clean(row.agency_name),
     domain: clean(row.domain),
-    web_project_url: row.web_project_url,
-    web_project_name: clean(row.web_project_name),
-    nexo_project_id: row.nexo_project_id,
+    web_project_url: publicText(row.web_project_url),
+    web_project_name: publicText(row.web_project_name),
+    nexo_project_id: clean(row.nexo_project_id),
     nexo_project_name: clean(row.nexo_project_name),
     match_score: number(row.match_score) ?? 0,
-    match_class: clean(row.match_class || "sin_clase"),
+    match_class: clean(row.match_class) ?? "sin_clase",
     matched_on_agency: boolean(row.matched_on_agency),
     matched_on_project_name: boolean(row.matched_on_project_name),
     matched_on_district: boolean(row.matched_on_district),
@@ -234,83 +722,58 @@ function normalizeMatching(rows) {
     matched_on_coordinates: boolean(row.matched_on_coordinates),
     matched_on_slug: boolean(row.matched_on_slug),
     justification: clean(row.justification),
-    requires_human_review: boolean(row.requires_human_review),
+    requires_human_review: boolean(row.requires_human_review)
   }));
 }
 
-function buildMetadata(projects, scope, matching, coverageRows, quality, assistant) {
-  const captured = projects.map((project) => project.captured_at).filter(Boolean).sort();
-  return {
-    generated_at: new Date().toISOString(),
-    title: "Viva Inmobiliaria - Prototipo de Inteligencia Comercial",
-    description: "Snapshot demo generado desde scrapers y matrices reales del PoC.",
-    source_snapshot: {
-      min_captured_at: captured[0] ?? null,
-      max_captured_at: captured[captured.length - 1] ?? null,
-      assistant_dataset_run_id: assistant?.metadata?.dataset_run_id ?? null,
-    },
-    counts: {
-      projects: projects.length,
-      agencies_in_market: new Set(projects.map((project) => project.agency_name)).size,
-      districts: new Set(projects.map((project) => project.district)).size,
-      evaluated_sources: scope.length,
-      matching_rows: matching.length,
-      coverage_rows: coverageRows.length,
-      quality_issues: quality?.issues?.length ?? 0,
-    },
-  };
-}
-
-function buildExecutive(projects) {
-  const activeProjects = new Set(projects.map((project) => projectKey(project))).size;
-  const publishedUnits = sum(projects, "unit_count");
-  const estimatedIncome = sum(projects, "income");
-  const totalM2 = sum(projects, "total_m2");
-  return {
-    active_projects: activeProjects,
-    published_units: round(publishedUnits, 0),
-    estimated_income: round(estimatedIncome, 2),
-    total_m2: round(totalM2, 2),
-    avg_price_m2_list: round(avg(projects, "price_per_m2_list"), 2),
-    avg_list_price: round(avg(projects, "list_price_avg"), 2),
-    districts: new Set(projects.map((project) => project.district).filter(Boolean)).size,
-    agencies: new Set(projects.map((project) => project.agency_name).filter(Boolean)).size,
-    latest_price_changes: projects
-      .filter((project) => project.price_delta_pct !== null)
-      .sort((left, right) => Math.abs(right.price_delta_pct) - Math.abs(left.price_delta_pct))
-      .slice(0, 15),
-  };
-}
-
-function aggregateProjects(projects, field) {
-  const groups = new Map();
-  for (const project of projects) {
-    const key = project[field] || "Sin dato";
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(project);
+function countBy(rows, field) {
+  const counts = new Map();
+  for (const row of rows) {
+    const key = clean(row[field]) ?? "Sin dato";
+    counts.set(key, (counts.get(key) ?? 0) + 1);
   }
-  return [...groups.entries()].map(([name, rows]) => ({
-    name,
-    projects: new Set(rows.map((project) => projectKey(project))).size,
-    units: round(sum(rows, "unit_count"), 0),
-    estimated_income: round(sum(rows, "income"), 2),
-    total_m2: round(sum(rows, "total_m2"), 2),
-    avg_price_m2_list: round(avg(rows, "price_per_m2_list"), 2),
-    avg_list_price: round(avg(rows, "list_price_avg"), 2),
-  })).sort((left, right) => right.projects - left.projects || right.units - left.units || left.name.localeCompare(right.name));
+  return [...counts.entries()]
+    .map(([name, count]) => ({ name, count }))
+    .sort(
+      (left, right) =>
+        right.count - left.count || compareText(left.name, right.name)
+    );
 }
 
 function buildScopeSummary(scope) {
-  const mvp = scope.filter((row) => row.scope_level === "MVP automatizable");
+  const mvp = scope.filter(
+    (row) => row.scope_level === "MVP automatizable"
+  );
   return {
     by_scope_level: countBy(scope, "scope_level"),
     by_final_decision: countBy(scope, "final_decision"),
     by_archetype: countBy(scope, "archetype_primary"),
-    mvp_automatizable: mvp.sort((left, right) => right.viability_score - left.viability_score),
-    conditioned: scope.filter((row) => row.scope_level === "MVP condicionado / enriquecimiento"),
-    out_of_scope: scope.filter((row) => row.scope_level === "Fuera de alcance"),
-    backlog: scope.filter((row) => row.scope_level === "Backlog posterior"),
+    mvp_automatizable: [...mvp].sort(
+      (left, right) =>
+        right.viability_score - left.viability_score ||
+        compareText(left.agency_name, right.agency_name)
+    ),
+    conditioned: scope.filter(
+      (row) => row.scope_level === "MVP condicionado / enriquecimiento"
+    ),
+    out_of_scope: scope.filter(
+      (row) => row.scope_level === "Fuera de alcance"
+    ),
+    backlog: scope.filter(
+      (row) => row.scope_level === "Backlog posterior"
+    )
   };
+}
+
+function addGrouped(map, key, row) {
+  const safeKey = clean(key) ?? "Sin dato";
+  const rows = map.get(safeKey) ?? [];
+  rows.push(row);
+  map.set(safeKey, rows);
+}
+
+function topValue(rows, field) {
+  return countBy(rows, field)[0]?.name ?? null;
 }
 
 function buildCoverage(rows) {
@@ -321,36 +784,88 @@ function buildCoverage(rows) {
     addGrouped(byAgency, row.agency_name, row);
   }
   return {
-    fields: [...byField.entries()].map(([field, fieldRows]) => ({
-      field_name: field,
-      records_sampled: round(avg(fieldRows, "records_sampled"), 0),
-      field_coverage_pct: round(avg(fieldRows, "field_coverage_pct"), 0),
-      evidence_available_pct: round(avg(fieldRows, "evidence_available_pct"), 0),
-      mismatch_rate_vs_nexo: round(avg(fieldRows, "mismatch_rate_vs_nexo"), 2),
-      recommended_use: topValue(fieldRows, "recommended_use"),
-      is_critical: CRITICAL_FIELDS.includes(field),
-    })).sort((left, right) => Number(right.is_critical) - Number(left.is_critical) || right.field_coverage_pct - left.field_coverage_pct),
-    agencies: [...byAgency.entries()].map(([agency, agencyRows]) => ({
-      agency_name: agency,
-      domain: clean(agencyRows[0]?.domain),
-      archetype_primary: clean(agencyRows[0]?.archetype_primary),
-      fields: agencyRows.length,
-      avg_coverage_pct: round(avg(agencyRows, "field_coverage_pct"), 0),
-      avg_evidence_pct: round(avg(agencyRows, "evidence_available_pct"), 0),
-      primary_candidate_fields: agencyRows.filter((row) => row.recommended_use === "primary_candidate").length,
-      review_fields: agencyRows.filter((row) => String(row.recommended_use).includes("review")).length,
-    })).sort((left, right) => right.avg_coverage_pct - left.avg_coverage_pct),
-    raw_sample: rows.slice(0, 240),
+    fields: [...byField.entries()]
+      .map(([field, fieldRows]) => ({
+        field_name: field,
+        records_sampled: round(average(fieldRows, "records_sampled"), 0),
+        field_coverage_pct: round(
+          average(fieldRows, "field_coverage_pct"),
+          0
+        ),
+        evidence_available_pct: round(
+          average(fieldRows, "evidence_available_pct"),
+          0
+        ),
+        mismatch_rate_vs_nexo: round(
+          average(fieldRows, "mismatch_rate_vs_nexo"),
+          2
+        ),
+        recommended_use: topValue(fieldRows, "recommended_use"),
+        is_critical: CRITICAL_FIELDS.includes(field)
+      }))
+      .sort(
+        (left, right) =>
+          Number(right.is_critical) - Number(left.is_critical) ||
+          (right.field_coverage_pct ?? 0) -
+            (left.field_coverage_pct ?? 0) ||
+          compareText(left.field_name, right.field_name)
+      ),
+    agencies: [...byAgency.entries()]
+      .map(([agency, agencyRows]) => ({
+        agency_name: agency,
+        domain: clean(agencyRows[0]?.domain),
+        archetype_primary: clean(agencyRows[0]?.archetype_primary),
+        fields: agencyRows.length,
+        avg_coverage_pct: round(
+          average(agencyRows, "field_coverage_pct"),
+          0
+        ),
+        avg_evidence_pct: round(
+          average(agencyRows, "evidence_available_pct"),
+          0
+        ),
+        primary_candidate_fields: agencyRows.filter(
+          (row) => row.recommended_use === "primary_candidate"
+        ).length,
+        review_fields: agencyRows.filter((row) =>
+          String(row.recommended_use).includes("review")
+        ).length
+      }))
+      .sort(
+        (left, right) =>
+          (right.avg_coverage_pct ?? 0) -
+            (left.avg_coverage_pct ?? 0) ||
+          compareText(left.agency_name, right.agency_name)
+      ),
+    raw_sample: rows.slice(0, 240).map((row) => ({
+      run_id: clean(row.run_id),
+      agency_name: clean(row.agency_name),
+      domain: clean(row.domain),
+      archetype_primary: clean(row.archetype_primary),
+      field_name: clean(row.field_name),
+      records_sampled: number(row.records_sampled),
+      field_coverage_pct: number(row.field_coverage_pct),
+      evidence_available_pct: number(row.evidence_available_pct),
+      mismatch_rate_vs_nexo: number(row.mismatch_rate_vs_nexo),
+      recommended_use: clean(row.recommended_use),
+      decision_reason: clean(row.decision_reason)
+    }))
   };
 }
 
 function normalizeQuality(quality) {
   return {
-    record_count: quality.record_count ?? null,
-    critical_completeness_pct: quality.critical_completeness_pct ?? {},
-    duplicate_candidates: quality.duplicate_candidates ?? [],
-    outliers: quality.outliers ?? [],
-    issues: quality.issues ?? [],
+    record_count: number(quality.record_count),
+    critical_completeness_pct:
+      quality.critical_completeness_pct &&
+      typeof quality.critical_completeness_pct === "object"
+        ? quality.critical_completeness_pct
+        : {},
+    duplicate_candidates: Array.isArray(quality.duplicate_candidates)
+      ? quality.duplicate_candidates
+      : [],
+    outliers: Array.isArray(quality.outliers) ? quality.outliers : [],
+    issues: Array.isArray(quality.issues) ? quality.issues : []
   };
 }
 
@@ -363,7 +878,10 @@ function normalizeAssistant(assistant) {
     score: assistant.score ?? {
       passed: rows.filter((row) => row.passed).length,
       total: rows.length,
-      pass_rate: rows.length ? rows.filter((row) => row.passed).length / rows.length : 0,
+      pass_rate:
+        rows.length > 0
+          ? rows.filter((row) => row.passed).length / rows.length
+          : 0
     },
     questions: rows.map((row) => ({
       id: row.id,
@@ -372,8 +890,8 @@ function normalizeAssistant(assistant) {
       elapsed_ms: row.elapsed_ms,
       guardrails: clean(row.guardrails),
       acceptance: clean(row.acceptance),
-      answer: row.answer ?? null,
-    })),
+      answer: row.answer ?? null
+    }))
   };
 }
 
@@ -382,108 +900,355 @@ function buildPipeline() {
     {
       id: "ingesta-nexo",
       label: "Ingesta Nexo",
-      status: "operativo",
-      detail: "Fuente base canonica para proyectos, precios publicados, unidades, areas y trazabilidad.",
-      artifacts: ["viva_minimum_dataset_latest.csv", "multisource_sample_latest.json"],
+      status: "snapshot_versionado",
+      detail:
+        "Fuente base para la proyección legacy; los aliases ambiguos no se fuerzan en el modelo canónico.",
+      artifacts: ["viva_minimum_dataset_latest.csv"]
     },
     {
-      id: "webs-propias",
-      label: "Discovery webs propias",
+      id: "registro-canonico",
+      label: "Registro canónico",
       status: "validado",
-      detail: "Auditoria por dominio, robots, sitemap, stack tecnico y arquetipo.",
-      artifacts: ["agency_web_discovery_matrix_validated.csv"],
+      detail:
+        "Inmobiliarias, aliases y tiers derivados por P1-03 desde snapshots locales.",
+      artifacts: ["agencies.json", "pilot-selection.json"]
     },
     {
-      id: "extraccion-muestra",
-      label: "Extraccion de muestra",
+      id: "evidencia",
+      label: "Fuentes y evidencia",
       status: "validado",
-      detail: "Muestras trazables por arquetipo para estimar cobertura real por campo.",
-      artifacts: ["webs_propias_sample_dataset.csv", "webs_propias_field_evidence.csv"],
+      detail:
+        "Trazabilidad P1-04 con permisos y disponibilidad explícitos.",
+      artifacts: ["sources.json", "observations.json", "evidence.json"]
     },
     {
-      id: "matching",
-      label: "Matching Nexo-web",
+      id: "medidas",
+      label: "Medidas e histórico",
       status: "validado",
-      detail: "Score por proyecto usando inmobiliaria, nombre, distrito, direccion, coordenadas y slug.",
-      artifacts: ["nexo_web_project_match.csv"],
+      detail:
+        "Hechos P1-05 tipados por moneda, precio y denominador.",
+      artifacts: ["facts.json", "events.json", "issues.json"]
     },
     {
-      id: "calidad",
-      label: "Calidad y cobertura",
-      status: "validado",
-      detail: "Completitud critica, duplicados, outliers y decision de uso por campo.",
-      artifacts: ["data_quality_latest.json", "webs_propias_source_field_feasibility.csv"],
-    },
-    {
-      id: "dashboard",
-      label: "Dashboard y asistente",
-      status: "prototipo",
-      detail: "Experiencia visual read-only para decisiones comerciales y preguntas controladas.",
-      artifacts: ["viva-platform-demo.json", "assistant_validation_latest.json"],
-    },
+      id: "publicacion",
+      label: "Artefacto público v2",
+      status: "deterministico",
+      detail:
+        "Build offline, validado y compatible con las siete rutas existentes.",
+      artifacts: ["viva-platform-demo.json"]
+    }
   ];
 }
 
-function addGrouped(map, key, row) {
-  const safeKey = clean(key) || "Sin dato";
-  if (!map.has(safeKey)) map.set(safeKey, []);
-  map.get(safeKey).push(row);
-}
-
-function countBy(rows, field) {
-  return [...rows.reduce((map, row) => {
-    const key = clean(row[field]) || "Sin dato";
-    map.set(key, (map.get(key) ?? 0) + 1);
-    return map;
-  }, new Map()).entries()]
-    .map(([name, count]) => ({ name, count }))
-    .sort((left, right) => right.count - left.count || left.name.localeCompare(right.name));
-}
-
-function topValue(rows, field) {
-  return countBy(rows, field)[0]?.name ?? null;
-}
-
 function projectKey(project) {
-  return [project.agency_name, project.project_name, project.district].filter(Boolean).join("|");
+  return [project.agency_name, project.project_name, project.district].join(
+    "|"
+  );
 }
 
-function splitList(value, separator = "|") {
-  return String(value ?? "")
-    .split(separator)
-    .map((item) => clean(item))
-    .filter(Boolean);
+function assetExistsFor(repositoryRoot) {
+  const publicRoot = path.resolve(
+    repositoryRoot,
+    "prototipo_ejecutable",
+    "public"
+  );
+  return (logicalPath) => {
+    if (
+      typeof logicalPath !== "string" ||
+      !logicalPath.startsWith("assets/evidence/") ||
+      logicalPath.includes("\\") ||
+      logicalPath.split("/").includes("..")
+    ) {
+      return false;
+    }
+    const candidate = path.resolve(publicRoot, ...logicalPath.split("/"));
+    if (
+      candidate !== publicRoot &&
+      !candidate.startsWith(`${publicRoot}${path.sep}`)
+    ) {
+      return false;
+    }
+    return existsSync(candidate);
+  };
 }
 
-function clean(value) {
-  return String(value ?? "").replace(/\s+/g, " ").trim();
+function throwValidationErrors(label, errors) {
+  if (errors.length === 0) return;
+  throw new Error(
+    `${label} failed:\n${errors
+      .map((error) =>
+        typeof error === "string"
+          ? `- ${error}`
+          : `- ${error.code} ${error.path}: ${error.message}`
+      )
+      .join("\n")}`
+  );
 }
 
-function boolean(value) {
-  return ["true", "1", "yes", "si", "sí"].includes(String(value ?? "").trim().toLowerCase());
+export async function buildDemoPayload({
+  repositoryRoot = DEFAULT_REPOSITORY_ROOT
+} = {}) {
+  const root = path.resolve(repositoryRoot);
+  const inputs = await readRequiredInputs(root);
+
+  const schema = loadContractSchema(logicalAbsolutePath(root, PATHS.schema));
+  const agenciesFile = parseRequiredJson(inputs, PATHS.agencies, "object");
+  const pilotSelection = parseRequiredJson(
+    inputs,
+    PATHS.pilotSelection,
+    "object"
+  );
+  const agencyInputTexts = {
+    scope: inputText(inputs, PATHS.scope),
+    discovery: inputText(inputs, PATHS.discovery),
+    web: inputText(inputs, PATHS.web),
+    nexo: inputText(inputs, PATHS.nexo),
+    matching: inputText(inputs, PATHS.matching)
+  };
+  throwValidationErrors(
+    "Agency artifacts",
+    validateAgencyArtifacts({
+      agenciesFile,
+      pilotSelectionFile: pilotSelection,
+      inputTexts: agencyInputTexts
+    })
+  );
+
+  const fixtures = FIXTURE_KEYS.map((key) =>
+    parseRequiredJson(inputs, PATHS[key], "object")
+  );
+  const assetExists = assetExistsFor(root);
+  for (const fixture of fixtures) {
+    throwValidationErrors(
+      `Fixture ${fixture.case_id}`,
+      validateFixture(fixture, {
+        schema,
+        repositoryRoot: root,
+        assetExists
+      })
+    );
+  }
+
+  const evidenceBundle = buildEvidenceBundle({ repositoryRoot: root });
+  const typologies = parseRequiredJson(inputs, PATHS.typologies, "array");
+  const facts = parseRequiredJson(inputs, PATHS.facts, "array");
+  const issues = parseRequiredJson(inputs, PATHS.issues, "array");
+  const events = parseRequiredJson(inputs, PATHS.events, "array");
+  const measures = materializeMeasureRecords(
+    fixtures.filter((fixture) =>
+      ["CT-A", "CT-B", "CT-D", "CT-E", "CT-G"].includes(fixture.case_id)
+    )
+  );
+  assertCatalogParity(typologies, measures.typologies, "typologies.json");
+  assertCatalogParity(facts, measures.facts, "facts.json");
+  assertCatalogParity(issues, measures.issues, "issues.json");
+  assertCatalogParity(events, measures.events, "events.json");
+
+  const nexoRows = parseRequiredCsv(inputs, PATHS.nexo);
+  const legacyProjects = normalizeLegacyProjects(nexoRows);
+  if (legacyProjects.length !== 714) {
+    throw new Error(
+      `Legacy projection must contain exactly 714 records; found ${legacyProjects.length}`
+    );
+  }
+
+  const registryAgencies = agenciesFile.agencies.map((agency) =>
+    structuredClone(agency)
+  );
+  const additionalAgencies = controlledAgencies(fixtures);
+  const agencies = [...registryAgencies, ...additionalAgencies].sort(
+    compareById("agency_id")
+  );
+  if (new Set(agencies.map((agency) => agency.agency_id)).size !== agencies.length) {
+    throw new Error("Integrated agencies contain duplicate IDs");
+  }
+  const agencyAliases = agenciesFile.agency_aliases
+    .map((alias) => structuredClone(alias))
+    .sort(
+      (left, right) =>
+        compareText(left.alias_normalized, right.alias_normalized) ||
+        compareText(left.alias_original, right.alias_original)
+    );
+  const authoritative = buildAuthoritativeProjects({
+    nexoRows,
+    agencies,
+    aliases: agencyAliases,
+    fixtures
+  });
+
+  const model = {
+    sources: evidenceBundle.sources,
+    agencies,
+    agencyAliases,
+    projects: authoritative.projects,
+    typologies,
+    observations: evidenceBundle.observations,
+    facts,
+    documents: evidenceBundle.documents,
+    evidence: evidenceBundle.evidence,
+    issues,
+    events
+  };
+  const pilot = buildPilot(pilotSelection, legacyProjects);
+  const scope = normalizeScope(parseRequiredCsv(inputs, PATHS.scope));
+  const matching = normalizeMatching(
+    parseRequiredCsv(inputs, PATHS.matching)
+  );
+  const feasibility = parseRequiredCsv(inputs, PATHS.feasibility).filter(
+    (row) => !CONTACT_FIELD_NAMES.has(row.field_name)
+  );
+  const quality = parseRequiredJson(inputs, PATHS.quality, "object");
+  const assistant = parseRequiredJson(inputs, PATHS.assistant, "object");
+  const certifiedAggregates = buildCertifiedAggregates(facts);
+
+  const payload = {
+    metadata: {
+      contract_version: "2.0.0",
+      dataset_id: DATASET_ID,
+      generated_at: GENERATED_AT,
+      cutoff_at: CUTOFF_AT,
+      input_fingerprints: buildInputFingerprints(inputs),
+      publication: {
+        is_public_artifact: true,
+        contains_contact_pii: false,
+        raw_payloads_included: false,
+        restricted_assets_included: false,
+        policy_version: "public-demo-v1"
+      },
+      title: "Viva Inmobiliaria - Prototipo de Inteligencia Comercial",
+      description:
+        "Snapshot público v2, determinista, trazable y compatible con la demo estática.",
+      source_snapshot: {
+        min_captured_at: "2026-01-01T00:00:00Z",
+        max_captured_at: CUTOFF_AT,
+        assistant_dataset_run_id:
+          clean(assistant?.metadata?.dataset_run_id) ?? null
+      },
+      counts: {
+        projects: legacyProjects.length,
+        model_projects: model.projects.length,
+        unresolved_legacy_projects:
+          authoritative.unresolvedLegacyIds.length,
+        agencies_in_market: new Set(
+          legacyProjects.map((project) => project.agency_name)
+        ).size,
+        canonical_agencies: model.agencies.length,
+        selected_agencies: pilot.agency_ids.length,
+        districts: new Set(
+          legacyProjects.map((project) => project.district)
+        ).size,
+        sources: model.sources.length,
+        observations: model.observations.length,
+        facts: model.facts.length,
+        documents: model.documents.length,
+        evidence: model.evidence.length,
+        issues: model.issues.length,
+        events: model.events.length
+      }
+    },
+    model,
+    pilot,
+    projects: legacyProjects,
+    executive: buildExecutive(legacyProjects, certifiedAggregates),
+    rankings: {
+      districts: aggregateProjects(legacyProjects, "district").slice(0, 18),
+      agencies: aggregateProjects(legacyProjects, "agency_name").slice(0, 18),
+      typologies: aggregateProjects(legacyProjects, "typology").slice(0, 12),
+      phases: aggregateProjects(legacyProjects, "project_phase").slice(0, 12)
+    },
+    sourceScope: scope,
+    scopeSummary: buildScopeSummary(scope),
+    matching: {
+      summary: countBy(matching, "match_class"),
+      rows: matching
+    },
+    coverage: buildCoverage(feasibility),
+    quality: normalizeQuality(quality),
+    assistant: normalizeAssistant(assistant),
+    pipeline: buildPipeline(),
+    deployment: {
+      mode: "static_versioned_demo",
+      github_pages_ready: true,
+      local_api_endpoints: [
+        "api/demo/platform",
+        "api/dashboard/latest",
+        "api/runs/latest"
+      ],
+      static_data_path: "demo-data/viva-platform-demo.json"
+    }
+  };
+
+  throwValidationErrors(
+    "Root data contract",
+    validateRootDocument(payload, { schema, assetExists })
+  );
+  return payload;
 }
 
-function number(value) {
-  if (value === null || value === undefined || value === "") return null;
-  const parsed = Number(String(value).replace("%", ""));
-  return Number.isFinite(parsed) ? parsed : null;
+export function serializeDemoPayload(payload) {
+  return `${JSON.stringify(payload, null, 2)}\n`;
 }
 
-function sum(rows, field) {
-  return rows.reduce((total, row) => total + (number(row[field]) ?? 0), 0);
+function assertOutputDoesNotOverwriteInput(repositoryRoot, outputPath) {
+  const resolvedOutput = path.resolve(outputPath);
+  const inputPaths = new Set(
+    REQUIRED_INPUT_PATHS.map((logicalPath) =>
+      path.resolve(logicalAbsolutePath(repositoryRoot, logicalPath))
+    )
+  );
+  if (inputPaths.has(resolvedOutput)) {
+    throw new Error(`Output path cannot overwrite an input: ${resolvedOutput}`);
+  }
 }
 
-function avg(rows, field) {
-  const values = rows.map((row) => number(row[field])).filter((value) => value !== null);
-  return values.length ? values.reduce((total, value) => total + value, 0) / values.length : 0;
+export async function buildDemoData({
+  repositoryRoot = DEFAULT_REPOSITORY_ROOT,
+  outputPath = undefined,
+  write = true
+} = {}) {
+  const root = path.resolve(repositoryRoot);
+  const target = path.resolve(
+    outputPath ??
+      path.join(
+        root,
+        "prototipo_ejecutable",
+        "public",
+        "demo-data",
+        "viva-platform-demo.json"
+      )
+  );
+  assertOutputDoesNotOverwriteInput(root, target);
+  const payload = await buildDemoPayload({ repositoryRoot: root });
+  const serialized = serializeDemoPayload(payload);
+  if (write) {
+    await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.writeFile(target, serialized, "utf8");
+  }
+  return {
+    payload,
+    serialized,
+    sha256: sha256(serialized),
+    outputPath: target
+  };
 }
 
-function round(value, digits = 2) {
-  const factor = 10 ** digits;
-  return Math.round((Number(value) || 0) * factor) / factor;
+async function main() {
+  const result = await buildDemoData();
+  console.log(
+    `Demo data written: ${path.relative(
+      path.join(DEFAULT_REPOSITORY_ROOT, "prototipo_ejecutable"),
+      result.outputPath
+    )}`
+  );
+  console.log(`Legacy projects: ${result.payload.projects.length}`);
+  console.log(`Model projects: ${result.payload.model.projects.length}`);
+  console.log(`SHA-256: ${result.sha256}`);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : null;
+if (invokedPath === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });
+}
