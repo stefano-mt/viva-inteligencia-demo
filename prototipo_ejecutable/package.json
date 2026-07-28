@@ -6,10 +6,18 @@
   "description": "Prototipo visual interactivo para equipo comercial de Viva Inmobiliaria.",
   "scripts": {
     "dev": "node server-static.js",
-    "check": "node --check server-static.js && node --check public/app.js && node --check scripts/build-demo-data.js",
-    "data:build": "node scripts/build-demo-data.js"
+    "check": "node --check server-static.js && node --check public/app.js && node --check public/js/config.js && node --check public/js/controller.js && node --check public/js/domain.js && node --check public/js/navigation.js && node --check public/js/state.js && node --check public/js/views/index.js && node --check public/js/views/dashboard.js && node --check public/js/views/projects.js && node --check public/js/views/market.js && node --check public/js/views/compare.js && node --check public/js/views/checklist.js && node --check public/js/views/assistant.js && node --check public/js/views/activity.js && node --check scripts/build-demo-data.js && node --check tests/data-contract.mjs && node --check tests/module-graph.mjs && node --check tests/browser-smoke.mjs && node --check tests/browser-a11y.mjs",
+    "data:build": "node scripts/build-demo-data.js",
+    "test:architecture": "node tests/module-graph.mjs",
+    "test:data": "node tests/data-contract.mjs",
+    "test:smoke": "node tests/browser-smoke.mjs",
+    "test:a11y": "node tests/browser-a11y.mjs",
+    "verify": "npm run check && npm run test:architecture && npm run test:data && npm run test:smoke && npm run test:a11y"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.1"
   }
 }

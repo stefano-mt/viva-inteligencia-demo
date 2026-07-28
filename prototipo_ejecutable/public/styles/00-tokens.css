@@ -1,0 +1,31 @@
+:root {
+  color: #202022;
+  background: #eff0f0;
+  font-family: Aptos, "Segoe UI", Arial, sans-serif;
+  font-size: 16px;
+  --surface: #ffffff;
+  --surface-soft: #eff0f0;
+  --surface-warm: #f8f5ec;
+  --line: #d7dcda;
+  --line-strong: #b8c4c0;
+  --text: #202022;
+  --muted: #52605b;
+  --ink: #202022;
+  --teal: #016150;
+  --teal-bright: #00943b;
+  --teal-soft: #e6f2ee;
+  --teal-line: #bad4cc;
+  --blue: #315fba;
+  --blue-soft: #e9effb;
+  --amber: #8a5400;
+  --amber-soft: #fff3d9;
+  --red: #b42318;
+  --red-soft: #fff0ec;
+  --green: #016150;
+  --green-soft: #e6f2ee;
+  --coral: #00943b;
+  --action: #00614f;
+  --action-hover: #00483b;
+  --shadow: 0 14px 34px rgba(1, 51, 43, 0.08);
+  --shadow-soft: 0 8px 24px rgba(1, 51, 43, 0.06);
+}

@@ -1,0 +1,27 @@
+export const state = {
+  data: null,
+  view: "dashboard",
+  mobileNavOpen: false,
+  selectedDistrict: "",
+  strategy: {
+    district: "",
+    typology: "Todos",
+    bedrooms: "Todos",
+    area: "",
+    targetPrice: "",
+    deliveryYear: "Todos",
+  },
+  projectFilters: {
+    district: "",
+    typology: "Todos",
+    phase: "Todos",
+    query: "",
+    sort: "direct",
+  },
+  projectLimit: 18,
+  selectedProjectId: null,
+  compareProjectIds: [],
+  compareQuery: "",
+  assistantInput: "",
+  assistantResponse: null,
+};
