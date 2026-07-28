@@ -31,7 +31,7 @@ CT-G, CT-H y CT-I preservan observaciones del contexto entregado:
 
 - CT-G transcribe dos capturas de Pardo Coast Tipo 7 y conserva sus SHA-256. Los PNG no se copian y `public_asset_path` permanece `null`.
 - CT-H usa nombres, dominios y conteos del snapshot local. No asigna `coverage_tier` ni afirma que los mínimos 30/15/5 ya estén cumplidos.
-- CT-I congela el baseline de Miraflores en 90 observados, 85 autoritativos y cinco no reconciliados. Sus IDs secuenciales son un vector de prueba; P2-03 debe materializar IDs y cuadrantes reales desde el snapshot.
+- CT-I congela los 90 IDs y coordenadas reales de Miraflores del artefacto público, con 85 mappings `project:nexo-*` y cinco IDs no reconciliados.
 
 Un valor observado puede permanecer `reviewable` o `inconsistent`. “Observado” no significa “verdadero” ni “certificado”.
 
@@ -41,12 +41,12 @@ Un valor observado puede permanecer `reviewable` o `inconsistent`. “Observado�
 |---|---|---|
 | `ct-a.json` | Diferenciar `built`, `free` y `total`; calcular dos denominadores. | 108 m2 libres; 10,000.00 y 4,757.28 PEN/m2; derivados del precio simulado no elegibles. |
 | `ct-b.json` | Conservar dos precios `list` incompatibles. | 25,000 PEN y +4.17% con base 600,000; `PRICE_SOURCE_CONFLICT`; verdad seleccionada `null`. |
-| `ct-c.json` | Congelar consistencia de una microzona radial. | Los cuatro consumidores reciben solo `project:ct-c-inside`; fuera, inválido y no reconciliado conservan motivos exactos. |
+| `ct-c.json` | Congelar consistencia de una microzona radial y vectores matemáticos. | ID común en cuatro consumidores; borde exterior/hueco, Haversine, score/cobertura y cuantiles R-7 con resultados exactos. |
 | `ct-d.json` | Vincular atributo cualitativo a evidencia y respetar permisos. | `cuarzo` abre fragmento autorizado; documento restringido no publica ruta ni fragmento; aire acondicionado es `unknown`, no `false`. |
 | `ct-e.json` | Validar histórico, base cero, cambio extremo y orden. | +30,000/+5%; base cero con porcentaje `null`; >50% revisable; causa `null`; orden por fecha e ID. |
 | `ct-g.json` | Detectar incompatibilidad tarjeta/plano. | 104.15 m2 de tipo `unknown` vs 53.37 m2 de tipo `total`; delta 50.78 y 48.76%; `inconsistent`; no elegible; sin Park 55 ni activos publicados. |
 | `ct-h.json` | Probar canonización sobre nombres reales. | GRUPO T&C/GRUPO TyC comparten ID mediante resolución `rule_based`; dominios ambiguos quedan `manual_review`; vector resoluble >=30. |
-| `ct-i.json` | Congelar el distrito de alta carga Miraflores. | 90 observados únicos en cuadrantes 23/23/22/22; 85 autoritativos; cinco gaps visibles; reset 90/85. |
+| `ct-i.json` | Congelar el distrito de alta carga Miraflores. | 90 observados reales en cuadrantes 40/5/5/40; 85 autoritativos; cinco gaps visibles; reset 90/85. |
 
 ## Procedencia y límites específicos
 
@@ -75,11 +75,11 @@ Los mínimos son expectativas para P1-03:
 
 ### CT-C
 
-El punto objetivo, radio y coordenadas son controlados. El proyecto dentro es el único comparable. El proyecto fuera queda excluido por alcance, el proyecto sin coordenadas por geografía y el observado no reconciliado por reconciliación. Este último puede mostrarse como cobertura excluida, nunca como comparable. Mapa, lectura de mercado, comparador y asistente deben devolver exactamente el mismo ID.
+El punto objetivo, radio y coordenadas son controlados. El proyecto dentro es el único comparable. El proyecto fuera queda excluido por alcance, el proyecto sin coordenadas por geografía y el observado no reconciliado por reconciliación. Este último puede mostrarse como cobertura excluida, nunca como comparable. Mapa, lectura de mercado, comparador y asistente deben devolver exactamente el mismo ID. `controlled_vectors` congela además borde exterior incluido, borde de hueco excluido, distancia Haversine exactamente igual al radio, componentes de score/cobertura y cuantiles R-7 pares e impares.
 
 ### CT-I
 
-El fixture exige cuatro cuadrantes analíticos en orden `NW`, `NE`, `SW`, `SE`. La unión de IDs observados debe tener 90 elementos únicos y la unión autoritativa 85. Los cinco IDs restantes aparecen explícitamente con `reason=not_reconciled`. `polygon_valid_count=90` es un resultado bloqueante que P2-03 debe confirmar contra geometría real; no se degrada a 89.
+El fixture exige cuatro cuadrantes analíticos en orden `NW`, `NE`, `SW`, `SE`, medianas exactas `-12.12101775/-77.02983135` y conteos `40/5/5/40`. Las 90 asignaciones reproducen IDs y coordenadas del JSON público; 85 enlazan con `project:nexo-*`. Los cinco gaps reales (`2798`, `3165`, `3231`, `3250`, `4088`) aparecen con `reason=not_reconciled`. `polygon_valid_count=90` es bloqueante; no se degrada a 89.
 
 ## Consumo posterior
 

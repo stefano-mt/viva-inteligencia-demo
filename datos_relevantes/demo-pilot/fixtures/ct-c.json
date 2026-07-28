@@ -157,6 +157,98 @@
           "visible_as_coverage": true
         }
       ]
+    },
+    "controlled_vectors": {
+      "point_in_polygon": {
+        "epsilon_degrees": 1e-10,
+        "outer_ring": [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
+        "holes": [
+          [[4, 4], [6, 4], [6, 6], [4, 6], [4, 4]]
+        ],
+        "cases": [
+          {
+            "case_id": "outer-edge-is-inside",
+            "point": [0, 5],
+            "expected_inside": true
+          },
+          {
+            "case_id": "hole-edge-is-outside",
+            "point": [4, 5],
+            "expected_inside": false
+          }
+        ]
+      },
+      "haversine": {
+        "earth_radius_meters": 6371008.8,
+        "from": [0, 0],
+        "to": [0.00449660181862269, 0],
+        "radius_meters": 500,
+        "expected_distance_meters": 500,
+        "expected_inside_radius": true
+      },
+      "comparability": {
+        "full_coverage": {
+          "inputs": {
+            "distance_meters": 125,
+            "radius_meters": 500,
+            "target_area_m2": 80,
+            "project_area_m2": 72,
+            "target_bedrooms": 2,
+            "project_bedrooms_min": 2,
+            "project_bedrooms_max": 3,
+            "target_typology": "departamento",
+            "project_typology": "departamento",
+            "target_delivery_year": 2027,
+            "project_delivery_year": 2026,
+            "target_price_per_m2": 8000,
+            "project_price_per_m2": 7200
+          },
+          "expected_components": {
+            "geography": 22.5,
+            "area": 18,
+            "bedrooms": 15,
+            "typology": 10,
+            "delivery": 5,
+            "price_per_m2": 13.5
+          },
+          "expected_raw_points": 84,
+          "expected_available_weight": 100,
+          "expected_score": 84,
+          "expected_coverage_pct": 100,
+          "expected_label": "Alta"
+        },
+        "partial_coverage": {
+          "expected_components": {
+            "geography": 30,
+            "area": 18,
+            "typology": 10
+          },
+          "expected_raw_points": 58,
+          "expected_available_weight": 60,
+          "expected_score": 96.7,
+          "expected_coverage_pct": 60,
+          "expected_label": "Alta"
+        },
+        "evidence_coverage": {
+          "available_weights": [100, 60, 20],
+          "expected_mean_pct": 60,
+          "expected_comparability_status": "ready"
+        }
+      },
+      "quantiles_r7": {
+        "odd": {
+          "values": [10, 20, 30, 40, 50],
+          "expected_p25": 20,
+          "expected_median": 30,
+          "expected_p75": 40
+        },
+        "even": {
+          "values": [10, 20, 30, 40],
+          "expected_p25": 17.5,
+          "expected_median": 25,
+          "expected_p75": 32.5
+        }
+      }
     }
   },
   "expected": {
@@ -180,6 +272,32 @@
         "assertion_id": "assertion:ct-c-order-independent",
         "operation": "reverse_input_same_result",
         "expected_value": true
+      },
+      {
+        "assertion_id": "assertion:ct-c-polygon-boundaries",
+        "operation": "point_in_polygon_vectors",
+        "expected_value": [true, false]
+      },
+      {
+        "assertion_id": "assertion:ct-c-haversine-radius-edge",
+        "operation": "haversine_equals_radius",
+        "expected_value": 500
+      },
+      {
+        "assertion_id": "assertion:ct-c-score-components",
+        "operation": "comparability_score_vectors",
+        "expected_value": [
+          {"raw_points": 84, "available_weight": 100, "score": 84, "coverage_pct": 100},
+          {"raw_points": 58, "available_weight": 60, "score": 96.7, "coverage_pct": 60}
+        ]
+      },
+      {
+        "assertion_id": "assertion:ct-c-r7-quantiles",
+        "operation": "quantiles_r7",
+        "expected_value": [
+          {"p25": 20, "median": 30, "p75": 40},
+          {"p25": 17.5, "median": 25, "p75": 32.5}
+        ]
       }
     ],
     "result": {
