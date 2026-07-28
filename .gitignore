@@ -1,0 +1,6 @@
+# Local agent and analysis outputs
+.cache/
+graphify-out/
+.planning/evidence/local/
+node_modules/
+npm-debug.log*
