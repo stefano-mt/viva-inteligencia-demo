@@ -1,0 +1,438 @@
+{
+  "case_id": "CT-E",
+  "classification": "controlled",
+  "description": "Histórico determinista con cambio normal, base cero, cambio extremo, causa nula y orden por fecha más ID.",
+  "provenance": [
+    {
+      "provenance_id": "provenance:ct-e-controlled",
+      "classification": "controlled",
+      "source_path": "datos_relevantes/demo-pilot/fixtures/ct-e.json",
+      "note": "Serie congelada para probar cálculo, revisión y orden; no representa precios reales."
+    }
+  ],
+  "input": {
+    "sources": [
+      {
+        "source_id": "source:ct-e-controlled",
+        "name": "Fixture controlado CT-E",
+        "type": "controlled_fixture",
+        "base_url": null,
+        "legal_status": "cleared_for_demo",
+        "access_mode": "controlled_fixture"
+      }
+    ],
+    "agencies": [
+      {
+        "agency_id": "agency:ct-e-controlled",
+        "canonical_name": "Inmobiliaria controlada CT-E",
+        "normalized_name": "inmobiliaria-controlada-ct-e",
+        "domain": null,
+        "pilot_selected": false,
+        "coverage_tier": null,
+        "source_names": [
+          "Inmobiliaria controlada CT-E"
+        ],
+        "selection_reason": null
+      }
+    ],
+    "projects": [
+      {
+        "project_id": "project:ct-e-controlled",
+        "agency_id": "agency:ct-e-controlled",
+        "canonical_name": "Proyecto controlado CT-E",
+        "source_names": [
+          "Proyecto controlado CT-E"
+        ],
+        "location": {
+          "district": null,
+          "province": null,
+          "department": null,
+          "address": null,
+          "latitude": null,
+          "longitude": null
+        },
+        "status": "fixture",
+        "first_seen_at": "2026-01-01T00:00:00Z",
+        "last_seen_at": "2026-04-01T00:00:00Z",
+        "quality_status": "reviewable"
+      }
+    ],
+    "typologies": [
+      {
+        "typology_id": "typology:ct-e-controlled",
+        "project_id": "project:ct-e-controlled",
+        "model": "CT-E",
+        "floor_label_original": null,
+        "floor_min": null,
+        "floor_max": null,
+        "bedrooms_min": null,
+        "bedrooms_max": null,
+        "bathrooms_min": null,
+        "bathrooms_max": null,
+        "quality_status": "reviewable"
+      }
+    ],
+    "observations": [
+      {
+        "observation_id": "observation:ct-e-2026-01-01",
+        "source_id": "source:ct-e-controlled",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-e-controlled",
+        "captured_at": "2026-01-01T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "controlled_fixture",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Punto histórico controlado."
+      },
+      {
+        "observation_id": "observation:ct-e-2026-02-01",
+        "source_id": "source:ct-e-controlled",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-e-controlled",
+        "captured_at": "2026-02-01T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "controlled_fixture",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Punto histórico controlado."
+      },
+      {
+        "observation_id": "observation:ct-e-base-zero-before",
+        "source_id": "source:ct-e-controlled",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-e-controlled",
+        "captured_at": "2026-03-01T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "controlled_fixture",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Observación anterior del caso límite controlado de base cero."
+      },
+      {
+        "observation_id": "observation:ct-e-base-zero-after",
+        "source_id": "source:ct-e-controlled",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-e-controlled",
+        "captured_at": "2026-04-01T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "controlled_fixture",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Observación nueva del caso límite controlado de base cero."
+      },
+      {
+        "observation_id": "observation:ct-e-extreme-before",
+        "source_id": "source:ct-e-controlled",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-e-controlled",
+        "captured_at": "2026-03-15T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "controlled_fixture",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Observación anterior del caso límite controlado de cambio extremo."
+      },
+      {
+        "observation_id": "observation:ct-e-extreme-after",
+        "source_id": "source:ct-e-controlled",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-e-controlled",
+        "captured_at": "2026-04-01T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "controlled_fixture",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Observación nueva del caso límite controlado de cambio extremo."
+      }
+    ],
+    "facts": [
+      {
+        "fact_id": "fact:ct-e-price-600000",
+        "observation_id": "observation:ct-e-2026-01-01",
+        "entity_id": "typology:ct-e-controlled",
+        "field_name": "list_price",
+        "original_value": 600000,
+        "normalized_value": 600000,
+        "unit": "PEN",
+        "value_kind": "observed",
+        "semantic_type": "price",
+        "area_type": null,
+        "price_type": "list",
+        "currency": "PEN",
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "certified",
+        "benchmark_eligible": true,
+        "exclusion_reason": null,
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:ct-e-price-630000",
+        "observation_id": "observation:ct-e-2026-02-01",
+        "entity_id": "typology:ct-e-controlled",
+        "field_name": "list_price",
+        "original_value": 630000,
+        "normalized_value": 630000,
+        "unit": "PEN",
+        "value_kind": "observed",
+        "semantic_type": "price",
+        "area_type": null,
+        "price_type": "list",
+        "currency": "PEN",
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "certified",
+        "benchmark_eligible": true,
+        "exclusion_reason": null,
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:ct-e-zero-base",
+        "observation_id": "observation:ct-e-base-zero-before",
+        "entity_id": "typology:ct-e-controlled",
+        "field_name": "list_price",
+        "original_value": 0,
+        "normalized_value": 0,
+        "unit": "PEN",
+        "value_kind": "observed",
+        "semantic_type": "price",
+        "area_type": null,
+        "price_type": "list",
+        "currency": "PEN",
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Base cero usada únicamente para validar porcentaje nulo.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:ct-e-after-zero",
+        "observation_id": "observation:ct-e-base-zero-after",
+        "entity_id": "typology:ct-e-controlled",
+        "field_name": "list_price",
+        "original_value": 100000,
+        "normalized_value": 100000,
+        "unit": "PEN",
+        "value_kind": "observed",
+        "semantic_type": "price",
+        "area_type": null,
+        "price_type": "list",
+        "currency": "PEN",
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Par del caso límite de base cero.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:ct-e-extreme-before",
+        "observation_id": "observation:ct-e-extreme-before",
+        "entity_id": "typology:ct-e-controlled",
+        "field_name": "list_price",
+        "original_value": 100000,
+        "normalized_value": 100000,
+        "unit": "PEN",
+        "value_kind": "observed",
+        "semantic_type": "price",
+        "area_type": null,
+        "price_type": "list",
+        "currency": "PEN",
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Parte del cambio extremo sujeto a revisión.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:ct-e-extreme-after",
+        "observation_id": "observation:ct-e-extreme-after",
+        "entity_id": "typology:ct-e-controlled",
+        "field_name": "list_price",
+        "original_value": 160000,
+        "normalized_value": 160000,
+        "unit": "PEN",
+        "value_kind": "observed",
+        "semantic_type": "price",
+        "area_type": null,
+        "price_type": "list",
+        "currency": "PEN",
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Cambio de 60% sujeto a revisión.",
+        "derivation": null
+      }
+    ],
+    "documents": [],
+    "evidence": [],
+    "issues": [
+      {
+        "issue_id": "issue:ct-e-percent-base-zero",
+        "entity_type": "event",
+        "entity_id": "event:ct-e-base-zero",
+        "fact_ids": [
+          "fact:ct-e-zero-base",
+          "fact:ct-e-after-zero"
+        ],
+        "issue_code": "PERCENT_BASE_ZERO",
+        "severity": "medium",
+        "quality_status": "reviewable",
+        "detail": "El valor anterior es cero; el delta es calculable y el porcentaje no.",
+        "next_action": "Mostrar porcentaje como no disponible y conservar el delta numérico.",
+        "benchmark_blocking": true
+      },
+      {
+        "issue_id": "issue:ct-e-extreme-change-review",
+        "entity_type": "event",
+        "entity_id": "event:ct-e-extreme-change",
+        "fact_ids": [
+          "fact:ct-e-extreme-before",
+          "fact:ct-e-extreme-after"
+        ],
+        "issue_code": "EXTREME_CHANGE_REVIEW",
+        "severity": "high",
+        "quality_status": "reviewable",
+        "detail": "El cambio absoluto de 60% supera el umbral de revisión de 50%.",
+        "next_action": "Revisar las observaciones antes de certificar el evento.",
+        "benchmark_blocking": true
+      }
+    ],
+    "events": [
+      {
+        "event_id": "event:ct-e-extreme-change",
+        "entity_id": "typology:ct-e-controlled",
+        "field_name": "list_price",
+        "previous_fact_id": "fact:ct-e-extreme-before",
+        "new_fact_id": "fact:ct-e-extreme-after",
+        "effective_at": "2026-04-01T00:00:00Z",
+        "observed_at": "2026-04-01T00:00:00Z",
+        "delta": 60000,
+        "percentage": 60,
+        "percentage_base_fact_id": "fact:ct-e-extreme-before",
+        "cause": null,
+        "cause_evidence_ids": [],
+        "quality_status": "reviewable"
+      },
+      {
+        "event_id": "event:ct-e-normal-change",
+        "entity_id": "typology:ct-e-controlled",
+        "field_name": "list_price",
+        "previous_fact_id": "fact:ct-e-price-600000",
+        "new_fact_id": "fact:ct-e-price-630000",
+        "effective_at": "2026-02-01T00:00:00Z",
+        "observed_at": "2026-02-01T00:00:00Z",
+        "delta": 30000,
+        "percentage": 5,
+        "percentage_base_fact_id": "fact:ct-e-price-600000",
+        "cause": null,
+        "cause_evidence_ids": [],
+        "quality_status": "certified"
+      },
+      {
+        "event_id": "event:ct-e-base-zero",
+        "entity_id": "typology:ct-e-controlled",
+        "field_name": "list_price",
+        "previous_fact_id": "fact:ct-e-zero-base",
+        "new_fact_id": "fact:ct-e-after-zero",
+        "effective_at": "2026-04-01T00:00:00Z",
+        "observed_at": "2026-04-01T00:00:00Z",
+        "delta": 100000,
+        "percentage": null,
+        "percentage_base_fact_id": "fact:ct-e-zero-base",
+        "cause": null,
+        "cause_evidence_ids": [],
+        "quality_status": "reviewable"
+      }
+    ]
+  },
+  "expected": {
+    "assertions": [
+      {
+        "assertion_id": "assertion:ct-e-normal-delta",
+        "operation": "event_equals",
+        "event_id": "event:ct-e-normal-change",
+        "expected_delta": 30000,
+        "expected_percentage": 5
+      },
+      {
+        "assertion_id": "assertion:ct-e-zero-base",
+        "operation": "event_equals",
+        "event_id": "event:ct-e-base-zero",
+        "expected_delta": 100000,
+        "expected_percentage": null,
+        "expected_issue_code": "PERCENT_BASE_ZERO"
+      },
+      {
+        "assertion_id": "assertion:ct-e-extreme-review",
+        "operation": "event_equals",
+        "event_id": "event:ct-e-extreme-change",
+        "expected_percentage": 60,
+        "expected_quality_status": "reviewable",
+        "expected_issue_code": "EXTREME_CHANGE_REVIEW"
+      },
+      {
+        "assertion_id": "assertion:ct-e-base-zero-observation-order",
+        "operation": "fact_observation_captured_at_before",
+        "previous_fact_id": "fact:ct-e-zero-base",
+        "new_fact_id": "fact:ct-e-after-zero"
+      },
+      {
+        "assertion_id": "assertion:ct-e-extreme-observation-order",
+        "operation": "fact_observation_captured_at_before",
+        "previous_fact_id": "fact:ct-e-extreme-before",
+        "new_fact_id": "fact:ct-e-extreme-after"
+      },
+      {
+        "assertion_id": "assertion:ct-e-no-cause",
+        "operation": "all_equal",
+        "event_ids": [
+          "event:ct-e-normal-change",
+          "event:ct-e-base-zero",
+          "event:ct-e-extreme-change"
+        ],
+        "field": "cause",
+        "expected_value": null
+      },
+      {
+        "assertion_id": "assertion:ct-e-order",
+        "operation": "sort_by_effective_at_then_event_id",
+        "expected_event_ids": [
+          "event:ct-e-normal-change",
+          "event:ct-e-base-zero",
+          "event:ct-e-extreme-change"
+        ]
+      }
+    ],
+    "result": {
+      "normal_change": {
+        "delta": 30000,
+        "percentage": 5,
+        "percentage_base_fact_id": "fact:ct-e-price-600000",
+        "cause": null
+      },
+      "zero_base": {
+        "delta": 100000,
+        "percentage": null,
+        "issue_code": "PERCENT_BASE_ZERO",
+        "cause": null
+      },
+      "extreme_change": {
+        "delta": 60000,
+        "percentage": 60,
+        "issue_code": "EXTREME_CHANGE_REVIEW",
+        "quality_status": "reviewable",
+        "cause": null
+      },
+      "sorted_event_ids": [
+        "event:ct-e-normal-change",
+        "event:ct-e-base-zero",
+        "event:ct-e-extreme-change"
+      ]
+    }
+  }
+}

@@ -1,0 +1,283 @@
+{
+  "case_id": "CT-H",
+  "classification": "observed",
+  "description": "Vector determinista de 45 nombres reales del snapshot para validar canonización conservadora, consolidación confirmada y revisión manual de dominios compartidos.",
+  "provenance": [
+    {
+      "provenance_id": "provenance:ct-h-scope-matrix",
+      "classification": "observed",
+      "source_path": "datos_relevantes/service_scope_matrix.csv",
+      "note": "Nombres, dominios y conteos Nexo proceden del snapshot local; no se infieren niveles de cobertura."
+    },
+    {
+      "provenance_id": "provenance:ct-h-minimum-dataset",
+      "classification": "observed",
+      "source_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+      "note": "La existencia de los nombres se contrasta con el dataset mínimo local."
+    }
+  ],
+  "input": {
+    "sources": [
+      {
+        "source_id": "source:nexo-snapshot",
+        "name": "Nexo Inmobiliario - snapshot local",
+        "type": "portal",
+        "base_url": "https://nexoinmobiliario.pe",
+        "legal_status": "pending_review",
+        "access_mode": "versioned_snapshot"
+      }
+    ],
+    "source_records": [
+      { "source_name": "ABRIL GRUPO INMOBILIARIO", "domain": "abril.pe", "nexo_project_count": 30 },
+      { "source_name": "ACTUAL", "domain": "actual.pe", "nexo_project_count": 6 },
+      { "source_name": "AKAMAI", "domain": "alpunto.com.pe", "nexo_project_count": 3 },
+      { "source_name": "ALBAMAR GRUPO INMOBILIARIO", "domain": "albamar.com.pe", "nexo_project_count": 16 },
+      { "source_name": "ALERCES INMOBILIARIA", "domain": "evolta.pe", "nexo_project_count": 3 },
+      { "source_name": "ARQUIMIA", "domain": "arquimia.pe", "nexo_project_count": 1 },
+      { "source_name": "ART INMOBILIARIA", "domain": "artinmobiliaria.pe", "nexo_project_count": 2 },
+      { "source_name": "ARTECO", "domain": "arteco.pe", "nexo_project_count": 4 },
+      { "source_name": "AURORA GRUPO INMOBILIARIO", "domain": "grupoaurora.pe", "nexo_project_count": 5 },
+      { "source_name": "AVENIR GRUPO INMOBILIARIO", "domain": "avenir.pe", "nexo_project_count": 5 },
+      { "source_name": "BALANCE GRUPO INMOBILIARIO", "domain": "balance.pe", "nexo_project_count": 3 },
+      { "source_name": "BESCO", "domain": "besco.com.pe", "nexo_project_count": 8 },
+      { "source_name": "BRAZIL GRUPO INMOBILIARIO", "domain": "brazilgrupoinmobiliario.com", "nexo_project_count": 2 },
+      { "source_name": "CANTABRIA", "domain": "inmobiliariacantabria.com", "nexo_project_count": 5 },
+      { "source_name": "CISSAC", "domain": null, "nexo_project_count": 10 },
+      { "source_name": "CIUDARIS", "domain": null, "nexo_project_count": 5 },
+      { "source_name": "CONCRETA GRUPO INMOBILIARIO", "domain": "concretaconstruye.com", "nexo_project_count": 2 },
+      { "source_name": "CONFORTA INMOBILIARIA", "domain": "confortainmobiliaria.com", "nexo_project_count": 4 },
+      { "source_name": "CONSTRUCTORA ATLAS", "domain": "constructoraatlas.com.pe", "nexo_project_count": 2 },
+      { "source_name": "CONSTRUCTORA INARCO", "domain": "inarco.com.pe", "nexo_project_count": 6 },
+      { "source_name": "CONSTRUCTORA MALLORCA", "domain": "constructoramallorca.com", "nexo_project_count": 2 },
+      { "source_name": "COSAPI", "domain": "cosapiinmobiliaria.com.pe", "nexo_project_count": 8 },
+      { "source_name": "EE INMOBILIARIA", "domain": "eeinmobiliaria.com", "nexo_project_count": 28 },
+      { "source_name": "EDIFICA", "domain": "edifica.com.pe", "nexo_project_count": 13 },
+      { "source_name": "EVERGRAN GRUPO INMOBILIARIO", "domain": "evergran.pe", "nexo_project_count": 5 },
+      { "source_name": "FRONTERA", "domain": "frontera.pe", "nexo_project_count": 5 },
+      { "source_name": "FUNDAMENTA", "domain": "evolta.pe", "nexo_project_count": 3 },
+      { "source_name": "GDC INMOBILIARIA", "domain": "gdcinmobiliaria.pe", "nexo_project_count": 5 },
+      { "source_name": "GRUPO LAR", "domain": "grupolar.com", "nexo_project_count": 7 },
+      { "source_name": "GRUPO MG", "domain": "grupomg.pe", "nexo_project_count": 14 },
+      { "source_name": "GRUPO SOL", "domain": "gruposol.com.pe", "nexo_project_count": 8 },
+      { "source_name": "GRUPO T&C", "domain": "grupotyc.com", "nexo_project_count": 14 },
+      { "source_name": "GRUPO TyC", "domain": "grupotyc.com", "nexo_project_count": 8 },
+      { "source_name": "HL DESARROLLOS INMOBILIARIOS", "domain": "hldi.pe", "nexo_project_count": 9 },
+      { "source_name": "IMAGINA", "domain": "imagina.pe", "nexo_project_count": 10 },
+      { "source_name": "INHOUSE", "domain": "inhouse.com.pe", "nexo_project_count": 5 },
+      { "source_name": "INMOBILIARIA HUANWIL", "domain": "alpunto.com.pe", "nexo_project_count": 1 },
+      { "source_name": "INVENT INMOBILIARIA", "domain": "invent.com.pe", "nexo_project_count": 9 },
+      { "source_name": "LOS PORTALES", "domain": "losportales.com.pe", "nexo_project_count": 1 },
+      { "source_name": "LOS PORTALES DEPARTAMENTOS", "domain": "losportales.com.pe", "nexo_project_count": 5 },
+      { "source_name": "PAZ", "domain": "paz.pe", "nexo_project_count": 15 },
+      { "source_name": "REYNA INMOBILIARIA", "domain": "reynainmobiliaria.pe", "nexo_project_count": 9 },
+      { "source_name": "V&V GRUPO INMOBILIARIO", "domain": "vyv.pe", "nexo_project_count": 15 },
+      { "source_name": "VIBRANT", "domain": "albamar.com.pe", "nexo_project_count": 1 },
+      { "source_name": "ZAFIRA INMOBILIARIA", "domain": "evolta.pe", "nexo_project_count": 5 }
+    ],
+    "agency_aliases": [
+      {
+        "alias_original": "GRUPO T&C",
+        "alias_normalized": "grupo t&c",
+        "agency_id": "agency:grupo-tyc",
+        "resolution": "rule_based",
+        "evidence_ids": []
+      },
+      {
+        "alias_original": "GRUPO TyC",
+        "alias_normalized": "grupo tyc",
+        "agency_id": "agency:grupo-tyc",
+        "resolution": "rule_based",
+        "evidence_ids": []
+      },
+      {
+        "alias_original": "AKAMAI",
+        "alias_normalized": "akamai",
+        "agency_id": null,
+        "resolution": "manual_review",
+        "evidence_ids": []
+      },
+      {
+        "alias_original": "INMOBILIARIA HUANWIL",
+        "alias_normalized": "inmobiliaria huanwil",
+        "agency_id": null,
+        "resolution": "manual_review",
+        "evidence_ids": []
+      },
+      {
+        "alias_original": "ALBAMAR GRUPO INMOBILIARIO",
+        "alias_normalized": "albamar grupo inmobiliario",
+        "agency_id": null,
+        "resolution": "manual_review",
+        "evidence_ids": []
+      },
+      {
+        "alias_original": "VIBRANT",
+        "alias_normalized": "vibrant",
+        "agency_id": null,
+        "resolution": "manual_review",
+        "evidence_ids": []
+      },
+      {
+        "alias_original": "ALERCES INMOBILIARIA",
+        "alias_normalized": "alerces inmobiliaria",
+        "agency_id": null,
+        "resolution": "manual_review",
+        "evidence_ids": []
+      },
+      {
+        "alias_original": "FUNDAMENTA",
+        "alias_normalized": "fundamenta",
+        "agency_id": null,
+        "resolution": "manual_review",
+        "evidence_ids": []
+      },
+      {
+        "alias_original": "ZAFIRA INMOBILIARIA",
+        "alias_normalized": "zafira inmobiliaria",
+        "agency_id": null,
+        "resolution": "manual_review",
+        "evidence_ids": []
+      },
+      {
+        "alias_original": "LOS PORTALES",
+        "alias_normalized": "los portales",
+        "agency_id": null,
+        "resolution": "manual_review",
+        "evidence_ids": []
+      },
+      {
+        "alias_original": "LOS PORTALES DEPARTAMENTOS",
+        "alias_normalized": "los portales departamentos",
+        "agency_id": null,
+        "resolution": "manual_review",
+        "evidence_ids": []
+      }
+    ],
+    "normalization_expectations": [
+      { "source_name": "ABRIL GRUPO INMOBILIARIO", "agency_id": "agency:abril-grupo-inmobiliario" },
+      { "source_name": "ACTUAL", "agency_id": "agency:actual" },
+      { "source_name": "ARQUIMIA", "agency_id": "agency:arquimia" },
+      { "source_name": "ART INMOBILIARIA", "agency_id": "agency:art-inmobiliaria" },
+      { "source_name": "ARTECO", "agency_id": "agency:arteco" },
+      { "source_name": "AURORA GRUPO INMOBILIARIO", "agency_id": "agency:aurora-grupo-inmobiliario" },
+      { "source_name": "AVENIR GRUPO INMOBILIARIO", "agency_id": "agency:avenir-grupo-inmobiliario" },
+      { "source_name": "BALANCE GRUPO INMOBILIARIO", "agency_id": "agency:balance-grupo-inmobiliario" },
+      { "source_name": "BESCO", "agency_id": "agency:besco" },
+      { "source_name": "BRAZIL GRUPO INMOBILIARIO", "agency_id": "agency:brazil-grupo-inmobiliario" },
+      { "source_name": "CANTABRIA", "agency_id": "agency:cantabria" },
+      { "source_name": "CISSAC", "agency_id": "agency:cissac" },
+      { "source_name": "CIUDARIS", "agency_id": "agency:ciudaris" },
+      { "source_name": "CONCRETA GRUPO INMOBILIARIO", "agency_id": "agency:concreta-grupo-inmobiliario" },
+      { "source_name": "CONFORTA INMOBILIARIA", "agency_id": "agency:conforta-inmobiliaria" },
+      { "source_name": "CONSTRUCTORA ATLAS", "agency_id": "agency:constructora-atlas" },
+      { "source_name": "CONSTRUCTORA INARCO", "agency_id": "agency:constructora-inarco" },
+      { "source_name": "CONSTRUCTORA MALLORCA", "agency_id": "agency:constructora-mallorca" },
+      { "source_name": "COSAPI", "agency_id": "agency:cosapi" },
+      { "source_name": "EE INMOBILIARIA", "agency_id": "agency:ee-inmobiliaria" },
+      { "source_name": "EDIFICA", "agency_id": "agency:edifica" },
+      { "source_name": "EVERGRAN GRUPO INMOBILIARIO", "agency_id": "agency:evergran-grupo-inmobiliario" },
+      { "source_name": "FRONTERA", "agency_id": "agency:frontera" },
+      { "source_name": "GDC INMOBILIARIA", "agency_id": "agency:gdc-inmobiliaria" },
+      { "source_name": "GRUPO LAR", "agency_id": "agency:grupo-lar" },
+      { "source_name": "GRUPO MG", "agency_id": "agency:grupo-mg" },
+      { "source_name": "GRUPO SOL", "agency_id": "agency:grupo-sol" },
+      { "source_name": "GRUPO T&C", "agency_id": "agency:grupo-tyc" },
+      { "source_name": "GRUPO TyC", "agency_id": "agency:grupo-tyc" },
+      { "source_name": "HL DESARROLLOS INMOBILIARIOS", "agency_id": "agency:hl-desarrollos-inmobiliarios" },
+      { "source_name": "IMAGINA", "agency_id": "agency:imagina" },
+      { "source_name": "INHOUSE", "agency_id": "agency:inhouse" },
+      { "source_name": "INVENT INMOBILIARIA", "agency_id": "agency:invent-inmobiliaria" },
+      { "source_name": "PAZ", "agency_id": "agency:paz" },
+      { "source_name": "REYNA INMOBILIARIA", "agency_id": "agency:reyna-inmobiliaria" },
+      { "source_name": "V&V GRUPO INMOBILIARIO", "agency_id": "agency:v-v-grupo-inmobiliario" }
+    ]
+  },
+  "expected": {
+    "assertions": [
+      {
+        "assertion_id": "assertion:ct-h-real-source-vector",
+        "operation": "source_records_exist_in_local_snapshot",
+        "source_paths": [
+          "datos_relevantes/service_scope_matrix.csv",
+          "datos_relevantes/viva_minimum_dataset_latest.csv"
+        ],
+        "expected_record_count": 45
+      },
+      {
+        "assertion_id": "assertion:ct-h-grupo-tyc-consolidated",
+        "operation": "all_resolve_to",
+        "source_names": [
+          "GRUPO T&C",
+          "GRUPO TyC"
+        ],
+        "expected_agency_id": "agency:grupo-tyc",
+        "expected_resolution": "rule_based"
+      },
+      {
+        "assertion_id": "assertion:ct-h-manual-review-not-auto-merged",
+        "operation": "all_equal",
+        "source_names": [
+          "AKAMAI",
+          "INMOBILIARIA HUANWIL",
+          "ALBAMAR GRUPO INMOBILIARIO",
+          "VIBRANT",
+          "ALERCES INMOBILIARIA",
+          "FUNDAMENTA",
+          "ZAFIRA INMOBILIARIA",
+          "LOS PORTALES",
+          "LOS PORTALES DEPARTAMENTOS"
+        ],
+        "field": "resolution",
+        "expected_value": "manual_review"
+      },
+      {
+        "assertion_id": "assertion:ct-h-resolvable-base-vector",
+        "operation": "unique_count_at_least",
+        "collection_path": "input.normalization_expectations[].agency_id",
+        "expected_value": 30
+      },
+      {
+        "assertion_id": "assertion:ct-h-thresholds-not-claimed",
+        "operation": "all_equal",
+        "actual_paths": [
+          "expected.result.demonstrated_counts.base_count",
+          "expected.result.demonstrated_counts.enriched_count",
+          "expected.result.demonstrated_counts.deep_count"
+        ],
+        "expected_value": null
+      }
+    ],
+    "result": {
+      "raw_source_record_count": 45,
+      "deterministically_resolvable_canonical_id_count": 35,
+      "resolved_alias_group": {
+        "agency_id": "agency:grupo-tyc",
+        "source_names": [
+          "GRUPO T&C",
+          "GRUPO TyC"
+        ]
+      },
+      "manual_review_source_name_count": 9,
+      "thresholds": {
+        "base_count": {
+          "minimum": 30,
+          "status": "expected_for_p1_03"
+        },
+        "enriched_count": {
+          "minimum": 15,
+          "status": "expected_for_p1_03"
+        },
+        "deep_count": {
+          "minimum": 5,
+          "status": "expected_for_p1_03"
+        }
+      },
+      "demonstrated_counts": {
+        "base_count": null,
+        "enriched_count": null,
+        "deep_count": null
+      },
+      "tier_assignment_status": "not_assigned_by_fixture"
+    }
+  }
+}
