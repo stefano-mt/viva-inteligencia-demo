@@ -1,0 +1,67 @@
+[
+  {
+    "typology_id": "typology:ct-a-controlled",
+    "project_id": "project:ct-a-controlled",
+    "model": "CT-A",
+    "floor_label_original": null,
+    "floor_min": null,
+    "floor_max": null,
+    "bedrooms_min": null,
+    "bedrooms_max": null,
+    "bathrooms_min": null,
+    "bathrooms_max": null,
+    "quality_status": "certified"
+  },
+  {
+    "typology_id": "typology:ct-b-controlled",
+    "project_id": "project:ct-b-controlled",
+    "model": "CT-B",
+    "floor_label_original": null,
+    "floor_min": null,
+    "floor_max": null,
+    "bedrooms_min": null,
+    "bedrooms_max": null,
+    "bathrooms_min": null,
+    "bathrooms_max": null,
+    "quality_status": "reviewable"
+  },
+  {
+    "typology_id": "typology:ct-d-controlled",
+    "project_id": "project:ct-d-controlled",
+    "model": "CT-D",
+    "floor_label_original": null,
+    "floor_min": null,
+    "floor_max": null,
+    "bedrooms_min": null,
+    "bedrooms_max": null,
+    "bathrooms_min": null,
+    "bathrooms_max": null,
+    "quality_status": "certified"
+  },
+  {
+    "typology_id": "typology:ct-e-controlled",
+    "project_id": "project:ct-e-controlled",
+    "model": "CT-E",
+    "floor_label_original": null,
+    "floor_min": null,
+    "floor_max": null,
+    "bedrooms_min": null,
+    "bedrooms_max": null,
+    "bathrooms_min": null,
+    "bathrooms_max": null,
+    "quality_status": "reviewable"
+  },
+  {
+    "typology_id": "typology:pardo-coast-tipo-7",
+    "project_id": "project:nexo-2951",
+    "model": "Tipo 7",
+    "floor_label_original": null,
+    "floor_min": null,
+    "floor_max": null,
+    "bedrooms_min": 2,
+    "bedrooms_max": 2,
+    "bathrooms_min": 2,
+    "bathrooms_max": 2,
+    "quality_status": "inconsistent"
+  }
+]

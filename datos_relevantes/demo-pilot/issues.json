@@ -1,0 +1,79 @@
+[
+  {
+    "issue_id": "issue:ct-b-price-source-conflict",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-b-controlled",
+    "fact_ids": [
+      "fact:ct-b-price-a",
+      "fact:ct-b-price-b"
+    ],
+    "issue_code": "PRICE_SOURCE_CONFLICT",
+    "severity": "blocking",
+    "quality_status": "inconsistent",
+    "detail": "Dos fuentes controladas declaran precios list PEN distintos para la misma tipología.",
+    "next_action": "Conservar ambas observaciones y solicitar revisión; no elegir una fuente automáticamente.",
+    "benchmark_blocking": true
+  },
+  {
+    "issue_id": "issue:ct-e-extreme-change-review",
+    "entity_type": "event",
+    "entity_id": "event:ct-e-extreme-change",
+    "fact_ids": [
+      "fact:ct-e-extreme-before",
+      "fact:ct-e-extreme-after"
+    ],
+    "issue_code": "EXTREME_CHANGE_REVIEW",
+    "severity": "high",
+    "quality_status": "reviewable",
+    "detail": "El cambio absoluto de 60% supera el umbral de revisión de 50%.",
+    "next_action": "Revisar las observaciones antes de certificar el evento.",
+    "benchmark_blocking": true
+  },
+  {
+    "issue_id": "issue:ct-e-percent-base-zero",
+    "entity_type": "event",
+    "entity_id": "event:ct-e-base-zero",
+    "fact_ids": [
+      "fact:ct-e-zero-base",
+      "fact:ct-e-after-zero"
+    ],
+    "issue_code": "PERCENT_BASE_ZERO",
+    "severity": "medium",
+    "quality_status": "reviewable",
+    "detail": "El valor anterior es cero; el delta es calculable y el porcentaje no.",
+    "next_action": "Mostrar porcentaje como no disponible y conservar el delta numérico.",
+    "benchmark_blocking": true
+  },
+  {
+    "issue_id": "issue:pardo-coast-area-source-conflict",
+    "entity_type": "typology",
+    "entity_id": "typology:pardo-coast-tipo-7",
+    "fact_ids": [
+      "fact:pardo-coast-card-area",
+      "fact:pardo-coast-plan-area"
+    ],
+    "issue_code": "AREA_SOURCE_CONFLICT",
+    "severity": "blocking",
+    "quality_status": "inconsistent",
+    "detail": "La tarjeta declara un área sin tipo y el plano declara un área total incompatible para Pardo Coast Tipo 7.",
+    "next_action": "Conservar ambas observaciones, excluir del benchmark certificado y solicitar revisión documental.",
+    "benchmark_blocking": true
+  },
+  {
+    "issue_id": "issue:pardo-coast-floor-range-conflict-review",
+    "entity_type": "typology",
+    "entity_id": "typology:pardo-coast-tipo-7",
+    "fact_ids": [
+      "fact:pardo-coast-card-floor",
+      "fact:pardo-coast-plan-unit-range",
+      "fact:pardo-coast-inferred-floor-min",
+      "fact:pardo-coast-inferred-floor-max"
+    ],
+    "issue_code": "FLOOR_RANGE_CONFLICT_REVIEW",
+    "severity": "high",
+    "quality_status": "reviewable",
+    "detail": "La tarjeta indica Piso 1 y el plano declara unidades 807-1007; la lectura de pisos 8-10 es una inferencia de baja confianza.",
+    "next_action": "Verificar numeración y vigencia con una fuente autorizada; no declarar cuál observación es verdadera.",
+    "benchmark_blocking": true
+  }
+]
