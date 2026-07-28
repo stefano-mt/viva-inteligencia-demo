@@ -123,3 +123,11 @@ El artefacto verificado tiene 3,382,916 bytes y SHA-256 `a7f68af35d97c6fbc066b42
 **Estado:** aceptada
 
 Los tres reader-tests del plan F2 terminaron en `FAIL`, aunque el último fue estrecho y sus gaps se remediaron documentalmente después. Esa remediación no se interpreta como autoaprobación. No se descarga geometría ni se edita código funcional hasta obtener una nueva validación independiente favorable, confirmar licencia/permiso, completar HUMAN-GATE-A y versionar `APPROVAL.md` mediante P2-00C.
+
+## D-016 — OSM como fuente cartográfica referencial propuesta para F2
+
+**Fecha:** 2026-07-28
+
+**Estado:** propuesta revisada; pendiente HUMAN-GATE-A
+
+El plan F2 propone un snapshot fijo de siete relaciones OpenStreetMap bajo ODbL 1.0. La geometría se conserva separada del dataset inmobiliario, con atribución visible, aviso share-alike, timestamp y hashes; la demo no consulta servicios cartográficos en runtime. RENLIM permanece como referencia legal y OSM no se presenta como límite oficial. El checker independiente emitió `PASS WITH RISKS`; P2-01 solo puede iniciar después de aprobación humana explícita y `APPROVAL.md`.

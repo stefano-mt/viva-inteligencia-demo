@@ -2,7 +2,7 @@
 
 ## Estado
 
-`DRAFT — remediado después del ciclo 3; checker final fue FAIL; implementación bloqueada`
+`REVIEWED — PASS WITH RISKS; pendiente HUMAN-GATE-A y P2-00C; implementación no iniciada`
 
 ## Objetivo verificable
 
@@ -48,7 +48,7 @@ Aceptación:
 4. Los excluidos se agrupan por etapa y motivo: alcance, geografía, reconciliación, producto o precio.
 5. Los ejes `scenario_status`, `geography_status`, `comparability_status` y `price_status` no se fusionan.
 6. La información está visible sin abrir un tooltip.
-7. La fuente cartográfica, año y carácter referencial se pueden consultar.
+7. La fuente cartográfica, fecha del snapshot y carácter referencial se pueden consultar.
 
 ### HU-DEMO-103 — Estados vacíos y datos insuficientes
 
@@ -88,7 +88,7 @@ Aceptación:
 3. Distingue incluido, seleccionado, excluido y escenario Viva por forma, borde y texto.
 4. Click y teclado abren un detalle persistente.
 5. Hover es complementario.
-6. La leyenda, escala, norte, atribución y año son legibles.
+6. La leyenda, escala, norte, atribución y fecha del snapshot son legibles.
 7. La lista accesible contiene la misma selección relevante del mapa.
 8. El mapa mantiene tamaño útil en los tres viewports.
 9. Los observados no reconciliados se distinguen y no reciben score.
@@ -354,17 +354,18 @@ Las tareas de una misma ola pueden ejecutarse en paralelo únicamente cuando el 
 - `depends_on`: ninguno.
 - Tipo: planificación read-only respecto de datos/código; no descarga ni versiona geometría.
 - `read_set`:
-  - portal INEI y metadata de la descarga 2023;
-  - términos de INEI/IDEP;
+  - licencia y copyright de OpenStreetMap;
+  - guía de atribución OSMF y política de Nominatim;
+  - relaciones OSM de los siete distritos;
   - RENLIM;
-  - alternativa IDEP FeatureServer;
+  - fuentes INEI/IDEP descartadas;
   - `CONTEXT.md`.
 - `write_set`:
   - `.planning/phases/02-geography-scenario/SOURCE-ASSESSMENT.md`
 - Entrega:
   1. fuente primaria exacta;
   2. términos de redistribución y atribución;
-  3. fecha/año/CRS/formato;
+  3. fecha de adquisición/CRS/formato;
   4. siete distritos requeridos;
   5. fallback candidato o recomendación de detener;
   6. riesgos que requieren decisión humana.
@@ -444,22 +445,23 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
 
 - `depends_on`: P2-00C.
 - `read_set`:
-  - fuente INEI 2023;
+  - relaciones OSM y lookup aprobados;
+  - licencia ODbL, guía de atribución y política de Nominatim;
   - RENLIM;
-  - alternativa IDEP;
   - `.planning/phases/02-geography-scenario/APPROVAL.md`;
   - `.planning/phases/02-geography-scenario/SOURCE-ASSESSMENT.md`;
   - `datos_relevantes/viva_minimum_dataset_latest.csv`.
 - `write_set`:
   - `datos_relevantes/geography/source-manifest.json`
-  - `datos_relevantes/geography/district-boundaries-source.gpkg`
+  - `datos_relevantes/geography/district-boundaries-source.geojson`
   - `datos_relevantes/geography/README.md`
 - Implementación:
   1. comprobar que URL/términos coinciden con el assessment aprobado;
-  2. descargar una vez y calcular SHA-256;
-  3. registrar CRS, fecha, productor y atribución;
-  4. extraer exactamente los siete distritos `high_load` sin llamadas en runtime;
-  5. documentar cualquier diferencia con RENLIM.
+  2. adquirir una sola vez las siete relaciones, con `User-Agent` identificable, caché y sin uso runtime;
+  3. calcular SHA-256 y registrar CRS, timestamp, productor, ODbL y atribución;
+  4. comprobar exactamente 7/7 polígonos, relation IDs, aliases y UBIGEO de contraste;
+  5. mantener la base geométrica ODbL separada de los datos inmobiliarios;
+  6. documentar cualquier diferencia con RENLIM.
 - Verificación:
   - hash reproducible;
   - archivo abre y contiene UBIGEO/nombre/geometría;
@@ -537,6 +539,7 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
   - `prototipo_ejecutable/scripts/build-demo-data.js`
   - `prototipo_ejecutable/public/demo-data/viva-platform-demo.json`
   - `prototipo_ejecutable/public/demo-data/district-boundaries.geojson`
+  - `datos_relevantes/geography/source-manifest.json`
   - `datos_relevantes/demo-pilot/coverage-report.json`
   - `prototipo_ejecutable/tests/data-contract.mjs`
   - `prototipo_ejecutable/tests/data-references.mjs`
@@ -546,6 +549,7 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
 - Entrega:
   - metadata y fingerprints actualizados;
   - geografía pública separada con hash;
+  - `source-manifest.json#/derived/public_geojson_sha256` y `public_geojson_bytes` actualizados por el propietario del artefacto derivado;
   - 90 Miraflores preservados;
   - 85 Miraflores autoritativos y cinco gaps visibles preservados;
   - reporte de cobertura ligado al nuevo SHA.
@@ -573,17 +577,17 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
   - validación;
   - serialización/parsing URL;
   - reducción de estado;
-  - `scenarioContext`;
-  - motivos de exclusión.
+  - `buildTerritorialContext` con escenario, alcance, `observed_scope_project_ids`, `geography_valid_project_ids`, exclusiones territoriales, `scenario_status` y `geography_status`;
+  - no calcula score, elegibilidad de precio, `comparability_status`, `price_status` ni cobertura de evidencia.
 - Verificación:
   - `node tests/scenario-domain.mjs`;
   - round-trip URL;
   - orden y omisión de defaults;
   - versión/distrito inválidos y fallbacks por campo;
-  - fixtures exactos de `scenario_status`, `geography_status`, `comparability_status`, `price_status` y media de `evidence_coverage_pct`;
-  - casos 89/90 geográficos, 0/2/3 comparables y coberturas 80.0/60.0;
+  - fixtures exactos de `scenario_status` y `geography_status`;
+  - geometría ausente, radio vacío 0/0 `ready`, cobertura 89/90 `partial` y hash inválido `unavailable`;
   - reset;
-  - CT-C/CT-I en funciones puras.
+  - parte territorial de CT-C/CT-I en funciones puras.
 - Rollback: módulo no importado.
 
 ### P2-06 — Comparabilidad y diagnóstico puros
@@ -597,7 +601,9 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
   - componentes y cobertura;
   - tie-break estable;
   - elegibilidad de precio;
-  - diagnóstico publicado vs simulado.
+  - diagnóstico publicado vs simulado;
+  - `buildComparabilityContext` recibe la salida territorial congelada y produce `comparable_project_ids`, `price_reference_project_ids`, `comparability_status`, `price_status`, `evidence_coverage_pct` y exclusiones analíticas;
+  - no parsea URL ni vuelve a calcular pertenencia territorial.
 - Verificación:
   - `node tests/comparability.mjs`;
   - exacto/parcial/faltante/empate;
@@ -606,6 +612,7 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
   - umbrales P25/P75 inclusivos;
   - menos de tres comparables;
   - moneda/denominador incompatible;
+  - fixtures de 0/2/3 comparables, coberturas globales 80.0/60.0 y 2/3 referencias de precio;
   - sin `NaN`.
 - Rollback: conservar ranking anterior hasta integración, sin ocultar la deuda.
 
@@ -619,6 +626,7 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
   - `prototipo_ejecutable/tests/module-graph.mjs`
 - Entrega:
   - `scenario` como única fuente;
+  - composición única de `buildTerritorialContext` y `buildComparabilityContext` en `scenarioContext`; ninguna de las tareas paralelas crea un segundo contexto global;
   - adaptadores de dominio;
   - eventos de distrito, modo, cuadrante, radio, punto, producto y reset;
   - URL sincronizada;
@@ -886,7 +894,7 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
   2. el workflow de Pages para ese SHA termina en éxito;
   3. la URL pública responde HTTP 200;
   4. `viva-platform-demo.json` responde 200 y declara contrato `2.1.0`;
-  5. `district-boundaries.geojson` responde 200 y su hash coincide con el manifiesto;
+  5. `district-boundaries.geojson` responde 200 y su SHA-256 coincide exactamente con `datos_relevantes/geography/source-manifest.json#/derived/public_geojson_sha256`;
   6. desde un checkout del merge, `$env:BASE_URL='<url-pages>'; node tests/scenario-e2e.mjs --case ct-c-public` usa el descriptor versionado y pasa sin inyectar datos;
   7. el recorrido público equivalente de CT-I y CT-C no solicita recursos externos no aprobados.
 - Entrega: evidencia de URLs, SHA, workflow y fecha enviada al responsable; no modifica código ni documentación del repositorio.

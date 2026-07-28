@@ -75,7 +75,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** definir una zona objetivo y obtener comparables geográficos explicables.
 
-**Estado:** plan redactado y remediado en `feat/phase-2-geography-scenario`, sin implementación. Los tres reader-tests terminaron `FAIL`; los gaps finales están corregidos en documentos, pero requieren una nueva validación independiente antes de licencia/permiso, HUMAN-GATE-A y P2-00C. El drift documental 88/90 fue corregido sin alterar el conteo reproducible de 90.
+**Estado:** plan revisado con veredicto independiente `PASS WITH RISKS` en `feat/phase-2-geography-scenario`, sin implementación. La ruta cartográfica propone siete relaciones OSM bajo ODbL; requiere HUMAN-GATE-A y su registro P2-00C antes de P2-01. El drift documental 88/90 fue corregido sin alterar el conteo reproducible de 90.
 
 ### Línea de trabajo A — Contexto y estado
 

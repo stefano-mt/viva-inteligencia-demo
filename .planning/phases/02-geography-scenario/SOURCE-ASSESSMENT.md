@@ -2,50 +2,78 @@
 
 ## Estado
 
-`PREFLIGHT COMPLETE — fuente técnica identificada; redistribución pendiente de autorización`
+`PREFLIGHT COMPLETE — alternativa OSM técnicamente validada; pendiente HUMAN-GATE-A`
 
 Fecha de revisión: 2026-07-28.
 
-Este documento evalúa fuentes; no descarga, transforma ni incorpora geometría al repositorio.
+Este documento evalúa la fuente y registra una prueba read-only. No incorpora todavía geometría al repositorio.
 
 ## Decisión recomendada
 
-Usar la capa distrital 2023 del INEI como **fuente técnica primaria candidata** y RENLIM como referencia legal de contraste. No se autoriza todavía publicar en GitHub Pages un GeoJSON derivado: las páginas oficiales revisadas promueven acceso, descarga y uso, pero no exponen una licencia de redistribución suficientemente explícita para este artefacto.
+Usar un **snapshot fijo de siete relaciones de OpenStreetMap (OSM)** como fuente cartográfica operativa de la demo y RENLIM como referencia legal de contraste.
 
-La implementación vigente solo puede comenzar si HUMAN-GATE-A aprueba la ruta 1 o 2 y la evidencia confirma redistribución. Las rutas posibles son:
+Esta ruta reemplaza la candidatura INEI 2023 porque OSM sí declara condiciones de reutilización y redistribución: datos bajo Open Database License 1.0 (ODbL), atribución a OpenStreetMap y sus colaboradores, e identificación clara de la licencia. Para evitar una interpretación permisiva, el subconjunto GeoJSON y su base derivada se tratarán como ODbL 1.0 y se publicarán con aviso de share-alike.
 
-1. confirmar por escrito con INEI la reutilización y redistribución del subconjunto simplificado, con su atribución;
-2. localizar metadata oficial que declare una licencia compatible y registrar una copia o URL estable;
-3. proponer una fuente alternativa con licencia explícita;
-4. proponer retirar el polígono distrital de F2 y usar únicamente puntos, cuadrantes y radios analíticos derivados del snapshot.
+La geometría será referencial, no oficial. La demo no afirmará que OSM sustituye al Registro Nacional de Límites (RENLIM), ni que los cuadrantes analíticos son delimitaciones municipales.
 
-Elegir 3 o 4 no habilita P2-01. Obliga a volver a P2-00B, actualizar `CONTEXT.md`, `UI-SPEC.md`, `PLAN.md` y este assessment, ejecutar un checker del delta y solicitar una nueva HUMAN-GATE-A. Toda aprobación favorable debe persistirse después en `APPROVAL.md` mediante P2-00C antes de P2-01. Así se evita ejecutar un plan que todavía exige polígonos después de haberlos retirado o depender de una aprobación solo conversacional.
+P2-01 sigue bloqueada hasta que HUMAN-GATE-A apruebe expresamente:
 
-El acceso público o la posibilidad técnica de descargar no se interpreta como permiso automático para redistribuir.
+1. OSM como fuente cartográfica referencial;
+2. ODbL 1.0 y sus obligaciones de atribución/share-alike;
+3. el texto visible de atribución;
+4. la diferencia entre referencia cartográfica OSM y límite legal RENLIM;
+5. el uso de un snapshot estático, sin tiles ni llamadas cartográficas en runtime.
 
-## Fuente primaria candidata
+La aprobación favorable debe persistirse en `APPROVAL.md` mediante P2-00C antes de P2-01.
+
+## Fuente operativa propuesta
 
 | Campo | Valor revisado |
 |---|---|
-| Productor | Instituto Nacional de Estadística e Informática (INEI) |
-| Portal | `https://ide.inei.gob.pe/` |
-| Recurso | Límites — Distrital, actualizado al 2023 |
-| Descarga enlazada | `https://ide.inei.gob.pe/files/Distrito.rar` |
-| Formato declarado | GeoPackage (GPKG), empaquetado por el portal |
-| Cobertura | Nacional |
-| Año declarado | 2023 |
-| Uso previsto | Extraer solo siete distritos, reproyectar a EPSG:4326 si corresponde, simplificar y publicar un GeoJSON derivado |
-| Ejecución en runtime | Ninguna; el artefacto sería estático y versionado |
-| Estado legal | Pendiente de licencia/permiso de redistribución verificable |
+| Productor colaborativo | OpenStreetMap contributors |
+| Sitio y licencia | `https://www.openstreetmap.org/copyright` |
+| Licencia de datos | Open Database License 1.0 (ODbL) |
+| Guía de atribución | `https://osmfoundation.org/wiki/Licence/Attribution_Guidelines` |
+| Método de preflight | Una consulta fija de siete relaciones mediante Nominatim `lookup`, con `User-Agent` identificable |
+| Política de consulta | `https://operations.osmfoundation.org/policies/nominatim/` |
+| Formato de snapshot | GeoJSON, WGS84 (`EPSG:4326`) |
+| Cobertura | Siete distritos de Lima Metropolitana |
+| Uso previsto | Versionar un snapshot, simplificarlo de forma determinista y cargarlo localmente |
+| Ejecución en runtime | Ninguna; no habrá Nominatim, Overpass, tiles ni geocodificación desde la demo |
+| Estado legal | Reutilización permitida bajo ODbL con atribución y share-alike |
 
-El portal:
+La consulta de preflight fue una búsqueda pequeña y única, no un crawler ni una dependencia de producción. P2-01 repetirá una sola adquisición controlada después de la aprobación, la cacheará en el repositorio y registrará fecha, respuesta, SHA-256 y `User-Agent`.
 
-- ofrece descarga de geometría y tabla de atributos;
-- declara la capa distrital actualizada al 2023;
-- advierte que la información territorial puede contener diferencias o inconsistencias;
-- no muestra, en la página revisada, una licencia expresa para republicar un derivado dentro de otro producto.
+## Relaciones y correspondencia
 
-Antes de P2-01 se debe guardar evidencia de la respuesta o licencia aplicable, junto con el texto de atribución requerido.
+| Orden | Distrito de UI | Nombre OSM esperado | Relación OSM | UBIGEO de contraste | Proyectos observados |
+|---:|---|---|---:|---:|---:|
+| 1 | Miraflores | Miraflores | 1944770 | 150122 | 90 |
+| 2 | Santiago De Surco | Santiago de Surco | 1944844 | 150140 | 88 |
+| 3 | Jesus Maria | Jesús María | 1944744 | 150113 | 67 |
+| 4 | San Miguel | San Miguel | 1944825 | 150136 | 63 |
+| 5 | Cercado de lima | Lima | 1944756 | 150101 | 43 |
+| 6 | Magdalena Del Mar | Magdalena del Mar | 1944765 | 150120 | 42 |
+| 7 | San Isidro | San Isidro | 1944812 | 150131 | 40 |
+
+Los nombres de UI permanecen como alias del dataset. P2-01 validará por relación OSM, nombre normalizado y UBIGEO de contraste; una coincidencia aproximada por texto no es suficiente.
+
+## Prueba técnica read-only
+
+El 2026-07-28 se consultaron juntas las siete relaciones:
+
+`https://nominatim.openstreetmap.org/lookup?osm_ids=R1944770,R1944844,R1944744,R1944825,R1944756,R1944765,R1944812&format=geojson&polygon_geojson=1`
+
+Resultados del preflight:
+
+- se recibieron 7 de 7 features poligonales;
+- la respuesta declaró `Data © OpenStreetMap contributors, ODbL 1.0`;
+- los 433 proyectos observados de los siete distritos quedaron dentro de su polígono esperado;
+- Miraflores obtuvo 90/90, por lo que el fixture CT-I es técnicamente alcanzable;
+- el tamaño conjunto de las geometrías está muy por debajo del límite público de 750 KB;
+- no se detectó necesidad de tiles, servicios externos o geocodificación en runtime.
+
+Esta prueba demuestra factibilidad técnica, no sustituye el snapshot reproducible ni sus hashes de P2-01/P2-04.
 
 ## Referencia legal de contraste
 
@@ -55,83 +83,69 @@ Antes de P2-01 se debe guardar evidencia de la respuesta o licencia aplicable, j
 | Responsable | PCM — Secretaría de Demarcación y Organización Territorial |
 | URL | `https://www.gob.pe/98535-acceder-al-registro-nacional-de-limites-renlim` |
 | Carácter | Instrumento técnico oficial, vinculante y de cumplimiento obligatorio |
-| Uso en F2 | Contrastar nombres, UBIGEO y discrepancias; no asumir que su visor autoriza extracción o redistribución |
+| Uso en F2 | Contrastar nombres, UBIGEO y discrepancias; no extraer ni redistribuir su visor |
 
-RENLIM prevalece como referencia legal de límites. Una diferencia entre la geometría candidata y RENLIM debe registrarse; no puede resolverse ocultando el problema ni llamando “oficial” al archivo derivado.
+RENLIM prevalece como referencia legal. Una diferencia entre OSM y RENLIM debe registrarse y mostrarse como limitación; no se resolverá llamando “oficial” al snapshot derivado.
 
-## Alternativa técnica candidata
+## Fuente INEI evaluada y no seleccionada
 
-| Campo | Valor revisado |
+| Campo | Valor |
 |---|---|
-| Productor del servicio | IDEP/IGN |
-| Servicio | `DATOS_GEOESPACIALES/LÍMITES/FeatureServer/5` |
-| URL | `https://www.idep.gob.pe/geoportal/rest/services/DATOS_GEOESPACIALES/L%C3%8DMITES/FeatureServer/5` |
-| Tipo | Feature Layer — Límite Distrital |
-| Formatos de consulta | JSON, GeoJSON y PBF |
-| CRS declarado | EPSG:4326 |
-| Claves útiles | `UBIGEO`, `NOMBDEP`, `NOMBPROV`, `NOMBDIST`, `FUENTE` |
-| Carácter mostrado | Capa padre “LÍMITES REFERENCIALES” |
-| Estado legal | No aprobado: la ficha revisada no declara copyright ni licencia de redistribución |
+| Portal | `https://ide.inei.gob.pe/` |
+| Recurso | Límites distritales actualizados al 2023 |
+| Descarga | `https://ide.inei.gob.pe/files/Distrito.rar` |
+| Resultado | Técnicamente adecuada, pero sin licencia de redistribución suficientemente explícita en la página revisada |
 
-Esta alternativa es técnicamente consumible, pero es referencial y no resuelve por sí sola el permiso de republicación. No es un fallback automático.
+El acceso público o la posibilidad técnica de descargar no se interpreta como permiso automático para republicar. INEI queda como referencia documental; su archivo no se incorporará a F2 sin permiso verificable y un nuevo loop de planificación/checker/HUMAN-GATE-A.
 
-## Subconjunto requerido
+## Preflight técnico obligatorio de P2-01
 
-La adquisición debe contener exactamente estos siete distritos del snapshot, identificados por UBIGEO y no por coincidencia aproximada:
+1. Confirmar que `APPROVAL.md` autoriza exactamente OSM/ODbL y estas siete relaciones.
+2. Ejecutar una sola adquisición con `User-Agent` identificable, respetando la política de Nominatim.
+3. Guardar la respuesta fuente GeoJSON sin mutación y calcular SHA-256.
+4. Registrar URL, timestamp ISO-8601, productor, licencia, atribución y relaciones.
+5. Comprobar 7/7 features, tipos `Polygon`/`MultiPolygon`, WGS84 y geometrías válidas.
+6. Verificar nombres, relation IDs y UBIGEO de contraste.
+7. Conservar huecos y estructura multipolígono.
+8. Simplificar de forma determinista con tolerancia máxima `0.00005°`, desplazamiento ≤10 m y cambio de área <0.5%.
+9. Validar 433/433 puntos dentro de su distrito y 90/90 para CT-I.
+10. Publicar únicamente el subconjunto aprobado, su manifiesto, README y aviso ODbL.
+11. Comprobar que no existan credenciales, rutas locales, datos personales ni dependencias de red en runtime.
 
-| Orden por carga | Distrito de UI | Nombre administrativo esperado | UBIGEO | Proyectos observados |
-|---:|---|---|---|---:|
-| 1 | Miraflores | MIRAFLORES | 150122 | 90 |
-| 2 | Santiago De Surco | SANTIAGO DE SURCO | 150140 | 88 |
-| 3 | Jesus Maria | JESÚS MARÍA | 150113 | 67 |
-| 4 | San Miguel | SAN MIGUEL | 150136 | 63 |
-| 5 | Cercado de lima | LIMA | 150101 | 43 |
-| 6 | Magdalena Del Mar | MAGDALENA DEL MAR | 150120 | 42 |
-| 7 | San Isidro | SAN ISIDRO | 150131 | 40 |
+## Atribución y licencia requeridas
 
-Los nombres de UI permanecen como alias. Si algún UBIGEO no existe o no corresponde al distrito esperado, P2-01 se detiene.
+Texto visible mínimo en el módulo cartográfico:
 
-## Preflight técnico que deberá ejecutar P2-01
+> © OpenStreetMap contributors · ODbL 1.0. Geometría referencial; límites legales: RENLIM. Cuadrantes analíticos no oficiales.
 
-1. Reconfirmar URL, año, términos y atribución el día de descarga.
-2. Descargar una sola vez y registrar SHA-256 del archivo original.
-3. Inspeccionar CRS real, nombre de capa, encoding, validez geométrica y campos.
-4. Comprobar los siete UBIGEO y sus nombres esperados.
-5. Comparar visual y documentalmente con RENLIM; registrar diferencias.
-6. Transformar a EPSG:4326 solo mediante operación determinista documentada.
-7. Conservar `Polygon` y `MultiPolygon`, huecos y orientación válida.
-8. Simplificar con tolerancia máxima de `0.00005°`, desplazamiento ≤10 m y cambio de área <0.5%.
-9. Publicar únicamente el subconjunto aprobado y su manifiesto de fuente.
-10. Ejecutar validación de privacidad y ausencia de rutas locales.
+Requisitos:
 
-El CRS de origen y el tamaño exacto no se congelan hasta inspeccionar el archivo descargado. Inventarlos en este preflight sería una falsa precisión.
-
-## Atribución provisional
-
-Hasta recibir condiciones explícitas, la UI y el manifiesto reservarán espacio para:
-
-> Fuente cartográfica candidata: INEI, límites distritales actualizados al 2023. Geometría simplificada para visualización analítica. Verificación legal de límites: RENLIM. Los cuadrantes son analíticos y no oficiales.
-
-Este texto es una propuesta de producto, no reemplaza la atribución o aviso que exija el titular.
+- “OpenStreetMap” enlaza a `https://www.openstreetmap.org/copyright`;
+- “ODbL 1.0” enlaza a `https://opendatacommons.org/licenses/odbl/1-0/`;
+- el aviso permanece legible en desktop y móvil, sin ocultarse detrás de un tooltip;
+- `datos_relevantes/geography/README.md` declara que el snapshot/subconjunto derivado se ofrece bajo ODbL 1.0 y explica cómo obtener la fuente;
+- `source-manifest.json` conserva la cadena de atribución, licencia, URLs, relations, timestamps y hashes.
+- el GeoJSON ODbL se mantiene como archivo/base separado del dataset inmobiliario para no convertirlos en una única base combinada sin revisión legal adicional.
 
 ## Riesgos y decisión humana
 
 | Riesgo | Impacto | Mitigación exigida |
 |---|---|---|
-| Licencia de redistribución no visible | Bloquea incluir GeoJSON derivado en GitHub Pages | Permiso escrito, metadata con licencia o fuente alternativa aprobada |
-| Diferencias entre INEI 2023 y RENLIM | El borde puede no representar el límite legal vigente | Mostrar carácter referencial y documentar la discrepancia |
-| Servicio IDEP referencial y sin licencia visible | No sirve como sustituto legal automático | Repetir assessment y HUMAN-GATE-A |
-| Nombres legacy distintos de nombres administrativos | Asignación territorial errónea | Reconciliar por UBIGEO y tabla explícita de alias |
+| OSM no es el registro legal de límites | El borde puede diferir de RENLIM | Rotularlo como referencial y enlazar la referencia legal |
+| ODbL exige atribución y share-alike de la base derivada | Incumplimiento de licencia si se omite | Aviso visible, README/licencia y manifest versionados |
+| Las relaciones OSM pueden cambiar | El resultado futuro puede diferir | Snapshot fijo, timestamp y SHA-256; sin fetch en runtime |
+| Uso indebido de Nominatim | Riesgo de bloqueo del servicio | Una adquisición pequeña, cacheada, con User-Agent; no bulk/runtime |
+| Nombres legacy difieren de nombres administrativos | Asignación territorial errónea | Tabla explícita de alias, relation ID y UBIGEO de contraste |
 | Simplificación excesiva | Puntos cerca del borde cambian de inclusión | Límites de desplazamiento/área y fixtures de borde |
 | Dependencia de red en la demo | Fallo o cambio no controlado | Cero llamadas externas en runtime |
 
 ## Resultado del gate
 
-- Fuente técnica primaria: **identificada**.
-- Fuente legal de contraste: **identificada**.
-- Formato de salida propuesto: **definido**.
-- Siete distritos: **definidos**.
-- Permiso de redistribución: **no confirmado**.
-- Autorización para descargar/versionar: **bloqueada hasta contar con evidencia de reutilización y una HUMAN-GATE-A favorable**.
-
-Si no se obtiene una licencia verificable, la recomendación es proponer la ruta 4 y activar el loop formal P2-00B → checker → nueva HUMAN-GATE-A; no publicar silenciosamente geometría de procedencia incierta.
+- Fuente con licencia explícita: **identificada**.
+- Siete relaciones: **identificadas**.
+- Cobertura técnica preliminar: **7/7 features y 433/433 puntos**.
+- CT-I Miraflores: **90/90 alcanzable**.
+- Referencia legal de contraste: **identificada**.
+- Atribución mínima: **definida**.
+- Ejecución en runtime: **cero llamadas externas**.
+- Implementación: **bloqueada hasta checker favorable y HUMAN-GATE-A persistida**.

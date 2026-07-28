@@ -72,7 +72,7 @@ a7f68af35d97c6fbc066b4213ebb12d525d630fa366a0e75826d2349087d8141
 - Plan: [phases/02-geography-scenario/PLAN.md](phases/02-geography-scenario/PLAN.md).
 - Evaluación de fuente: [phases/02-geography-scenario/SOURCE-ASSESSMENT.md](phases/02-geography-scenario/SOURCE-ASSESSMENT.md).
 - Revisión del plan: [phases/02-geography-scenario/PLAN_REVIEW.md](phases/02-geography-scenario/PLAN_REVIEW.md).
-- Fuente técnica primaria candidata: capa distrital INEI actualizada a 2023; su redistribución está bloqueada hasta confirmar licencia o permiso.
+- Fuente cartográfica propuesta: snapshot fijo de siete relaciones OpenStreetMap bajo ODbL 1.0; checker `PASS WITH RISKS`; pendiente de HUMAN-GATE-A.
 - RENLIM se usa como referencia jurídica; los cuadrantes se etiquetan como analíticos, nunca oficiales.
 - Escenario propuesto: distrito, cuadrante o radio, serializado en URL y compartido por todos los consumidores.
 - Los gaps finales del checker fueron remediados documentalmente, pero no recibieron un cuarto reader-test.
@@ -81,7 +81,7 @@ a7f68af35d97c6fbc066b4213ebb12d525d630fa366a0e75826d2349087d8141
 ## Próxima acción recomendada
 
 1. Someter la remediación posterior al ciclo 3 a una nueva validación independiente.
-2. Si el veredicto es favorable, confirmar licencia/permiso de reutilización de la geometría INEI.
+2. Si el veredicto es favorable, obtener HUMAN-GATE-A para OSM/ODbL, atribución visible, share-alike del GeoJSON y carácter referencial.
 3. Ejecutar HUMAN-GATE-A sobre la versión/hash exactos del plan.
 4. Versionar `APPROVAL.md` mediante P2-00C.
 5. Ejecutar P2-01 únicamente después de ese registro.

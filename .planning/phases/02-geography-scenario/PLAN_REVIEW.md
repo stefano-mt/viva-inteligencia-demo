@@ -122,4 +122,35 @@ Estas correcciones no recibieron un cuarto reader-test porque el loop de coautor
 - Código funcional modificado: no.
 - Siguiente gate: una nueva revisión independiente debe confirmar la remediación; después se requiere permiso/licencia verificable, HUMAN-GATE-A y P2-00C.
 
-No debe marcarse el plan como `REVIEWED`, `READY` o `PASS` hasta completar ese gate.
+Este resultado histórico no habilitó implementación; la restricción se reevalúa en el ciclo 4 siguiente.
+
+## Ciclo 4 — Revalidación independiente
+
+Veredicto: `PASS WITH RISKS`.
+
+El checker confirmó que los tres gaps de la revalidación anterior quedaron resueltos:
+
+1. `geography_status` depende de disponibilidad/hash/parseo de geometría y acepta como `ready` un radio válido 0/0;
+2. P2-05 produce solo `buildTerritorialContext`, P2-06 produce `buildComparabilityContext` y P2-07 compone el único `scenarioContext`;
+3. P2-04 es propietario secuencial del hash público y P2-18 verifica `source-manifest.json#/derived/public_geojson_sha256`.
+
+También validó el delta de fuente:
+
+- siete relaciones OSM congeladas y cobertura preliminar 7/7;
+- ODbL 1.0, atribución visible y share-alike documentados;
+- GeoJSON geométrico separado del dataset inmobiliario;
+- adquisición única, identificada y cacheada;
+- cero Nominatim, Overpass, tiles o geocodificación en runtime;
+- RENLIM conservado como referencia jurídica;
+- dependencias y `write_set` ejecutables, sin colisiones paralelas.
+
+No quedan gaps bloqueantes del plan. HUMAN-GATE-A debe aceptar explícitamente ODbL/share-alike, atribución visible, carácter referencial de OSM, posibles diferencias con RENLIM, adquisición puntual sujeta a la política vigente de Nominatim y publicación del aviso de licencia junto al GeoJSON.
+
+## Resultado operativo actualizado
+
+- Plan creado: sí.
+- Checker independiente favorable: sí, `PASS WITH RISKS`.
+- Implementación autorizada: no; falta HUMAN-GATE-A y P2-00C.
+- Descarga/versionado de geometría autorizado: no.
+- Código funcional modificado: no.
+- Siguiente gate: HUMAN-GATE-A sobre la ruta OSM/ODbL y persistencia en `APPROVAL.md`.

@@ -2,7 +2,7 @@
 
 ## Estado
 
-`DRAFT — remediado después del ciclo 3; pendiente de nueva validación y aprobación`
+`REVIEWED — PASS WITH RISKS; pendiente HUMAN-GATE-A y P2-00C`
 
 ## Principio de experiencia
 
@@ -144,7 +144,9 @@ Los controles territoriales hacen commit inmediato. Los campos de producto/preci
 - círculo de radio cuando aplica;
 - leyenda siempre visible;
 - escala gráfica aproximada y orientación norte;
-- atribución y año de la geometría.
+- atribución visible, no encerrada en tooltip: “© OpenStreetMap contributors · ODbL 1.0. Geometría referencial; límites legales: RENLIM. Cuadrantes analíticos no oficiales.”;
+- “OpenStreetMap” y “ODbL 1.0” enlazan respectivamente al copyright OSM y a la licencia;
+- la atribución se conserva legible en desktop y móvil.
 
 ### Estados visuales de proyecto
 

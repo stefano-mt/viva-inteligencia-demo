@@ -2,7 +2,7 @@
 
 ## Estado
 
-`DRAFT — remediado después del ciclo 3; pendiente de nueva validación; implementación no iniciada`
+`REVIEWED — PASS WITH RISKS; pendiente HUMAN-GATE-A y P2-00C; implementación no iniciada`
 
 ## Objetivo
 
@@ -64,14 +64,27 @@ La carga territorial se calcula sobre proyectos observados, por eso CT-I parte d
 
 ## Fuente cartográfica evaluada
 
-### Fuente preferida — INEI IDE, capa distrital actualizada a 2023
+### Fuente preferida — snapshot de relaciones OpenStreetMap
 
-- Portal: `https://ide.inei.gob.pe/`
-- Descarga publicada: `https://ide.inei.gob.pe/files/Distrito.rar`
-- Formato declarado por el portal: GeoPackage dentro del paquete descargable.
-- Uso propuesto: extraer y versionar solo las geometrías necesarias para la demo, transformadas a GeoJSON WGS84 (`EPSG:4326`).
-- Motivo: es una fuente pública primaria, ofrece geometría y atributos distritales y declara actualización a 2023.
-- Advertencia del propio INEI: la información territorial puede contener diferencias o inconsistencias y su exactitud o vigencia debe verificarse.
+- Licencia: Open Database License 1.0 (ODbL), documentada en `https://www.openstreetmap.org/copyright`.
+- Atribución visible obligatoria: `© OpenStreetMap contributors · ODbL 1.0`.
+- Uso propuesto: adquirir una sola vez y versionar las siete relaciones aprobadas como GeoJSON WGS84 (`EPSG:4326`).
+- Motivo: ofrece polígonos reproducibles para los siete distritos y una licencia explícita compatible con redistribución, atribución y share-alike.
+- Separación de licencias: la geometría OSM se conserva como base derivada independiente bajo ODbL; los datos inmobiliarios y la aplicación no se fusionan dentro de esa base.
+- Ejecución: Nominatim u Overpass solo pueden utilizarse durante la adquisición controlada y cacheada. La demo no realiza consultas cartográficas en runtime.
+- Restricción: OSM es una referencia cartográfica colaborativa, no un registro legal de límites.
+
+Relaciones congeladas:
+
+| Distrito | Relación OSM |
+|---|---:|
+| Miraflores | 1944770 |
+| Santiago de Surco | 1944844 |
+| Jesús María | 1944744 |
+| San Miguel | 1944825 |
+| Lima, alias `Cercado de lima` | 1944756 |
+| Magdalena del Mar | 1944765 |
+| San Isidro | 1944812 |
 
 ### Verificación jurídica — RENLIM / PCM
 
@@ -79,16 +92,13 @@ La carga territorial se calcula sobre proyectos observados, por eso CT-I parte d
 - Uso propuesto: verificar UBIGEO, nombre y vigencia de la referencia territorial.
 - Restricción: la demo no afirmará que una geometría simplificada o un cuadrante analítico sustituye los límites vinculantes del RENLIM.
 
-### Alternativa técnica — IDEP FeatureServer
+### Fuentes evaluadas y no seleccionadas
 
-- Capa: `https://www.idep.gob.pe/geoportal/rest/services/DATOS_GEOESPACIALES/L%C3%8DMITES/FeatureServer/5`
-- Capacidades observadas: consulta y salida GeoJSON en `EPSG:4326`.
-- Uso permitido en el plan: contingencia para obtener una geometría reproducible si la descarga INEI no puede procesarse.
-- Restricción: el servicio se presenta como límite referencial; antes de versionar el resultado deben registrarse fuente, fecha, términos y diferencias respecto de INEI/RENLIM.
+- INEI IDE 2023: técnicamente adecuada, pero la página revisada no declara una licencia de redistribución suficientemente explícita.
+- IDEP FeatureServer: técnicamente consumible, aunque la ficha revisada no declara licencia de redistribución.
+- MINAM/INEI 2017: anterior a las otras referencias y sin ventaja legal para este caso.
 
-### Alternativa descartada como fuente primaria
-
-La capa MINAM “Límite de los distritos de Lima Metropolitana (INEI, 2017)” permite GeoJSON, pero es anterior a la capa INEI 2023. Solo puede utilizarse como fallback documentado y nunca ocultando su antigüedad.
+Ninguna es un fallback automático. Cambiar la fuente exige actualizar assessment, contexto, UI, plan, ejecutar checker y repetir HUMAN-GATE-A.
 
 ## Condiciones técnicas y legales de uso cartográfico
 
@@ -96,18 +106,19 @@ Antes de incluir geometrías en el repositorio, P2-01 debe registrar:
 
 1. URL exacta de origen;
 2. entidad productora;
-3. fecha declarada de actualización;
-4. fecha fija de descarga;
+3. relation IDs y timestamp fijo de adquisición de la respuesta;
+4. fecha fija de adquisición;
 5. términos o licencia disponible;
 6. atribución requerida;
 7. CRS de origen y destino;
 8. SHA-256 del archivo original y del derivado;
 9. transformación aplicada y tolerancia de simplificación;
-10. alcance de reutilización pública en GitHub Pages.
+10. alcance de reutilización pública en GitHub Pages;
+11. separación entre la base geométrica ODbL y los datos inmobiliarios.
 
-Si no es posible confirmar que la geometría puede redistribuirse en la demo pública, la tarea se detiene. No se reemplaza en silencio por geometrías copiadas de terceros ni por un mapa dibujado a mano.
+Si Viva no acepta ODbL/share-alike para el archivo geométrico, atribución visible o carácter referencial, la tarea se detiene. No se reemplaza en silencio por geometrías copiadas de terceros ni por un mapa dibujado a mano.
 
-La aplicación cargará una copia versionada y no consultará INEI, RENLIM, IDEP, ArcGIS, geocodificadores o proveedores de tiles durante la demo.
+La aplicación cargará una copia versionada y no consultará OSM, Nominatim, Overpass, RENLIM, INEI, IDEP, geocodificadores o proveedores de tiles durante la demo.
 
 ## Decisiones normativas del plan
 
@@ -335,9 +346,9 @@ Reglas normativas de derivación:
 |---|---|
 | `scenario_status=invalid` | La transición actual rechazó o corrigió al menos un parámetro, dependencia o campo. Es un estado transitorio no serializado. Se limpia a `valid` al descartar la alerta, completar un commit posterior válido o recargar la URL ya canonizada. |
 | `scenario_status=valid` | El preset, URL canonizada o último commit no produjo correcciones pendientes de anunciar. |
-| `geography_status=unavailable` | Falta la geometría aprobada, falla su hash/parseo o `geography_valid_project_ids.length=0`. |
-| `geography_status=partial` | La geometría es utilizable y existe al menos un proyecto geográficamente válido, pero `geography_valid_project_ids.length < observed_scope_project_ids.length`. |
-| `geography_status=ready` | La geometría es utilizable y todos los observados del alcance son geográficamente válidos. |
+| `geography_status=unavailable` | Falta la geometría aprobada o falla su hash/parseo. El conteo de proyectos no participa en este estado. |
+| `geography_status=partial` | La geometría es utilizable, hay uno o más observados en el alcance y `geography_valid_project_ids.length < observed_scope_project_ids.length`, incluso si la cobertura resultante es 0/N. |
+| `geography_status=ready` | La geometría es utilizable y todos los observados del alcance son geográficamente válidos; incluye el caso válido 0/0 de un radio sin proyectos. |
 | `evidence_coverage_pct` | Media aritmética de `available_weight` de todos los `comparable_project_ids`, donde cada valor ya está en escala 0–100; redondeo `half away from zero` a una cifra. Con cero comparables vale 0. |
 | `comparability_status=insufficient` | Cero `comparable_project_ids`. |
 | `comparability_status=orientative` | Hay uno o más comparables, pero son menos de tres o `evidence_coverage_pct < 60`. |
@@ -353,6 +364,7 @@ Fixtures mínimos de estado:
 |---|---|---|
 | URL corregida | `sv=1`, distrito válido y `radius=abc` | transición `scenario_status=invalid`; fallback distrital; tras descartar alerta queda `valid` |
 | Sin geometría | geometría ausente, 90 observados, 0 IDs geográficos/comparables/precio | `scenario_status=valid`, `geography_status=unavailable`, cobertura 0, comparabilidad/precio `insufficient` |
+| Radio vacío válido | geometría utilizable, 0 observados y 0 IDs geográficos/comparables/precio | `geography_status=ready`, cobertura 0, comparabilidad/precio `insufficient` |
 | Cobertura parcial | 90 observados, 89 geográficamente válidos | `geography_status=partial`; CT-I falla aunque el mapa pueda degradar |
 | Sin comparables | 0 comparables | cobertura 0, `comparability_status=insufficient` |
 | Muestra pequeña | 2 comparables con coberturas 80 y 80 | cobertura 80.0, `comparability_status=orientative` |
@@ -428,7 +440,7 @@ Si `polygon_valid_count < 90`, CT-I falla y se detiene la fase para revisar geom
 | Riesgo | Tratamiento |
 |---|---|
 | Términos de redistribución cartográfica no confirmados | `SOURCE-ASSESSMENT.md`, stop rule de HUMAN-GATE-A y prohibición de descargar/versionar. |
-| Geometría referencial distinta de RENLIM | Atribución, año y nota de uso referencial. |
+| Geometría referencial distinta de RENLIM | Atribución, fecha del snapshot y nota de uso referencial. |
 | Puntos fuera del polígono oficial | Reporte de cobertura y exclusión prudente del modo cuadrante. |
 | Cuadrantes con distribución desigual | Método por medianas y conteos visibles; no presentarlos como mercado homogéneo. |
 | Score alto con datos escasos | Cobertura de evidencia y estado `orientativo`. |
