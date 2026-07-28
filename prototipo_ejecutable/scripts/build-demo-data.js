@@ -8,6 +8,7 @@ import {
   validateAgencyArtifacts
 } from "./data/agencies.js";
 import { buildEvidenceBundle } from "./data/evidence.js";
+import { buildGeographyModel } from "./data/geography.js";
 import { materializeMeasureRecords } from "./data/measures.js";
 import {
   loadContractSchema,
@@ -25,6 +26,13 @@ export const DEFAULT_OUTPUT_PATH = path.join(
   "public",
   "demo-data",
   "viva-platform-demo.json"
+);
+export const DEFAULT_GEOJSON_OUTPUT_PATH = path.join(
+  DEFAULT_REPOSITORY_ROOT,
+  "prototipo_ejecutable",
+  "public",
+  "demo-data",
+  "district-boundaries.geojson"
 );
 
 export const DATASET_ID = "dataset:viva-platform-demo-2026-07-28";
@@ -56,12 +64,17 @@ const PATHS = Object.freeze({
   facts: "datos_relevantes/demo-pilot/facts.json",
   issues: "datos_relevantes/demo-pilot/issues.json",
   events: "datos_relevantes/demo-pilot/events.json",
+  geographyManifest: "datos_relevantes/geography/source-manifest.json",
+  geographySource:
+    "datos_relevantes/geography/district-boundaries-source.geojson",
   fixtureA: "datos_relevantes/demo-pilot/fixtures/ct-a.json",
   fixtureB: "datos_relevantes/demo-pilot/fixtures/ct-b.json",
+  fixtureC: "datos_relevantes/demo-pilot/fixtures/ct-c.json",
   fixtureD: "datos_relevantes/demo-pilot/fixtures/ct-d.json",
   fixtureE: "datos_relevantes/demo-pilot/fixtures/ct-e.json",
   fixtureG: "datos_relevantes/demo-pilot/fixtures/ct-g.json",
-  fixtureH: "datos_relevantes/demo-pilot/fixtures/ct-h.json"
+  fixtureH: "datos_relevantes/demo-pilot/fixtures/ct-h.json",
+  fixtureI: "datos_relevantes/demo-pilot/fixtures/ct-i.json"
 });
 
 export const REQUIRED_INPUT_PATHS = Object.freeze(
@@ -219,6 +232,15 @@ export function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 
+export function canonicalizeLogicalEol(value) {
+  const text = Buffer.isBuffer(value) ? value.toString("utf8") : String(value);
+  return text.replace(/\r\n?/g, "\n");
+}
+
+export function logicalInputSha256(value) {
+  return sha256(canonicalizeLogicalEol(value));
+}
+
 async function readRequiredInputs(repositoryRoot) {
   const buffers = new Map();
   for (const logicalPath of REQUIRED_INPUT_PATHS) {
@@ -277,7 +299,7 @@ function buildInputFingerprints(inputs) {
   return REQUIRED_INPUT_PATHS.map((logicalPath, index) => ({
     input_id: `input:${String(index + 1).padStart(3, "0")}`,
     path: logicalPath,
-    sha256: sha256(inputs.get(logicalPath))
+    sha256: logicalInputSha256(inputs.get(logicalPath))
   }));
 }
 
@@ -935,7 +957,7 @@ function buildPipeline() {
       status: "deterministico",
       detail:
         "Build offline, validado y compatible con las siete rutas existentes.",
-      artifacts: ["viva-platform-demo.json"]
+      artifacts: ["viva-platform-demo.json", "district-boundaries.geojson"]
     }
   ];
 }
@@ -985,11 +1007,43 @@ function throwValidationErrors(label, errors) {
   );
 }
 
-export async function buildDemoPayload({
+async function buildDemoBundle({
   repositoryRoot = DEFAULT_REPOSITORY_ROOT
 } = {}) {
   const root = path.resolve(repositoryRoot);
   const inputs = await readRequiredInputs(root);
+  const sourceManifest = parseRequiredJson(
+    inputs,
+    PATHS.geographyManifest,
+    "object"
+  );
+  const boundaryFeatureCollection = parseRequiredJson(
+    inputs,
+    PATHS.geographySource,
+    "object"
+  );
+  const geoJsonSerialized = canonicalizeLogicalEol(
+    inputText(inputs, PATHS.geographySource)
+  );
+  const geoJsonSha256 = sha256(geoJsonSerialized);
+  const geoJsonBytes = Buffer.byteLength(geoJsonSerialized, "utf8");
+  if (
+    geoJsonSha256 !== sourceManifest.source.source_sha256 ||
+    geoJsonBytes !== sourceManifest.source.source_bytes
+  ) {
+    throw new Error(
+      "Approved geography source differs from its logical LF-normalized manifest hash/size"
+    );
+  }
+  if (
+    sourceManifest.derived.public_geojson_sha256 !== geoJsonSha256 ||
+    sourceManifest.derived.public_geojson_bytes !== geoJsonBytes ||
+    sourceManifest.derived.simplification_tolerance_degrees !== 0
+  ) {
+    throw new Error(
+      "Geography manifest derived metadata does not match the unsimplified public artifact"
+    );
+  }
 
   const schema = loadContractSchema(logicalAbsolutePath(root, PATHS.schema));
   const agenciesFile = parseRequiredJson(inputs, PATHS.agencies, "object");
@@ -1017,6 +1071,8 @@ export async function buildDemoPayload({
   const fixtures = FIXTURE_KEYS.map((key) =>
     parseRequiredJson(inputs, PATHS[key], "object")
   );
+  const fixtureC = parseRequiredJson(inputs, PATHS.fixtureC, "object");
+  const fixtureI = parseRequiredJson(inputs, PATHS.fixtureI, "object");
   const assetExists = assetExistsFor(root);
   for (const fixture of fixtures) {
     throwValidationErrors(
@@ -1089,6 +1145,34 @@ export async function buildDemoPayload({
     issues,
     events
   };
+  const geography = buildGeographyModel({
+    observedProjects: legacyProjects,
+    authoritativeProjects: model.projects,
+    boundaryFeatureCollection,
+    sourceManifest,
+    boundaryArtifactPath: "demo-data/district-boundaries.geojson",
+    boundaryArtifactSha256: geoJsonSha256
+  });
+  const miraflores = geography.districts.find(
+    (district) => district.district_id === "150122"
+  );
+  if (
+    miraflores?.observed_project_count !== 90 ||
+    miraflores?.coordinate_valid_count !== 90 ||
+    miraflores?.polygon_valid_count !== 90 ||
+    miraflores?.authoritative_project_count !== 85 ||
+    miraflores?.unreconciled_project_count !== 5
+  ) {
+    throw new Error(
+      "CT-I publication gate failed: Miraflores must remain 90/90 with 85 authoritative + 5 gaps"
+    );
+  }
+  if (
+    miraflores.median_latitude !== fixtureI.expected.result.median_latitude ||
+    miraflores.median_longitude !== fixtureI.expected.result.median_longitude
+  ) {
+    throw new Error("CT-I publication gate failed: Miraflores medians drifted");
+  }
   const pilot = buildPilot(pilotSelection, legacyProjects);
   const scope = normalizeScope(parseRequiredCsv(inputs, PATHS.scope));
   const matching = normalizeMatching(
@@ -1103,7 +1187,7 @@ export async function buildDemoPayload({
 
   const payload = {
     metadata: {
-      contract_version: "2.0.0",
+      contract_version: "2.1.0",
       dataset_id: DATASET_ID,
       generated_at: GENERATED_AT,
       cutoff_at: CUTOFF_AT,
@@ -1148,6 +1232,24 @@ export async function buildDemoPayload({
     },
     model,
     pilot,
+    scenario_catalogs: structuredClone(fixtureC.input.scenario_catalogs),
+    scenario_defaults: {
+      version: 1,
+      district_id: "150122",
+      scope_mode: "district",
+      quadrant_id: null,
+      center_latitude: null,
+      center_longitude: null,
+      radius_meters: null,
+      typology: "all",
+      bedrooms: "all",
+      target_area_m2: null,
+      target_price_pen: null,
+      delivery_year: "all",
+      visualization: "geographic",
+      source: "default"
+    },
+    geography,
     projects: legacyProjects,
     executive: buildExecutive(legacyProjects, certifiedAggregates),
     rankings: {
@@ -1182,7 +1284,16 @@ export async function buildDemoPayload({
     "Root data contract",
     validateRootDocument(payload, { schema, assetExists })
   );
-  return payload;
+  return {
+    payload,
+    geoJsonSerialized,
+    geoJsonSha256,
+    geoJsonBytes
+  };
+}
+
+export async function buildDemoPayload(options = {}) {
+  return (await buildDemoBundle(options)).payload;
 }
 
 export function serializeDemoPayload(payload) {
@@ -1204,6 +1315,7 @@ function assertOutputDoesNotOverwriteInput(repositoryRoot, outputPath) {
 export async function buildDemoData({
   repositoryRoot = DEFAULT_REPOSITORY_ROOT,
   outputPath = undefined,
+  geoJsonOutputPath = undefined,
   write = true
 } = {}) {
   const root = path.resolve(repositoryRoot);
@@ -1217,18 +1329,40 @@ export async function buildDemoData({
         "viva-platform-demo.json"
       )
   );
+  const geographyTarget = path.resolve(
+    geoJsonOutputPath ??
+      path.join(
+        root,
+        "prototipo_ejecutable",
+        "public",
+        "demo-data",
+        "district-boundaries.geojson"
+      )
+  );
   assertOutputDoesNotOverwriteInput(root, target);
-  const payload = await buildDemoPayload({ repositoryRoot: root });
+  assertOutputDoesNotOverwriteInput(root, geographyTarget);
+  const {
+    payload,
+    geoJsonSerialized,
+    geoJsonSha256,
+    geoJsonBytes
+  } = await buildDemoBundle({ repositoryRoot: root });
   const serialized = serializeDemoPayload(payload);
   if (write) {
     await fs.mkdir(path.dirname(target), { recursive: true });
+    await fs.mkdir(path.dirname(geographyTarget), { recursive: true });
     await fs.writeFile(target, serialized, "utf8");
+    await fs.writeFile(geographyTarget, geoJsonSerialized, "utf8");
   }
   return {
     payload,
     serialized,
     sha256: sha256(serialized),
-    outputPath: target
+    outputPath: target,
+    geoJsonSerialized,
+    geoJsonSha256,
+    geoJsonBytes,
+    geoJsonOutputPath: geographyTarget
   };
 }
 
@@ -1243,6 +1377,9 @@ async function main() {
   console.log(`Legacy projects: ${result.payload.projects.length}`);
   console.log(`Model projects: ${result.payload.model.projects.length}`);
   console.log(`SHA-256: ${result.sha256}`);
+  console.log(
+    `GeoJSON: ${result.geoJsonBytes} bytes, SHA-256 ${result.geoJsonSha256}`
+  );
 }
 
 const invokedPath = process.argv[1] ? path.resolve(process.argv[1]) : null;

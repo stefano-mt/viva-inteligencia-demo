@@ -8,8 +8,23 @@ const data = JSON.parse(
     "utf8"
   )
 );
+const geography = JSON.parse(
+  await fs.readFile(
+    new URL("../public/demo-data/district-boundaries.geojson", import.meta.url),
+    "utf8"
+  )
+);
 
 assert.deepEqual(validatePrivacy(data), [], "public root must be privacy-clean");
+assert.deepEqual(
+  validatePrivacy(geography),
+  [],
+  "public GeoJSON must be privacy-clean"
+);
+assert.doesNotMatch(
+  JSON.stringify(geography),
+  /[A-Za-z]:\\\\|\/Users\/|\/home\/|\"email\"|\"phone\"|\"whatsapp\"|\"contact\"/i
+);
 assert.deepEqual(data.metadata.publication, {
   is_public_artifact: true,
   contains_contact_pii: false,

@@ -51,6 +51,7 @@ const ctI = JSON.parse(
 const minimal20 = Object.fromEntries(
   schema.required.map((property) => [property, structuredClone(publicData[property])])
 );
+minimal20.metadata.contract_version = "2.0.0";
 assert.equal(minimal20.metadata.contract_version, "2.0.0");
 assert.deepEqual(
   validateRootDocument(minimal20, { schema, assetExists }),

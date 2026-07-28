@@ -6,6 +6,8 @@ import { fileURLToPath } from "node:url";
 import {
   REQUIRED_INPUT_PATHS,
   buildDemoData,
+  canonicalizeLogicalEol,
+  logicalInputSha256,
   sha256
 } from "../scripts/build-demo-data.js";
 
@@ -18,15 +20,33 @@ const versionedOutputPath = path.join(
   "demo-data",
   "viva-platform-demo.json"
 );
+const versionedGeoJsonPath = path.join(
+  prototypeRoot,
+  "public",
+  "demo-data",
+  "district-boundaries.geojson"
+);
 
 const first = await buildDemoData({ repositoryRoot, write: false });
 const second = await buildDemoData({ repositoryRoot, write: false });
 assert.equal(first.serialized, second.serialized);
 assert.equal(first.sha256, second.sha256);
+assert.equal(first.geoJsonSerialized, second.geoJsonSerialized);
+assert.equal(first.geoJsonSha256, second.geoJsonSha256);
 assert.equal(
-  await fs.readFile(versionedOutputPath, "utf8"),
+  canonicalizeLogicalEol(await fs.readFile(versionedOutputPath)),
   first.serialized,
-  "versioned output must equal generator output byte for byte"
+  "versioned output must equal the generator after logical EOL normalization"
+);
+assert.equal(
+  canonicalizeLogicalEol(await fs.readFile(versionedGeoJsonPath)),
+  first.geoJsonSerialized,
+  "versioned GeoJSON must equal the unsimplified generator after logical EOL normalization"
+);
+assert.equal(first.geoJsonBytes, 46650);
+assert.equal(
+  first.payload.geography.boundary_artifact_sha256,
+  first.geoJsonSha256
 );
 
 const buildSource = await fs.readFile(
@@ -56,7 +76,11 @@ for (const logicalPath of REQUIRED_INPUT_PATHS) {
   const content = await fs.readFile(
     path.join(repositoryRoot, ...logicalPath.split("/"))
   );
-  assert.equal(fingerprintByPath.get(logicalPath), sha256(content), logicalPath);
+  assert.equal(
+    fingerprintByPath.get(logicalPath),
+    logicalInputSha256(content),
+    logicalPath
+  );
 }
 
 const temporaryRoot = await fs.mkdtemp(
@@ -90,6 +114,8 @@ try {
     await fs.readFile(temporaryOutput, "utf8"),
     temporaryBuild.serialized
   );
+  assert.equal(temporaryBuild.serialized, first.serialized);
+  assert.equal(temporaryBuild.geoJsonSerialized, first.geoJsonSerialized);
   for (const logicalPath of REQUIRED_INPUT_PATHS) {
     assert.equal(
       sha256(
@@ -136,6 +162,25 @@ try {
   );
   await fs.writeFile(corruptPath, validIssues);
 
+  const eolPath = path.join(
+    temporaryRoot,
+    "datos_relevantes",
+    "demo-pilot",
+    "events.json"
+  );
+  const logicalEvents = canonicalizeLogicalEol(await fs.readFile(eolPath));
+  await fs.writeFile(eolPath, logicalEvents.replace(/\n/g, "\r\n"), "utf8");
+  const crossPlatformBuild = await buildDemoData({
+    repositoryRoot: temporaryRoot,
+    write: false
+  });
+  assert.equal(
+    crossPlatformBuild.serialized,
+    first.serialized,
+    "logical LF/CRLF differences must not change fingerprints or payload bytes"
+  );
+  assert.equal(crossPlatformBuild.geoJsonSha256, first.geoJsonSha256);
+
   await assert.rejects(
     buildDemoData({
       repositoryRoot: temporaryRoot,
@@ -147,4 +192,6 @@ try {
   await fs.rm(temporaryRoot, { recursive: true, force: true });
 }
 
-console.log(`Determinism OK: ${first.sha256}, strict missing/corrupt inputs.`);
+console.log(
+  `Determinism OK: JSON ${first.sha256}, GeoJSON ${first.geoJsonSha256}, logical EOL canonicalization and strict inputs.`
+);

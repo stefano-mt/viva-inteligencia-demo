@@ -108,6 +108,48 @@ for (const controlledId of ["ct-a", "ct-b", "ct-d", "ct-e"]) {
   assert.ok(projectIds.has(`project:${controlledId}-controlled`));
 }
 
+const legacyObservedIds = new Set(
+  data.projects.map((project) => `observed:nexo-${project.id}`)
+);
+const geographyAssignmentIds = new Set();
+for (const assignment of data.geography.assignments) {
+  assert.ok(legacyObservedIds.has(assignment.observed_project_id));
+  assert.equal(
+    geographyAssignmentIds.has(assignment.observed_project_id),
+    false,
+    `duplicate geography assignment ${assignment.observed_project_id}`
+  );
+  geographyAssignmentIds.add(assignment.observed_project_id);
+  assert.ok(
+    assignment.authoritative_project_id === null ||
+      projectIds.has(assignment.authoritative_project_id)
+  );
+}
+for (const district of data.geography.districts) {
+  const districtAssignments = data.geography.assignments.filter(
+    (assignment) => assignment.district_id === district.district_id
+  );
+  assert.equal(districtAssignments.length, district.observed_project_count);
+  const quadrantObservedIds = district.quadrants.flatMap(
+    (quadrant) => quadrant.observed_project_ids
+  );
+  assert.equal(
+    new Set(quadrantObservedIds).size,
+    district.polygon_valid_count
+  );
+  for (const quadrant of district.quadrants) {
+    for (const observedId of quadrant.observed_project_ids) {
+      assert.ok(geographyAssignmentIds.has(observedId));
+    }
+    for (const projectId of quadrant.authoritative_project_ids) {
+      assert.ok(projectIds.has(projectId));
+    }
+  }
+}
+for (const exclusion of data.geography.exclusions) {
+  assert.ok(geographyAssignmentIds.has(exclusion.project_id));
+}
+
 console.log(
-  `Reference integration OK: ${model.projects.length} projects, ${unresolved} unresolved legacy aliases kept out of canonical model.`
+  `Reference integration OK: ${model.projects.length} projects, ${unresolved} unresolved legacy aliases, ${data.geography.assignments.length} geography assignments.`
 );

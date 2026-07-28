@@ -147,3 +147,11 @@ Stefano aprobó explícitamente la ruta OSM/ODbL y el inicio de Fase 2. `APPROVA
 **Estado:** aceptada
 
 El motor normativo P2-03 reprodujo 422 de 433 proyectos dentro o sobre el borde de su polígono OSM. Once quedan fuera: Santiago de Surco 1, Magdalena del Mar 7 y San Isidro 3. Se conservan como exclusiones `outside_district_polygon` y producen cobertura territorial parcial; no se reasignan ni se ocultan. Miraflores mantiene 90/90, por lo que CT-I continúa aprobado. Esta corrección no cambia fuente, licencia o riesgos aceptados en HUMAN-GATE-A.
+
+## D-019 — Distancia radial pertenece al contexto territorial
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+`buildTerritorialContext` entrega `distance_meters_by_observed_project_id` con precisión completa para los proyectos observados cuando el alcance es radial. P2-06 consume esa distancia únicamente para puntuar y ordenar comparables; no vuelve a calcular Haversine, pertenencia territorial ni polígonos. El campo es aditivo al contrato interno de P2-05 y evita dos fuentes de verdad entre selección geográfica y comparabilidad.

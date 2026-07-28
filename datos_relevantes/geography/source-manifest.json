@@ -93,11 +93,11 @@
   ],
   "derived": {
     "public_geojson_path": "prototipo_ejecutable/public/demo-data/district-boundaries.geojson",
-    "public_geojson_sha256": null,
-    "public_geojson_bytes": null,
-    "simplification_tolerance_degrees": null,
-    "maximum_displacement_meters": null,
-    "area_change_pct_max": null,
-    "status": "pending_p2_04"
+    "public_geojson_sha256": "ef75b5deb43f2ed94cc9661c3f1926e94608e0b2e4a41c8ce9197dbea71b16c0",
+    "public_geojson_bytes": 46650,
+    "simplification_tolerance_degrees": 0,
+    "maximum_displacement_meters": 0,
+    "area_change_pct_max": 0,
+    "status": "published_unsimplified_p2_04"
   }
 }
