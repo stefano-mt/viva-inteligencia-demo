@@ -1,9 +1,19 @@
 import { suggestedQuestions, views } from "./js/config.js";
-import { bindEvents, restoreActiveInput } from "./js/controller.js";
+import {
+  bindEvents,
+  initializeScenarioFromLocation,
+  restoreActiveInput,
+} from "./js/controller.js";
 import * as domain from "./js/domain.js";
 import { activeView, interfaceIcon, viewFromHash, viewIcon } from "./js/navigation.js";
-import { state } from "./js/state.js";
 import {
+  initializeScenarioData,
+  state,
+  updateBoundaryArtifact,
+} from "./js/state.js";
+import {
+  buildScenarioPresentation,
+  loadBoundaryArtifact,
   renderActivity,
   renderAssistant,
   renderChecklist,
@@ -11,6 +21,8 @@ import {
   renderDashboard,
   renderMarket,
   renderProjects,
+  renderScenarioBar,
+  renderScenarioSummary,
 } from "./js/views/index.js";
 
 const {
@@ -106,14 +118,26 @@ const {
 } = domain;
 
 const root = document.getElementById("root");
+let geographyArtifact = {
+  status: "loading",
+  url: null,
+  expected_sha256: null,
+  actual_sha256: null,
+  geojson: null,
+  reason: null,
+};
 
 init();
 
 async function init() {
   root.innerHTML = loadingTemplate();
   try {
-    state.data = await loadDemoData();
+    const data = await loadDemoData();
+    initializeScenarioData(data, {
+      boundaryArtifactStatus: "missing",
+    });
     state.view = viewFromHash();
+    initializeScenarioFromLocation();
     initializeScenario();
     window.addEventListener("hashchange", () => {
       state.view = viewFromHash();
@@ -128,6 +152,12 @@ async function init() {
       }
     });
     render();
+    geographyArtifact = await loadBoundaryArtifact({
+      geography: state.data.geography,
+      baseUrl: window.location.href,
+    });
+    updateBoundaryArtifact(geographyArtifact);
+    render();
   } catch (error) {
     root.innerHTML = errorTemplate(error);
   }
@@ -141,10 +171,8 @@ async function loadDemoData() {
 }
 
 function initializeScenario() {
-  const district = defaultDistrict();
-  state.selectedDistrict = district;
-  state.strategy.district = district;
-  state.projectFilters.district = district;
+  state.projectFilters.district =
+    state.selectedDistrict || defaultDistrict();
   const competitors = getCompetitors(state.strategy, 6);
   state.selectedProjectId = competitors[0]?.id ?? getProjects()[0]?.id ?? null;
   state.compareProjectIds = competitors.slice(0, 3).map((project) => project.id);
@@ -152,16 +180,33 @@ function initializeScenario() {
   state.assistantResponse = buildAssistantResponse(state.assistantInput);
 }
 
+function getCanonicalScenarioUrl() {
+  return window.location.href;
+}
+
 function render() {
-  const content = {
-    dashboard: renderDashboard,
-    projects: renderProjects,
-    market: renderMarket,
-    compare: renderCompare,
-    trust: renderChecklist,
-    assistant: renderAssistant,
-    activity: renderActivity,
-  }[state.view]?.() ?? renderDashboard();
+  const scenarioPresentation = buildScenarioPresentation({
+    data: state.data,
+    scenarioState: state.scenarioState,
+    scenarioContext: state.scenarioContext,
+    geographyArtifact,
+    canonicalUrl: getCanonicalScenarioUrl(),
+    announcement: state.scenarioAnnouncement,
+    activeView: activeView(),
+    mobileNavOpen: state.mobileNavOpen,
+  });
+  const content =
+    geographyArtifact.status === "loading"
+      ? ""
+      : ({
+          dashboard: renderDashboard,
+          projects: renderProjects,
+          market: renderMarket,
+          compare: renderCompare,
+          trust: renderChecklist,
+          assistant: renderAssistant,
+          activity: renderActivity,
+        }[state.view]?.() ?? renderDashboard());
 
   root.innerHTML = `
     <a class="skip-link" href="#main-content">Ir al contenido principal</a>
@@ -215,10 +260,14 @@ function render() {
         </div>
       </aside>
       <div class="workspace">
-        ${renderTopbar()}
+        ${renderScenarioBar(scenarioPresentation)}
         <main class="content" id="main-content" tabindex="-1">
-          ${renderSectionGuide(state.view)}
-          ${content}
+          ${renderScenarioSummary(scenarioPresentation)}
+          ${
+            geographyArtifact.status === "loading"
+              ? ""
+              : `${renderSectionGuide(state.view)}${content}`
+          }
         </main>
       </div>
     </div>
@@ -226,37 +275,4 @@ function render() {
 
   bindEvents(render);
   restoreActiveInput();
-}
-
-function renderTopbar() {
-  return `
-    <header class="topbar">
-      <div class="topbar-heading">
-        <button
-          class="icon-button menu-toggle"
-          id="menu-toggle"
-          type="button"
-          aria-controls="primary-sidebar"
-          aria-expanded="${state.mobileNavOpen ? "true" : "false"}"
-          aria-label="Abrir menú principal"
-        >
-          ${interfaceIcon("menu")}
-        </button>
-        <div>
-          <p class="eyebrow">Viva Inteligencia / ${escapeHtml(activeView().group)}</p>
-          <div class="title-row">
-            <h1>${escapeHtml(activeView().label)}</h1>
-            <span class="view-context">${escapeHtml(activeView().hint)}</span>
-          </div>
-        </div>
-      </div>
-      <div class="topbar-actions">
-        <label class="field-control compact-control" for="top-district">
-          <span>Distrito objetivo</span>
-          <select id="top-district">${optionList(getDistricts(), state.strategy.district)}</select>
-        </label>
-        <button class="ghost-button" id="reset-scenario" type="button">Reiniciar escenario</button>
-      </div>
-    </header>
-  `;
 }

@@ -126,6 +126,7 @@ export function bindEvents(render) {
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
       const nextView = button.dataset.view;
+      state.scenarioFocusId = button.dataset.focusTarget ?? null;
       state.mobileNavOpen = false;
       if (viewFromHash() === nextView) {
         render();

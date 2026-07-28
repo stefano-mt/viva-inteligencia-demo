@@ -5,3 +5,9 @@ export { renderCompare } from "./compare.js";
 export { renderChecklist } from "./checklist.js";
 export { renderAssistant } from "./assistant.js";
 export { renderActivity } from "./activity.js";
+export {
+  buildScenarioPresentation,
+  loadBoundaryArtifact,
+  renderScenarioBar,
+  renderScenarioSummary,
+} from "./scenario-context.js";
