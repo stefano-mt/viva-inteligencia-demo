@@ -6,11 +6,11 @@
 
 **Fase activa:** Fase 1 — datos, contratos y cobertura
 
-**Estado:** Fase 0A/0B completa con veredicto independiente `PASS`; Fase 1 pendiente de contexto y plan
+**Estado:** Fase 0A/0B completa; Fase 1 en planificación y revisión de contrato
 
 ## Baseline confirmado
 
-- Rama de fase: `chore/phase-0b-parity-harness`, creada desde `origin/main` después del merge del PR #4.
+- Rama actual: `feat/phase-1-data-contracts`, creada desde `main` después del merge del PR #5 (`e7c9fb3`).
 - `npm.cmd run verify`: aprobado el 2026-07-28.
 - Dataset público actual: 714 proyectos.
 - GitHub Pages despliega `prototipo_ejecutable/public` desde `main`.
@@ -56,11 +56,11 @@ Conclusión: `app.js` dejó de ser el contenedor de toda la interfaz. `domain.js
 
 ## Próxima acción recomendada
 
-1. Revisar el resumen y verificación de Fase 0.
-2. Preparar `CONTEXT.md` y `PLAN.md` de Fase 1.
+1. Revisar `CONTEXT.md`, `DATA-SPEC.md` y `PLAN.md` de Fase 1.
+2. Cerrar revisión del checker.
 3. Congelar esquema, fixtures CT-A/CT-B/CT-G/CT-H y reglas de exclusión.
 4. Ejecutar Fase 1 por write sets disjuntos.
-5. Abrir el PR de Fase 0B antes de mezclar features funcionales.
+5. Integrar y verificar antes del PR de Fase 1.
 
 ## Regla para actualizar este archivo
 

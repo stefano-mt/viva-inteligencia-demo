@@ -57,15 +57,16 @@ Este caso no debe corregirse renombrando 53.37 m² como “área techada”; la 
 
 La amplitud de cobertura no implica igual profundidad para todas las inmobiliarias. La interfaz debe hacerlo visible.
 
-## Baseline técnico al 27 de julio de 2026
+## Baseline técnico al 28 de julio de 2026
 
 - Aplicación estática en HTML, CSS y JavaScript.
 - Despliegue automático a GitHub Pages al fusionar en `main`.
 - 714 proyectos en el JSON actual.
 - Navegación por hash y renderizado en cliente.
-- Ocho vistas funcionales en un único `app.js`.
-- Sintaxis validada con `npm.cmd run check`.
-- No existen todavía tests automatizados de comportamiento, accesibilidad o regresión visual.
+- Siete vistas funcionales separadas por archivo y `app.js` como orquestador.
+- Contratos automatizados de arquitectura, datos mínimos, smoke browser y accesibilidad.
+- Fase 0B verificada de forma independiente.
+- El contrato de datos multifuente y los fixtures de calidad todavía no están implementados.
 
 ## Principios no negociables
 
