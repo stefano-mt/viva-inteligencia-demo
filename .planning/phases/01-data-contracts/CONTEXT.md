@@ -49,7 +49,7 @@ La Fase 1 no cambia todavía la experiencia visual. Entrega el contrato y los fi
 - `metadata.generated_at` usa la hora de ejecución, por lo que dos builds no son byte a byte idénticos.
 - `readJson()` silencia tanto archivos ausentes como JSON corrupto.
 - El test actual valida cantidades y forma mínima, no canonización, trazabilidad, monedas, fixtures o elegibilidad analítica.
-- CT-I declara 90 proyectos en Miraflores, pero el snapshot actual contiene 88. Esta fase no inventará dos proyectos; el requisito deberá alinearse al snapshot o cambiar cuando exista una fuente nueva.
+- CT-I declara 90 proyectos en Miraflores y la recomputación posterior del snapshot confirmó 90. La referencia anterior a 88 era drift documental; no implicó cambiar o inventar proyectos.
 
 ## Caso distintivo CT-G
 
@@ -130,4 +130,4 @@ La implementación puede iniciar cuando:
 2. Los fixtures CT-A/B/G/H están definidos como datos controlados u observados.
 3. Los archivos protegidos y write sets no se solapan.
 4. Se acepta que la UI seguirá consumiendo una proyección compatible.
-5. Se acepta que CT-I permanece abierto con 88 proyectos observados.
+5. CT-I permanece abierto para Fase 2 con 90 proyectos observados confirmados por el snapshot.

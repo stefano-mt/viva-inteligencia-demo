@@ -61,12 +61,15 @@ La amplitud de cobertura no implica igual profundidad para todas las inmobiliari
 
 - Aplicación estática en HTML, CSS y JavaScript.
 - Despliegue automático a GitHub Pages al fusionar en `main`.
-- 714 proyectos en el JSON actual.
+- 714 proyectos legacy en el JSON público y 676 proyectos autoritativos en `model.projects`.
 - Navegación por hash y renderizado en cliente.
 - Siete vistas funcionales separadas por archivo y `app.js` como orquestador.
-- Contratos automatizados de arquitectura, datos mínimos, smoke browser y accesibilidad.
-- Fase 0B verificada de forma independiente.
-- El contrato de datos multifuente y los fixtures de calidad todavía no están implementados.
+- Contratos automatizados de arquitectura, datos, referencias, privacidad, determinismo, smoke browser y accesibilidad.
+- Fases 0B y 1 verificadas de forma independiente.
+- Contrato de datos `2.0.0`, 27 fingerprints y build SHA-256 reproducible.
+- 180 inmobiliarias canónicas de mercado, 184 agencias en el modelo y piloto 30/22/5.
+- Fixtures CT-A/B/D/E/G/H implementados y verificados.
+- 714 de 714 proyectos legacy tienen coordenadas; todavía no existen geometrías distritales, cuadrantes, radio ni fixtures CT-C/CT-I.
 
 ## Principios no negociables
 

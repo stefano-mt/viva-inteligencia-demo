@@ -6,7 +6,9 @@
 
 **Última fase completada:** Fase 1 — datos, contratos y cobertura
 
-**Estado:** Fase 0 y Fase 1 completadas; Fase 1 cerró con veredicto independiente `PASS WITH RISKS`; Fase 2 todavía no ha iniciado.
+**Estado:** Fase 0 y Fase 1 completadas; Fase 1 cerró con veredicto independiente `PASS WITH RISKS`; el plan de Fase 2 fue redactado y remediado, pero los tres reader-tests concluyeron `FAIL`; no ha iniciado implementación.
+
+**Rama activa de planificación:** `feat/phase-2-geography-scenario`, creada desde `main` en el merge `a8f0284`.
 
 ## Baseline confirmado
 
@@ -46,7 +48,7 @@ a7f68af35d97c6fbc066b4213ebb12d525d630fa366a0e75826d2349087d8141
 ## Decisiones vigentes de datos
 
 - `$.model` es autoritativo; `$.projects` es una proyección legacy temporal.
-- 90 es el conteo reproducible vigente de Miraflores; 88 en el contexto de Fase 1 es drift documental.
+- 90 es el conteo reproducible vigente de Miraflores; la referencia anterior a 88 en el contexto de Fase 1 era drift documental y ya fue corregida.
 - Los tiers `deep` demuestran profundidad estructurada; no prometen dossiers visuales públicos.
 - Los aliases ambiguos permanecen `manual_review`; no se resuelven por intuición.
 - La moneda ambigua `$` permanece `unknown`; no se infiere USD.
@@ -61,15 +63,28 @@ a7f68af35d97c6fbc066b4213ebb12d525d630fa366a0e75826d2349087d8141
 - F4 no dispone de precio por m² de mercado elegible; los dos hechos actuales provienen de CT-A simulado.
 - F5 solo dispone de tres eventos controlados y ninguno tiene causa observada.
 - `coverage-report.json` está ligado al SHA actual y debe recomputarse cuando cambie el JSON público.
-- El drift 88/90 debe corregirse en un write set autorizado antes de usar CT-I.
+- El drift 88/90 quedó corregido documentalmente en el contexto de Fase 1; el snapshot reproducible permanece en 90.
+
+## Planificación vigente de Fase 2
+
+- Contexto: [phases/02-geography-scenario/CONTEXT.md](phases/02-geography-scenario/CONTEXT.md).
+- Especificación UI: [phases/02-geography-scenario/UI-SPEC.md](phases/02-geography-scenario/UI-SPEC.md).
+- Plan: [phases/02-geography-scenario/PLAN.md](phases/02-geography-scenario/PLAN.md).
+- Evaluación de fuente: [phases/02-geography-scenario/SOURCE-ASSESSMENT.md](phases/02-geography-scenario/SOURCE-ASSESSMENT.md).
+- Revisión del plan: [phases/02-geography-scenario/PLAN_REVIEW.md](phases/02-geography-scenario/PLAN_REVIEW.md).
+- Fuente técnica primaria candidata: capa distrital INEI actualizada a 2023; su redistribución está bloqueada hasta confirmar licencia o permiso.
+- RENLIM se usa como referencia jurídica; los cuadrantes se etiquetan como analíticos, nunca oficiales.
+- Escenario propuesto: distrito, cuadrante o radio, serializado en URL y compartido por todos los consumidores.
+- Los gaps finales del checker fueron remediados documentalmente, pero no recibieron un cuarto reader-test.
+- Implementación bloqueada hasta nueva validación independiente favorable, verificación de licencia/permiso, HUMAN-GATE-A y registro P2-00C.
 
 ## Próxima acción recomendada
 
-1. Abrir la discusión y planificación de Fase 2; no iniciar implementación sin contrato de escenario y write sets revisados.
-2. Leer el handoff y los riesgos de Fase 1.
-3. Resolver explícitamente el drift documental de Miraflores.
-4. Especificar límites distritales y asignación determinista de cuadrante o microzona.
-5. Definir fixtures CT-C/CT-I, maker/checker y gate independiente para F2.
+1. Someter la remediación posterior al ciclo 3 a una nueva validación independiente.
+2. Si el veredicto es favorable, confirmar licencia/permiso de reutilización de la geometría INEI.
+3. Ejecutar HUMAN-GATE-A sobre la versión/hash exactos del plan.
+4. Versionar `APPROVAL.md` mediante P2-00C.
+5. Ejecutar P2-01 únicamente después de ese registro.
 
 ## Regla para actualizar este archivo
 

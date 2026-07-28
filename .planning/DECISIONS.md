@@ -70,7 +70,7 @@ El caso tarjeta/plano incompatible recibe máxima jerarquía junto al mapa. Los 
 
 **Estado:** aceptada
 
-El conteo reproducible vigente es 90 proyectos en Miraflores: coincide en el CSV versionado, el JSON generado, la UI, el reporte de cobertura y los requisitos. El valor 88 que permanece en `CONTEXT.md` se registra como drift documental y debe corregirse únicamente dentro de un write set autorizado antes de usar CT-I.
+El conteo reproducible vigente es 90 proyectos en Miraflores: coincide en el CSV versionado, el JSON generado, la UI, el reporte de cobertura y los requisitos. El valor 88 registrado antes en `CONTEXT.md` era drift documental y fue corregido en P2-00B dentro de su `write_set`, sin alterar el dataset.
 
 ## D-010 — `deep` estructurado no equivale a dossier visual
 
@@ -115,3 +115,11 @@ El JSON público excluye contactos personales, emails, teléfonos, WhatsApp, con
 El build no usa reloj de ejecución ni llamadas de red. Dataset, cutoff y metadata se fijan desde inputs versionados; 27 fingerprints SHA-256 registran las entradas y la serialización es estable.
 
 El artefacto verificado tiene 3,382,916 bytes y SHA-256 `a7f68af35d97c6fbc066b4213ebb12d525d630fa366a0e75826d2349087d8141`. Cualquier cambio futuro del JSON debe recomputar `coverage-report.json`; un hash distinto sin reporte actualizado bloquea el PR.
+
+## D-015 — Fase 2 no inicia con checker FAIL
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+Los tres reader-tests del plan F2 terminaron en `FAIL`, aunque el último fue estrecho y sus gaps se remediaron documentalmente después. Esa remediación no se interpreta como autoaprobación. No se descarga geometría ni se edita código funcional hasta obtener una nueva validación independiente favorable, confirmar licencia/permiso, completar HUMAN-GATE-A y versionar `APPROVAL.md` mediante P2-00C.
