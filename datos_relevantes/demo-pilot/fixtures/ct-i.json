@@ -1,0 +1,219 @@
+{
+  "case_id": "CT-I",
+  "classification": "observed",
+  "description": "Baseline congelado de Miraflores: 90 proyectos observados, 85 autoritativos y cinco no reconciliados distribuidos una sola vez entre cuatro cuadrantes.",
+  "provenance": [
+    {
+      "provenance_id": "provenance:ct-i-observed",
+      "classification": "observed",
+      "source_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+      "note": "Los conteos 90/85/5 proceden del snapshot aprobado; los IDs secuenciales representan el vector estable que P2-03 debe sustituir por asignaciones reales reproducibles."
+    },
+    {
+      "provenance_id": "provenance:ct-i-osm",
+      "classification": "observed",
+      "source_path": "datos_relevantes/geography/source-manifest.json",
+      "note": "La relación OSM 1944770 y el CRS EPSG:4326 proceden del manifiesto aprobado."
+    }
+  ],
+  "input": {
+    "scenario": {
+      "version": 1,
+      "district_id": "150122",
+      "scope_mode": "quadrant",
+      "quadrant_id": "NW",
+      "center_latitude": null,
+      "center_longitude": null,
+      "radius_meters": null,
+      "typology": "all",
+      "bedrooms": "all",
+      "target_area_m2": null,
+      "target_price_pen": null,
+      "delivery_year": "all",
+      "visualization": "geographic",
+      "source": "interaction"
+    },
+    "geography": {
+      "source_id": "osm-lima-high-load-districts-2026-07-28",
+      "crs": "EPSG:4326",
+      "boundary_artifact_path": "prototipo_ejecutable/public/demo-data/district-boundaries.geojson",
+      "boundary_artifact_sha256": null,
+      "quadrant_method": "district_valid_point_coordinate_medians_v1",
+      "districts": [
+        {
+          "district_id": "150122",
+          "district_name": "Miraflores",
+          "source_name": "Miraflores",
+          "osm_relation_id": 1944770,
+          "high_load": true,
+          "observed_project_count": 90,
+          "authoritative_project_count": 85,
+          "unreconciled_project_count": 5,
+          "coordinate_valid_count": 90,
+          "polygon_valid_count": 90,
+          "median_latitude": -12.121,
+          "median_longitude": -77.03,
+          "quadrants": [
+            {
+              "quadrant_id": "NW",
+              "label": "Noroeste",
+              "observed_project_ids": [
+                "observed:ct-i-001", "observed:ct-i-002", "observed:ct-i-003", "observed:ct-i-004", "observed:ct-i-005",
+                "observed:ct-i-006", "observed:ct-i-007", "observed:ct-i-008", "observed:ct-i-009", "observed:ct-i-010",
+                "observed:ct-i-011", "observed:ct-i-012", "observed:ct-i-013", "observed:ct-i-014", "observed:ct-i-015",
+                "observed:ct-i-016", "observed:ct-i-017", "observed:ct-i-018", "observed:ct-i-019", "observed:ct-i-020",
+                "observed:ct-i-021", "observed:ct-i-022", "observed:ct-i-023"
+              ],
+              "authoritative_project_ids": [
+                "project:ct-i-001", "project:ct-i-002", "project:ct-i-003", "project:ct-i-004", "project:ct-i-005",
+                "project:ct-i-006", "project:ct-i-007", "project:ct-i-008", "project:ct-i-009", "project:ct-i-010",
+                "project:ct-i-011", "project:ct-i-012", "project:ct-i-013", "project:ct-i-014", "project:ct-i-015",
+                "project:ct-i-016", "project:ct-i-017", "project:ct-i-018", "project:ct-i-019", "project:ct-i-020",
+                "project:ct-i-021", "project:ct-i-022"
+              ]
+            },
+            {
+              "quadrant_id": "NE",
+              "label": "Noreste",
+              "observed_project_ids": [
+                "observed:ct-i-024", "observed:ct-i-025", "observed:ct-i-026", "observed:ct-i-027", "observed:ct-i-028",
+                "observed:ct-i-029", "observed:ct-i-030", "observed:ct-i-031", "observed:ct-i-032", "observed:ct-i-033",
+                "observed:ct-i-034", "observed:ct-i-035", "observed:ct-i-036", "observed:ct-i-037", "observed:ct-i-038",
+                "observed:ct-i-039", "observed:ct-i-040", "observed:ct-i-041", "observed:ct-i-042", "observed:ct-i-043",
+                "observed:ct-i-044", "observed:ct-i-045", "observed:ct-i-046"
+              ],
+              "authoritative_project_ids": [
+                "project:ct-i-024", "project:ct-i-025", "project:ct-i-026", "project:ct-i-027", "project:ct-i-028",
+                "project:ct-i-029", "project:ct-i-030", "project:ct-i-031", "project:ct-i-032", "project:ct-i-033",
+                "project:ct-i-034", "project:ct-i-035", "project:ct-i-036", "project:ct-i-037", "project:ct-i-038",
+                "project:ct-i-039", "project:ct-i-040", "project:ct-i-041", "project:ct-i-042", "project:ct-i-043",
+                "project:ct-i-044", "project:ct-i-045"
+              ]
+            },
+            {
+              "quadrant_id": "SW",
+              "label": "Suroeste",
+              "observed_project_ids": [
+                "observed:ct-i-047", "observed:ct-i-048", "observed:ct-i-049", "observed:ct-i-050", "observed:ct-i-051",
+                "observed:ct-i-052", "observed:ct-i-053", "observed:ct-i-054", "observed:ct-i-055", "observed:ct-i-056",
+                "observed:ct-i-057", "observed:ct-i-058", "observed:ct-i-059", "observed:ct-i-060", "observed:ct-i-061",
+                "observed:ct-i-062", "observed:ct-i-063", "observed:ct-i-064", "observed:ct-i-065", "observed:ct-i-066",
+                "observed:ct-i-067", "observed:ct-i-068"
+              ],
+              "authoritative_project_ids": [
+                "project:ct-i-047", "project:ct-i-048", "project:ct-i-049", "project:ct-i-050", "project:ct-i-051",
+                "project:ct-i-052", "project:ct-i-053", "project:ct-i-054", "project:ct-i-055", "project:ct-i-056",
+                "project:ct-i-057", "project:ct-i-058", "project:ct-i-059", "project:ct-i-060", "project:ct-i-061",
+                "project:ct-i-062", "project:ct-i-063", "project:ct-i-064", "project:ct-i-065", "project:ct-i-066",
+                "project:ct-i-067"
+              ]
+            },
+            {
+              "quadrant_id": "SE",
+              "label": "Sureste",
+              "observed_project_ids": [
+                "observed:ct-i-069", "observed:ct-i-070", "observed:ct-i-071", "observed:ct-i-072", "observed:ct-i-073",
+                "observed:ct-i-074", "observed:ct-i-075", "observed:ct-i-076", "observed:ct-i-077", "observed:ct-i-078",
+                "observed:ct-i-079", "observed:ct-i-080", "observed:ct-i-081", "observed:ct-i-082", "observed:ct-i-083",
+                "observed:ct-i-084", "observed:ct-i-085", "observed:ct-i-086", "observed:ct-i-087", "observed:ct-i-088",
+                "observed:ct-i-089", "observed:ct-i-090"
+              ],
+              "authoritative_project_ids": [
+                "project:ct-i-069", "project:ct-i-070", "project:ct-i-071", "project:ct-i-072", "project:ct-i-073",
+                "project:ct-i-074", "project:ct-i-075", "project:ct-i-076", "project:ct-i-077", "project:ct-i-078",
+                "project:ct-i-079", "project:ct-i-080", "project:ct-i-081", "project:ct-i-082", "project:ct-i-083",
+                "project:ct-i-084", "project:ct-i-085", "project:ct-i-086", "project:ct-i-087", "project:ct-i-088"
+              ]
+            }
+          ]
+        }
+      ],
+      "assignments": [],
+      "exclusions": [
+        {
+          "project_id": "observed:ct-i-023",
+          "stage": "reconciliation",
+          "reason": "not_reconciled",
+          "visible_as_coverage": true
+        },
+        {
+          "project_id": "observed:ct-i-046",
+          "stage": "reconciliation",
+          "reason": "not_reconciled",
+          "visible_as_coverage": true
+        },
+        {
+          "project_id": "observed:ct-i-068",
+          "stage": "reconciliation",
+          "reason": "not_reconciled",
+          "visible_as_coverage": true
+        },
+        {
+          "project_id": "observed:ct-i-089",
+          "stage": "reconciliation",
+          "reason": "not_reconciled",
+          "visible_as_coverage": true
+        },
+        {
+          "project_id": "observed:ct-i-090",
+          "stage": "reconciliation",
+          "reason": "not_reconciled",
+          "visible_as_coverage": true
+        }
+      ]
+    }
+  },
+  "expected": {
+    "assertions": [
+      {
+        "assertion_id": "assertion:ct-i-observed-count",
+        "operation": "unique_quadrant_union_count",
+        "collection": "observed_project_ids",
+        "expected_value": 90
+      },
+      {
+        "assertion_id": "assertion:ct-i-authoritative-count",
+        "operation": "unique_quadrant_union_count",
+        "collection": "authoritative_project_ids",
+        "expected_value": 85
+      },
+      {
+        "assertion_id": "assertion:ct-i-four-quadrants",
+        "operation": "quadrant_ids_equal",
+        "expected_value": ["NW", "NE", "SW", "SE"]
+      },
+      {
+        "assertion_id": "assertion:ct-i-unreconciled-count",
+        "operation": "exclusion_reason_count",
+        "reason": "not_reconciled",
+        "expected_value": 5
+      }
+    ],
+    "result": {
+      "district_id": "150122",
+      "observed_project_count": 90,
+      "high_load": true,
+      "quadrant_count": 4,
+      "coordinate_valid_count": 90,
+      "polygon_valid_count": 90,
+      "quadrant_observed_counts": {
+        "NW": 23,
+        "NE": 23,
+        "SW": 22,
+        "SE": 22
+      },
+      "authoritative_project_count": 85,
+      "unreconciled_project_count": 5,
+      "selected_quadrant": {
+        "quadrant_id": "NW",
+        "observed_project_count": 23,
+        "comparable_project_count": 22
+      },
+      "reset": {
+        "scope_mode": "district",
+        "observed_project_count": 90,
+        "comparable_project_count": 85
+      }
+    }
+  }
+}

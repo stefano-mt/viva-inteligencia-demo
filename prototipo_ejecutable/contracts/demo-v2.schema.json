@@ -31,6 +31,15 @@
     "pilot": {
       "$ref": "#/$defs/pilot"
     },
+    "scenario_catalogs": {
+      "$ref": "#/$defs/scenarioCatalogs"
+    },
+    "scenario_defaults": {
+      "$ref": "#/$defs/scenarioDefaults"
+    },
+    "geography": {
+      "$ref": "#/$defs/geography"
+    },
     "projects": {
       "type": "array",
       "minItems": 1,
@@ -69,6 +78,28 @@
       "$ref": "#/$defs/legacyObject"
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "contract_version": {
+                "const": "2.1.0"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "scenario_catalogs",
+          "scenario_defaults",
+          "geography"
+        ]
+      }
+    }
+  ],
   "$defs": {
     "nonEmptyString": {
       "type": "string",
@@ -198,7 +229,10 @@
       ],
       "properties": {
         "contract_version": {
-          "const": "2.0.0"
+          "enum": [
+            "2.0.0",
+            "2.1.0"
+          ]
         },
         "dataset_id": {
           "$ref": "#/$defs/namespacedId"
@@ -1902,6 +1936,614 @@
               "minimum": 5
             }
           }
+        }
+      }
+    },
+    "districtId": {
+      "type": "string",
+      "pattern": "^[0-9]{6}$"
+    },
+    "quadrantId": {
+      "enum": [
+        "NW",
+        "NE",
+        "SW",
+        "SE"
+      ]
+    },
+    "scenarioCatalogs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "typologies",
+        "bedrooms",
+        "delivery_years",
+        "scope_modes",
+        "quadrants",
+        "radius_meters",
+        "visualizations"
+      ],
+      "properties": {
+        "typologies": {
+          "const": [
+            "all",
+            "casa",
+            "departamento",
+            "lote",
+            "oficina"
+          ]
+        },
+        "bedrooms": {
+          "const": [
+            "all",
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "delivery_years": {
+          "const": [
+            "all",
+            2019,
+            2022,
+            2023,
+            2024,
+            2025,
+            2026,
+            2027,
+            2028,
+            2029
+          ]
+        },
+        "scope_modes": {
+          "const": [
+            "district",
+            "quadrant",
+            "radius"
+          ]
+        },
+        "quadrants": {
+          "const": [
+            "NW",
+            "NE",
+            "SW",
+            "SE"
+          ]
+        },
+        "radius_meters": {
+          "const": [
+            500,
+            1000,
+            1500
+          ]
+        },
+        "visualizations": {
+          "const": [
+            "geographic",
+            "positioning"
+          ]
+        }
+      }
+    },
+    "scenarioDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "district_id",
+        "scope_mode",
+        "quadrant_id",
+        "center_latitude",
+        "center_longitude",
+        "radius_meters",
+        "typology",
+        "bedrooms",
+        "target_area_m2",
+        "target_price_pen",
+        "delivery_year",
+        "visualization",
+        "source"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "district_id": {
+          "$ref": "#/$defs/districtId"
+        },
+        "scope_mode": {
+          "enum": [
+            "district",
+            "quadrant",
+            "radius"
+          ]
+        },
+        "quadrant_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/quadrantId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "center_latitude": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -90,
+          "maximum": 90
+        },
+        "center_longitude": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -180,
+          "maximum": 180
+        },
+        "radius_meters": {
+          "oneOf": [
+            {
+              "enum": [
+                500,
+                1000,
+                1500
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "typology": {
+          "enum": [
+            "all",
+            "casa",
+            "departamento",
+            "lote",
+            "oficina"
+          ]
+        },
+        "bedrooms": {
+          "oneOf": [
+            {
+              "const": "all"
+            },
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 5
+            }
+          ]
+        },
+        "target_area_m2": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0,
+          "maximum": 10000
+        },
+        "target_price_pen": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0,
+          "maximum": 1000000000
+        },
+        "delivery_year": {
+          "oneOf": [
+            {
+              "const": "all"
+            },
+            {
+              "enum": [
+                2019,
+                2022,
+                2023,
+                2024,
+                2025,
+                2026,
+                2027,
+                2028,
+                2029
+              ]
+            }
+          ]
+        },
+        "visualization": {
+          "enum": [
+            "geographic",
+            "positioning"
+          ]
+        },
+        "source": {
+          "enum": [
+            "default",
+            "url",
+            "interaction"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "scope_mode": {
+                "const": "district"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "quadrant_id": {
+                "const": null
+              },
+              "center_latitude": {
+                "const": null
+              },
+              "center_longitude": {
+                "const": null
+              },
+              "radius_meters": {
+                "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scope_mode": {
+                "const": "quadrant"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "quadrant_id": {
+                "$ref": "#/$defs/quadrantId"
+              },
+              "center_latitude": {
+                "const": null
+              },
+              "center_longitude": {
+                "const": null
+              },
+              "radius_meters": {
+                "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "scope_mode": {
+                "const": "radius"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "quadrant_id": {
+                "const": null
+              },
+              "center_latitude": {
+                "type": "number",
+                "minimum": -90,
+                "maximum": 90
+              },
+              "center_longitude": {
+                "type": "number",
+                "minimum": -180,
+                "maximum": 180
+              },
+              "radius_meters": {
+                "enum": [
+                  500,
+                  1000,
+                  1500
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "geography": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "crs",
+        "boundary_artifact_path",
+        "boundary_artifact_sha256",
+        "quadrant_method",
+        "districts",
+        "assignments",
+        "exclusions"
+      ],
+      "properties": {
+        "source_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "crs": {
+          "const": "EPSG:4326"
+        },
+        "boundary_artifact_path": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "boundary_artifact_sha256": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "quadrant_method": {
+          "const": "district_valid_point_coordinate_medians_v1"
+        },
+        "districts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/districtGeography"
+          }
+        },
+        "assignments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/geographyAssignment"
+          }
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/geographyExclusion"
+          }
+        }
+      }
+    },
+    "districtGeography": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "district_id",
+        "district_name",
+        "source_name",
+        "osm_relation_id",
+        "high_load",
+        "observed_project_count",
+        "authoritative_project_count",
+        "unreconciled_project_count",
+        "coordinate_valid_count",
+        "polygon_valid_count",
+        "median_latitude",
+        "median_longitude",
+        "quadrants"
+      ],
+      "properties": {
+        "district_id": {
+          "$ref": "#/$defs/districtId"
+        },
+        "district_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "source_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "osm_relation_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "high_load": {
+          "type": "boolean"
+        },
+        "observed_project_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "authoritative_project_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unreconciled_project_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "coordinate_valid_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "polygon_valid_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "median_latitude": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -90,
+          "maximum": 90
+        },
+        "median_longitude": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -180,
+          "maximum": 180
+        },
+        "quadrants": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "$ref": "#/$defs/quadrant"
+          }
+        }
+      }
+    },
+    "quadrant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "quadrant_id",
+        "label",
+        "observed_project_ids",
+        "authoritative_project_ids"
+      ],
+      "properties": {
+        "quadrant_id": {
+          "$ref": "#/$defs/quadrantId"
+        },
+        "label": {
+          "enum": [
+            "Noroeste",
+            "Noreste",
+            "Suroeste",
+            "Sureste"
+          ]
+        },
+        "observed_project_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        },
+        "authoritative_project_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        }
+      }
+    },
+    "geographyAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observed_project_id",
+        "authoritative_project_id",
+        "district_id",
+        "latitude",
+        "longitude",
+        "coordinate_valid",
+        "polygon_valid",
+        "quadrant_id",
+        "reconciliation_status"
+      ],
+      "properties": {
+        "observed_project_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "authoritative_project_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/namespacedId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "district_id": {
+          "$ref": "#/$defs/districtId"
+        },
+        "latitude": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -180,
+          "maximum": 180
+        },
+        "coordinate_valid": {
+          "type": "boolean"
+        },
+        "polygon_valid": {
+          "type": "boolean"
+        },
+        "quadrant_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/quadrantId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "reconciliation_status": {
+          "enum": [
+            "matched",
+            "unreconciled"
+          ]
+        }
+      }
+    },
+    "geographyExclusion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project_id",
+        "stage",
+        "reason",
+        "visible_as_coverage"
+      ],
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "stage": {
+          "enum": [
+            "scope",
+            "geography",
+            "reconciliation",
+            "product",
+            "price"
+          ]
+        },
+        "reason": {
+          "enum": [
+            "outside_scope",
+            "district_mismatch",
+            "outside_district_polygon",
+            "invalid_coordinates",
+            "not_reconciled",
+            "typology_mismatch",
+            "bedrooms_mismatch",
+            "delivery_mismatch",
+            "target_area_mismatch",
+            "price_unavailable",
+            "price_semantics_incompatible",
+            "insufficient_evidence"
+          ]
+        },
+        "visible_as_coverage": {
+          "type": "boolean"
         }
       }
     },

@@ -1,4 +1,4 @@
-# Fixtures transversales de la Fase 1
+# Fixtures transversales de las Fases 1 y 2
 
 Esta carpeta contiene los casos deterministas que P1-04, P1-05 y P1-06 deben materializar, calcular y validar. Son datos de prueba versionados: no son el dataset público ni autorizan scraping, publicación de activos restringidos o claims comerciales.
 
@@ -6,7 +6,7 @@ Esta carpeta contiene los casos deterministas que P1-04, P1-05 y P1-06 deben mat
 
 Cada JSON usa el mismo sobre:
 
-- `case_id`: identificador transversal estable (`CT-A`, `CT-B`, `CT-D`, `CT-E`, `CT-G` o `CT-H`).
+- `case_id`: identificador transversal estable (`CT-A`, `CT-B`, `CT-C`, `CT-D`, `CT-E`, `CT-G`, `CT-H` o `CT-I`).
 - `classification`: `controlled` cuando los valores existen para probar reglas, u `observed` cuando transcriben un snapshot o material aportado.
 - `provenance[]`: procedencia lógica, clasificación y límites. Las rutas usan `/`, son relativas al repositorio y nunca son rutas del equipo local.
 - `input`: entidades y registros necesarios para ejecutar el caso.
@@ -14,6 +14,8 @@ Cada JSON usa el mismo sobre:
 - `expected.result`: salida semántica congelada para comparaciones directas.
 
 Los elementos de `input.sources`, `agencies`, `agency_aliases`, `projects`, `typologies`, `observations`, `facts`, `documents`, `evidence`, `issues` y `events` reutilizan los campos, enums e IDs namespaced de `prototipo_ejecutable/contracts/demo-v2.schema.json`. El sobre de fixture no reemplaza al documento raíz v2.
+
+CT-C y CT-I usan los `$defs` 2.1 `scenarioCatalogs`, `scenarioDefaults` y `geography`. Sus cuadrantes, asignaciones y exclusiones también usan IDs namespaced. Son contratos congelados para los módulos puros posteriores; no deben copiarse al artefacto público como si fueran resultados calculados.
 
 ## Clasificación y significado
 
@@ -25,10 +27,11 @@ Los valores controlados no deben incorporarse al universo real del piloto. Cuand
 
 ### `observed`
 
-CT-G y CT-H preservan observaciones del contexto entregado:
+CT-G, CT-H y CT-I preservan observaciones del contexto entregado:
 
 - CT-G transcribe dos capturas de Pardo Coast Tipo 7 y conserva sus SHA-256. Los PNG no se copian y `public_asset_path` permanece `null`.
 - CT-H usa nombres, dominios y conteos del snapshot local. No asigna `coverage_tier` ni afirma que los mínimos 30/15/5 ya estén cumplidos.
+- CT-I congela el baseline de Miraflores en 90 observados, 85 autoritativos y cinco no reconciliados. Sus IDs secuenciales son un vector de prueba; P2-03 debe materializar IDs y cuadrantes reales desde el snapshot.
 
 Un valor observado puede permanecer `reviewable` o `inconsistent`. “Observado” no significa “verdadero” ni “certificado”.
 
@@ -38,10 +41,12 @@ Un valor observado puede permanecer `reviewable` o `inconsistent`. “Observado�
 |---|---|---|
 | `ct-a.json` | Diferenciar `built`, `free` y `total`; calcular dos denominadores. | 108 m2 libres; 10,000.00 y 4,757.28 PEN/m2; derivados del precio simulado no elegibles. |
 | `ct-b.json` | Conservar dos precios `list` incompatibles. | 25,000 PEN y +4.17% con base 600,000; `PRICE_SOURCE_CONFLICT`; verdad seleccionada `null`. |
+| `ct-c.json` | Congelar consistencia de una microzona radial. | Los cuatro consumidores reciben solo `project:ct-c-inside`; fuera, inválido y no reconciliado conservan motivos exactos. |
 | `ct-d.json` | Vincular atributo cualitativo a evidencia y respetar permisos. | `cuarzo` abre fragmento autorizado; documento restringido no publica ruta ni fragmento; aire acondicionado es `unknown`, no `false`. |
 | `ct-e.json` | Validar histórico, base cero, cambio extremo y orden. | +30,000/+5%; base cero con porcentaje `null`; >50% revisable; causa `null`; orden por fecha e ID. |
 | `ct-g.json` | Detectar incompatibilidad tarjeta/plano. | 104.15 m2 de tipo `unknown` vs 53.37 m2 de tipo `total`; delta 50.78 y 48.76%; `inconsistent`; no elegible; sin Park 55 ni activos publicados. |
 | `ct-h.json` | Probar canonización sobre nombres reales. | GRUPO T&C/GRUPO TyC comparten ID mediante resolución `rule_based`; dominios ambiguos quedan `manual_review`; vector resoluble >=30. |
+| `ct-i.json` | Congelar el distrito de alta carga Miraflores. | 90 observados únicos en cuadrantes 23/23/22/22; 85 autoritativos; cinco gaps visibles; reset 90/85. |
 
 ## Procedencia y límites específicos
 
@@ -68,6 +73,14 @@ Los mínimos son expectativas para P1-03:
 
 `demonstrated_counts` permanece `null` y no existen tiers en este fixture. P1-03 debe probar los niveles con matching y evidencia local; no puede copiar los mínimos como resultados.
 
+### CT-C
+
+El punto objetivo, radio y coordenadas son controlados. El proyecto dentro es el único comparable. El proyecto fuera queda excluido por alcance, el proyecto sin coordenadas por geografía y el observado no reconciliado por reconciliación. Este último puede mostrarse como cobertura excluida, nunca como comparable. Mapa, lectura de mercado, comparador y asistente deben devolver exactamente el mismo ID.
+
+### CT-I
+
+El fixture exige cuatro cuadrantes analíticos en orden `NW`, `NE`, `SW`, `SE`. La unión de IDs observados debe tener 90 elementos únicos y la unión autoritativa 85. Los cinco IDs restantes aparecen explícitamente con `reason=not_reconciled`. `polygon_valid_count=90` es un resultado bloqueante que P2-03 debe confirmar contra geometría real; no se degrada a 89.
+
 ## Consumo posterior
 
 ### P1-04 — Fuentes, observaciones y evidencia
@@ -92,6 +105,14 @@ Los mínimos son expectativas para P1-03:
 3. Ejecutar `expected.assertions` sin depender del orden de entrada.
 4. Rechazar PII de contacto, rutas absolutas/locales, raw payloads y activos restringidos publicados.
 5. Confirmar que cada cálculo coincide con `expected.result`.
+
+### P2-03/P2-05/P2-06 — Geografía, escenario y comparabilidad
+
+1. Recalcular CT-C y CT-I desde inputs; no copiar `expected.result`.
+2. Comprobar unicidad y pertenencia exacta a un cuadrante por punto válido.
+3. Resolver exclusiones por etapa y motivo sin ocultar gaps.
+4. Propagar los mismos IDs a contexto territorial, comparabilidad y consumidores.
+5. Verificar independencia del orden y reset distrital.
 
 ## Seguridad
 
