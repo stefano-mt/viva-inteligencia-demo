@@ -670,7 +670,7 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
   - render puro de estados válido, inválido, parcial e insuficiente;
   - el CTA cambia a `projects`, escribe `#projects`, conserva escenario y devuelve foco a `#main-content`;
   - los controles territoriales emiten commit inmediato;
-  - el formulario de producto/precio emite un único commit al enviar;
+  - el contrato y los hooks del formulario de producto/precio quedan definidos aquí; el commit atómico montado se verifica en P2-10/P2-14, donde viven el formulario y su listener propietario;
   - URL canónica visible y mensaje `aria-live`;
   - la interacción montada, viewports y contraste quedan como gate de P2-14/P2-15.
 - Rollback: retirar import/renderer y volver a topbar anterior.
@@ -707,10 +707,12 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
 - `depends_on`: P2-08, P2-09.
 - `write_set`:
   - `prototipo_ejecutable/public/js/views/dashboard.js`
+  - `prototipo_ejecutable/public/js/controller.js`
 - Entrega:
   - mapa como panel principal;
   - reducción de KPI horizontales;
   - planificador conectado al escenario;
+  - formulario de producto/precio con un único submit atómico gestionado por el controlador existente, sin listeners paralelos;
   - diagnóstico de precio;
   - score explicable;
   - posicionamiento más abajo.

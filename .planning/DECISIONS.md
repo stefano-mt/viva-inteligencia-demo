@@ -155,3 +155,27 @@ El motor normativo P2-03 reprodujo 422 de 433 proyectos dentro o sobre el borde 
 **Estado:** aceptada
 
 `buildTerritorialContext` entrega `distance_meters_by_observed_project_id` con precisión completa para los proyectos observados cuando el alcance es radial. P2-06 consume esa distancia únicamente para puntuar y ordenar comparables; no vuelve a calcular Haversine, pertenencia territorial ni polígonos. El campo es aditivo al contrato interno de P2-05 y evita dos fuentes de verdad entre selección geográfica y comparabilidad.
+
+## D-020 — Presets explícitos al activar cuadrante o radio
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+Al activar cuadrante se selecciona en la misma transición el primer cuadrante disponible, NW en el snapshot vigente. Al activar radio se usa la mediana observada del distrito y 1,000 m en una única transición, rotulada en UI como `Centro observado del distrito`. El usuario puede reemplazar después el punto desde el mapa; no existe estado territorial oculto.
+
+## D-021 — P2-10 posee el submit atómico del planificador
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+El formulario de producto y precio vive en `dashboard.js`, pero su listener debe permanecer en el único propietario de eventos, `controller.js`. Se amplía de forma controlada el `write_set` de P2-10 para incluir ese controlador. P2-08 define hooks y contrato; P2-10 implementa un solo submit atómico; P2-14 lo verifica montado. No se trasladan controles avanzados a la barra global ni se crean listeners paralelos en `app.js`.
+
+## D-022 — Lectura simultánea de cuadrantes no duplica comparabilidad
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+P2-11 muestra para los cuatro cuadrantes del distrito conteos reproducibles de observados, geografía válida y reconciliación autoritativa, junto con precio publicado provisional cuando la evidencia es compatible. Solo el cuadrante activo presenta comparables y diagnóstico derivados del `scenarioContext` vigente. No se recomponen cuatro escenarios durante render ni se crea un segundo motor de comparabilidad para llenar filas no activas.
