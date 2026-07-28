@@ -41,6 +41,10 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** construir un dataset de demo trazable que cubra 30 inmobiliarias y todos los casos de validación.
 
+**Estado:** completada y verificada (`PASS WITH RISKS`) el 2026-07-28.
+
+**Resultado confirmado:** contrato `2.0.0`, JSON determinista, 180 agencias canónicas de mercado, modelo integrado de 184 agencias, piloto acumulativo 30/22/5 y fixtures CT-A/B/D/E/G/H. Los riesgos de microzonas, activos visuales, benchmark de mercado e histórico amplio se transfieren a F2–F5.
+
 ### Ola 1.1 — Contrato
 
 - Esquema de proyecto, fuente, campo, evidencia, tipología, observación y evento.
@@ -70,6 +74,8 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 **Historias:** 101–103, 201–205, 301–302.
 
 **Objetivo:** definir una zona objetivo y obtener comparables geográficos explicables.
+
+**Estado:** no iniciada; requiere discusión, especificación y plan aprobados. Antes de CT-I debe resolverse el drift documental 88/90 de Miraflores sin alterar el conteo reproducible de 90.
 
 ### Ola 2.1 — Contexto y estado
 
