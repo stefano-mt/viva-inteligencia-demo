@@ -1,0 +1,47 @@
+[
+  {
+    "event_id": "event:ct-e-normal-change",
+    "entity_id": "typology:ct-e-controlled",
+    "field_name": "list_price",
+    "previous_fact_id": "fact:ct-e-price-600000",
+    "new_fact_id": "fact:ct-e-price-630000",
+    "effective_at": "2026-02-01T00:00:00Z",
+    "observed_at": "2026-02-01T00:00:00Z",
+    "delta": 30000,
+    "percentage": 5,
+    "percentage_base_fact_id": "fact:ct-e-price-600000",
+    "cause": null,
+    "cause_evidence_ids": [],
+    "quality_status": "certified"
+  },
+  {
+    "event_id": "event:ct-e-base-zero",
+    "entity_id": "typology:ct-e-controlled",
+    "field_name": "list_price",
+    "previous_fact_id": "fact:ct-e-zero-base",
+    "new_fact_id": "fact:ct-e-after-zero",
+    "effective_at": "2026-04-01T00:00:00Z",
+    "observed_at": "2026-04-01T00:00:00Z",
+    "delta": 100000,
+    "percentage": null,
+    "percentage_base_fact_id": "fact:ct-e-zero-base",
+    "cause": null,
+    "cause_evidence_ids": [],
+    "quality_status": "reviewable"
+  },
+  {
+    "event_id": "event:ct-e-extreme-change",
+    "entity_id": "typology:ct-e-controlled",
+    "field_name": "list_price",
+    "previous_fact_id": "fact:ct-e-extreme-before",
+    "new_fact_id": "fact:ct-e-extreme-after",
+    "effective_at": "2026-04-01T00:00:00Z",
+    "observed_at": "2026-04-01T00:00:00Z",
+    "delta": 60000,
+    "percentage": 60,
+    "percentage_base_fact_id": "fact:ct-e-extreme-before",
+    "cause": null,
+    "cause_evidence_ids": [],
+    "quality_status": "reviewable"
+  }
+]

@@ -1,0 +1,38 @@
+{
+  "case_id": "CT-G",
+  "artifact_role": "structured_transcription_only",
+  "source_assets_included": false,
+  "records": [
+    {
+      "observation_id": "observation:pardo-coast-card",
+      "evidence_id": "evidence:pardo-coast-card-metadata",
+      "document_id": "document:pardo-coast-card",
+      "source_sha256": "41ab273c521fcc66025653e8cfe44f894afb01b2f1b9be72847dcf87db2f2c4b",
+      "captured_at": "2026-07-27T20:23:56-05:00",
+      "public_asset_path": null,
+      "transcription": {
+        "project_name": "Pardo Coast",
+        "model": "Tipo 7",
+        "floor_label_original": "Piso 1",
+        "published_area_original": "104.15 m²",
+        "bedrooms": 2,
+        "bathrooms": 2
+      }
+    },
+    {
+      "observation_id": "observation:pardo-coast-plan",
+      "evidence_id": "evidence:pardo-coast-plan-metadata",
+      "document_id": "document:pardo-coast-plan",
+      "source_sha256": "3c108732cc1f9c0dbd884ed3d171a0abacffc96d9e80a95d994dc1d1a43bd60a",
+      "captured_at": "2026-07-27T20:24:28-05:00",
+      "public_asset_path": null,
+      "transcription": {
+        "project_name": "Pardo Coast",
+        "model": "Tipo 7",
+        "area_label_original": "Área Total 53.37 m2",
+        "unit_range_original": "Dep. 807 AL 1007",
+        "disclaimer_summary": "Plano referencial sujeto a variaciones y a la documentación registral definitiva."
+      }
+    }
+  ]
+}

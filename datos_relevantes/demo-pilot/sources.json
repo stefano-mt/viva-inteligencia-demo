@@ -1,0 +1,66 @@
+[
+  {
+    "source_id": "source:ct-a-controlled",
+    "name": "Fixture controlado CT-A",
+    "type": "controlled_fixture",
+    "base_url": null,
+    "legal_status": "cleared_for_demo",
+    "access_mode": "controlled_fixture"
+  },
+  {
+    "source_id": "source:ct-b-a",
+    "name": "Fuente controlada CT-B A",
+    "type": "controlled_fixture",
+    "base_url": null,
+    "legal_status": "cleared_for_demo",
+    "access_mode": "controlled_fixture"
+  },
+  {
+    "source_id": "source:ct-b-b",
+    "name": "Fuente controlada CT-B B",
+    "type": "controlled_fixture",
+    "base_url": null,
+    "legal_status": "cleared_for_demo",
+    "access_mode": "controlled_fixture"
+  },
+  {
+    "source_id": "source:ct-d-authorized",
+    "name": "Documento controlado autorizado CT-D",
+    "type": "controlled_fixture",
+    "base_url": null,
+    "legal_status": "cleared_for_demo",
+    "access_mode": "controlled_fixture"
+  },
+  {
+    "source_id": "source:ct-d-restricted",
+    "name": "Documento controlado restringido CT-D",
+    "type": "user_provided",
+    "base_url": null,
+    "legal_status": "restricted",
+    "access_mode": "user_provided"
+  },
+  {
+    "source_id": "source:ct-e-controlled",
+    "name": "Fixture controlado CT-E",
+    "type": "controlled_fixture",
+    "base_url": null,
+    "legal_status": "cleared_for_demo",
+    "access_mode": "controlled_fixture"
+  },
+  {
+    "source_id": "source:ct-g-user-plan",
+    "name": "Plano Pardo Coast aportado por el usuario",
+    "type": "user_provided",
+    "base_url": null,
+    "legal_status": "restricted",
+    "access_mode": "user_provided"
+  },
+  {
+    "source_id": "source:nexo",
+    "name": "Nexo Inmobiliario",
+    "type": "portal",
+    "base_url": "https://nexoinmobiliario.pe",
+    "legal_status": "pending_review",
+    "access_mode": "public_reference"
+  }
+]

@@ -1,0 +1,509 @@
+{
+  "case_id": "CT-G",
+  "classification": "observed",
+  "description": "Dos observaciones independientes de Pardo Coast Tipo 7 conservan la tarjeta de 104.15 m2 y el plano de Área Total 53.37 m2 sin publicar los activos ni elegir una verdad.",
+  "provenance": [
+    {
+      "provenance_id": "provenance:ct-g-card",
+      "classification": "observed",
+      "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/pardo-coast-2951",
+      "captured_at": "2026-07-27T20:23:56-05:00",
+      "sha256": "41ab273c521fcc66025653e8cfe44f894afb01b2f1b9be72847dcf87db2f2c4b",
+      "note": "Captura aportada por el usuario; el activo no se copia al repositorio."
+    },
+    {
+      "provenance_id": "provenance:ct-g-plan",
+      "classification": "observed",
+      "source_url": null,
+      "captured_at": "2026-07-27T20:24:28-05:00",
+      "sha256": "3c108732cc1f9c0dbd884ed3d171a0abacffc96d9e80a95d994dc1d1a43bd60a",
+      "note": "Plano aportado por el usuario; conserva metadatos y transcripción estructurada, pero no publica el activo restringido."
+    }
+  ],
+  "input": {
+    "sources": [
+      {
+        "source_id": "source:nexo",
+        "name": "Nexo Inmobiliario",
+        "type": "portal",
+        "base_url": "https://nexoinmobiliario.pe",
+        "legal_status": "pending_review",
+        "access_mode": "public_reference"
+      },
+      {
+        "source_id": "source:ct-g-user-plan",
+        "name": "Plano Pardo Coast aportado por el usuario",
+        "type": "user_provided",
+        "base_url": null,
+        "legal_status": "restricted",
+        "access_mode": "user_provided"
+      }
+    ],
+    "agencies": [
+      {
+        "agency_id": "agency:grupo-tyc",
+        "canonical_name": "GRUPO T&C",
+        "normalized_name": "grupo-tyc",
+        "domain": "grupotyc.com",
+        "pilot_selected": false,
+        "coverage_tier": null,
+        "source_names": [
+          "GRUPO T&C",
+          "GRUPO TyC"
+        ],
+        "selection_reason": null
+      }
+    ],
+    "projects": [
+      {
+        "project_id": "project:nexo-2951",
+        "agency_id": "agency:grupo-tyc",
+        "canonical_name": "Pardo Coast",
+        "source_names": [
+          "PARDO COAST",
+          "Pardo Coast"
+        ],
+        "location": {
+          "district": "Miraflores",
+          "province": "Lima",
+          "department": "Lima",
+          "address": null,
+          "latitude": null,
+          "longitude": null
+        },
+        "status": "En construcción",
+        "first_seen_at": "2026-05-24T18:37:51.632Z",
+        "last_seen_at": "2026-07-27T20:24:28-05:00",
+        "quality_status": "inconsistent"
+      }
+    ],
+    "typologies": [
+      {
+        "typology_id": "typology:pardo-coast-tipo-7",
+        "project_id": "project:nexo-2951",
+        "model": "Tipo 7",
+        "floor_label_original": null,
+        "floor_min": null,
+        "floor_max": null,
+        "bedrooms_min": 2,
+        "bedrooms_max": 2,
+        "bathrooms_min": 2,
+        "bathrooms_max": 2,
+        "quality_status": "inconsistent"
+      }
+    ],
+    "observations": [
+      {
+        "observation_id": "observation:pardo-coast-card",
+        "source_id": "source:nexo",
+        "entity_type": "typology",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "captured_at": "2026-07-27T20:23:56-05:00",
+        "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/pardo-coast-2951",
+        "extraction_method": "user_provided_screenshot_transcription",
+        "evidence_ids": [
+          "evidence:pardo-coast-card-metadata"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:pardo-coast-plan",
+        "source_id": "source:ct-g-user-plan",
+        "entity_type": "typology",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "captured_at": "2026-07-27T20:24:28-05:00",
+        "source_url": null,
+        "extraction_method": "user_provided_image_manual_transcription",
+        "evidence_ids": [
+          "evidence:pardo-coast-plan-metadata"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:pardo-coast-conflict-derived",
+        "source_id": "source:ct-g-user-plan",
+        "entity_type": "typology",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "captured_at": "2026-07-27T20:24:28-05:00",
+        "source_url": null,
+        "extraction_method": "deterministic_derivation",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Resultados derivados de hechos transcritos y versionados en este fixture."
+      }
+    ],
+    "facts": [
+      {
+        "fact_id": "fact:pardo-coast-card-area",
+        "observation_id": "observation:pardo-coast-card",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "field_name": "published_area",
+        "original_value": "104.15 m²",
+        "normalized_value": 104.15,
+        "unit": "m2",
+        "value_kind": "observed",
+        "semantic_type": "area",
+        "area_type": "unknown",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "inconsistent",
+        "benchmark_eligible": false,
+        "exclusion_reason": "La tarjeta no declara el tipo de área y además difiere de fact:pardo-coast-plan-area.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:pardo-coast-card-floor",
+        "observation_id": "observation:pardo-coast-card",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "field_name": "floor_label",
+        "original_value": "Piso 1",
+        "normalized_value": 1,
+        "unit": "count",
+        "value_kind": "observed",
+        "semantic_type": "count",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Requiere conciliación con el rango de departamentos del plano.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:pardo-coast-plan-area",
+        "observation_id": "observation:pardo-coast-plan",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "field_name": "total_area",
+        "original_value": "Área Total 53.37 m2",
+        "normalized_value": 53.37,
+        "unit": "m2",
+        "value_kind": "observed",
+        "semantic_type": "area",
+        "area_type": "total",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "inconsistent",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Conflicto con fact:pardo-coast-card-area y activo restringido.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:pardo-coast-plan-unit-range",
+        "observation_id": "observation:pardo-coast-plan",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "field_name": "unit_range",
+        "original_value": "Dep. 807 AL 1007",
+        "normalized_value": "807-1007",
+        "unit": "text",
+        "value_kind": "observed",
+        "semantic_type": "text",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Rango observado pendiente de conciliación con Piso 1.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:pardo-coast-inferred-floor-min",
+        "observation_id": "observation:pardo-coast-conflict-derived",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "field_name": "inferred_floor_min",
+        "original_value": null,
+        "normalized_value": 8,
+        "unit": "count",
+        "value_kind": "derived",
+        "semantic_type": "count",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "low",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Inferencia por convención de numeración; no es texto observado.",
+        "derivation": {
+          "formula": "floor_from_unit_prefix(unit_range.start)",
+          "input_fact_ids": [
+            "fact:pardo-coast-plan-unit-range"
+          ],
+          "rounding": {
+            "mode": "none",
+            "digits": 0
+          }
+        }
+      },
+      {
+        "fact_id": "fact:pardo-coast-inferred-floor-max",
+        "observation_id": "observation:pardo-coast-conflict-derived",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "field_name": "inferred_floor_max",
+        "original_value": null,
+        "normalized_value": 10,
+        "unit": "count",
+        "value_kind": "derived",
+        "semantic_type": "count",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "low",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Inferencia por convención de numeración; no es texto observado.",
+        "derivation": {
+          "formula": "floor_from_unit_prefix(unit_range.end)",
+          "input_fact_ids": [
+            "fact:pardo-coast-plan-unit-range"
+          ],
+          "rounding": {
+            "mode": "none",
+            "digits": 0
+          }
+        }
+      },
+      {
+        "fact_id": "fact:pardo-coast-area-delta",
+        "observation_id": "observation:pardo-coast-conflict-derived",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "field_name": "area_source_delta",
+        "original_value": null,
+        "normalized_value": 50.78,
+        "unit": "m2",
+        "value_kind": "derived",
+        "semantic_type": "area",
+        "area_type": "unknown",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "inconsistent",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Derivado de un área de tipo unknown y un área total incompatibles; no es agregable.",
+        "derivation": {
+          "formula": "card_area - plan_area",
+          "input_fact_ids": [
+            "fact:pardo-coast-card-area",
+            "fact:pardo-coast-plan-area"
+          ],
+          "rounding": {
+            "mode": "half_up",
+            "digits": 2
+          }
+        }
+      },
+      {
+        "fact_id": "fact:pardo-coast-area-delta-percent",
+        "observation_id": "observation:pardo-coast-conflict-derived",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "field_name": "area_source_delta_percent",
+        "original_value": null,
+        "normalized_value": 48.76,
+        "unit": "percent",
+        "value_kind": "derived",
+        "semantic_type": "percentage",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "inconsistent",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Derivado de dos áreas incompatibles.",
+        "derivation": {
+          "formula": "((card_area - plan_area) / card_area) * 100",
+          "input_fact_ids": [
+            "fact:pardo-coast-card-area",
+            "fact:pardo-coast-plan-area"
+          ],
+          "rounding": {
+            "mode": "half_up",
+            "digits": 2
+          }
+        }
+      }
+    ],
+    "documents": [
+      {
+        "document_id": "document:pardo-coast-card",
+        "source_id": "source:nexo",
+        "document_type": "card",
+        "title": "Pardo Coast Tipo 7 - tarjeta observada",
+        "captured_at": "2026-07-27T20:23:56-05:00",
+        "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/pardo-coast-2951",
+        "sha256": "41ab273c521fcc66025653e8cfe44f894afb01b2f1b9be72847dcf87db2f2c4b",
+        "publish_permission": "pending",
+        "availability": "unavailable",
+        "public_asset_path": null
+      },
+      {
+        "document_id": "document:pardo-coast-plan",
+        "source_id": "source:ct-g-user-plan",
+        "document_type": "plan",
+        "title": "Pardo Coast Tipo 7 - plano observado",
+        "captured_at": "2026-07-27T20:24:28-05:00",
+        "source_url": null,
+        "sha256": "3c108732cc1f9c0dbd884ed3d171a0abacffc96d9e80a95d994dc1d1a43bd60a",
+        "publish_permission": "restricted",
+        "availability": "restricted",
+        "public_asset_path": null
+      }
+    ],
+    "evidence": [
+      {
+        "evidence_id": "evidence:pardo-coast-card-metadata",
+        "observation_id": "observation:pardo-coast-card",
+        "document_id": "document:pardo-coast-card",
+        "kind": "metadata",
+        "fragment": null,
+        "page": null,
+        "region": null,
+        "captured_at": "2026-07-27T20:23:56-05:00",
+        "sha256": "41ab273c521fcc66025653e8cfe44f894afb01b2f1b9be72847dcf87db2f2c4b",
+        "publish_permission": "pending",
+        "availability": "unavailable"
+      },
+      {
+        "evidence_id": "evidence:pardo-coast-plan-metadata",
+        "observation_id": "observation:pardo-coast-plan",
+        "document_id": "document:pardo-coast-plan",
+        "kind": "metadata",
+        "fragment": null,
+        "page": null,
+        "region": null,
+        "captured_at": "2026-07-27T20:24:28-05:00",
+        "sha256": "3c108732cc1f9c0dbd884ed3d171a0abacffc96d9e80a95d994dc1d1a43bd60a",
+        "publish_permission": "restricted",
+        "availability": "restricted"
+      }
+    ],
+    "issues": [
+      {
+        "issue_id": "issue:pardo-coast-area-source-conflict",
+        "entity_type": "typology",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "fact_ids": [
+          "fact:pardo-coast-card-area",
+          "fact:pardo-coast-plan-area"
+        ],
+        "issue_code": "AREA_SOURCE_CONFLICT",
+        "severity": "blocking",
+        "quality_status": "inconsistent",
+        "detail": "La tarjeta declara un área sin tipo y el plano declara un área total incompatible para Pardo Coast Tipo 7.",
+        "next_action": "Conservar ambas observaciones, excluir del benchmark certificado y solicitar revisión documental.",
+        "benchmark_blocking": true
+      },
+      {
+        "issue_id": "issue:pardo-coast-floor-range-conflict-review",
+        "entity_type": "typology",
+        "entity_id": "typology:pardo-coast-tipo-7",
+        "fact_ids": [
+          "fact:pardo-coast-card-floor",
+          "fact:pardo-coast-plan-unit-range",
+          "fact:pardo-coast-inferred-floor-min",
+          "fact:pardo-coast-inferred-floor-max"
+        ],
+        "issue_code": "FLOOR_RANGE_CONFLICT_REVIEW",
+        "severity": "high",
+        "quality_status": "reviewable",
+        "detail": "La tarjeta indica Piso 1 y el plano declara unidades 807-1007; la lectura de pisos 8-10 es una inferencia de baja confianza.",
+        "next_action": "Verificar numeración y vigencia con una fuente autorizada; no declarar cuál observación es verdadera.",
+        "benchmark_blocking": true
+      }
+    ],
+    "events": []
+  },
+  "expected": {
+    "assertions": [
+      {
+        "assertion_id": "assertion:ct-g-independent-observations",
+        "operation": "all_distinct",
+        "values": [
+          "observation:pardo-coast-card",
+          "observation:pardo-coast-plan"
+        ]
+      },
+      {
+        "assertion_id": "assertion:ct-g-area-delta",
+        "operation": "subtract",
+        "input_fact_ids": [
+          "fact:pardo-coast-card-area",
+          "fact:pardo-coast-plan-area"
+        ],
+        "expected_value": 50.78
+      },
+      {
+        "assertion_id": "assertion:ct-g-relative-difference",
+        "operation": "relative_difference_half_up_2",
+        "value_fact_id": "fact:pardo-coast-plan-area",
+        "base_fact_id": "fact:pardo-coast-card-area",
+        "expected_value": 48.76
+      },
+      {
+        "assertion_id": "assertion:ct-g-card-area-type-unknown",
+        "operation": "equals",
+        "actual_path": "input.facts[fact:pardo-coast-card-area].area_type",
+        "expected_value": "unknown"
+      },
+      {
+        "assertion_id": "assertion:ct-g-plan-area-type-total",
+        "operation": "equals",
+        "actual_path": "input.facts[fact:pardo-coast-plan-area].area_type",
+        "expected_value": "total"
+      },
+      {
+        "assertion_id": "assertion:ct-g-delta-area-type-unknown",
+        "operation": "equals",
+        "actual_path": "input.facts[fact:pardo-coast-area-delta].area_type",
+        "expected_value": "unknown"
+      },
+      {
+        "assertion_id": "assertion:ct-g-no-public-assets",
+        "operation": "all_equal",
+        "document_ids": [
+          "document:pardo-coast-card",
+          "document:pardo-coast-plan"
+        ],
+        "field": "public_asset_path",
+        "expected_value": null
+      },
+      {
+        "assertion_id": "assertion:ct-g-no-park-55",
+        "operation": "not_contains",
+        "collection_path": "input",
+        "expected_value": "project:nexo-3992"
+      }
+    ],
+    "result": {
+      "project_id": "project:nexo-2951",
+      "typology_id": "typology:pardo-coast-tipo-7",
+      "card_area": 104.15,
+      "card_area_type": "unknown",
+      "plan_area": 53.37,
+      "plan_area_type": "total",
+      "area_delta": 50.78,
+      "area_delta_type": "unknown",
+      "relative_difference_percent": 48.76,
+      "relative_difference_base_fact_id": "fact:pardo-coast-card-area",
+      "quality_status": "inconsistent",
+      "benchmark_eligible": false,
+      "selected_truth_fact_id": null,
+      "published_asset_count": 0,
+      "issue_codes": [
+        "AREA_SOURCE_CONFLICT",
+        "FLOOR_RANGE_CONFLICT_REVIEW"
+      ]
+    }
+  }
+}

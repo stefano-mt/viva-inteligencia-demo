@@ -63,3 +63,55 @@ El caso tarjeta/plano incompatible recibe máxima jerarquía junto al mapa. Los 
 **Estado:** aceptada
 
 `styles.css` es un manifiesto de ocho `@import` ordenados. La concatenación debe seguir reproduciendo exactamente el CSS previo mientras la fase no autorice cambios visuales.
+
+## D-009 — Conteo reproducible de Miraflores
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+El conteo reproducible vigente es 90 proyectos en Miraflores: coincide en el CSV versionado, el JSON generado, la UI, el reporte de cobertura y los requisitos. El valor 88 que permanece en `CONTEXT.md` se registra como drift documental y debe corregirse únicamente dentro de un write set autorizado antes de usar CT-I.
+
+## D-010 — `deep` estructurado no equivale a dossier visual
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+Un tier `deep` demuestra matching alto, tipología Nexo inspeccionable y al menos tres valores estructurados respaldados por snapshots versionados. No autoriza afirmar que existen cinco dossiers visuales públicos: el modelo actual contiene una tipología de mercado, un fragmento autorizado disponible y ningún activo visual público.
+
+Fase 3 debe incorporar activos autorizados o neutrales y navegación proyecto → tipología → evidencia antes de usar esa narrativa comercial.
+
+## D-011 — Aliases ambiguos fuera del modelo canónico
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+Los aliases con resolución `manual_review` no se asignan por intuición. Los 42 proyectos legacy asociados a 11 aliases ambiguos permanecen fuera de `model.projects`; siguen visibles en la reconciliación 714 legacy frente a 676 autoritativos.
+
+## D-012 — Moneda ambigua permanece `unknown`
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+El símbolo `$` sin contexto suficiente se normaliza como `unknown`, no como USD. Los 37 proyectos legacy afectados quedan fuera de agregados monetarios certificados; no existe conversión ni inferencia sin un hecho de moneda o tipo de cambio con fuente y fecha.
+
+## D-013 — Privacidad y permisos en el artefacto público
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+El JSON público excluye contactos personales, emails, teléfonos, WhatsApp, contenido crudo, rutas locales y activos no autorizados. Documentos o evidencias con permiso `restricted` o `pending` conservan metadata trazable sin publicar ruta o fragmento no autorizado.
+
+## D-014 — Build fijo y determinista
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+El build no usa reloj de ejecución ni llamadas de red. Dataset, cutoff y metadata se fijan desde inputs versionados; 27 fingerprints SHA-256 registran las entradas y la serialización es estable.
+
+El artefacto verificado tiene 3,382,916 bytes y SHA-256 `a7f68af35d97c6fbc066b4213ebb12d525d630fa366a0e75826d2349087d8141`. Cualquier cambio futuro del JSON debe recomputar `coverage-report.json`; un hash distinto sin reporte actualizado bloquea el PR.

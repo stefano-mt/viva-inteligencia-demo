@@ -1,0 +1,50 @@
+[
+  {
+    "document_id": "document:ct-d-authorized",
+    "source_id": "source:ct-d-authorized",
+    "document_type": "specification",
+    "title": "Especificación controlada autorizada CT-D",
+    "captured_at": "2026-01-01T00:00:00Z",
+    "source_url": null,
+    "sha256": "76997883b31990c766b433f21da0a699ffe502d40e15072b24bbacec11bfc850",
+    "publish_permission": "authorized",
+    "availability": "available",
+    "public_asset_path": null
+  },
+  {
+    "document_id": "document:ct-d-restricted",
+    "source_id": "source:ct-d-restricted",
+    "document_type": "specification",
+    "title": "Especificación controlada restringida CT-D",
+    "captured_at": "2026-01-01T00:00:00Z",
+    "source_url": null,
+    "sha256": "2a1dec7dfa2602fdba8c9b66677ff6dd92b1a3e64cdfe4f54ebe1fadb9f6caff",
+    "publish_permission": "restricted",
+    "availability": "restricted",
+    "public_asset_path": null
+  },
+  {
+    "document_id": "document:pardo-coast-card",
+    "source_id": "source:nexo",
+    "document_type": "card",
+    "title": "Pardo Coast Tipo 7 - tarjeta observada",
+    "captured_at": "2026-07-27T20:23:56-05:00",
+    "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/pardo-coast-2951",
+    "sha256": "41ab273c521fcc66025653e8cfe44f894afb01b2f1b9be72847dcf87db2f2c4b",
+    "publish_permission": "pending",
+    "availability": "unavailable",
+    "public_asset_path": null
+  },
+  {
+    "document_id": "document:pardo-coast-plan",
+    "source_id": "source:ct-g-user-plan",
+    "document_type": "plan",
+    "title": "Pardo Coast Tipo 7 - plano observado",
+    "captured_at": "2026-07-27T20:24:28-05:00",
+    "source_url": null,
+    "sha256": "3c108732cc1f9c0dbd884ed3d171a0abacffc96d9e80a95d994dc1d1a43bd60a",
+    "publish_permission": "restricted",
+    "availability": "restricted",
+    "public_asset_path": null
+  }
+]

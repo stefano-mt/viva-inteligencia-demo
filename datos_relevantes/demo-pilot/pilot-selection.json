@@ -1,0 +1,2283 @@
+{
+  "version": "demo-pilot-selection-v1",
+  "selection_rule": {
+    "target_count": 30,
+    "mandatory_groups": [
+      "service_scope_matrix.included_in_mvp=true",
+      "agency:grupo-tyc"
+    ],
+    "eligibility": "Go or Go condicionado, excluding legal/operational blocking flags and unresolved aliases.",
+    "ordering": [
+      "high_exact_match_count_desc",
+      "critical_coverage_pct_desc",
+      "viability_score_desc",
+      "agency_id_asc"
+    ],
+    "tier_policy": {
+      "base": "Selected agency with scope evidence.",
+      "enriched": "Selected agency with an exact high match joining the versioned web and Nexo snapshots; no human review required.",
+      "deep": "Enriched agency with at least three structured facts and an inspectable Nexo typology in versioned evidence."
+    }
+  },
+  "source_snapshots": [
+    {
+      "path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+      "sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512"
+    },
+    {
+      "path": "datos_relevantes/nexo_web_project_match.csv",
+      "sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df"
+    },
+    {
+      "path": "datos_relevantes/service_scope_matrix.csv",
+      "sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137"
+    },
+    {
+      "path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+      "sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c"
+    },
+    {
+      "path": "datos_relevantes/webs_propias_sample_dataset.csv",
+      "sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6"
+    }
+  ],
+  "selected_agency_ids": [
+    "agency:brazil-grupo-inmobiliario",
+    "agency:grupo-magbis",
+    "agency:odima-inmobiliaria",
+    "agency:cantabria",
+    "agency:multiurbe",
+    "agency:toratto-grupo-inmobiliario",
+    "agency:actual",
+    "agency:ortiz-inmobiliaria",
+    "agency:enacorp",
+    "agency:vienna-grupo-inmobiliario",
+    "agency:aster-homes",
+    "agency:praga-desarrollo-inmobiliario",
+    "agency:gratto-inmobiliaria",
+    "agency:mye-grupo-inmobiliario",
+    "agency:rosiam",
+    "agency:ghs-constructora",
+    "agency:la-venturosa",
+    "agency:oled-inmobiliaria",
+    "agency:maxx-grupo-inmobiliario",
+    "agency:granadero-inmobiliaria",
+    "agency:nexo-ingenieria",
+    "agency:gratia-constructora",
+    "agency:hl-desarrollos-inmobiliarios",
+    "agency:la-muralla",
+    "agency:proyec-inmobiliaria",
+    "agency:verdant-inmobiliaria",
+    "agency:invent-inmobiliaria",
+    "agency:arquimia",
+    "agency:inhouse",
+    "agency:grupo-tyc"
+  ],
+  "entries": [
+    {
+      "rank": 1,
+      "agency_id": "agency:brazil-grupo-inmobiliario",
+      "coverage_tier": "deep",
+      "selection_reason": "ranked_completion; high_exact_join_and_versioned_structured_evidence",
+      "metrics": {
+        "high_exact_match_count": 2,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 64,
+        "viability_score": 91,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "BRAZIL GRUPO INMOBILIARIO"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "BRAZIL GRUPO INMOBILIARIO"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "BRAZIL GRUPO INMOBILIARIO",
+              "web_project_url": "https://brazil.pe/proyecto/santorini",
+              "nexo_project_id": "2965"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://brazil.pe/proyecto/santorini"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "2965"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z",
+            "evidence_kind": "structured_value",
+            "inspectable_typology": "Departamento",
+            "backed_fact_fields": [
+              "district",
+              "address",
+              "latitude",
+              "longitude",
+              "bedrooms_min",
+              "bedrooms_max",
+              "bathrooms_min",
+              "bathrooms_max",
+              "total_area_min",
+              "total_area_max",
+              "unit_status",
+              "unit_count",
+              "price_min",
+              "currency"
+            ],
+            "sanitized_fragment": {
+              "project_id": "2965",
+              "project_name": "Santorini",
+              "district": "Cercado de lima",
+              "typology": "Departamento",
+              "bedrooms_min": 1,
+              "bedrooms_max": 3,
+              "bathrooms_min": 1,
+              "bathrooms_max": 3,
+              "total_area_min": 41.41,
+              "total_area_max": 109.58,
+              "unit_status": "En construccion",
+              "unit_count": 1,
+              "price_min": 257796,
+              "currency": "PEN",
+              "field_confidence": "alta"
+            },
+            "sanitized_fragment_sha256": "678d47fb8cf60e6242ad2d9ec34b5e586e85744678dd1f6001a17d328672be76"
+          }
+        }
+      }
+    },
+    {
+      "rank": 2,
+      "agency_id": "agency:grupo-magbis",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 2,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 64,
+        "viability_score": 90,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "Grupo Magbis"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "Grupo Magbis"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "Grupo Magbis",
+              "web_project_url": "https://magbisconstrucciones.com/departamentos/duplex-801-parque-nu",
+              "nexo_project_id": "4157"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://magbisconstrucciones.com/departamentos/duplex-801-parque-nu"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "4157"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 3,
+      "agency_id": "agency:odima-inmobiliaria",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 2,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 57,
+        "viability_score": 84,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "ODIMA INMOBILIARIA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "ODIMA INMOBILIARIA"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "ODIMA INMOBILIARIA",
+              "web_project_url": "https://odima.pe/proyecto/eiko",
+              "nexo_project_id": "3948"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://odima.pe/proyecto/eiko"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3948"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 4,
+      "agency_id": "agency:cantabria",
+      "coverage_tier": "deep",
+      "selection_reason": "mandatory_mvp; high_exact_join_and_versioned_structured_evidence",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 79,
+        "viability_score": 94,
+        "mandatory_mvp": true,
+        "final_decisions": [
+          "Go"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "CANTABRIA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "CANTABRIA"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "CANTABRIA",
+              "web_project_url": "https://cantabriainmobiliaria.pe/proyecto/versia-miraflores",
+              "nexo_project_id": "3981"
+            },
+            "match_class": "match_high",
+            "match_score": 87,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://cantabriainmobiliaria.pe/proyecto/versia-miraflores"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3981"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z",
+            "evidence_kind": "structured_value",
+            "inspectable_typology": "Departamento",
+            "backed_fact_fields": [
+              "district",
+              "address",
+              "latitude",
+              "longitude",
+              "bedrooms_min",
+              "bedrooms_max",
+              "bathrooms_min",
+              "bathrooms_max",
+              "total_area_min",
+              "total_area_max",
+              "unit_status",
+              "unit_count",
+              "price_min",
+              "currency"
+            ],
+            "sanitized_fragment": {
+              "project_id": "3981",
+              "project_name": "VERSIA",
+              "district": "Miraflores",
+              "typology": "Departamento",
+              "bedrooms_min": 2,
+              "bedrooms_max": 3,
+              "bathrooms_min": 2,
+              "bathrooms_max": 3,
+              "total_area_min": 60,
+              "total_area_max": 98,
+              "unit_status": "En planos",
+              "unit_count": 1,
+              "price_min": 600000,
+              "currency": "PEN",
+              "field_confidence": "alta"
+            },
+            "sanitized_fragment_sha256": "a21482a29d15c8dc7151843e01c6e34b63b170610985011162ada0b4f20ff0e7"
+          }
+        }
+      }
+    },
+    {
+      "rank": 5,
+      "agency_id": "agency:multiurbe",
+      "coverage_tier": "enriched",
+      "selection_reason": "mandatory_mvp; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 75,
+        "viability_score": 93,
+        "mandatory_mvp": true,
+        "final_decisions": [
+          "Go"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "MULTIURBE"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "MULTIURBE"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "MULTIURBE",
+              "web_project_url": "https://www.multiurbe.com/proyecto/libertador",
+              "nexo_project_id": "4210"
+            },
+            "match_class": "match_high",
+            "match_score": 87,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://www.multiurbe.com/proyecto/libertador"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "4210"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 6,
+      "agency_id": "agency:toratto-grupo-inmobiliario",
+      "coverage_tier": "deep",
+      "selection_reason": "mandatory_mvp; high_exact_join_and_versioned_structured_evidence",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 71,
+        "viability_score": 92,
+        "mandatory_mvp": true,
+        "final_decisions": [
+          "Go"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "TORATTO GRUPO INMOBILIARIO"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "TORATTO GRUPO INMOBILIARIO"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "TORATTO GRUPO INMOBILIARIO",
+              "web_project_url": "https://www.grupotoratto.com/departamento/monterosso",
+              "nexo_project_id": "1940"
+            },
+            "match_class": "match_high",
+            "match_score": 87.5,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://www.grupotoratto.com/departamento/monterosso"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "1940"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z",
+            "evidence_kind": "structured_value",
+            "inspectable_typology": "Departamento",
+            "backed_fact_fields": [
+              "district",
+              "address",
+              "latitude",
+              "longitude",
+              "bedrooms_min",
+              "bedrooms_max",
+              "bathrooms_min",
+              "bathrooms_max",
+              "total_area_min",
+              "total_area_max",
+              "unit_status",
+              "unit_count",
+              "price_min",
+              "currency"
+            ],
+            "sanitized_fragment": {
+              "project_id": "1940",
+              "project_name": "MONTEROSSO",
+              "district": "Jesus Maria",
+              "typology": "Departamento",
+              "bedrooms_min": 2,
+              "bedrooms_max": 2,
+              "bathrooms_min": 2,
+              "bathrooms_max": 2,
+              "total_area_min": 69.56,
+              "total_area_max": 69.88,
+              "unit_status": "Entrega inmediata",
+              "unit_count": 1,
+              "price_min": 519006.8,
+              "currency": "PEN",
+              "field_confidence": "alta"
+            },
+            "sanitized_fragment_sha256": "16afaeafe25c42ea8e8b454b47fee29ac1d9e1a38fc4a9125d2461baac92f692"
+          }
+        }
+      }
+    },
+    {
+      "rank": 7,
+      "agency_id": "agency:actual",
+      "coverage_tier": "deep",
+      "selection_reason": "ranked_completion; high_exact_join_and_versioned_structured_evidence",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 64,
+        "viability_score": 90,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "ACTUAL"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "ACTUAL"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "ACTUAL",
+              "web_project_url": "https://actual.pe/proyecto/edificio-salaverry-1",
+              "nexo_project_id": "4007"
+            },
+            "match_class": "match_high",
+            "match_score": 88.33,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://actual.pe/proyecto/edificio-salaverry-1"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "4007"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z",
+            "evidence_kind": "structured_value",
+            "inspectable_typology": "Departamento",
+            "backed_fact_fields": [
+              "district",
+              "address",
+              "latitude",
+              "longitude",
+              "bedrooms_min",
+              "bedrooms_max",
+              "bathrooms_min",
+              "bathrooms_max",
+              "total_area_min",
+              "total_area_max",
+              "unit_status",
+              "unit_count",
+              "price_min",
+              "currency"
+            ],
+            "sanitized_fragment": {
+              "project_id": "4007",
+              "project_name": "Salaverry I",
+              "district": "Magdalena Del Mar",
+              "typology": "Departamento",
+              "bedrooms_min": 1,
+              "bedrooms_max": 3,
+              "bathrooms_min": 1,
+              "bathrooms_max": 2,
+              "total_area_min": 40,
+              "total_area_max": 72.89,
+              "unit_status": "En planos",
+              "unit_count": 179,
+              "price_min": 359300,
+              "currency": "PEN",
+              "field_confidence": "alta"
+            },
+            "sanitized_fragment_sha256": "aff3c80d3dff9a49b826a69b542b33461afe8c72789c935753738a0fc57aac09"
+          }
+        }
+      }
+    },
+    {
+      "rank": 8,
+      "agency_id": "agency:ortiz-inmobiliaria",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 64,
+        "viability_score": 90,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "ORTIZ INMOBILIARIA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "ORTIZ INMOBILIARIA"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "ORTIZ INMOBILIARIA",
+              "web_project_url": "https://oiperu.com/proyectos/vizuale3",
+              "nexo_project_id": "3945"
+            },
+            "match_class": "match_high",
+            "match_score": 85,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://oiperu.com/proyectos/vizuale3"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3945"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 9,
+      "agency_id": "agency:enacorp",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 61,
+        "viability_score": 83,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "ENACORP"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "ENACORP"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "ENACORP",
+              "web_project_url": "https://enacorp.pe/proyecto/valles-de-lurin",
+              "nexo_project_id": "4022"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://enacorp.pe/proyecto/valles-de-lurin"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "4022"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 10,
+      "agency_id": "agency:vienna-grupo-inmobiliario",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 61,
+        "viability_score": 83,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "VIENNA GRUPO INMOBILIARIO"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "VIENNA GRUPO INMOBILIARIO"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "VIENNA GRUPO INMOBILIARIO",
+              "web_project_url": "https://vienna.pe/proyecto/sukha",
+              "nexo_project_id": "3241"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://vienna.pe/proyecto/sukha"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3241"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 11,
+      "agency_id": "agency:aster-homes",
+      "coverage_tier": "deep",
+      "selection_reason": "ranked_completion; high_exact_join_and_versioned_structured_evidence",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 61,
+        "viability_score": 75,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "ASTER HOMES"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "ASTER HOMES"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "ASTER HOMES",
+              "web_project_url": "https://www.asterhomes.com.pe/proyecto-reducto",
+              "nexo_project_id": "3391"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://www.asterhomes.com.pe/proyecto-reducto"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3391"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z",
+            "evidence_kind": "structured_value",
+            "inspectable_typology": "Departamento",
+            "backed_fact_fields": [
+              "district",
+              "address",
+              "latitude",
+              "longitude",
+              "bedrooms_min",
+              "bedrooms_max",
+              "bathrooms_min",
+              "bathrooms_max",
+              "total_area_min",
+              "total_area_max",
+              "unit_status",
+              "unit_count",
+              "price_min",
+              "currency"
+            ],
+            "sanitized_fragment": {
+              "project_id": "3391",
+              "project_name": "ASTER REDUCTO",
+              "district": "Miraflores",
+              "typology": "Departamento",
+              "bedrooms_min": 2,
+              "bedrooms_max": 3,
+              "bathrooms_min": 2,
+              "bathrooms_max": 3,
+              "total_area_min": 61.17,
+              "total_area_max": 95,
+              "unit_status": "En construccion",
+              "unit_count": 88,
+              "price_min": 600000,
+              "currency": "PEN",
+              "field_confidence": "alta"
+            },
+            "sanitized_fragment_sha256": "834f4ee8cf36b52b661254713f913c30d8e6237fb5b5a624f1e61c26b3cb2a1c"
+          }
+        }
+      }
+    },
+    {
+      "rank": 12,
+      "agency_id": "agency:praga-desarrollo-inmobiliario",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 61,
+        "viability_score": 69,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "review_required"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "PRAGA DESARROLLO INMOBILIARIO"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "PRAGA DESARROLLO INMOBILIARIO"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "PRAGA DESARROLLO INMOBILIARIO",
+              "web_project_url": "https://www.pragadi.com.pe/proyectos-venta/acosta-131",
+              "nexo_project_id": "3798"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://www.pragadi.com.pe/proyectos-venta/acosta-131"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3798"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 13,
+      "agency_id": "agency:gratto-inmobiliaria",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 57,
+        "viability_score": 81,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "Gratto Inmobiliaria"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "Gratto Inmobiliaria"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "Gratto Inmobiliaria",
+              "web_project_url": "https://grattoinmobiliaria.com/proyectos/benavides-1361",
+              "nexo_project_id": "4146"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://grattoinmobiliaria.com/proyectos/benavides-1361"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "4146"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 14,
+      "agency_id": "agency:mye-grupo-inmobiliario",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 57,
+        "viability_score": 80,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "MYE GRUPO INMOBILIARIO"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "MYE GRUPO INMOBILIARIO"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "MYE GRUPO INMOBILIARIO",
+              "web_project_url": "https://myegrupoinmobiliario.com/proyecto/santa-rafaela",
+              "nexo_project_id": "3168"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://myegrupoinmobiliario.com/proyecto/santa-rafaela"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3168"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 15,
+      "agency_id": "agency:rosiam",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 57,
+        "viability_score": 79,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "ROSIAM"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "ROSIAM"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "ROSIAM",
+              "web_project_url": "https://rosiam.com/proyectos-venta/los-tucanes",
+              "nexo_project_id": "3863"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://rosiam.com/proyectos-venta/los-tucanes"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3863"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 16,
+      "agency_id": "agency:ghs-constructora",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 54,
+        "viability_score": 82,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "GHS CONSTRUCTORA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "GHS CONSTRUCTORA"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "GHS CONSTRUCTORA",
+              "web_project_url": "https://ghsconstructora.com/proyectos/catalina-view",
+              "nexo_project_id": "3864"
+            },
+            "match_class": "match_high",
+            "match_score": 87,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://ghsconstructora.com/proyectos/catalina-view"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3864"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 17,
+      "agency_id": "agency:la-venturosa",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 50,
+        "viability_score": 85,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "LA VENTUROSA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "LA VENTUROSA"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "LA VENTUROSA",
+              "web_project_url": "https://www.laventurosa.com/proyectos/solboulevard",
+              "nexo_project_id": "3932"
+            },
+            "match_class": "match_high",
+            "match_score": 89.25,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://www.laventurosa.com/proyectos/solboulevard"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3932"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 18,
+      "agency_id": "agency:oled-inmobiliaria",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 50,
+        "viability_score": 79,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "OLED INMOBILIARIA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "OLED INMOBILIARIA"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "OLED INMOBILIARIA",
+              "web_project_url": "https://oledinmobiliaria.com/proyecto/natural-urban",
+              "nexo_project_id": "3936"
+            },
+            "match_class": "match_high",
+            "match_score": 85,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://oledinmobiliaria.com/proyecto/natural-urban"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3936"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 19,
+      "agency_id": "agency:maxx-grupo-inmobiliario",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 50,
+        "viability_score": 76,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "MAXX GRUPO INMOBILIARIO"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "MAXX GRUPO INMOBILIARIO"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "MAXX GRUPO INMOBILIARIO",
+              "web_project_url": "https://grupomaxx.pe/proyectos/beyond-residencial",
+              "nexo_project_id": "3589"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://grupomaxx.pe/proyectos/beyond-residencial"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3589"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 20,
+      "agency_id": "agency:granadero-inmobiliaria",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 46,
+        "viability_score": 86,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "GRANADERO INMOBILIARIA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "GRANADERO INMOBILIARIA"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "GRANADERO INMOBILIARIA",
+              "web_project_url": "https://granadero.com.pe/proyecto/zegarra-920",
+              "nexo_project_id": "4174"
+            },
+            "match_class": "match_high",
+            "match_score": 86.25,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://granadero.com.pe/proyecto/zegarra-920"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "4174"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 21,
+      "agency_id": "agency:nexo-ingenieria",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 46,
+        "viability_score": 85,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "NEXO INGENIERÍA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "NEXO INGENIERÍA"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "NEXO INGENIERÍA",
+              "web_project_url": "https://nexoingenieria.com/proyecto/edificio-vive-20-2",
+              "nexo_project_id": "3837"
+            },
+            "match_class": "match_high",
+            "match_score": 88.75,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://nexoingenieria.com/proyecto/edificio-vive-20-2"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3837"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 22,
+      "agency_id": "agency:gratia-constructora",
+      "coverage_tier": "enriched",
+      "selection_reason": "ranked_completion; high_exact_join",
+      "metrics": {
+        "high_exact_match_count": 1,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 46,
+        "viability_score": 72,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "GRATIA CONSTRUCTORA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "GRATIA CONSTRUCTORA"
+            ]
+          }
+        },
+        "tier": {
+          "linked_source_count": 2,
+          "matching": {
+            "snapshot_path": "datos_relevantes/nexo_web_project_match.csv",
+            "snapshot_sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df",
+            "row_key": {
+              "agency_name": "GRATIA CONSTRUCTORA",
+              "web_project_url": "https://gratia.com.pe/propiedad/proyecto-hub-lince",
+              "nexo_project_id": "3919"
+            },
+            "match_class": "match_high",
+            "match_score": 90,
+            "requires_human_review": false,
+            "exact_join": true
+          },
+          "web": {
+            "snapshot_path": "datos_relevantes/webs_propias_sample_dataset.csv",
+            "snapshot_sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6",
+            "row_key": {
+              "source_url": "https://gratia.com.pe/propiedad/proyecto-hub-lince"
+            },
+            "source_type": "agency_website",
+            "external_evidence_status": "unavailable",
+            "external_evidence_absence_reason": "Referenced extractor artifact is not present in the versioned repository snapshot."
+          },
+          "nexo": {
+            "snapshot_path": "datos_relevantes/viva_minimum_dataset_latest.csv",
+            "snapshot_sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c",
+            "row_key": {
+              "project_id": "3919"
+            },
+            "source": "Nexo Inmobiliario",
+            "captured_at": "2026-05-24T18:37:51.632Z"
+          }
+        }
+      }
+    },
+    {
+      "rank": 23,
+      "agency_id": "agency:hl-desarrollos-inmobiliarios",
+      "coverage_tier": "base",
+      "selection_reason": "mandatory_mvp; base_scope_only",
+      "metrics": {
+        "high_exact_match_count": 0,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 79,
+        "viability_score": 80,
+        "mandatory_mvp": true,
+        "final_decisions": [
+          "Go"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "HL DESARROLLOS INMOBILIARIOS"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "HL DESARROLLOS INMOBILIARIOS"
+            ]
+          }
+        },
+        "tier": null
+      }
+    },
+    {
+      "rank": 24,
+      "agency_id": "agency:la-muralla",
+      "coverage_tier": "base",
+      "selection_reason": "mandatory_mvp; base_scope_only",
+      "metrics": {
+        "high_exact_match_count": 0,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 79,
+        "viability_score": 72,
+        "mandatory_mvp": true,
+        "final_decisions": [
+          "Go"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "LA MURALLA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "LA MURALLA"
+            ]
+          }
+        },
+        "tier": null
+      }
+    },
+    {
+      "rank": 25,
+      "agency_id": "agency:proyec-inmobiliaria",
+      "coverage_tier": "base",
+      "selection_reason": "mandatory_mvp; base_scope_only",
+      "metrics": {
+        "high_exact_match_count": 0,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 75,
+        "viability_score": 84,
+        "mandatory_mvp": true,
+        "final_decisions": [
+          "Go"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "PROYEC INMOBILIARIA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "PROYEC INMOBILIARIA"
+            ]
+          }
+        },
+        "tier": null
+      }
+    },
+    {
+      "rank": 26,
+      "agency_id": "agency:verdant-inmobiliaria",
+      "coverage_tier": "base",
+      "selection_reason": "mandatory_mvp; base_scope_only",
+      "metrics": {
+        "high_exact_match_count": 0,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 75,
+        "viability_score": 73,
+        "mandatory_mvp": true,
+        "final_decisions": [
+          "Go"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "VERDANT INMOBILIARIA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "VERDANT INMOBILIARIA"
+            ]
+          }
+        },
+        "tier": null
+      }
+    },
+    {
+      "rank": 27,
+      "agency_id": "agency:invent-inmobiliaria",
+      "coverage_tier": "base",
+      "selection_reason": "mandatory_mvp; base_scope_only",
+      "metrics": {
+        "high_exact_match_count": 0,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 71,
+        "viability_score": 84,
+        "mandatory_mvp": true,
+        "final_decisions": [
+          "Go"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "INVENT INMOBILIARIA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "INVENT INMOBILIARIA"
+            ]
+          }
+        },
+        "tier": null
+      }
+    },
+    {
+      "rank": 28,
+      "agency_id": "agency:arquimia",
+      "coverage_tier": "base",
+      "selection_reason": "mandatory_mvp; base_scope_only",
+      "metrics": {
+        "high_exact_match_count": 0,
+        "medium_exact_match_count": 1,
+        "critical_coverage_pct": 71,
+        "viability_score": 81,
+        "mandatory_mvp": true,
+        "final_decisions": [
+          "Go"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "ARQUIMIA"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "ARQUIMIA"
+            ]
+          }
+        },
+        "tier": null
+      }
+    },
+    {
+      "rank": 29,
+      "agency_id": "agency:inhouse",
+      "coverage_tier": "base",
+      "selection_reason": "mandatory_mvp; base_scope_only",
+      "metrics": {
+        "high_exact_match_count": 0,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 71,
+        "viability_score": 70,
+        "mandatory_mvp": true,
+        "final_decisions": [
+          "Go"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "INHOUSE"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "INHOUSE"
+            ]
+          }
+        },
+        "tier": null
+      }
+    },
+    {
+      "rank": 30,
+      "agency_id": "agency:grupo-tyc",
+      "coverage_tier": "base",
+      "selection_reason": "ct_g_required_alias_group; base_scope_only",
+      "metrics": {
+        "high_exact_match_count": 0,
+        "medium_exact_match_count": 0,
+        "critical_coverage_pct": 45,
+        "viability_score": 71,
+        "mandatory_mvp": false,
+        "final_decisions": [
+          "Go condicionado"
+        ],
+        "discovery_flags": [
+          "clear_preliminary"
+        ]
+      },
+      "evidence": {
+        "scope": {
+          "snapshot_path": "datos_relevantes/service_scope_matrix.csv",
+          "snapshot_sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137",
+          "row_key": {
+            "agency_names": [
+              "GRUPO T&C",
+              "GRUPO TyC"
+            ]
+          }
+        },
+        "discovery": {
+          "snapshot_path": "datos_relevantes/agency_web_discovery_matrix_validated.csv",
+          "snapshot_sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512",
+          "row_key": {
+            "agency_names": [
+              "GRUPO T&C",
+              "GRUPO TyC"
+            ]
+          }
+        },
+        "tier": null
+      }
+    }
+  ],
+  "counts": {
+    "market_raw_count": 192,
+    "canonical_registry_count": 180,
+    "base_count": 30,
+    "enriched_count": 22,
+    "deep_count": 5,
+    "exclusive_tier_counts": {
+      "base": 8,
+      "enriched": 17,
+      "deep": 5
+    }
+  },
+  "consolidation_report": {
+    "raw_scope_record_count": 192,
+    "canonical_agency_count": 180,
+    "resolved_alias_count": 181,
+    "manual_review_alias_count": 11,
+    "manual_review_groups": [
+      {
+        "domain": "albamar.com.pe",
+        "source_names": [
+          "ALBAMAR GRUPO INMOBILIARIO",
+          "VIBRANT"
+        ]
+      },
+      {
+        "domain": "alpunto.com.pe",
+        "source_names": [
+          "AKAMAI",
+          "INMOBILIARIA HUANWIL"
+        ]
+      },
+      {
+        "domain": "esparq.com",
+        "source_names": [
+          "Cresiente",
+          "ESPARQ EOM"
+        ]
+      },
+      {
+        "domain": "evolta.pe",
+        "source_names": [
+          "ALERCES INMOBILIARIA",
+          "FUNDAMENTA",
+          "ZAFIRA INMOBILIARIA"
+        ]
+      },
+      {
+        "domain": "losportales.com.pe",
+        "source_names": [
+          "LOS PORTALES",
+          "LOS PORTALES DEPARTAMENTOS"
+        ]
+      }
+    ],
+    "rule_based_consolidations": [
+      {
+        "agency_id": "agency:grupo-tyc",
+        "source_names": [
+          "GRUPO T&C",
+          "GRUPO TyC"
+        ],
+        "resolution": "rule_based"
+      }
+    ],
+    "source_decision_counts": {
+      "Discovery pendiente": 20,
+      "Go": 10,
+      "Go condicionado": 128,
+      "No-go legal/operativo": 2,
+      "No-go técnico": 32
+    },
+    "selected_mandatory_mvp_count": 10,
+    "selected_ct_g_alias_group": true
+  }
+}

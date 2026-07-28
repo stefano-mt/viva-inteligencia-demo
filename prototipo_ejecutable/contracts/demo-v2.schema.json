@@ -1,0 +1,2182 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://viva.com.pe/schemas/inteligencia-comercial/demo-v2.schema.json",
+  "title": "Viva Inteligencia Comercial - contrato público de demo v2",
+  "description": "Contrato autoritativo y proyección legacy temporal para el dataset estático de la demo.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "metadata",
+    "model",
+    "pilot",
+    "projects",
+    "executive",
+    "rankings",
+    "sourceScope",
+    "scopeSummary",
+    "matching",
+    "coverage",
+    "quality",
+    "assistant",
+    "pipeline",
+    "deployment"
+  ],
+  "properties": {
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "model": {
+      "$ref": "#/$defs/model"
+    },
+    "pilot": {
+      "$ref": "#/$defs/pilot"
+    },
+    "projects": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/legacyProject"
+      }
+    },
+    "executive": {
+      "$ref": "#/$defs/legacyObject"
+    },
+    "rankings": {
+      "$ref": "#/$defs/legacyObject"
+    },
+    "sourceScope": {
+      "$ref": "#/$defs/legacyObjectArray"
+    },
+    "scopeSummary": {
+      "$ref": "#/$defs/legacyObject"
+    },
+    "matching": {
+      "$ref": "#/$defs/legacyObject"
+    },
+    "coverage": {
+      "$ref": "#/$defs/legacyObject"
+    },
+    "quality": {
+      "$ref": "#/$defs/legacyObject"
+    },
+    "assistant": {
+      "$ref": "#/$defs/legacyObject"
+    },
+    "pipeline": {
+      "$ref": "#/$defs/legacyObjectArray"
+    },
+    "deployment": {
+      "$ref": "#/$defs/legacyObject"
+    }
+  },
+  "$defs": {
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nullableNonEmptyString": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "namespacedId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_-]*:[a-z0-9][a-z0-9._-]*$"
+    },
+    "dateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nullableDateTime": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/dateTime"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "confidence": {
+      "enum": [
+        "high",
+        "medium",
+        "low",
+        "unknown"
+      ]
+    },
+    "qualityStatus": {
+      "enum": [
+        "certified",
+        "reviewable",
+        "inconsistent",
+        "illegible",
+        "insufficient"
+      ]
+    },
+    "valueKind": {
+      "enum": [
+        "observed",
+        "derived",
+        "simulated"
+      ]
+    },
+    "areaType": {
+      "enum": [
+        "built",
+        "free",
+        "total",
+        "unknown"
+      ]
+    },
+    "priceType": {
+      "enum": [
+        "list",
+        "from",
+        "sale",
+        "estimated",
+        "scenario"
+      ]
+    },
+    "currency": {
+      "enum": [
+        "PEN",
+        "USD",
+        "unknown"
+      ]
+    },
+    "jsonValue": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "number"
+        },
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ]
+          }
+        }
+      ]
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract_version",
+        "dataset_id",
+        "generated_at",
+        "cutoff_at",
+        "input_fingerprints",
+        "publication",
+        "title",
+        "description",
+        "source_snapshot",
+        "counts"
+      ],
+      "properties": {
+        "contract_version": {
+          "const": "2.0.0"
+        },
+        "dataset_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "generated_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "cutoff_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "input_fingerprints": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/inputFingerprint"
+          }
+        },
+        "publication": {
+          "$ref": "#/$defs/publicationPolicy"
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "source_snapshot": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "min_captured_at",
+            "max_captured_at",
+            "assistant_dataset_run_id"
+          ],
+          "properties": {
+            "min_captured_at": {
+              "$ref": "#/$defs/nullableDateTime"
+            },
+            "max_captured_at": {
+              "$ref": "#/$defs/nullableDateTime"
+            },
+            "assistant_dataset_run_id": {
+              "$ref": "#/$defs/nullableNonEmptyString"
+            }
+          }
+        },
+        "counts": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "required": [
+            "projects",
+            "agencies_in_market",
+            "districts"
+          ],
+          "properties": {
+            "projects": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "agencies_in_market": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "districts": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "inputFingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_id",
+        "path",
+        "sha256"
+      ],
+      "properties": {
+        "input_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?![A-Za-z]:)(?!/)(?!.*\\\\)(?!(?:[^/]+/)*outputs(?:/|$))[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*(?:/[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*)*$"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "publicationPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_public_artifact",
+        "contains_contact_pii",
+        "raw_payloads_included",
+        "restricted_assets_included",
+        "policy_version"
+      ],
+      "properties": {
+        "is_public_artifact": {
+          "const": true
+        },
+        "contains_contact_pii": {
+          "const": false
+        },
+        "raw_payloads_included": {
+          "const": false
+        },
+        "restricted_assets_included": {
+          "const": false
+        },
+        "policy_version": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sources",
+        "agencies",
+        "agencyAliases",
+        "projects",
+        "typologies",
+        "observations",
+        "facts",
+        "documents",
+        "evidence",
+        "issues",
+        "events"
+      ],
+      "properties": {
+        "sources": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/source"
+          }
+        },
+        "agencies": {
+          "type": "array",
+          "minItems": 30,
+          "items": {
+            "$ref": "#/$defs/agency"
+          }
+        },
+        "agencyAliases": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/agencyAlias"
+          }
+        },
+        "projects": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/project"
+          }
+        },
+        "typologies": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/typology"
+          }
+        },
+        "observations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/observation"
+          }
+        },
+        "facts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/fact"
+          }
+        },
+        "documents": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/document"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        },
+        "issues": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/issue"
+          }
+        },
+        "events": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/event"
+          }
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_id",
+        "name",
+        "type",
+        "base_url",
+        "legal_status",
+        "access_mode"
+      ],
+      "properties": {
+        "source_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "type": {
+          "enum": [
+            "portal",
+            "agency_website",
+            "document",
+            "user_provided",
+            "controlled_fixture",
+            "internal_authorized",
+            "other"
+          ]
+        },
+        "base_url": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "legal_status": {
+          "enum": [
+            "cleared_for_demo",
+            "pending_review",
+            "restricted"
+          ]
+        },
+        "access_mode": {
+          "enum": [
+            "versioned_snapshot",
+            "user_provided",
+            "public_reference",
+            "controlled_fixture"
+          ]
+        }
+      }
+    },
+    "agency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agency_id",
+        "canonical_name",
+        "normalized_name",
+        "domain",
+        "pilot_selected",
+        "coverage_tier",
+        "source_names",
+        "selection_reason"
+      ],
+      "properties": {
+        "agency_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "canonical_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "normalized_name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z0-9]+(?:[ _-][a-z0-9]+)*$"
+        },
+        "domain": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "pilot_selected": {
+          "type": "boolean"
+        },
+        "coverage_tier": {
+          "oneOf": [
+            {
+              "enum": [
+                "base",
+                "enriched",
+                "deep"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_names": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "selection_reason": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "pilot_selected": {
+                "const": true
+              }
+            },
+            "required": [
+              "pilot_selected"
+            ]
+          },
+          "then": {
+            "properties": {
+              "coverage_tier": {
+                "enum": [
+                  "base",
+                  "enriched",
+                  "deep"
+                ]
+              },
+              "selection_reason": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "coverage_tier": {
+                "type": "null"
+              },
+              "selection_reason": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "agencyAlias": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "alias_original",
+        "alias_normalized",
+        "agency_id",
+        "resolution",
+        "evidence_ids"
+      ],
+      "properties": {
+        "alias_original": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "alias_normalized": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "agency_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/namespacedId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resolution": {
+          "enum": [
+            "confirmed",
+            "rule_based",
+            "manual_review"
+          ]
+        },
+        "evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "resolution": {
+                "enum": [
+                  "confirmed",
+                  "rule_based"
+                ]
+              }
+            },
+            "required": [
+              "resolution"
+            ]
+          },
+          "then": {
+            "properties": {
+              "agency_id": {
+                "$ref": "#/$defs/namespacedId"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project_id",
+        "agency_id",
+        "canonical_name",
+        "source_names",
+        "location",
+        "status",
+        "first_seen_at",
+        "last_seen_at",
+        "quality_status"
+      ],
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "agency_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "canonical_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "source_names": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "location": {
+          "$ref": "#/$defs/location"
+        },
+        "status": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "first_seen_at": {
+          "$ref": "#/$defs/nullableDateTime"
+        },
+        "last_seen_at": {
+          "$ref": "#/$defs/nullableDateTime"
+        },
+        "quality_status": {
+          "$ref": "#/$defs/qualityStatus"
+        }
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "district",
+        "province",
+        "department",
+        "address",
+        "latitude",
+        "longitude"
+      ],
+      "properties": {
+        "district": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "province": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "department": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "address": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "latitude": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -180,
+          "maximum": 180
+        }
+      }
+    },
+    "typology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "typology_id",
+        "project_id",
+        "model",
+        "floor_label_original",
+        "floor_min",
+        "floor_max",
+        "bedrooms_min",
+        "bedrooms_max",
+        "bathrooms_min",
+        "bathrooms_max",
+        "quality_status"
+      ],
+      "properties": {
+        "typology_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "project_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "model": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "floor_label_original": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "floor_min": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "floor_max": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "bedrooms_min": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "bedrooms_max": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "bathrooms_min": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "bathrooms_max": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "quality_status": {
+          "$ref": "#/$defs/qualityStatus"
+        }
+      }
+    },
+    "observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observation_id",
+        "source_id",
+        "entity_type",
+        "entity_id",
+        "captured_at",
+        "source_url",
+        "extraction_method",
+        "evidence_ids",
+        "evidence_status",
+        "evidence_absence_reason"
+      ],
+      "properties": {
+        "observation_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "source_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "entity_type": {
+          "enum": [
+            "agency",
+            "project",
+            "typology",
+            "document"
+          ]
+        },
+        "entity_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "captured_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "source_url": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "extraction_method": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        },
+        "evidence_status": {
+          "enum": [
+            "available",
+            "unavailable",
+            "not_applicable"
+          ]
+        },
+        "evidence_absence_reason": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_status": {
+                "const": "available"
+              }
+            },
+            "required": [
+              "evidence_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "evidence_ids": {
+                "minItems": 1
+              },
+              "evidence_absence_reason": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "evidence_ids": {
+                "maxItems": 0
+              },
+              "evidence_absence_reason": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "fact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "fact_id",
+        "observation_id",
+        "entity_id",
+        "field_name",
+        "original_value",
+        "normalized_value",
+        "unit",
+        "value_kind",
+        "semantic_type",
+        "area_type",
+        "price_type",
+        "currency",
+        "denominator_area_type",
+        "confidence",
+        "quality_status",
+        "benchmark_eligible",
+        "exclusion_reason",
+        "derivation"
+      ],
+      "properties": {
+        "fact_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "observation_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "entity_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "field_name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "original_value": {
+          "$ref": "#/$defs/jsonValue"
+        },
+        "normalized_value": {
+          "$ref": "#/$defs/jsonValue"
+        },
+        "unit": {
+          "enum": [
+            "m2",
+            "PEN",
+            "USD",
+            "unknown",
+            "PEN/m2",
+            "USD/m2",
+            "unknown/m2",
+            "count",
+            "percent",
+            "date",
+            "text",
+            "boolean"
+          ]
+        },
+        "value_kind": {
+          "$ref": "#/$defs/valueKind"
+        },
+        "semantic_type": {
+          "enum": [
+            "area",
+            "price",
+            "price_per_m2",
+            "attribute",
+            "count",
+            "status",
+            "date",
+            "text",
+            "percentage",
+            "currency",
+            "location"
+          ]
+        },
+        "area_type": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/areaType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "price_type": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/priceType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "currency": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/currency"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "denominator_area_type": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/areaType"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "quality_status": {
+          "$ref": "#/$defs/qualityStatus"
+        },
+        "benchmark_eligible": {
+          "type": "boolean"
+        },
+        "exclusion_reason": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "derivation": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/derivation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "value_kind": {
+                "const": "derived"
+              }
+            },
+            "required": [
+              "value_kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "derivation": {
+                "$ref": "#/$defs/derivation"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "derivation": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "benchmark_eligible": {
+                "const": true
+              }
+            },
+            "required": [
+              "benchmark_eligible"
+            ]
+          },
+          "then": {
+            "properties": {
+              "exclusion_reason": {
+                "type": "null"
+              },
+              "quality_status": {
+                "const": "certified"
+              },
+              "value_kind": {
+                "enum": [
+                  "observed",
+                  "derived"
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "exclusion_reason": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "value_kind": {
+                "const": "simulated"
+              }
+            },
+            "required": [
+              "value_kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "benchmark_eligible": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "quality_status": {
+                "enum": [
+                  "inconsistent",
+                  "illegible",
+                  "insufficient"
+                ]
+              }
+            },
+            "required": [
+              "quality_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "benchmark_eligible": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "semantic_type": {
+                "const": "area"
+              }
+            },
+            "required": [
+              "semantic_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "unit": {
+                "const": "m2"
+              },
+              "area_type": {
+                "$ref": "#/$defs/areaType"
+              },
+              "price_type": {
+                "type": "null"
+              },
+              "currency": {
+                "type": "null"
+              },
+              "denominator_area_type": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "semantic_type": {
+                "const": "price"
+              }
+            },
+            "required": [
+              "semantic_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "price_type": {
+                "$ref": "#/$defs/priceType"
+              },
+              "currency": {
+                "$ref": "#/$defs/currency"
+              },
+              "area_type": {
+                "type": "null"
+              },
+              "denominator_area_type": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "semantic_type": {
+                "const": "price_per_m2"
+              }
+            },
+            "required": [
+              "semantic_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "price_type": {
+                "$ref": "#/$defs/priceType"
+              },
+              "currency": {
+                "$ref": "#/$defs/currency"
+              },
+              "denominator_area_type": {
+                "$ref": "#/$defs/areaType"
+              },
+              "area_type": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "area_type": {
+                    "const": "unknown"
+                  }
+                },
+                "required": [
+                  "area_type"
+                ]
+              },
+              {
+                "properties": {
+                  "currency": {
+                    "const": "unknown"
+                  }
+                },
+                "required": [
+                  "currency"
+                ]
+              },
+              {
+                "properties": {
+                  "denominator_area_type": {
+                    "const": "unknown"
+                  }
+                },
+                "required": [
+                  "denominator_area_type"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "benchmark_eligible": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "semantic_type": {
+                "not": {
+                  "enum": [
+                    "area",
+                    "price",
+                    "price_per_m2"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "semantic_type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "area_type": {
+                "type": "null"
+              },
+              "price_type": {
+                "type": "null"
+              },
+              "currency": {
+                "type": "null"
+              },
+              "denominator_area_type": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "derivation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "formula",
+        "input_fact_ids",
+        "rounding"
+      ],
+      "properties": {
+        "formula": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "input_fact_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        },
+        "rounding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "digits"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "half_up",
+                "half_even",
+                "truncate",
+                "none"
+              ]
+            },
+            "digits": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 8
+            }
+          }
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "document_id",
+        "source_id",
+        "document_type",
+        "title",
+        "captured_at",
+        "source_url",
+        "sha256",
+        "publish_permission",
+        "availability",
+        "public_asset_path"
+      ],
+      "properties": {
+        "document_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "source_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "document_type": {
+          "enum": [
+            "card",
+            "plan",
+            "brochure",
+            "specification",
+            "web_page",
+            "other"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "captured_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "source_url": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "publish_permission": {
+          "enum": [
+            "authorized",
+            "restricted",
+            "pending"
+          ]
+        },
+        "availability": {
+          "enum": [
+            "available",
+            "unavailable",
+            "restricted"
+          ]
+        },
+        "public_asset_path": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^assets/evidence/[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*(?:/[A-Za-z0-9_-]+(?:\\.[A-Za-z0-9_-]+)*)*$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "not": {
+              "properties": {
+                "publish_permission": {
+                  "const": "authorized"
+                }
+              },
+              "required": [
+                "publish_permission"
+              ]
+            }
+          },
+          "then": {
+            "properties": {
+              "public_asset_path": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "enum": [
+                  "unavailable",
+                  "restricted"
+                ]
+              }
+            },
+            "required": [
+              "availability"
+            ]
+          },
+          "then": {
+            "properties": {
+              "public_asset_path": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_id",
+        "observation_id",
+        "document_id",
+        "kind",
+        "fragment",
+        "page",
+        "region",
+        "captured_at",
+        "sha256",
+        "publish_permission",
+        "availability"
+      ],
+      "properties": {
+        "evidence_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "observation_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "document_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/namespacedId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "kind": {
+          "enum": [
+            "fragment",
+            "transcription",
+            "structured_value",
+            "image_region",
+            "metadata"
+          ]
+        },
+        "fragment": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "page": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "region": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "x",
+                "y",
+                "width",
+                "height",
+                "coordinate_space"
+              ],
+              "properties": {
+                "x": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "y": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "width": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "height": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "coordinate_space": {
+                  "enum": [
+                    "pixels",
+                    "normalized"
+                  ]
+                }
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "captured_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "publish_permission": {
+          "enum": [
+            "authorized",
+            "restricted",
+            "pending"
+          ]
+        },
+        "availability": {
+          "enum": [
+            "available",
+            "unavailable",
+            "restricted"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "available"
+              }
+            },
+            "required": [
+              "availability"
+            ]
+          },
+          "then": {
+            "properties": {
+              "fragment": {
+                "$ref": "#/$defs/nonEmptyString"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "not": {
+              "properties": {
+                "publish_permission": {
+                  "const": "authorized"
+                }
+              },
+              "required": [
+                "publish_permission"
+              ]
+            }
+          },
+          "then": {
+            "properties": {
+              "fragment": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "issue_id",
+        "entity_type",
+        "entity_id",
+        "fact_ids",
+        "issue_code",
+        "severity",
+        "quality_status",
+        "detail",
+        "next_action",
+        "benchmark_blocking"
+      ],
+      "properties": {
+        "issue_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "entity_type": {
+          "enum": [
+            "agency",
+            "project",
+            "typology",
+            "observation",
+            "fact",
+            "document",
+            "event"
+          ]
+        },
+        "entity_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "fact_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        },
+        "issue_code": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Z][A-Z0-9_]*$"
+        },
+        "severity": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "blocking"
+          ]
+        },
+        "quality_status": {
+          "$ref": "#/$defs/qualityStatus"
+        },
+        "detail": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "next_action": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "benchmark_blocking": {
+          "type": "boolean"
+        }
+      }
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "event_id",
+        "entity_id",
+        "field_name",
+        "previous_fact_id",
+        "new_fact_id",
+        "effective_at",
+        "observed_at",
+        "delta",
+        "percentage",
+        "percentage_base_fact_id",
+        "cause",
+        "cause_evidence_ids",
+        "quality_status"
+      ],
+      "properties": {
+        "event_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "entity_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "field_name": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "previous_fact_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "new_fact_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "effective_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "observed_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "delta": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "percentage": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "percentage_base_fact_id": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/namespacedId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cause": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "cause_evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        },
+        "quality_status": {
+          "$ref": "#/$defs/qualityStatus"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "cause": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "cause"
+            ]
+          },
+          "then": {
+            "properties": {
+              "cause_evidence_ids": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "$ref": "#/$defs/namespacedId"
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "cause_evidence_ids": {
+                "maxItems": 0
+              }
+            }
+          }
+        }
+      ]
+    },
+    "pilot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "pilot_id",
+        "version",
+        "selected_at",
+        "selection_rule",
+        "selection_reason",
+        "agency_ids",
+        "districts",
+        "counts"
+      ],
+      "properties": {
+        "pilot_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "version": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "selected_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "selection_rule": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "selection_reason": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "agency_ids": {
+          "type": "array",
+          "minItems": 30,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        },
+        "districts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "market_raw_count",
+            "base_count",
+            "enriched_count",
+            "deep_count"
+          ],
+          "properties": {
+            "market_raw_count": {
+              "type": "integer",
+              "minimum": 30
+            },
+            "base_count": {
+              "type": "integer",
+              "minimum": 30
+            },
+            "enriched_count": {
+              "type": "integer",
+              "minimum": 15
+            },
+            "deep_count": {
+              "type": "integer",
+              "minimum": 5
+            }
+          }
+        }
+      }
+    },
+    "legacyProject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source",
+        "source_type",
+        "captured_at",
+        "source_url",
+        "extraction_method",
+        "agency_name",
+        "project_name",
+        "district",
+        "province",
+        "department",
+        "address",
+        "latitude",
+        "longitude",
+        "project_phase",
+        "typology",
+        "bedrooms",
+        "bedrooms_min",
+        "bedrooms_max",
+        "total_area_min",
+        "total_area_max",
+        "total_area",
+        "unit_status",
+        "unit_count",
+        "currency",
+        "list_price_avg",
+        "price_min",
+        "price_per_m2_list",
+        "latest_price_history_from",
+        "latest_price_history_date",
+        "price_delta",
+        "price_delta_pct",
+        "delivery_year",
+        "delivery_date",
+        "update_date",
+        "income",
+        "total_m2",
+        "financing_banks",
+        "amenities",
+        "project_description",
+        "field_confidence",
+        "missing_required_fields"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "source": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "source_type": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "captured_at": {
+          "$ref": "#/$defs/nullableDateTime"
+        },
+        "source_url": {
+          "oneOf": [
+            {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "extraction_method": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "agency_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "project_name": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "district": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "province": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "department": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "address": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "latitude": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -90,
+          "maximum": 90
+        },
+        "longitude": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": -180,
+          "maximum": 180
+        },
+        "project_phase": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "typology": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "bedrooms": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "bedrooms_min": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "bedrooms_max": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "total_area_min": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "total_area_max": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "total_area": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "exclusiveMinimum": 0
+        },
+        "unit_status": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "unit_count": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "currency": {
+          "$ref": "#/$defs/currency"
+        },
+        "list_price_avg": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "price_min": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "price_per_m2_list": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "latest_price_history_from": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "latest_price_history_date": {
+          "$ref": "#/$defs/nullableDateTime"
+        },
+        "price_delta": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "price_delta_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "delivery_year": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1900,
+          "maximum": 2200
+        },
+        "delivery_date": {
+          "$ref": "#/$defs/nullableDateTime"
+        },
+        "update_date": {
+          "$ref": "#/$defs/nullableDateTime"
+        },
+        "income": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "total_m2": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "financing_banks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "amenities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "project_description": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "field_confidence": {
+          "$ref": "#/$defs/confidence"
+        },
+        "missing_required_fields": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      }
+    },
+    "legacyObject": {
+      "type": "object"
+    },
+    "legacyObjectArray": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  }
+}
