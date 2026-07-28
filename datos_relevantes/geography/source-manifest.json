@@ -1,0 +1,103 @@
+{
+  "manifest_version": "1.0.0",
+  "source_id": "osm-lima-high-load-districts-2026-07-28",
+  "source": {
+    "producer": "OpenStreetMap contributors",
+    "provider": "Nominatim",
+    "url": "https://nominatim.openstreetmap.org/lookup?osm_ids=R1944770,R1944844,R1944744,R1944825,R1944756,R1944765,R1944812&format=geojson&polygon_geojson=1",
+    "acquired_at": "2026-07-28T15:34:51-05:00",
+    "versioned_acquisition_requests": 1,
+    "user_agent": "VivaInteligenciaDemo/2.0 (https://github.com/stefano-mt/viva-inteligencia-demo)",
+    "crs": "EPSG:4326",
+    "format": "GeoJSON",
+    "feature_count": 7,
+    "geometry_types": [
+      "Polygon"
+    ],
+    "source_file": "district-boundaries-source.geojson",
+    "source_bytes": 46650,
+    "source_sha256": "ef75b5deb43f2ed94cc9661c3f1926e94608e0b2e4a41c8ce9197dbea71b16c0"
+  },
+  "license": {
+    "name": "Open Database License 1.0",
+    "identifier": "ODbL-1.0",
+    "url": "https://opendatacommons.org/licenses/odbl/1-0/",
+    "copyright_url": "https://www.openstreetmap.org/copyright",
+    "attribution_guidelines_url": "https://osmfoundation.org/wiki/Licence/Attribution_Guidelines",
+    "attribution": "© OpenStreetMap contributors",
+    "share_alike": true,
+    "database_separation": "La geometría OSM y sus derivados permanecen separados del dataset inmobiliario."
+  },
+  "runtime_policy": {
+    "external_cartographic_requests": 0,
+    "nominatim_runtime": false,
+    "overpass_runtime": false,
+    "tiles_runtime": false,
+    "geocoding_runtime": false
+  },
+  "legal_reference": {
+    "name": "Registro Nacional de Límites (RENLIM)",
+    "url": "https://www.gob.pe/98535-acceder-al-registro-nacional-de-limites-renlim",
+    "notice": "La geometría OSM es referencial y no sustituye los límites oficiales o jurídicamente vinculantes."
+  },
+  "districts": [
+    {
+      "district_id": "150122",
+      "ui_name": "Miraflores",
+      "source_name": "Miraflores",
+      "osm_relation_id": 1944770,
+      "ubigeo_role": "contrast_only"
+    },
+    {
+      "district_id": "150140",
+      "ui_name": "Santiago De Surco",
+      "source_name": "Santiago de Surco",
+      "osm_relation_id": 1944844,
+      "ubigeo_role": "contrast_only"
+    },
+    {
+      "district_id": "150113",
+      "ui_name": "Jesus Maria",
+      "source_name": "Jesús María",
+      "osm_relation_id": 1944744,
+      "ubigeo_role": "contrast_only"
+    },
+    {
+      "district_id": "150136",
+      "ui_name": "San Miguel",
+      "source_name": "San Miguel",
+      "osm_relation_id": 1944825,
+      "ubigeo_role": "contrast_only"
+    },
+    {
+      "district_id": "150101",
+      "ui_name": "Cercado de lima",
+      "source_name": "Lima",
+      "osm_relation_id": 1944756,
+      "ubigeo_role": "contrast_only"
+    },
+    {
+      "district_id": "150120",
+      "ui_name": "Magdalena Del Mar",
+      "source_name": "Magdalena del Mar",
+      "osm_relation_id": 1944765,
+      "ubigeo_role": "contrast_only"
+    },
+    {
+      "district_id": "150131",
+      "ui_name": "San Isidro",
+      "source_name": "San Isidro",
+      "osm_relation_id": 1944812,
+      "ubigeo_role": "contrast_only"
+    }
+  ],
+  "derived": {
+    "public_geojson_path": "prototipo_ejecutable/public/demo-data/district-boundaries.geojson",
+    "public_geojson_sha256": null,
+    "public_geojson_bytes": null,
+    "simplification_tolerance_degrees": null,
+    "maximum_displacement_meters": null,
+    "area_change_pct_max": null,
+    "status": "pending_p2_04"
+  }
+}
