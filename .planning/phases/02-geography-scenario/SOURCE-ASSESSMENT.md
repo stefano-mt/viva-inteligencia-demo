@@ -42,7 +42,7 @@ La aprobación favorable debe persistirse en `APPROVAL.md` mediante P2-00C antes
 | Ejecución en runtime | Ninguna; no habrá Nominatim, Overpass, tiles ni geocodificación desde la demo |
 | Estado legal | Reutilización permitida bajo ODbL con atribución y share-alike |
 
-La consulta de preflight fue una búsqueda pequeña y única, no un crawler ni una dependencia de producción. P2-01 repetirá una sola adquisición controlada después de la aprobación, la cacheará en el repositorio y registrará fecha, respuesta, SHA-256 y `User-Agent`.
+La consulta de preflight fue una búsqueda pequeña, no un crawler ni una dependencia de producción. P2-01 realizó y cacheó la adquisición versionada después de la aprobación, registrando fecha, respuesta, SHA-256 y `User-Agent`.
 
 ## Relaciones y correspondencia
 
@@ -68,7 +68,9 @@ Resultados del preflight:
 
 - se recibieron 7 de 7 features poligonales;
 - la respuesta declaró `Data © OpenStreetMap contributors, ODbL 1.0`;
-- los 433 proyectos observados de los siete distritos quedaron dentro de su polígono esperado;
+- la comprobación preliminar simplificada sugirió 433/433, pero el motor normativo P2-03 —con borde, huecos y epsilon congelados— reprodujo 422/433;
+- las 11 discrepancias quedan visibles: Santiago de Surco 1, Magdalena del Mar 7 y San Isidro 3;
+- Miraflores, Jesús María, San Miguel y Lima/Cercado conservan cobertura poligonal completa;
 - Miraflores obtuvo 90/90, por lo que el fixture CT-I es técnicamente alcanzable;
 - el tamaño conjunto de las geometrías está muy por debajo del límite público de 750 KB;
 - no se detectó necesidad de tiles, servicios externos o geocodificación en runtime.
@@ -108,7 +110,7 @@ El acceso público o la posibilidad técnica de descargar no se interpreta como 
 6. Verificar nombres, relation IDs y UBIGEO de contraste.
 7. Conservar huecos y estructura multipolígono.
 8. Simplificar de forma determinista con tolerancia máxima `0.00005°`, desplazamiento ≤10 m y cambio de área <0.5%.
-9. Validar 433/433 puntos dentro de su distrito y 90/90 para CT-I.
+9. Reproducir 422/433 puntos dentro de su distrito, registrar los 11 `outside_district_polygon` y exigir 90/90 para CT-I.
 10. Publicar únicamente el subconjunto aprobado, su manifiesto, README y aviso ODbL.
 11. Comprobar que no existan credenciales, rutas locales, datos personales ni dependencias de red en runtime.
 
@@ -143,8 +145,9 @@ Requisitos:
 
 - Fuente con licencia explícita: **identificada**.
 - Siete relaciones: **identificadas**.
-- Cobertura técnica preliminar: **7/7 features y 433/433 puntos**.
-- CT-I Miraflores: **90/90 alcanzable**.
+- Cobertura técnica reproducida por P2-03: **7/7 features y 422/433 puntos dentro**.
+- Exclusiones territoriales visibles: **11**, sin fallback distrital silencioso.
+- CT-I Miraflores: **90/90 reproducido**.
 - Referencia legal de contraste: **identificada**.
 - Atribución mínima: **definida**.
 - Ejecución en runtime: **cero llamadas externas**.

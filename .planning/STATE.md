@@ -6,7 +6,7 @@
 
 **Última fase completada:** Fase 1 — datos, contratos y cobertura
 
-**Estado:** Fase 0 y Fase 1 completadas; Fase 1 cerró con veredicto independiente `PASS WITH RISKS`; Fase 2 tiene plan `PASS WITH RISKS`, HUMAN-GATE-A aprobada y P2-00C registrada; P2-01 está habilitada.
+**Estado:** Fase 0 y Fase 1 completadas; Fase 2 en ejecución con plan `PASS WITH RISKS`, HUMAN-GATE-A aprobada y P2-00C registrada; P2-01 a P2-03 implementadas y verificadas.
 
 **Rama activa de planificación:** `feat/phase-2-geography-scenario`, creada desde `main` en el merge `a8f0284`.
 
@@ -76,13 +76,14 @@ a7f68af35d97c6fbc066b4213ebb12d525d630fa366a0e75826d2349087d8141
 - RENLIM se usa como referencia jurídica; los cuadrantes se etiquetan como analíticos, nunca oficiales.
 - Escenario propuesto: distrito, cuadrante o radio, serializado en URL y compartido por todos los consumidores.
 - La revalidación independiente posterior emitió `PASS WITH RISKS`.
-- P2-01 puede iniciar bajo la fuente, atribución, riesgos y stop rules de `APPROVAL.md`.
+- P2-01 adquirió la fuente aprobada y P2-02/P2-03 cerraron contrato, fixtures y motor geográfico.
+- P2-03 reprodujo 422/433 puntos dentro de los polígonos OSM; 11 quedan como `outside_district_polygon` (Surco 1, Magdalena 7, San Isidro 3). Miraflores conserva el gate 90/90.
 
 ## Próxima acción recomendada
 
-1. Commit y push de P2-00C.
-2. Ejecutar P2-01 con una adquisición única y cacheada.
-3. Detener si fuente, licencia, relaciones o atribución difieren de `APPROVAL.md`.
+1. Integrar geografía y contrato 2.1 al dataset mediante P2-04.
+2. Publicar el GeoJSON sin simplificación si ya cumple el presupuesto, evitando una precisión no validada.
+3. Preservar 422/433 y las 11 exclusiones visibles; detener si Miraflores deja de reproducir 90/90.
 
 ## Regla para actualizar este archivo
 

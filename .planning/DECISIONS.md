@@ -139,3 +139,11 @@ F2 usa un snapshot fijo de siete relaciones OpenStreetMap bajo ODbL 1.0. La geom
 **Estado:** aceptada
 
 Stefano aprobó explícitamente la ruta OSM/ODbL y el inicio de Fase 2. `APPROVAL.md` registra fuente, relaciones, licencia, atribución, riesgos aceptados/rechazados, timestamp y hashes de los documentos revisados. Cualquier cambio de esas condiciones reactiva la stop rule y exige repetir assessment, checker y aprobación.
+
+## D-018 — Cobertura poligonal real 422/433
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+El motor normativo P2-03 reprodujo 422 de 433 proyectos dentro o sobre el borde de su polígono OSM. Once quedan fuera: Santiago de Surco 1, Magdalena del Mar 7 y San Isidro 3. Se conservan como exclusiones `outside_district_polygon` y producen cobertura territorial parcial; no se reasignan ni se ocultan. Miraflores mantiene 90/90, por lo que CT-I continúa aprobado. Esta corrección no cambia fuente, licencia o riesgos aceptados en HUMAN-GATE-A.
