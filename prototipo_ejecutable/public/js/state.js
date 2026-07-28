@@ -363,9 +363,10 @@ function normalizeContextExclusion(item, origin) {
 
 function normalizeGeographyArtifact(artifact) {
   const value = artifact ?? EMPTY_GEOGRAPHY_ARTIFACT;
+  const status = value.status ?? "missing";
   return {
-    status: value.status ?? "missing",
-    geojson: value.geojson ?? null,
+    status,
+    geojson: status === "valid" ? value.geojson ?? null : null,
     url: value.url ?? null,
     expected_sha256: value.expected_sha256 ?? null,
     actual_sha256: value.actual_sha256 ?? null,

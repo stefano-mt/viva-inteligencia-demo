@@ -137,6 +137,31 @@ assert.deepEqual(
   state.compareProjectIds.map(canonicalProjectId),
   state.scenarioContext.comparable_project_ids.slice(0, 3),
 );
+updateBoundaryArtifact({
+  status: "hash_mismatch",
+  geojson: { type: "FeatureCollection", features: [{ type: "Feature" }] },
+  url: "demo-data/district-boundaries.geojson",
+  expected_sha256: "expected",
+  actual_sha256: "rejected",
+  reason: "hash_mismatch",
+});
+assert.equal(
+  state.geographyArtifact.geojson,
+  null,
+  "un artefacto no válido elimina la geometría aunque el caller intente inyectarla",
+);
+assert.equal(state.scenarioContext.geography_status, "unavailable");
+assert.equal(state.scenarioContext.comparable_project_ids.length, 0);
+updateBoundaryArtifact({
+  status: "valid",
+  geojson: { type: "FeatureCollection", features: [] },
+  url: "demo-data/district-boundaries.geojson",
+  expected_sha256: "fixture-sha",
+  actual_sha256: "fixture-sha",
+  reason: null,
+});
+assert.equal(state.scenarioContext.geography_status, "ready");
+assert.equal(state.scenarioContext.comparable_project_ids.length, 85);
 assert.equal(
   JSON.stringify(demoData.geography.exclusions),
   geographyExclusionsBefore,
