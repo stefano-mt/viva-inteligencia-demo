@@ -1,0 +1,54 @@
+[
+  {
+    "evidence_id": "evidence:ct-d-countertop-fragment",
+    "observation_id": "observation:ct-d-countertop",
+    "document_id": "document:ct-d-authorized",
+    "kind": "fragment",
+    "fragment": "Cubierta de cocina: cuarzo.",
+    "page": 1,
+    "region": null,
+    "captured_at": "2026-01-01T00:00:00Z",
+    "sha256": "76997883b31990c766b433f21da0a699ffe502d40e15072b24bbacec11bfc850",
+    "publish_permission": "authorized",
+    "availability": "available"
+  },
+  {
+    "evidence_id": "evidence:ct-d-restricted-metadata",
+    "observation_id": "observation:ct-d-restricted-document",
+    "document_id": "document:ct-d-restricted",
+    "kind": "metadata",
+    "fragment": null,
+    "page": null,
+    "region": null,
+    "captured_at": "2026-01-01T00:00:00Z",
+    "sha256": "2a1dec7dfa2602fdba8c9b66677ff6dd92b1a3e64cdfe4f54ebe1fadb9f6caff",
+    "publish_permission": "restricted",
+    "availability": "restricted"
+  },
+  {
+    "evidence_id": "evidence:pardo-coast-card-metadata",
+    "observation_id": "observation:pardo-coast-card",
+    "document_id": "document:pardo-coast-card",
+    "kind": "metadata",
+    "fragment": null,
+    "page": null,
+    "region": null,
+    "captured_at": "2026-07-27T20:23:56-05:00",
+    "sha256": "41ab273c521fcc66025653e8cfe44f894afb01b2f1b9be72847dcf87db2f2c4b",
+    "publish_permission": "pending",
+    "availability": "unavailable"
+  },
+  {
+    "evidence_id": "evidence:pardo-coast-plan-metadata",
+    "observation_id": "observation:pardo-coast-plan",
+    "document_id": "document:pardo-coast-plan",
+    "kind": "metadata",
+    "fragment": null,
+    "page": null,
+    "region": null,
+    "captured_at": "2026-07-27T20:24:28-05:00",
+    "sha256": "3c108732cc1f9c0dbd884ed3d171a0abacffc96d9e80a95d994dc1d1a43bd60a",
+    "publish_permission": "restricted",
+    "availability": "restricted"
+  }
+]

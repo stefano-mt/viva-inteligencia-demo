@@ -1,0 +1,214 @@
+[
+  {
+    "observation_id": "observation:ct-a-derived",
+    "source_id": "source:ct-a-controlled",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-a-controlled",
+    "captured_at": "2026-01-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "deterministic_derivation",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Resultados derivados reproducibles desde los hechos de entrada."
+  },
+  {
+    "observation_id": "observation:ct-a-inputs",
+    "source_id": "source:ct-a-controlled",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-a-controlled",
+    "captured_at": "2026-01-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_fixture",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Fixture matemático controlado sin activo externo."
+  },
+  {
+    "observation_id": "observation:ct-b-derived",
+    "source_id": "source:ct-b-a",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-b-controlled",
+    "captured_at": "2026-01-02T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "deterministic_derivation",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Resultados derivados reproducibles desde las dos observaciones."
+  },
+  {
+    "observation_id": "observation:ct-b-source-a",
+    "source_id": "source:ct-b-a",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-b-controlled",
+    "captured_at": "2026-01-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_fixture",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Fuente controlada sin activo externo."
+  },
+  {
+    "observation_id": "observation:ct-b-source-b",
+    "source_id": "source:ct-b-b",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-b-controlled",
+    "captured_at": "2026-01-02T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_fixture",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Fuente controlada sin activo externo."
+  },
+  {
+    "observation_id": "observation:ct-d-air-conditioning-absence",
+    "source_id": "source:ct-d-authorized",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-d-controlled",
+    "captured_at": "2026-01-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_absence",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "El fixture no contiene una afirmación sobre aire acondicionado."
+  },
+  {
+    "observation_id": "observation:ct-d-countertop",
+    "source_id": "source:ct-d-authorized",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-d-controlled",
+    "captured_at": "2026-01-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:ct-d-countertop-fragment"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:ct-d-restricted-document",
+    "source_id": "source:ct-d-restricted",
+    "entity_type": "document",
+    "entity_id": "document:ct-d-restricted",
+    "captured_at": "2026-01-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "user_provided_metadata_only",
+    "evidence_ids": [
+      "evidence:ct-d-restricted-metadata"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:ct-e-2026-01-01",
+    "source_id": "source:ct-e-controlled",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-e-controlled",
+    "captured_at": "2026-01-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_fixture",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Punto histórico controlado."
+  },
+  {
+    "observation_id": "observation:ct-e-2026-02-01",
+    "source_id": "source:ct-e-controlled",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-e-controlled",
+    "captured_at": "2026-02-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_fixture",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Punto histórico controlado."
+  },
+  {
+    "observation_id": "observation:ct-e-base-zero-after",
+    "source_id": "source:ct-e-controlled",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-e-controlled",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_fixture",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Observación nueva del caso límite controlado de base cero."
+  },
+  {
+    "observation_id": "observation:ct-e-base-zero-before",
+    "source_id": "source:ct-e-controlled",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-e-controlled",
+    "captured_at": "2026-03-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_fixture",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Observación anterior del caso límite controlado de base cero."
+  },
+  {
+    "observation_id": "observation:ct-e-extreme-after",
+    "source_id": "source:ct-e-controlled",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-e-controlled",
+    "captured_at": "2026-04-01T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_fixture",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Observación nueva del caso límite controlado de cambio extremo."
+  },
+  {
+    "observation_id": "observation:ct-e-extreme-before",
+    "source_id": "source:ct-e-controlled",
+    "entity_type": "typology",
+    "entity_id": "typology:ct-e-controlled",
+    "captured_at": "2026-03-15T00:00:00Z",
+    "source_url": null,
+    "extraction_method": "controlled_fixture",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Observación anterior del caso límite controlado de cambio extremo."
+  },
+  {
+    "observation_id": "observation:pardo-coast-card",
+    "source_id": "source:nexo",
+    "entity_type": "typology",
+    "entity_id": "typology:pardo-coast-tipo-7",
+    "captured_at": "2026-07-27T20:23:56-05:00",
+    "source_url": "https://nexoinmobiliario.pe/departamentos/miraflores/pardo-coast-2951",
+    "extraction_method": "user_provided_screenshot_transcription",
+    "evidence_ids": [
+      "evidence:pardo-coast-card-metadata"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:pardo-coast-conflict-derived",
+    "source_id": "source:ct-g-user-plan",
+    "entity_type": "typology",
+    "entity_id": "typology:pardo-coast-tipo-7",
+    "captured_at": "2026-07-27T20:24:28-05:00",
+    "source_url": null,
+    "extraction_method": "deterministic_derivation",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Resultados derivados de hechos transcritos y versionados en este fixture."
+  },
+  {
+    "observation_id": "observation:pardo-coast-plan",
+    "source_id": "source:ct-g-user-plan",
+    "entity_type": "typology",
+    "entity_id": "typology:pardo-coast-tipo-7",
+    "captured_at": "2026-07-27T20:24:28-05:00",
+    "source_url": null,
+    "extraction_method": "user_provided_image_manual_transcription",
+    "evidence_ids": [
+      "evidence:pardo-coast-plan-metadata"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  }
+]
