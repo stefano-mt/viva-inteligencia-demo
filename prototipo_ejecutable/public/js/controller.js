@@ -467,7 +467,7 @@ function refreshScenarioDependents() {
   }
 }
 
-function initializeScenarioFromLocation() {
+export function initializeScenarioFromLocation() {
   if (scenarioUrlInitialized || !state.data) return false;
   scenarioUrlInitialized = true;
   const transition = dispatchScenario({
