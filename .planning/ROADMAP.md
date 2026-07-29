@@ -75,21 +75,21 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** definir una zona objetivo y obtener comparables geográficos explicables.
 
-**Estado:** no iniciada; requiere discusión, especificación y plan aprobados. Antes de CT-I debe resolverse el drift documental 88/90 de Miraflores sin alterar el conteo reproducible de 90.
+**Estado:** cierre técnico implementado y verificado con `PASS WITH RISKS`; HUMAN-GATE-B aprobada. P2-17/PR están en curso: los documentos están preparados en el worktree, pero su versionado y la apertura del PR siguen pendientes. La fase no se considera completada ni shipped hasta el merge humano, P2-18 y el merge humano del PR documental P2-19; el despliegue aún no está demostrado ni verificado.
 
-### Ola 2.1 — Contexto y estado
+### Línea de trabajo A — Contexto y estado
 
 - Barra global y única fuente de escenario.
-- Fecha de corte, cobertura y confianza.
+- Fecha de corte, cobertura territorial y suficiencia de comparabilidad como ejes separados.
 - Persistencia/reinicio reproducible.
 
-### Ola 2.2 — Geografía
+### Línea de trabajo B — Geografía
 
 - Límites distritales.
 - Cuadrantes o microzonas en distritos de alta carga.
 - Selección por radio/polígono de demo.
 
-### Ola 2.3 — Lectura
+### Línea de trabajo C — Lectura
 
 - Mapa geográfico con ejes/leyendas/tooltip útiles.
 - Score de comparabilidad explicable.
@@ -97,7 +97,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Gate de salida:** CT-C y CT-I pasan; todos los módulos consumen el mismo conjunto de comparables.
 
-**Paralelismo:** motor geográfico y componentes visuales pueden avanzar separados una vez congelado el contrato de escenario.
+**Paralelismo:** datos, contrato, motor y build geográfico avanzan en secuencia hasta P2-07. Solo entonces P2-08/P2-09 y, después, los consumidores con `write_set` disjuntos pueden ejecutarse en paralelo.
 
 ---
 

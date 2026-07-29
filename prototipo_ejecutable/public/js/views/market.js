@@ -1,194 +1,448 @@
-import { suggestedQuestions } from "../config.js";
-import * as domain from "../domain.js";
+import {
+  componentHelp,
+  escapeAttr,
+  escapeHtml,
+  formatNumber,
+} from "../domain.js";
+import {
+  isEligiblePriceReference,
+  quantileR7,
+} from "../comparability.js";
 import { state } from "../state.js";
 
-const {
-  getProjects,
-  getProjectsByDistrict,
-  getScenarioProjects,
-  filterCatalogProjects,
-  compareCandidates,
-  sortProjects,
-  buildBenchmark,
-  districtBenchmarks,
-  getCompetitors,
-  comparableScore,
-  classifyPricePosition,
-  buildCommercialRecommendation,
-  buildAssistantResponse,
-  buildOpportunitySignals,
-  checklistRisks,
-  messageAngles,
-  marketEvents,
-  weeklyRecommendations,
-  districtInsight,
-  districtExecutiveReading,
-  competitiveReading,
-  comparisonConclusion,
-  competitionLevel,
-  competitionClass,
-  renderSignals,
-  kpiCard,
-  miniMetric,
-  projectListCard,
-  competitorCard,
-  compareCandidate,
-  compareProjectCard,
-  comparisonMetric,
-  signalCard,
-  checkItem,
-  barRow,
-  summaryBar,
-  districtTile,
-  rangeGauge,
-  scatterPlot,
-  renderSectionGuide,
-  componentHelp,
-  panelActions,
-  ensureSelectedProject,
-  getDistricts,
-  getTypologies,
-  getPhases,
-  getDeliveryYears,
-  getBedroomOptions,
-  defaultDistrict,
-  metadataDate,
-  extractDistrictFromText,
-  projectHasBedroom,
-  projectPriceM2,
-  projectArea,
-  getTargetPriceM2,
-  countBy,
-  sum,
-  average,
-  median,
-  percentile,
-  positiveNumber,
-  numberOrZero,
-  isPositive,
-  sortNumeric,
-  firstAvailable,
-  toArray,
-  unique,
-  clamp,
-  normalizeSearch,
-  shortText,
-  safeUrl,
-  optionList,
-  sortLabel,
-  bedroomsLabel,
-  deliveryLabel,
-  areaLabel,
-  priceM2,
-  money,
-  formatRange,
-  formatNumber,
-  formatPercent,
-  formatDate,
-  emptyState,
-  loadingTemplate,
-  errorTemplate,
-  chip,
-  findProjectById,
-  escapeHtml,
-  escapeAttr,
-} = domain;
+const QUADRANT_ORDER = ["NW", "NE", "SW", "SE"];
 
-export function renderMarket() {
-  const districts = districtBenchmarks();
-  const selectedBenchmark = buildBenchmark(getProjectsByDistrict(state.strategy.district), state.strategy.district);
-  const representative = getProjectsByDistrict(state.strategy.district)
-    .filter((project) => projectPriceM2(project))
-    .sort((left, right) => projectPriceM2(right) - projectPriceM2(left))
-    .slice(0, 5);
-  const phases = countBy(getProjectsByDistrict(state.strategy.district), (project) => project.project_phase || "No registrado");
+function positiveNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number > 0 ? number : null;
+}
+
+function districtName(district) {
+  return district?.source_name ?? district?.district_name ?? "Distrito";
+}
+
+function rankHighLoadDistricts(districts) {
+  return [...(districts ?? [])]
+    .filter((district) => district.high_load)
+    .sort(
+      (left, right) =>
+        right.observed_project_count - left.observed_project_count ||
+        districtName(left).localeCompare(districtName(right), "es"),
+    );
+}
+
+export function resolveMarketDistricts({
+  geography,
+  districtId,
+} = {}) {
+  const allDistricts = geography?.districts ?? [];
+  return {
+    ranking: rankHighLoadDistricts(allDistricts),
+    active:
+      allDistricts.find(
+        (district) => district.district_id === districtId,
+      ) ?? null,
+  };
+}
+
+function observedId(project) {
+  return `observed:nexo-${project.id}`;
+}
+
+function canonicalId(project) {
+  return `project:nexo-${project.id}`;
+}
+
+function projectIndexes() {
+  const projects = state.data?.projects ?? [];
+  return {
+    byObservedId: new Map(
+      projects.map((project) => [observedId(project), project]),
+    ),
+    byCanonicalId: new Map(
+      projects.map((project) => [canonicalId(project), project]),
+    ),
+  };
+}
+
+function formatPublishedPrice(value) {
+  return value
+    ? `S/ ${formatNumber(value, 0)} / m²`
+    : "No disponible";
+}
+
+function staticQuadrantReading(quadrant, indexes, cutoffAt) {
+  const observedIds = quadrant.observed_project_ids ?? [];
+  const authoritativeIds = quadrant.authoritative_project_ids ?? [];
+  const projects = observedIds
+    .map((id) => indexes.byObservedId.get(id))
+    .filter(Boolean);
+  const agencies = new Set(
+    projects
+      .map((project) => String(project.agency_name ?? "").trim())
+      .filter(Boolean),
+  );
+  const priceProjects = authoritativeIds
+    .map((id) => indexes.byCanonicalId.get(id))
+    .filter(Boolean)
+    .filter((project) =>
+      isEligiblePriceReference({ project, cutoffAt }),
+    );
+
+  return {
+    observed: observedIds.length,
+    geographyValid: observedIds.length,
+    reconciled: authoritativeIds.length,
+    agencies: agencies.size,
+    priceReferenceCount: priceProjects.length,
+    medianPublishedPricePerM2: quantileR7(
+      priceProjects.map((project) => project.price_per_m2_list),
+      0.5,
+    ),
+  };
+}
+
+function activeScenarioReading(quadrantId) {
+  const context = state.scenarioContext;
+  const active =
+    state.scenario?.scope_mode === "quadrant" &&
+    state.scenario?.quadrant_id === quadrantId &&
+    context?.scenario?.district_id === state.scenario?.district_id &&
+    context?.scenario?.quadrant_id === quadrantId;
+  if (!active) return null;
+
+  const diagnosis = context.price_diagnosis ?? {};
+  const comparabilityLabels = {
+    ready: "Comparabilidad lista",
+    orientative: "Comparabilidad orientativa",
+    insufficient: "Comparables insuficientes",
+  };
+  const pricePositionLabels = {
+    entry: "Entrada competitiva",
+    aligned: "Alineado",
+    premium: "Premium",
+    Entrada: "Entrada competitiva",
+    Alineado: "Alineado",
+    Premium: "Premium",
+  };
+  return {
+    comparableCount: context.comparable_project_ids?.length ?? 0,
+    comparabilityLabel:
+      comparabilityLabels[context.comparability_status] ??
+      "Comparabilidad sin estado",
+    evidenceCoverage: context.evidence_coverage_pct ?? 0,
+    priceStatus: context.price_status,
+    priceReferenceCount:
+      context.price_reference_project_ids?.length ?? 0,
+    priceMedian: positiveNumber(diagnosis.median),
+    pricePosition:
+      pricePositionLabels[diagnosis.position] ??
+      diagnosis.position ??
+      null,
+  };
+}
+
+function rankingRow(district, index, maximumObserved) {
+  const name = districtName(district);
+  const observed = district.observed_project_count ?? 0;
+  const geographyValid = district.polygon_valid_count ?? 0;
+  const outside = Math.max(observed - geographyValid, 0);
+  const selected = district.district_id === state.scenario?.district_id;
+  const width = maximumObserved
+    ? Math.max(0, Math.min(100, (observed / maximumObserved) * 100))
+    : 0;
 
   return `
-    <section class="dashboard-grid">
+    <button
+      class="bar-row as-button"
+      id="market-district-${escapeAttr(district.district_id)}"
+      type="button"
+      data-district-chip="${escapeAttr(district.district_id)}"
+      aria-pressed="${selected}"
+    >
+      <span>
+        <strong>${formatNumber(index + 1)}. ${escapeHtml(name)}</strong>
+        <span class="status-badge success">Top 7 · alta carga</span>
+      </span>
+      <span>
+        <span class="bar-track" aria-hidden="true">
+          <i style="width:${width.toFixed(1)}%"></i>
+        </span>
+        <span>${formatNumber(geographyValid)}/${formatNumber(observed)} con geografía válida</span>
+      </span>
+      <em>
+        <strong>${formatNumber(observed)} observados</strong>
+        ${
+          outside
+            ? `${formatNumber(outside)} fuera del polígono`
+            : "Sin exclusiones territoriales"
+        }
+      </em>
+    </button>
+  `;
+}
+
+function activeScenarioMarkup(activeReading) {
+  if (!activeReading) {
+    return `
+      <span>
+        Selecciona esta fila para calcular comparables del escenario.
+      </span>
+    `;
+  }
+  const priceCopy =
+    activeReading.priceStatus === "ready"
+      ? `${formatNumber(activeReading.priceReferenceCount)} referencias · mediana ${formatPublishedPrice(activeReading.priceMedian)}`
+      : `${formatNumber(activeReading.priceReferenceCount)} referencias · precio insuficiente`;
+  return `
+    <span>
+      <strong>Escenario activo</strong>
+      ${formatNumber(activeReading.comparableCount)} comparables ·
+      ${escapeHtml(activeReading.comparabilityLabel)} ·
+      ${formatNumber(activeReading.evidenceCoverage, 1)}% de evidencia
+    </span>
+    <span>
+      ${escapeHtml(priceCopy)}
+      ${
+        activeReading.pricePosition
+          ? ` · ${escapeHtml(activeReading.pricePosition)}`
+          : ""
+      }
+    </span>
+  `;
+}
+
+function quadrantRow(quadrant, indexes, cutoffAt) {
+  const reading = staticQuadrantReading(quadrant, indexes, cutoffAt);
+  const activeReading = activeScenarioReading(quadrant.quadrant_id);
+  const selected = Boolean(activeReading);
+  const label = quadrant.label ?? quadrant.quadrant_id;
+
+  return `
+    <button
+      class="bar-row as-button"
+      id="market-quadrant-${escapeAttr(quadrant.quadrant_id.toLowerCase())}"
+      type="button"
+      data-scenario-quadrant="${escapeAttr(quadrant.quadrant_id)}"
+      aria-pressed="${selected}"
+    >
+      <span>
+        <strong>${escapeHtml(label)}</strong>
+        <span>${escapeHtml(quadrant.quadrant_id)} · cuadrante analítico</span>
+      </span>
+      <span>
+        <strong>${formatNumber(reading.observed)} observados asignados</strong>
+        ${formatNumber(reading.geographyValid)} con geografía válida ·
+        ${formatNumber(reading.reconciled)} reconciliados ·
+        ${formatNumber(reading.agencies)} inmobiliarias
+      </span>
+      <em>
+        <strong>Referencia publicada provisional</strong>
+        ${formatPublishedPrice(reading.medianPublishedPricePerM2)} ·
+        ${formatNumber(reading.priceReferenceCount)} precios compatibles
+        ${activeScenarioMarkup(activeReading)}
+      </em>
+    </button>
+  `;
+}
+
+function noQuadrants(district) {
+  return `
+    <div class="empty-state">
+      <strong>Sin cuadrantes analíticos disponibles</strong>
+      <p>
+        ${escapeHtml(districtName(district))} no pertenece al Top 7 de alta
+        carga o no tiene cuatro cuadrantes versionados. La lectura permanece
+        en el alcance seleccionado; no se sustituye silenciosamente por el
+        distrito completo.
+      </p>
+    </div>
+  `;
+}
+
+export function renderMarket() {
+  const { ranking: districts, active: district } =
+    resolveMarketDistricts({
+      geography: state.data?.geography,
+      districtId: state.scenario?.district_id,
+    });
+  if (!district) {
+    return `
+      <section class="panel span-12">
+        <div class="empty-state">
+          <strong>Lectura territorial no disponible</strong>
+          <p>El distrito activo no pertenece al ranking geográfico versionado.</p>
+        </div>
+      </section>
+    `;
+  }
+
+  const indexes = projectIndexes();
+  const cutoffAt = state.data?.metadata?.cutoff_at;
+  const quadrants = [...(district.quadrants ?? [])].sort(
+    (left, right) =>
+      QUADRANT_ORDER.indexOf(left.quadrant_id) -
+      QUADRANT_ORDER.indexOf(right.quadrant_id),
+  );
+  const totalObserved = districts.reduce(
+    (total, item) => total + (item.observed_project_count ?? 0),
+    0,
+  );
+  const totalGeographyValid = districts.reduce(
+    (total, item) => total + (item.polygon_valid_count ?? 0),
+    0,
+  );
+  const outsidePolygon = Math.max(
+    totalObserved - totalGeographyValid,
+    0,
+  );
+  const outsideBreakdown = districts
+    .map((item) => ({
+      name: districtName(item),
+      count: Math.max(
+        (item.observed_project_count ?? 0) -
+          (item.polygon_valid_count ?? 0),
+        0,
+      ),
+    }))
+    .filter(({ count }) => count > 0)
+    .map(({ name, count }) => `${name} ${formatNumber(count)}`)
+    .join(", ");
+  const activeOutside = Math.max(
+    (district.observed_project_count ?? 0) -
+      (district.polygon_valid_count ?? 0),
+    0,
+  );
+
+  return `
+    <section class="dashboard-grid market-reading">
       <section class="benchmark-hero span-12">
         <div>
-          <span class="status-badge ${competitionClass(selectedBenchmark)}">${escapeHtml(competitionLevel(selectedBenchmark).level)} presión competitiva</span>
-          <h2>Benchmark de ${escapeHtml(state.strategy.district)}</h2>
-          <p>${escapeHtml(districtExecutiveReading(selectedBenchmark))}</p>
+          <span class="status-badge ${district.high_load ? "success" : "neutral"}">
+            ${
+              district.high_load
+                ? "Top 7 · alta carga"
+                : "Lectura distrital · sin cuadrantes"
+            }
+          </span>
+          <h2>Lectura territorial de ${escapeHtml(districtName(district))}</h2>
+          <p>
+            Compara la carga observada del distrito y abre sus cuadrantes
+            analíticos sin confundirlos con microzonas oficiales.
+          </p>
         </div>
-        <label class="field-control compact-control" for="market-district">
-          <span>Distrito</span>
-          <select id="market-district">${optionList(getDistricts(), state.strategy.district)}</select>
-        </label>
+        <div class="phase-stack" aria-label="Cobertura del distrito activo">
+          <strong>
+            ${formatNumber(district.polygon_valid_count)}/${formatNumber(district.observed_project_count)}
+            con geografía válida
+          </strong>
+          <span>
+            ${formatNumber(district.authoritative_project_count)}
+            observados reconciliados antes del filtro territorial
+          </span>
+          <span>
+            ${
+              activeOutside
+                ? `${formatNumber(activeOutside)} fuera del polígono OSM; permanece visible como brecha de cobertura.`
+                : "Sin proyectos fuera del polígono OSM en este distrito."
+            }
+          </span>
+        </div>
       </section>
-
-      <div class="kpi-row">
-        ${kpiCard("Proyectos visibles", formatNumber(selectedBenchmark.projects), "Oferta observable del distrito")}
-        ${kpiCard("Unidades publicadas", formatNumber(selectedBenchmark.units), "No representa stock final")}
-        ${kpiCard("Promedio / m2", priceM2(selectedBenchmark.avgPriceM2), "Referencia de mercado")}
-        ${kpiCard("Mediana / m2", priceM2(selectedBenchmark.medianPriceM2), "Punto medio de comparación")}
-        ${kpiCard("Inmobiliarias", formatNumber(selectedBenchmark.agencies), "Presencia competitiva")}
-        ${kpiCard("Rango competitivo", formatRange(selectedBenchmark.lowPriceM2, selectedBenchmark.highPriceM2), "Banda central observada")}
-      </div>
 
       <section class="panel span-12 market-ranking">
         <div class="panel-header">
           <div>
-            <h2>Ranking de distritos</h2>
-            <p>Zonas con mayor oferta visible para benchmark comercial.</p>
+            <h2>Ranking distrital por carga observada</h2>
+            <p>
+              Los siete distritos de mayor carga del snapshot. Seleccionar una
+              fila actualiza el escenario canónico.
+            </p>
           </div>
-          ${componentHelp("Ranking de distritos", "Ordena las zonas por oferta visible. Selecciona una fila para cambiar el distrito activo y actualizar toda la lectura.")}
+          ${componentHelp(
+            "Cómo leer el ranking",
+            "La longitud representa proyectos observados, no ventas ni stock. La cobertura territorial compara esos observados con los puntos que caen dentro o sobre el límite OSM versionado.",
+          )}
         </div>
-        <div class="bar-list">
-          ${districts.slice(0, 8).map((row) => barRow(row.district, row.projects, districts[0]?.projects ?? 1, `${formatNumber(row.projects)} proyectos`, priceM2(row.medianPriceM2), "data-district-chip")).join("")}
+        <div class="bar-list" role="group" aria-label="Top siete distritos de alta carga">
+          ${districts
+            .map((item, index) =>
+              rankingRow(
+                item,
+                index,
+                districts[0]?.observed_project_count ?? 1,
+              ),
+            )
+            .join("")}
         </div>
-        ${districts.length > 8 ? `
-          <details class="content-expander">
-            <summary>Ver ${formatNumber(Math.min(districts.length, 12) - 8)} distritos adicionales</summary>
-            <div class="bar-list">
-              ${districts.slice(8, 12).map((row) => barRow(row.district, row.projects, districts[0]?.projects ?? 1, `${formatNumber(row.projects)} proyectos`, priceM2(row.medianPriceM2), "data-district-chip")).join("")}
-            </div>
-          </details>
-        ` : ""}
+        <details class="content-expander">
+          <summary>Cobertura territorial del ranking</summary>
+          <div class="bar-list">
+            <p>
+              ${formatNumber(totalGeographyValid)}/${formatNumber(totalObserved)}
+              proyectos tienen geografía válida dentro de los siete límites
+              versionados. Los ${formatNumber(outsidePolygon)} restantes
+              quedan reportados como fuera del polígono:
+              ${escapeHtml(outsideBreakdown)}.
+            </p>
+            <p>
+              Geometría referencial: © OpenStreetMap contributors, ODbL 1.0.
+              RENLIM es la referencia jurídica para límites oficiales.
+            </p>
+          </div>
+        </details>
       </section>
 
-      <section class="panel span-12 market-depth">
+      <section class="panel span-12 market-quadrants">
         <div class="panel-header">
           <div>
-            <h2>Lectura profunda del distrito</h2>
-            <p>Composición de oferta, inmobiliarias activas y proyectos representativos.</p>
+            <h2>Cuadrantes analíticos del snapshot</h2>
+            <p>
+              ${escapeHtml(districtName(district))}: división reproducible por
+              las medianas de latitud y longitud de proyectos con geografía
+              válida.
+            </p>
           </div>
-          ${componentHelp("Lectura profunda", "Separa la oferta por fase y muestra quiénes concentran presencia. Los proyectos inferiores funcionan como referencias concretas.")}
+          ${componentHelp(
+            "Qué significa un cuadrante",
+            "Noroeste, noreste, suroeste y sureste son particiones analíticas del snapshot. No representan límites municipales, catastrales ni microzonas oficiales.",
+          )}
         </div>
-        <div class="district-grid">
-          <div class="phase-stack">
-            <strong>Oferta por fase</strong>
-            ${phases.map((row) => summaryBar(row.name, row.count, selectedBenchmark.projects)).join("")}
+        ${
+          district.high_load && quadrants.length
+            ? `
+              <div class="bar-list" role="group" aria-label="Cuatro cuadrantes analíticos">
+                ${quadrants
+                  .map((quadrant) =>
+                    quadrantRow(quadrant, indexes, cutoffAt),
+                  )
+                  .join("")}
+              </div>
+            `
+            : noQuadrants(district)
+        }
+        <details class="content-expander">
+          <summary>Metodología y alcance de precios</summary>
+          <div class="bar-list">
+            <p>
+              Los proyectos fuera del polígono se excluyen antes de asignar
+              cuadrante; no se trasladan al distrito como fallback. Por eso la
+              suma de cuadrantes coincide con la geografía válida, no siempre
+              con todos los observados.
+            </p>
+            <p>
+              “Referencia publicada provisional” resume precios de lista PEN
+              compatibles, con URL y fecha hasta el corte. No representa un
+              benchmark certificado ni precios reales de cierre.
+            </p>
+            <p>
+              Solo la fila del cuadrante activo muestra comparables y
+              diagnóstico del escenario vigente. Las otras
+              filas conservan conteos estáticos del snapshot y no recomponen
+              escenarios durante el render.
+            </p>
           </div>
-          <div class="phase-stack">
-            <strong>Inmobiliarias con mayor presencia</strong>
-            ${selectedBenchmark.topAgencies.slice(0, 5).map((row) => summaryBar(row.name, row.count, selectedBenchmark.projects)).join("")}
-          </div>
-        </div>
-        <div class="representative-row">
-          ${representative.map((project) => competitorCard(project, "mini")).join("") || emptyState("Sin proyectos representativos", "No hay precio suficiente para esta lectura.")}
-        </div>
-      </section>
-
-      <section class="panel span-12">
-        <div class="panel-header">
-          <div>
-            <h2>Mapa conceptual de presión competitiva</h2>
-            <p>Cada bloque resume oferta, precio medio y presencia por distrito.</p>
-          </div>
-          ${componentHelp("Presión competitiva", "Los bloques más intensos concentran mayor oferta visible. Selecciona uno para llevar ese distrito al benchmark.")}
-        </div>
-        <div class="heat-grid">
-          ${districts.slice(0, 9).map((row) => districtTile(row, districts[0]?.projects ?? 1)).join("")}
-        </div>
-        ${districts.length > 9 ? `
-          <details class="content-expander">
-            <summary>Explorar ${formatNumber(Math.min(districts.length, 24) - 9)} distritos adicionales</summary>
-            <div class="heat-grid">
-              ${districts.slice(9, 24).map((row) => districtTile(row, districts[0]?.projects ?? 1)).join("")}
-            </div>
-          </details>
-        ` : ""}
+        </details>
       </section>
     </section>
   `;

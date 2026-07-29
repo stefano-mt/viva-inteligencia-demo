@@ -58,6 +58,15 @@ export async function withDemoBrowser(run) {
   }
 }
 
+export async function createObservedPage(context, baseUrl) {
+  const page = await context.newPage();
+  return {
+    page,
+    problems: observePage(page),
+    externalRequests: await guardSameOrigin(page, baseUrl),
+  };
+}
+
 export function observePage(page) {
   const problems = [];
   page.on("console", (message) => {
@@ -73,8 +82,42 @@ export function observePage(page) {
   return problems;
 }
 
+export async function guardSameOrigin(page, baseUrl) {
+  const externalRequests = [];
+  const allowedOrigin = new URL(baseUrl).origin;
+
+  await page.route("**/*", async (route) => {
+    const request = route.request();
+    let requestUrl;
+    try {
+      requestUrl = new URL(request.url());
+    } catch {
+      await route.continue();
+      return;
+    }
+
+    if (
+      (requestUrl.protocol === "http:" || requestUrl.protocol === "https:") &&
+      requestUrl.origin !== allowedOrigin
+    ) {
+      externalRequests.push(`${request.method()} ${request.url()}`);
+      await route.abort("blockedbyclient");
+      return;
+    }
+    await route.continue();
+  });
+
+  return externalRequests;
+}
+
 export async function openRoute(page, baseUrl, routeId) {
-  await page.goto(`${baseUrl}/#${routeId}`, { waitUntil: "networkidle" });
+  await openPath(page, baseUrl, `/#${routeId}`);
+}
+
+export async function openPath(page, baseUrl, relativeUrl) {
+  await page.goto(new URL(relativeUrl, `${baseUrl}/`).href, {
+    waitUntil: "networkidle",
+  });
   await page.locator("#main-content").waitFor({ state: "visible" });
   await page.evaluate(() => document.fonts?.ready);
   await page.addStyleTag({

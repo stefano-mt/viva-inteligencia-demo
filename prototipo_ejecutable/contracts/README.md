@@ -11,6 +11,14 @@ El contrato distingue dos capas:
 
 La proyección legacy no es una fuente de verdad y no debe utilizarse para reconstruir observaciones o hechos. Se conserva para que la Fase 1 pueda cambiar el contrato sin modificar las siete rutas actuales.
 
+La revisión `2.1.0` añade tres secciones de Fase 2 sin modificar las colecciones de `2.0.0`:
+
+1. `scenario_catalogs`: listas blancas y orden canónico para tipología, dormitorios, entrega, alcance, cuadrante, radio y visualización.
+2. `scenario_defaults`: escenario inicial completo, incluidos los `null` que desactivan cuadrante o radio.
+3. `geography`: procedencia cartográfica, distritos, cuadrantes analíticos, asignaciones y exclusiones trazables.
+
+Estas tres secciones son obligatorias únicamente cuando `metadata.contract_version` es `2.1.0`.
+
 ## Convenciones
 
 ### IDs
@@ -114,6 +122,22 @@ coverage, quality, assistant, pipeline, deployment
 
 se mantienen estructuralmente durante la Fase 1. Sus contratos internos continuarán siendo legacy hasta que las fases funcionales migren cada consumidor.
 
+## Contrato geográfico y de escenario 2.1
+
+El reader `2.1` admite payloads `2.0.0` sin campos geográficos y payloads `2.1.0` completos. No se promete que un reader estricto `2.0` entienda campos nuevos, ni se aceptan versiones futuras o majors desconocidos de manera silenciosa.
+
+`scenario_defaults.scope_mode` congela dependencias:
+
+- `district`: cuadrante, punto y radio son `null`;
+- `quadrant`: exige `NW | NE | SW | SE` y no admite punto o radio;
+- `radius`: exige latitud, longitud y `500 | 1000 | 1500`, sin cuadrante.
+
+Área y precio objetivo son opcionales, pero si existen deben ser positivos y no superar `10000 m2` y `1000000000 PEN`. El catálogo exacto se publica en `scenario_catalogs`; alterar valores u orden rompe el contrato.
+
+`geography.crs` es siempre `EPSG:4326`. Los cuadrantes son analíticos, no oficiales: se derivan de las medianas de latitud y longitud de puntos válidos del distrito mediante `district_valid_point_coordinate_medians_v1`. Cada cuadrante separa IDs observados de IDs autoritativos. Las exclusiones conservan el `project_id`, la etapa (`scope`, `geography`, `reconciliation`, `product` o `price`), un motivo cerrado y si el elemento sigue visible como cobertura.
+
+La geometría OSM y sus derivados permanecen separados del dataset inmobiliario. `source_id`, ruta y SHA-256 enlazan el artefacto con `datos_relevantes/geography/source-manifest.json`; `null` en el hash solo se permite mientras el derivado controlado o de build todavía no está materializado.
+
 ## Validaciones semánticas fuera de JSON Schema
 
 JSON Schema valida forma y reglas locales, pero el validador de P1-06/P1-07 debe comprobar:
@@ -131,7 +155,7 @@ JSON Schema valida forma y reglas locales, pero el validador de P1-06/P1-07 debe
 11. Eventos enlazan dos hechos comparables, ordenados por fecha e ID.
 12. Una causa no nula tiene evidencia real; causa ausente permanece `null`.
 13. Issues bloqueantes excluyen todos los hechos afectados.
-14. Los fixtures CT-A/B/D/E/G/H producen exactamente sus resultados esperados.
+14. Los fixtures CT-A/B/C/D/E/G/H/I producen exactamente sus resultados esperados.
 15. La proyección legacy deriva del modelo autoritativo y no contiene PII.
 16. Inputs y colecciones se ordenan de forma determinista y sus hashes coinciden.
 17. Dos builds consecutivos producen el mismo SHA-256.
@@ -142,4 +166,6 @@ JSON Schema valida forma y reglas locales, pero el validador de P1-06/P1-07 debe
 - P1-03 a P1-05 deben conservar IDs namespaced y no relajar enums.
 - P1-06 implementa las validaciones cruzadas sin corregir datos.
 - P1-07 genera el documento raíz completo y la proyección legacy.
+- P2-03 materializa asignaciones, medianas, cuadrantes y exclusiones sin cambiar sus enums.
+- P2-04 publica el GeoJSON y sustituye el hash geográfico pendiente por el SHA-256 verificable.
 - El checker independiente valida el resultado; el implementador del contrato no emite el veredicto de fase.

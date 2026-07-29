@@ -4,14 +4,14 @@
   "cutoff_at": "2026-07-28T01:24:28Z",
   "source_artifact": {
     "path": "prototipo_ejecutable/public/demo-data/viva-platform-demo.json",
-    "contract_version": "2.0.0",
-    "sha256": "a7f68af35d97c6fbc066b4213ebb12d525d630fa366a0e75826d2349087d8141",
-    "byte_length": 3382916
+    "contract_version": "2.1.0",
+    "sha256": "fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4",
+    "byte_length": 3588986
   },
   "derivation": {
     "authority": "$.model is authoritative; $.projects is the temporary legacy projection.",
     "method": "All counts and distributions in this report are recomputed from the versioned source artifact bytes identified above.",
-    "input_fingerprint_count": 27,
+    "input_fingerprint_count": 31,
     "counting_rules": [
       {
         "code": "LEGACY_PROJECT_COUNT",
@@ -533,73 +533,46 @@
       ]
     }
   ],
-  "phase_gaps": [
-    {
-      "gap_id": "GAP-F2-GEOGRAPHY",
-      "target_phase": "F2",
-      "severity": "blocking_for_phase",
-      "current_evidence": {
-        "resolved_nexo_project_count": 672,
-        "projects_with_district_count": 672,
-        "projects_with_complete_coordinates_count": 672,
-        "projects_with_address_count": 667,
-        "model_district_count": 44,
-        "legacy_district_count": 45,
-        "unresolved_legacy_project_count": 42,
-        "microzone_field_count": 0,
-        "quadrant_field_count": 0
-      },
-      "high_load_districts": [
-        {
-          "district": "Cercado de lima",
-          "legacy_project_count": 43,
-          "model_project_count": 38,
-          "selected_pilot_project_count": 7
-        },
-        {
-          "district": "Jesus Maria",
-          "legacy_project_count": 67,
-          "model_project_count": 65,
-          "selected_pilot_project_count": 13
-        },
-        {
-          "district": "Magdalena Del Mar",
-          "legacy_project_count": 42,
-          "model_project_count": 40,
-          "selected_pilot_project_count": 7
-        },
-        {
-          "district": "Miraflores",
-          "legacy_project_count": 90,
-          "model_project_count": 85,
-          "selected_pilot_project_count": 14
-        },
-        {
-          "district": "San Isidro",
-          "legacy_project_count": 40,
-          "model_project_count": 33,
-          "selected_pilot_project_count": 14
-        },
-        {
-          "district": "San Miguel",
-          "legacy_project_count": 63,
-          "model_project_count": 62,
-          "selected_pilot_project_count": 9
-        },
-        {
-          "district": "Santiago De Surco",
-          "legacy_project_count": 88,
-          "model_project_count": 83,
-          "selected_pilot_project_count": 7
-        }
-      ],
-      "required_outcome": "Define versioned district boundaries and deterministic quadrant or microzone assignment, while exposing the 42 unresolved projects as a coverage gap instead of silently assigning agencies.",
-      "references": [
-        "$.model.projects[*].location",
-        "$.pilot.districts",
-        "$.metadata.counts.unresolved_legacy_projects"
-      ]
+  "geography_coverage": {
+    "public_artifact": {
+      "path": "prototipo_ejecutable/public/demo-data/district-boundaries.geojson",
+      "sha256": "ef75b5deb43f2ed94cc9661c3f1926e94608e0b2e4a41c8ce9197dbea71b16c0",
+      "byte_length": 46650,
+      "crs": "EPSG:4326",
+      "feature_count": 7,
+      "simplification_tolerance_degrees": 0,
+      "maximum_displacement_meters": 0,
+      "area_change_pct_max": 0
     },
+    "high_load_observed_project_count": 433,
+    "coordinate_valid_project_count": 433,
+    "polygon_valid_project_count": 422,
+    "outside_district_polygon_count": 11,
+    "authoritative_project_count": 406,
+    "unreconciled_project_count": 27,
+    "miraflores_gate": {
+      "district_id": "150122",
+      "observed_project_count": 90,
+      "coordinate_valid_count": 90,
+      "polygon_valid_count": 90,
+      "authoritative_project_count": 85,
+      "unreconciled_project_count": 5,
+      "quadrant_observed_counts": {
+        "NW": 40,
+        "NE": 5,
+        "SW": 5,
+        "SE": 40
+      }
+    },
+    "references": [
+      "$.geography",
+      "$.geography.districts",
+      "$.geography.assignments",
+      "$.geography.exclusions",
+      "datos_relevantes/geography/source-manifest.json#/derived"
+    ]
+  },
+  "phase_gaps": [
     {
       "gap_id": "GAP-F3-INSPECTOR-EVIDENCE",
       "target_phase": "F3",

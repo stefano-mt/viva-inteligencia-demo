@@ -1,5 +1,44 @@
 
+@media (max-width: 1360px) {
+  .geo-panel-header,
+  .positioning-panel-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .geo-stage,
+  .positioning-stage {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 1280px) {
+  [data-scenario-consumer="catalog"].catalog-layout,
+  [data-scenario-consumer="compare"].compare-layout {
+    grid-template-columns: 1fr;
+  }
+
+  [data-scenario-consumer="catalog"] .detail-panel {
+    position: static;
+  }
+
+  [data-scenario-consumer="catalog"] .project-card-list {
+    max-height: none;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-grid > .span-4,
+  .dashboard-grid > .span-5,
+  .dashboard-grid > .span-6,
+  .dashboard-grid > .span-7,
+  .dashboard-grid > .span-8,
+  .dashboard-grid > .span-12 {
+    grid-column: 1 / -1;
+  }
+
   .kpi-row {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -57,18 +96,18 @@
   }
 
   .hero-panel,
-  .catalog-layout,
   .assistant-layout,
-  .compare-layout {
+  [data-scenario-consumer="catalog"].catalog-layout,
+  [data-scenario-consumer="compare"].compare-layout {
     grid-template-columns: 1fr;
   }
 
-  .detail-panel,
+  [data-scenario-consumer="catalog"] .detail-panel,
   .answer-panel {
     position: static;
   }
 
-  .project-card-list {
+  [data-scenario-consumer="catalog"] .project-card-list {
     max-height: none;
   }
 }
@@ -144,6 +183,24 @@
 
   .scatter-meta p {
     text-align: left;
+  }
+}
+
+@media (max-width: 760px) {
+  .scenario-bar__controls,
+  .scenario-bar__actions,
+  .scenario-bar__buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-bar .scenario-primary-action,
+  .scenario-bar .scenario-reset {
+    width: 100%;
+  }
+
+  [data-scenario-consumer="catalog"] .project-metrics,
+  [data-scenario-consumer="compare"] .compare-facts {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -262,15 +319,86 @@
   .positioning-header {
     min-height: 0;
   }
+
+  .scenario-bar button,
+  .scenario-bar select,
+  .scenario-bar input,
+  .scenario-share summary,
+  .geo-panel button,
+  .geo-panel select,
+  .geo-panel a,
+  .positioning-panel button,
+  .positioning-panel select,
+  .positioning-panel a,
+  [data-scenario-consumer] button,
+  [data-scenario-consumer] input,
+  [data-scenario-consumer] select,
+  [data-scenario-consumer] summary {
+    min-height: 44px;
+  }
+
+  .scenario-bar .menu-toggle {
+    width: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .scenario-bar,
+  .scenario-summary,
+  .geo-panel,
+  .positioning-panel,
+  .dashboard-grid,
+  .market-reading,
+  [data-scenario-consumer] {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  [data-scenario-consumer="compare"] .positioning-table,
+  [data-scenario-consumer="compare"] .positioning-table-scroll {
+    max-width: 100%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  :where(
+      .scenario-bar,
+      .scenario-summary,
+      .geo-panel,
+      .positioning-panel,
+      .dashboard-grid,
+      .market-reading,
+      [data-scenario-consumer]
+    ),
+  :where(
+      .scenario-bar,
+      .scenario-summary,
+      .geo-panel,
+      .positioning-panel,
+      .dashboard-grid,
+      .market-reading,
+      [data-scenario-consumer]
+    ) *,
+  :where(
+      .scenario-bar,
+      .scenario-summary,
+      .geo-panel,
+      .positioning-panel,
+      .dashboard-grid,
+      .market-reading,
+      [data-scenario-consumer]
+    )::before,
+  :where(
+      .scenario-bar,
+      .scenario-summary,
+      .geo-panel,
+      .positioning-panel,
+      .dashboard-grid,
+      .market-reading,
+      [data-scenario-consumer]
+    )::after {
     scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+    transition: none !important;
+    animation: none !important;
   }
 }

@@ -5,17 +5,125 @@ export function getProjects() {
   return toArray(state.data?.projects);
 }
 
+export function getScenarioContext() {
+  return state.scenarioContext;
+}
+
+export function canonicalProjectId(projectOrId) {
+  const value =
+    typeof projectOrId === "object" && projectOrId !== null
+      ? projectOrId.project_id ?? projectOrId.id
+      : projectOrId;
+  const id = String(value ?? "");
+  if (!id) return null;
+  if (id.startsWith("project:")) return id;
+  if (id.startsWith("observed:")) {
+    const assignment = state.data?.geography?.assignments?.find(
+      ({ observed_project_id: observedId }) => observedId === id,
+    );
+    if (assignment?.authoritative_project_id) {
+      return assignment.authoritative_project_id;
+    }
+    if (id.startsWith("observed:nexo-")) {
+      return `project:nexo-${id.slice("observed:nexo-".length)}`;
+    }
+    return null;
+  }
+  return `project:nexo-${id}`;
+}
+
+export function observedProjectId(projectOrId) {
+  const value =
+    typeof projectOrId === "object" && projectOrId !== null
+      ? projectOrId.observed_project_id ?? projectOrId.id
+      : projectOrId;
+  const id = String(value ?? "");
+  if (!id) return null;
+  if (id.startsWith("observed:")) return id;
+  if (id.startsWith("project:")) {
+    const assignment = state.data?.geography?.assignments?.find(
+      ({ authoritative_project_id: authoritativeId }) =>
+        authoritativeId === id,
+    );
+    if (assignment?.observed_project_id) {
+      return assignment.observed_project_id;
+    }
+    if (id.startsWith("project:nexo-")) {
+      return `observed:nexo-${id.slice("project:nexo-".length)}`;
+    }
+    return null;
+  }
+  return `observed:nexo-${id}`;
+}
+
+export function legacyProjectId(projectOrId) {
+  const value =
+    typeof projectOrId === "object" && projectOrId !== null
+      ? projectOrId.id
+      : projectOrId;
+  const id = String(value ?? "");
+  if (!id) return null;
+  if (id.startsWith("project:nexo-")) {
+    return id.slice("project:nexo-".length);
+  }
+  if (id.startsWith("observed:nexo-")) {
+    return id.slice("observed:nexo-".length);
+  }
+  return id.includes(":") ? null : id;
+}
+
+export function projectsForCanonicalIds(projectIds) {
+  const byId = new Map(
+    getProjects().map((project) => [canonicalProjectId(project), project]),
+  );
+  return toArray(projectIds)
+    .map((projectId) => byId.get(projectId))
+    .filter(Boolean);
+}
+
+export function getComparableProjects() {
+  return projectsForCanonicalIds(
+    state.scenarioContext?.comparable_project_ids,
+  );
+}
+
+export function getPriceReferenceProjects() {
+  return projectsForCanonicalIds(
+    state.scenarioContext?.price_reference_project_ids,
+  );
+}
+
+export function isComparableProject(projectOrId) {
+  const projectId = canonicalProjectId(projectOrId);
+  return Boolean(
+    projectId &&
+      state.scenarioContext?.comparable_project_ids.includes(projectId),
+  );
+}
+
+export function isScenarioDisplayProject(projectOrId) {
+  const projectId = observedProjectId(projectOrId);
+  return Boolean(
+    projectId &&
+      state.scenarioContext?.display_project_ids.includes(projectId),
+  );
+}
+
+export function getScenarioDisplayProjects() {
+  const byObservedId = new Map(
+    getProjects().map((project) => [observedProjectId(project), project]),
+  );
+  return toArray(state.scenarioContext?.display_project_ids)
+    .map((projectId) => byObservedId.get(projectId))
+    .filter(Boolean);
+}
+
 export function getProjectsByDistrict(district) {
   return getProjects().filter((project) => project.district === district);
 }
 
-export function getScenarioProjects(strategy) {
-  return getProjectsByDistrict(strategy.district).filter((project) => {
-    const typologyOk = strategy.typology === "Todos" || project.typology === strategy.typology;
-    const bedroomsOk = strategy.bedrooms === "Todos" || projectHasBedroom(project, Number(strategy.bedrooms));
-    const deliveryOk = strategy.deliveryYear === "Todos" || String(project.delivery_year || "") === String(strategy.deliveryYear);
-    return typologyOk && bedroomsOk && deliveryOk;
-  });
+export function getScenarioProjects() {
+  return getComparableProjects();
 }
 
 export function filterCatalogProjects() {
@@ -97,31 +205,16 @@ export function districtBenchmarks() {
 }
 
 export function getCompetitors(strategy, limit = 6) {
-  const rows = getScenarioProjects(strategy);
-  const fallback = rows.length ? rows : getProjectsByDistrict(strategy.district);
-  return sortProjects(fallback, "direct").slice(0, limit);
+  return getScenarioProjects().slice(0, limit);
 }
 
 export function comparableScore(project, strategy) {
-  let score = 0;
-  if (project.district === strategy.district) score += 30;
-  if (strategy.typology !== "Todos" && project.typology === strategy.typology) score += 15;
-  if (strategy.bedrooms !== "Todos" && projectHasBedroom(project, Number(strategy.bedrooms))) score += 15;
-  if (strategy.deliveryYear !== "Todos" && String(project.delivery_year || "") === String(strategy.deliveryYear)) score += 8;
-  const targetPriceM2 = getTargetPriceM2(strategy);
-  const ppm = projectPriceM2(project);
-  if (targetPriceM2 && ppm) {
-    const diff = Math.abs(ppm - targetPriceM2) / targetPriceM2;
-    score += Math.max(0, 26 - diff * 90);
-  }
-  const targetArea = positiveNumber(strategy.area);
-  const area = projectArea(project);
-  if (targetArea && area) {
-    const diff = Math.abs(area - targetArea) / targetArea;
-    score += Math.max(0, 16 - diff * 40);
-  }
-  score += Math.min(8, numberOrZero(project.unit_count) / 10);
-  return score;
+  const projectId = canonicalProjectId(project);
+  return (
+    state.scenarioContext?.comparable_scores.find(
+      (record) => record.project_id === projectId,
+    )?.score ?? 0
+  );
 }
 
 export function classifyPricePosition(targetPriceM2, benchmark) {
@@ -883,10 +976,14 @@ export function panelActions(content, helpTitle, helpCopy) {
 }
 
 export function ensureSelectedProject(projects) {
-  const current = projects.find((project) => project.id === state.selectedProjectId);
+  const selectable = toArray(projects).filter(isScenarioDisplayProject);
+  const current = selectable.find(
+    (project) => project.id === legacyProjectId(state.selectedProjectId),
+  );
   if (current) return current;
-  const next = projects[0] ?? null;
+  const next = selectable[0] ?? getComparableProjects()[0] ?? null;
   if (next) state.selectedProjectId = next.id;
+  else state.selectedProjectId = null;
   return next;
 }
 
@@ -912,12 +1009,17 @@ export function getBedroomOptions() {
 }
 
 export function defaultDistrict() {
-  return districtBenchmarks()[0]?.district ?? getProjects()[0]?.district ?? "";
+  return (
+    state.selectedDistrict ||
+    districtBenchmarks()[0]?.district ||
+    getProjects()[0]?.district ||
+    ""
+  );
 }
 
 
 export function metadataDate() {
-  return state.data?.metadata?.source_snapshot?.max_captured_at || state.data?.metadata?.generated_at;
+  return state.data?.metadata?.cutoff_at || state.data?.metadata?.source_snapshot?.max_captured_at || state.data?.metadata?.generated_at;
 }
 
 export function extractDistrictFromText(text) {
@@ -1154,7 +1256,15 @@ export function chip(value) {
 
 
 export function findProjectById(id) {
-  return getProjects().find((project) => project.id === id);
+  const legacyId = legacyProjectId(id);
+  const canonicalId = canonicalProjectId(id);
+  const observedId = observedProjectId(id);
+  return getProjects().find(
+    (project) =>
+      (legacyId !== null && String(project.id) === legacyId) ||
+      canonicalProjectId(project) === canonicalId ||
+      observedProjectId(project) === observedId,
+  );
 }
 
 export function escapeHtml(value) {
