@@ -163,7 +163,9 @@ export function bindEvents(render) {
   });
   document.querySelectorAll("[data-district-chip]").forEach((button) => {
     button.addEventListener("click", () => {
-      changeDistrict(button.dataset.districtChip);
+      changeDistrict(button.dataset.districtChip, {
+        focusId: button.id || null,
+      });
     });
   });
   document.querySelectorAll("[data-scenario-scope]").forEach((button) => {
@@ -219,21 +221,9 @@ export function bindEvents(render) {
     );
   });
 
-  document.querySelectorAll("[data-strategy-field]").forEach((control) => {
-    control.addEventListener("change", (event) => {
-      const field = event.target.dataset.strategyField;
-      if (field === "district") {
-        rememberFocus(event.target);
-        changeDistrict(event.target.value, { focusId: event.target.id });
-        return;
-      }
-      rememberFocus(event.target);
-      applyScenarioProduct(
-        legacyProductPatch(field, event.target.value),
-        { focusId: event.target.id },
-      );
-    });
-  });
+  const productForm = document.getElementById("scenario-product-form");
+  productForm?.addEventListener("submit", handleScenarioProductSubmit);
+  productForm?.addEventListener("reset", handleScenarioProductReset);
 
   document.querySelectorAll("[data-project-filter]").forEach((control) => {
     control.addEventListener(control.tagName === "INPUT" ? "input" : "change", (event) => {
@@ -570,34 +560,162 @@ function bindScenarioDocumentEvents() {
   });
 }
 
-function legacyProductPatch(field, value) {
-  if (field === "typology") {
-    return { typology: value === "Todos" ? "all" : value };
+function handleScenarioProductSubmit(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const validation = validateScenarioProductForm(form);
+  clearScenarioProductErrors(form);
+
+  if (validation.errors.length) {
+    for (const error of validation.errors) {
+      error.control.setAttribute("aria-invalid", "true");
+      const message = form.querySelector(
+        `[data-product-error="${error.field}"]`,
+      );
+      if (message) {
+        message.hidden = false;
+        message.textContent = error.message;
+      }
+    }
+    const formError = form.querySelector("#scenario-product-error");
+    const announcement =
+      "Revisa los campos indicados antes de actualizar el escenario.";
+    if (formError) {
+      formError.hidden = false;
+      formError.textContent = announcement;
+    }
+    announceWithoutRender(announcement);
+    validation.errors[0].control.focus();
+    return;
   }
-  if (field === "bedrooms") {
-    return {
-      bedrooms: value === "Todos" ? "all" : Number(value),
-    };
+
+  const submit = form.querySelector("#scenario-product-submit");
+  applyScenarioProduct(validation.patch, {
+    focusId: submit?.id ?? null,
+    announce: (context) =>
+      `Escenario actualizado: ${context?.comparable_project_ids?.length ?? 0} comparables elegibles.`,
+  });
+}
+
+function handleScenarioProductReset(event) {
+  const form = event.currentTarget;
+  clearScenarioProductErrors(form);
+  announceWithoutRender(
+    "Cambios cancelados. El formulario recuperó el escenario activo.",
+  );
+}
+
+function validateScenarioProductForm(form) {
+  const catalogs = state.data?.scenario_catalogs ?? {};
+  const errors = [];
+  const patch = {};
+  const typology = productControl(form, "typology");
+  const bedrooms = productControl(form, "bedrooms");
+  const area = productControl(form, "target_area_m2");
+  const price = productControl(form, "target_price_pen");
+  const delivery = productControl(form, "delivery_year");
+
+  patch.typology = catalogValue({
+    control: typology,
+    values: catalogs.typologies,
+    field: "typology",
+    message: "Selecciona un tipo de inmueble válido.",
+    errors,
+  });
+  patch.bedrooms = catalogValue({
+    control: bedrooms,
+    values: catalogs.bedrooms,
+    field: "bedrooms",
+    message: "Selecciona una cantidad de dormitorios válida.",
+    errors,
+    numeric: true,
+  });
+  patch.target_area_m2 = optionalPositiveNumber({
+    control: area,
+    field: "target_area_m2",
+    maximum: 10000,
+    message: "Ingresa un área mayor que 0 y de hasta 10 000 m².",
+    errors,
+  });
+  patch.target_price_pen = optionalPositiveNumber({
+    control: price,
+    field: "target_price_pen",
+    maximum: 1000000000,
+    message: "Ingresa un precio mayor que 0 y de hasta S/ 1 000 000 000.",
+    errors,
+  });
+  patch.delivery_year = catalogValue({
+    control: delivery,
+    values: catalogs.delivery_years,
+    field: "delivery_year",
+    message: "Selecciona un año de entrega válido.",
+    errors,
+    numeric: true,
+  });
+
+  return { patch, errors };
+}
+
+function productControl(form, name) {
+  return form.elements?.namedItem(name) ?? null;
+}
+
+function catalogValue({
+  control,
+  values,
+  field,
+  message,
+  errors,
+  numeric = false,
+}) {
+  const raw = String(control?.value ?? "");
+  const match = Array.isArray(values)
+    ? values.find((value) => String(value) === raw)
+    : undefined;
+  if (!control || match === undefined) {
+    if (control) errors.push({ control, field, message });
+    return raw === "all" ? "all" : raw;
   }
-  if (field === "area") {
-    return {
-      target_area_m2: value === "" ? null : Number(value),
-    };
+  if (match === "all") return "all";
+  return numeric ? Number(match) : String(match);
+}
+
+function optionalPositiveNumber({
+  control,
+  field,
+  maximum,
+  message,
+  errors,
+}) {
+  const raw = String(control?.value ?? "").trim();
+  if (!control) return null;
+  if (raw === "") return null;
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value <= 0 || value > maximum) {
+    errors.push({ control, field, message });
+    return null;
   }
-  if (field === "targetPrice") {
-    return {
-      target_price_pen: value === "" ? null : Number(value),
-    };
+  return value;
+}
+
+function clearScenarioProductErrors(form) {
+  form
+    .querySelectorAll("[data-scenario-product-field]")
+    .forEach((control) => control.removeAttribute("aria-invalid"));
+  form.querySelectorAll("[data-product-error]").forEach((message) => {
+    message.hidden = true;
+    message.textContent = "";
+  });
+  const formError = form.querySelector("#scenario-product-error");
+  if (formError) {
+    formError.hidden = true;
+    formError.textContent = "";
   }
-  if (field === "deliveryYear") {
-    return {
-      delivery_year: value === "Todos" ? "all" : Number(value),
-    };
-  }
-  if (field === "visualization") {
-    return { visualization: value };
-  }
-  return {};
+}
+
+function announceWithoutRender(message) {
+  const liveRegion = document.getElementById("scenario-live");
+  if (liveRegion) liveRegion.textContent = message;
 }
 
 export function rememberFocus(element) {
