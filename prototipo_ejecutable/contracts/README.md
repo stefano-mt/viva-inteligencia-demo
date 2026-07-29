@@ -4,10 +4,11 @@
 
 ## Alcance
 
-El contrato distingue dos capas:
+El contrato distingue tres capas:
 
 1. `model`: modelo autoritativo de fuentes, inmobiliarias, aliases, proyectos, tipologías, observaciones, hechos, documentos, evidencia, issues y eventos.
-2. `projects` y las secciones legacy superiores: proyección temporal consumida por la UI existente.
+2. `inspector`: índice opcional de casos y activos que solo referencia IDs nativos de `model`; no duplica hechos ni evidencia.
+3. `projects` y las secciones legacy superiores: proyección temporal consumida por la UI existente.
 
 La proyección legacy no es una fuente de verdad y no debe utilizarse para reconstruir observaciones o hechos. Se conserva para que la Fase 1 pueda cambiar el contrato sin modificar las siete rutas actuales.
 
@@ -17,7 +18,17 @@ La revisión `2.1.0` añade tres secciones de Fase 2 sin modificar las coleccion
 2. `scenario_defaults`: escenario inicial completo, incluidos los `null` que desactivan cuadrante o radio.
 3. `geography`: procedencia cartográfica, distritos, cuadrantes analíticos, asignaciones y exclusiones trazables.
 
-Estas tres secciones son obligatorias únicamente cuando `metadata.contract_version` es `2.1.0`.
+Estas tres secciones son obligatorias cuando `metadata.contract_version` es `2.1.0` o `2.2.0`.
+
+La revisión `2.2.0` exige además `inspector`. El reader `2.2` admite documentos `2.0.0`, `2.1.0` y `2.2.0`; `inspector` solo es obligatorio para `2.2.0`.
+
+## Índice del Evidence Inspector 2.2
+
+`inspector.version` es `1`. `default_case_id` resuelve a un elemento de `cases`; cada `InspectorCase` es cerrado y enlaza proyecto, tipología, fuentes, observaciones, hechos, documentos, evidencias e issues mediante IDs de `model`. `required_fact_ids` es un subconjunto no vacío de `fact_ids` y `primary_evidence_id`, cuando existe, pertenece a `evidence_ids`.
+
+`InspectorAsset` refleja el manifiesto público: ruta bajo `assets/evidence/`, SHA-256, MIME permitido, tamaño, dimensiones, procedencia `controlled_original`, permiso `authorized` y nota de licencia. Un activo visual autorizado debe resolver a un documento autorizado y a evidencia disponible con `fragment` no vacío. Una representación controlada nunca se presenta como original observado.
+
+`coverage` declara conteos exactos de casos por procedencia, tipologías inspeccionables y activos visuales autorizados. La forma local se valida con JSON Schema; resolución de referencias, subconjuntos y conteos exactos pertenecen a la validación semántica.
 
 ## Convenciones
 
@@ -159,6 +170,11 @@ JSON Schema valida forma y reglas locales, pero el validador de P1-06/P1-07 debe
 15. La proyección legacy deriva del modelo autoritativo y no contiene PII.
 16. Inputs y colecciones se ordenan de forma determinista y sus hashes coinciden.
 17. Dos builds consecutivos producen el mismo SHA-256.
+18. Los casos de `inspector` resuelven exclusivamente a registros nativos de `model`, sin duplicarlos; observaciones, hechos, documentos, evidencias e issues deben pertenecer al proyecto o tipología seleccionados y conservar sus enlaces internos.
+19. `required_fact_ids` y `primary_evidence_id` pertenecen a sus listas de caso y `coverage` coincide con el índice.
+20. Cada activo visual autorizado resuelve a un documento autorizado y conserva evidencia disponible con `fragment` no vacío.
+
+Hasta que P3-04 actualice el writer y regenere el dataset, `npm run verify` puede fallar por el fingerprint esperado del schema. P3-01 exige que sus pruebas dirigidas y `npm run check` permanezcan verdes sin modificar writer, build o dataset.
 
 ## Uso por roles posteriores
 
