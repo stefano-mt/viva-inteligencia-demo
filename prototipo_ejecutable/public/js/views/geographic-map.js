@@ -346,11 +346,13 @@ export function renderGeographicMap(input = {}) {
             ? `
               <div class="geo-view-switch" role="group" aria-label="Visualización del escenario">
                 <button
+                  id="scenario-view-geographic"
                   type="button"
                   data-scenario-visualization="geographic"
                   aria-pressed="${visualization === "geographic"}"
                 >Mapa geográfico</button>
                 <button
+                  id="scenario-view-positioning"
                   type="button"
                   data-scenario-visualization="positioning"
                   aria-pressed="${visualization === "positioning"}"
@@ -578,9 +580,7 @@ function renderMapPoints(model) {
               data-geo-point-id="${escapeAttr(
                 point.observed_project_id,
               )}"
-              role="button"
-              tabindex="-1"
-              aria-label="${escapeAttr(pointAriaLabel(point))}"
+              aria-hidden="true"
               transform="translate(${numberText(point.x)} ${numberText(
                 point.y,
               )})"

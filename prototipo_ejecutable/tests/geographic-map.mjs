@@ -122,10 +122,16 @@ assert.deepEqual(
   geographic.point_ids,
 );
 assert.doesNotMatch(geographicHtml, /tabindex="0"/);
+assert.doesNotMatch(geographicHtml, /tabindex="-1"/);
+assert.doesNotMatch(geographicHtml, /role="button"/);
 assert.equal(
-  (geographicHtml.match(/tabindex="-1"/g) ?? []).length,
-  geographic.points.length,
+  (geographicHtml.match(/aria-hidden="true"/g) ?? []).length >=
+    geographic.points.length,
+  true,
 );
+assert.match(geographicHtml, /id="scenario-view-geographic"/);
+assert.match(geographicHtml, /id="scenario-view-positioning"/);
+assert.match(geographicHtml, /id="geo-project-select"/);
 assert.match(geographicHtml, /© OpenStreetMap contributors/);
 assert.match(geographicHtml, /ODbL 1\.0/);
 assert.match(geographicHtml, /Cuadrantes analíticos no oficiales/);
@@ -599,6 +605,14 @@ assert.equal(
   ).length,
   2,
   "Dashboard puede montar ambos paneles con un solo control de visualización",
+);
+assert.equal(
+  (integratedPanelsHtml.match(/id="scenario-view-geographic"/g) ?? []).length,
+  1,
+);
+assert.equal(
+  (integratedPanelsHtml.match(/id="scenario-view-positioning"/g) ?? []).length,
+  1,
 );
 assert.match(
   integratedPanelsHtml,
