@@ -1,0 +1,407 @@
+{
+  "version": 1,
+  "default_case_id": "case:f3-ct-g-pardo",
+  "cases": [
+    {
+      "case_id": "case:f3-area-match",
+      "route_slug": "f3-area-match",
+      "project_id": "project:ct-a-controlled",
+      "typology_id": "typology:f3-area-match",
+      "provenance_classification": "controlled",
+      "source_ids": [
+        "source:f3-neutral-card",
+        "source:f3-neutral-measurement"
+      ],
+      "observation_ids": [
+        "observation:f3-area-match-card",
+        "observation:f3-area-match-measurement"
+      ],
+      "fact_ids": [
+        "fact:f3-area-match-card-area",
+        "fact:f3-area-match-measurement-area"
+      ],
+      "document_ids": [
+        "document:f3-area-match-card",
+        "document:f3-area-match-measurement"
+      ],
+      "evidence_ids": [
+        "evidence:f3-area-match-card",
+        "evidence:f3-area-match-measurement"
+      ],
+      "issue_ids": [],
+      "required_fact_ids": [
+        "fact:f3-area-match-card-area",
+        "fact:f3-area-match-measurement-area"
+      ],
+      "primary_evidence_id": "evidence:f3-area-match-measurement",
+      "expected_quality_status": "certified",
+      "expected_benchmark_eligible": true,
+      "public_visual_asset_count": 2
+    },
+    {
+      "case_id": "case:f3-bathroom-conflict",
+      "route_slug": "f3-bathroom-conflict",
+      "project_id": "project:ct-e-controlled",
+      "typology_id": "typology:f3-bathroom-conflict",
+      "provenance_classification": "controlled",
+      "source_ids": [
+        "source:f3-neutral-card",
+        "source:f3-neutral-measurement"
+      ],
+      "observation_ids": [
+        "observation:f3-bathroom-conflict-card",
+        "observation:f3-bathroom-conflict-measurement"
+      ],
+      "fact_ids": [
+        "fact:f3-bathroom-conflict-card-bathrooms",
+        "fact:f3-bathroom-conflict-measurement-bathrooms"
+      ],
+      "document_ids": [
+        "document:f3-bathroom-conflict-card",
+        "document:f3-bathroom-conflict-measurement"
+      ],
+      "evidence_ids": [
+        "evidence:f3-bathroom-conflict-card",
+        "evidence:f3-bathroom-conflict-measurement"
+      ],
+      "issue_ids": [
+        "issue:f3-bathroom-source-conflict"
+      ],
+      "required_fact_ids": [
+        "fact:f3-bathroom-conflict-card-bathrooms",
+        "fact:f3-bathroom-conflict-measurement-bathrooms"
+      ],
+      "primary_evidence_id": "evidence:f3-bathroom-conflict-card",
+      "expected_quality_status": "inconsistent",
+      "expected_benchmark_eligible": false,
+      "public_visual_asset_count": 2
+    },
+    {
+      "case_id": "case:f3-bedroom-conflict",
+      "route_slug": "f3-bedroom-conflict",
+      "project_id": "project:ct-d-controlled",
+      "typology_id": "typology:f3-bedroom-conflict",
+      "provenance_classification": "controlled",
+      "source_ids": [
+        "source:f3-neutral-card",
+        "source:f3-neutral-measurement"
+      ],
+      "observation_ids": [
+        "observation:f3-bedroom-conflict-card",
+        "observation:f3-bedroom-conflict-measurement"
+      ],
+      "fact_ids": [
+        "fact:f3-bedroom-conflict-card-bedrooms",
+        "fact:f3-bedroom-conflict-measurement-bedrooms"
+      ],
+      "document_ids": [
+        "document:f3-bedroom-conflict-card",
+        "document:f3-bedroom-conflict-measurement"
+      ],
+      "evidence_ids": [
+        "evidence:f3-bedroom-conflict-card",
+        "evidence:f3-bedroom-conflict-measurement"
+      ],
+      "issue_ids": [
+        "issue:f3-bedroom-source-conflict"
+      ],
+      "required_fact_ids": [
+        "fact:f3-bedroom-conflict-card-bedrooms",
+        "fact:f3-bedroom-conflict-measurement-bedrooms"
+      ],
+      "primary_evidence_id": "evidence:f3-bedroom-conflict-card",
+      "expected_quality_status": "inconsistent",
+      "expected_benchmark_eligible": false,
+      "public_visual_asset_count": 2
+    },
+    {
+      "case_id": "case:f3-ct-a-area-types",
+      "route_slug": "f3-ct-a-area-types",
+      "project_id": "project:ct-a-controlled",
+      "typology_id": "typology:ct-a-controlled",
+      "provenance_classification": "controlled",
+      "source_ids": [
+        "source:ct-a-controlled"
+      ],
+      "observation_ids": [
+        "observation:ct-a-derived",
+        "observation:ct-a-inputs"
+      ],
+      "fact_ids": [
+        "fact:ct-a-built-area",
+        "fact:ct-a-free-area",
+        "fact:ct-a-price-per-built-m2",
+        "fact:ct-a-price-per-total-m2",
+        "fact:ct-a-scenario-price",
+        "fact:ct-a-total-area"
+      ],
+      "document_ids": [
+        "document:f3-ct-a-card",
+        "document:f3-ct-a-measurement"
+      ],
+      "evidence_ids": [
+        "evidence:f3-ct-a-card",
+        "evidence:f3-ct-a-measurement"
+      ],
+      "issue_ids": [],
+      "required_fact_ids": [
+        "fact:ct-a-built-area",
+        "fact:ct-a-total-area"
+      ],
+      "primary_evidence_id": "evidence:f3-ct-a-measurement",
+      "expected_quality_status": "certified",
+      "expected_benchmark_eligible": true,
+      "public_visual_asset_count": 2
+    },
+    {
+      "case_id": "case:f3-ct-b-price-conflict",
+      "route_slug": "f3-ct-b-price-conflict",
+      "project_id": "project:ct-b-controlled",
+      "typology_id": "typology:ct-b-controlled",
+      "provenance_classification": "controlled",
+      "source_ids": [
+        "source:ct-b-a",
+        "source:ct-b-b"
+      ],
+      "observation_ids": [
+        "observation:ct-b-derived",
+        "observation:ct-b-source-a",
+        "observation:ct-b-source-b"
+      ],
+      "fact_ids": [
+        "fact:ct-b-price-a",
+        "fact:ct-b-price-b",
+        "fact:ct-b-price-delta",
+        "fact:ct-b-price-delta-percent"
+      ],
+      "document_ids": [
+        "document:f3-ct-b-source-a",
+        "document:f3-ct-b-source-b"
+      ],
+      "evidence_ids": [
+        "evidence:f3-ct-b-source-a",
+        "evidence:f3-ct-b-source-b"
+      ],
+      "issue_ids": [
+        "issue:ct-b-price-source-conflict"
+      ],
+      "required_fact_ids": [
+        "fact:ct-b-price-a",
+        "fact:ct-b-price-b"
+      ],
+      "primary_evidence_id": "evidence:f3-ct-b-source-a",
+      "expected_quality_status": "inconsistent",
+      "expected_benchmark_eligible": false,
+      "public_visual_asset_count": 2
+    },
+    {
+      "case_id": "case:f3-ct-d-finishes",
+      "route_slug": "f3-ct-d-finishes",
+      "project_id": "project:ct-d-controlled",
+      "typology_id": "typology:ct-d-controlled",
+      "provenance_classification": "controlled",
+      "source_ids": [
+        "source:ct-d-authorized",
+        "source:ct-d-restricted"
+      ],
+      "observation_ids": [
+        "observation:ct-d-air-conditioning-absence",
+        "observation:ct-d-countertop",
+        "observation:ct-d-restricted-document"
+      ],
+      "fact_ids": [
+        "fact:ct-d-air-conditioning",
+        "fact:ct-d-countertop-material"
+      ],
+      "document_ids": [
+        "document:ct-d-authorized",
+        "document:ct-d-restricted"
+      ],
+      "evidence_ids": [
+        "evidence:ct-d-countertop-fragment",
+        "evidence:ct-d-restricted-metadata"
+      ],
+      "issue_ids": [],
+      "required_fact_ids": [
+        "fact:ct-d-countertop-material"
+      ],
+      "primary_evidence_id": "evidence:ct-d-countertop-fragment",
+      "expected_quality_status": "certified",
+      "expected_benchmark_eligible": true,
+      "public_visual_asset_count": 0
+    },
+    {
+      "case_id": "case:f3-ct-g-pardo",
+      "route_slug": "f3-ct-g-pardo",
+      "project_id": "project:nexo-2951",
+      "typology_id": "typology:pardo-coast-tipo-7",
+      "provenance_classification": "observed",
+      "source_ids": [
+        "source:ct-g-user-plan",
+        "source:nexo"
+      ],
+      "observation_ids": [
+        "observation:pardo-coast-card",
+        "observation:pardo-coast-conflict-derived",
+        "observation:pardo-coast-plan"
+      ],
+      "fact_ids": [
+        "fact:pardo-coast-area-delta",
+        "fact:pardo-coast-area-delta-percent",
+        "fact:pardo-coast-card-area",
+        "fact:pardo-coast-card-floor",
+        "fact:pardo-coast-inferred-floor-max",
+        "fact:pardo-coast-inferred-floor-min",
+        "fact:pardo-coast-plan-area",
+        "fact:pardo-coast-plan-unit-range"
+      ],
+      "document_ids": [
+        "document:pardo-coast-card",
+        "document:pardo-coast-plan"
+      ],
+      "evidence_ids": [
+        "evidence:pardo-coast-card-metadata",
+        "evidence:pardo-coast-plan-metadata"
+      ],
+      "issue_ids": [
+        "issue:pardo-coast-area-source-conflict",
+        "issue:pardo-coast-floor-range-conflict-review"
+      ],
+      "required_fact_ids": [
+        "fact:pardo-coast-card-area",
+        "fact:pardo-coast-card-floor",
+        "fact:pardo-coast-plan-area",
+        "fact:pardo-coast-plan-unit-range"
+      ],
+      "primary_evidence_id": "evidence:pardo-coast-card-metadata",
+      "expected_quality_status": "inconsistent",
+      "expected_benchmark_eligible": false,
+      "public_visual_asset_count": 0
+    },
+    {
+      "case_id": "case:f3-floor-review",
+      "route_slug": "f3-floor-review",
+      "project_id": "project:ct-b-controlled",
+      "typology_id": "typology:f3-floor-review",
+      "provenance_classification": "controlled",
+      "source_ids": [
+        "source:f3-neutral-card",
+        "source:f3-neutral-measurement"
+      ],
+      "observation_ids": [
+        "observation:f3-floor-review-card",
+        "observation:f3-floor-review-derived",
+        "observation:f3-floor-review-measurement"
+      ],
+      "fact_ids": [
+        "fact:f3-floor-review-card-floor",
+        "fact:f3-floor-review-inferred-floor-max",
+        "fact:f3-floor-review-inferred-floor-min",
+        "fact:f3-floor-review-measurement-unit-range"
+      ],
+      "document_ids": [
+        "document:f3-floor-review-card",
+        "document:f3-floor-review-measurement"
+      ],
+      "evidence_ids": [
+        "evidence:f3-floor-review-card",
+        "evidence:f3-floor-review-measurement"
+      ],
+      "issue_ids": [
+        "issue:f3-floor-review-inference"
+      ],
+      "required_fact_ids": [
+        "fact:f3-floor-review-card-floor",
+        "fact:f3-floor-review-inferred-floor-max",
+        "fact:f3-floor-review-inferred-floor-min",
+        "fact:f3-floor-review-measurement-unit-range"
+      ],
+      "primary_evidence_id": "evidence:f3-floor-review-measurement",
+      "expected_quality_status": "reviewable",
+      "expected_benchmark_eligible": false,
+      "public_visual_asset_count": 2
+    },
+    {
+      "case_id": "case:f3-illegible-area",
+      "route_slug": "f3-illegible-area",
+      "project_id": "project:ct-e-controlled",
+      "typology_id": "typology:f3-illegible-area",
+      "provenance_classification": "controlled",
+      "source_ids": [
+        "source:f3-neutral-card",
+        "source:f3-neutral-measurement"
+      ],
+      "observation_ids": [
+        "observation:f3-illegible-area-card",
+        "observation:f3-illegible-area-measurement"
+      ],
+      "fact_ids": [
+        "fact:f3-illegible-area-card-area",
+        "fact:f3-illegible-area-measurement-area"
+      ],
+      "document_ids": [
+        "document:f3-illegible-area-card",
+        "document:f3-illegible-area-measurement"
+      ],
+      "evidence_ids": [
+        "evidence:f3-illegible-area-card",
+        "evidence:f3-illegible-area-measurement"
+      ],
+      "issue_ids": [
+        "issue:f3-illegible-area-evidence"
+      ],
+      "required_fact_ids": [
+        "fact:f3-illegible-area-card-area",
+        "fact:f3-illegible-area-measurement-area"
+      ],
+      "primary_evidence_id": "evidence:f3-illegible-area-measurement",
+      "expected_quality_status": "illegible",
+      "expected_benchmark_eligible": false,
+      "public_visual_asset_count": 2
+    },
+    {
+      "case_id": "case:f3-insufficient-source",
+      "route_slug": "f3-insufficient-source",
+      "project_id": "project:ct-a-controlled",
+      "typology_id": "typology:f3-insufficient-source",
+      "provenance_classification": "controlled",
+      "source_ids": [
+        "source:f3-neutral-card",
+        "source:f3-neutral-measurement"
+      ],
+      "observation_ids": [
+        "observation:f3-insufficient-source-absence",
+        "observation:f3-insufficient-source-card"
+      ],
+      "fact_ids": [
+        "fact:f3-insufficient-source-card-area",
+        "fact:f3-insufficient-source-missing-area"
+      ],
+      "document_ids": [
+        "document:f3-insufficient-source-card"
+      ],
+      "evidence_ids": [
+        "evidence:f3-insufficient-source-card"
+      ],
+      "issue_ids": [
+        "issue:f3-insufficient-source-absence"
+      ],
+      "required_fact_ids": [
+        "fact:f3-insufficient-source-card-area",
+        "fact:f3-insufficient-source-missing-area"
+      ],
+      "primary_evidence_id": "evidence:f3-insufficient-source-card",
+      "expected_quality_status": "insufficient",
+      "expected_benchmark_eligible": false,
+      "public_visual_asset_count": 1
+    }
+  ],
+  "coverage": {
+    "total_cases": 10,
+    "observed_cases": 1,
+    "controlled_cases": 9,
+    "simulated_cases": 0,
+    "inspectable_typologies": 10,
+    "authorized_visual_assets": 15
+  }
+}

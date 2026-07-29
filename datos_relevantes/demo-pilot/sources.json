@@ -56,6 +56,22 @@
     "access_mode": "user_provided"
   },
   {
+    "source_id": "source:f3-neutral-card",
+    "name": "Tarjeta neutral controlada Fase 3",
+    "type": "controlled_fixture",
+    "base_url": null,
+    "legal_status": "cleared_for_demo",
+    "access_mode": "controlled_fixture"
+  },
+  {
+    "source_id": "source:f3-neutral-measurement",
+    "name": "Ficha de medición neutral controlada Fase 3",
+    "type": "controlled_fixture",
+    "base_url": null,
+    "legal_status": "cleared_for_demo",
+    "access_mode": "controlled_fixture"
+  },
+  {
     "source_id": "source:nexo",
     "name": "Nexo Inmobiliario",
     "type": "portal",

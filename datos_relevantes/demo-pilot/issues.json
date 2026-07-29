@@ -45,6 +45,81 @@
     "benchmark_blocking": true
   },
   {
+    "issue_id": "issue:f3-bathroom-source-conflict",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-bathroom-conflict",
+    "fact_ids": [
+      "fact:f3-bathroom-conflict-card-bathrooms",
+      "fact:f3-bathroom-conflict-measurement-bathrooms"
+    ],
+    "issue_code": "BATHROOM_SOURCE_CONFLICT",
+    "severity": "blocking",
+    "quality_status": "inconsistent",
+    "detail": "Las dos fuentes controladas declaran cantidades incompatibles de baños.",
+    "next_action": "Conservar ambas observaciones y solicitar revisión; no elegir una fuente.",
+    "benchmark_blocking": true
+  },
+  {
+    "issue_id": "issue:f3-bedroom-source-conflict",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-bedroom-conflict",
+    "fact_ids": [
+      "fact:f3-bedroom-conflict-card-bedrooms",
+      "fact:f3-bedroom-conflict-measurement-bedrooms"
+    ],
+    "issue_code": "BEDROOM_SOURCE_CONFLICT",
+    "severity": "blocking",
+    "quality_status": "inconsistent",
+    "detail": "Las dos fuentes controladas declaran cantidades incompatibles de dormitorios.",
+    "next_action": "Conservar ambas observaciones y solicitar revisión; no elegir una fuente.",
+    "benchmark_blocking": true
+  },
+  {
+    "issue_id": "issue:f3-floor-review-inference",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-floor-review",
+    "fact_ids": [
+      "fact:f3-floor-review-card-floor",
+      "fact:f3-floor-review-inferred-floor-max",
+      "fact:f3-floor-review-inferred-floor-min",
+      "fact:f3-floor-review-measurement-unit-range"
+    ],
+    "issue_code": "FLOOR_RANGE_INFERENCE_REVIEW",
+    "severity": "high",
+    "quality_status": "reviewable",
+    "detail": "Piso 5 coincide con unidades 501–504 solo mediante una inferencia de numeración.",
+    "next_action": "Validar la convención de numeración con una fuente adicional.",
+    "benchmark_blocking": true
+  },
+  {
+    "issue_id": "issue:f3-illegible-area-evidence",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-illegible-area",
+    "fact_ids": [
+      "fact:f3-illegible-area-measurement-area"
+    ],
+    "issue_code": "AREA_EVIDENCE_ILLEGIBLE",
+    "severity": "blocking",
+    "quality_status": "illegible",
+    "detail": "La segunda fuente existe, pero el campo de área no puede leerse con seguridad.",
+    "next_action": "Solicitar una copia legible; no transcribir ni agregar el valor.",
+    "benchmark_blocking": true
+  },
+  {
+    "issue_id": "issue:f3-insufficient-source-absence",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-insufficient-source",
+    "fact_ids": [
+      "fact:f3-insufficient-source-missing-area"
+    ],
+    "issue_code": "SECOND_SOURCE_UNAVAILABLE",
+    "severity": "blocking",
+    "quality_status": "insufficient",
+    "detail": "No existe una segunda fuente disponible para afirmar compatibilidad.",
+    "next_action": "Conservar el dato observado y solicitar una segunda fuente.",
+    "benchmark_blocking": true
+  },
+  {
     "issue_id": "issue:pardo-coast-area-source-conflict",
     "entity_type": "typology",
     "entity_id": "typology:pardo-coast-tipo-7",
