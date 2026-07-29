@@ -179,3 +179,11 @@ El formulario de producto y precio vive en `dashboard.js`, pero su listener debe
 **Estado:** aceptada
 
 P2-11 muestra para los cuatro cuadrantes del distrito conteos reproducibles de observados, geografía válida y reconciliación autoritativa, junto con precio publicado provisional cuando la evidencia es compatible. Solo el cuadrante activo presenta comparables y diagnóstico derivados del `scenarioContext` vigente. No se recomponen cuatro escenarios durante render ni se crea un segundo motor de comparabilidad para llenar filas no activas.
+
+## D-023 — P2-12/P2-13 incorporan tests puros y eliminan respuesta paralela
+
+**Fecha:** 2026-07-28
+
+**Estado:** aceptada
+
+Se agregan `tests/projects-compare.mjs` y `tests/checklist-assistant.mjs` a los `write_set` de P2-12 y P2-13. P2-13 también puede editar `controller.js`, una vez integrado P2-10, para retirar el cálculo legacy de `state.assistantResponse`. La respuesta visible se genera de forma determinista desde el `scenarioContext` vigente; no existe un segundo contexto derivado del texto de la pregunta.

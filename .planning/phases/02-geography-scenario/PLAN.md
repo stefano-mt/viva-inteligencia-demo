@@ -750,6 +750,7 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
 - `write_set`:
   - `prototipo_ejecutable/public/js/views/projects.js`
   - `prototipo_ejecutable/public/js/views/compare.js`
+  - `prototipo_ejecutable/tests/projects-compare.mjs`
 - Entrega:
   - catálogo indica alcance activo;
   - filtros locales no alteran el escenario;
@@ -770,9 +771,12 @@ Si el usuario prefiere una fuente alternativa o retirar polígonos, HUMAN-GATE-A
 - `write_set`:
   - `prototipo_ejecutable/public/js/views/checklist.js`
   - `prototipo_ejecutable/public/js/views/assistant.js`
+  - `prototipo_ejecutable/public/js/controller.js`
+  - `prototipo_ejecutable/tests/checklist-assistant.mjs`
 - Entrega:
   - checklist usa la misma referencia publicada provisional;
   - asistente determinista consume el `scenarioContext` vigente y cita alcance y número de comparables;
+  - se retira del controlador el cálculo legacy de una respuesta paralela que la vista ya no consume;
   - respuesta insuficiente prudente;
   - ninguna pregunta cambia de distrito sin reflejarlo en contexto;
   - no se agregan intents, fuentes o claims nuevos del asistente en F2.
