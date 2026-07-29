@@ -187,3 +187,21 @@ P2-11 muestra para los cuatro cuadrantes del distrito conteos reproducibles de o
 **Estado:** aceptada
 
 Se agregan `tests/projects-compare.mjs` y `tests/checklist-assistant.mjs` a los `write_set` de P2-12 y P2-13. P2-13 también puede editar `controller.js`, una vez integrado P2-10, para retirar el cálculo legacy de `state.assistantResponse`. La respuesta visible se genera de forma determinista desde el `scenarioContext` vigente; no existe un segundo contexto derivado del texto de la pregunta.
+
+## D-024 — HUMAN-GATE-B acepta R1–R5 sin elevar el veredicto
+
+**Fecha:** 2026-07-29
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Acepto R1–R5 y autorizo HUMAN-GATE-B.” con timestamp de sesión `2026-07-29T08:01:09.8984344-05:00`. La decisión autoriza P2-17 y la preparación del PR, pero el veredicto independiente permanece `PASS WITH RISKS`; no equivale a `PASS`, merge, despliegue ni verificación de GitHub Pages.
+
+Las mitigaciones obligatorias son:
+
+1. registrar makers de P2-01–P2-15 solo cuando sean verificables; ante ausencia de evidencia, usar “no verificable desde el repositorio” y no inferir identidad desde el autor Git;
+2. hacer durable la evidencia visual durante la preparación/revisión del PR y antes de solicitar merge, mediante adjuntos o enlaces, sin versionar binarios fuera de un `write_set` aprobado;
+3. mantener PLAN, informe y tests ejecutables como contrato distribuido mientras no exista un `TEST_CONTRACTS.md` autorizado;
+4. complementar Graphify con tests de datos, hashes, Playwright, contraste y revisión visual, porque no cubre fielmente CSS/JSON;
+5. realizar una comprobación humana breve de Chrome al 200% antes de la demo; puede hacerse durante la revisión del PR solo si esa revisión ocurre primero.
+
+Las desviaciones `20f282a`, `080cc61` y `ec6e6e9` permanecen registradas como riesgo procedimental; no crean precedente para ampliar un `write_set` después de escribir. Los documentos P2-17 deben versionarse antes de crear el PR. El merge del PR funcional es humano. P2-18 verifica Pages de forma read-only después del merge. P2-19 persiste ese resultado en una rama y PR documental separados, y su PR también requiere merge humano antes de declarar `deployed and verified` o `merged, deployment verification failed`.
