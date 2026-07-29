@@ -75,7 +75,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** definir una zona objetivo y obtener comparables geográficos explicables.
 
-**Estado:** cierre técnico `PASS WITH RISKS` fusionado mediante el PR #7. GitHub Pages está desplegado y los artefactos/recorridos públicos funcionan, pero P2-18 terminó como `merged, deployment verification failed`: el harness CT-C pierde el subdirectorio del proyecto. Pendientes el PR documental P2-19, el PR correctivo, la repetición de P2-18 y la memoria final antes de declarar la fase shipped.
+**Estado:** completada, desplegada y verificada (`PASS WITH RISKS`) el 2026-07-29. El PR funcional #7, el reporte inicial #8 y la corrección #9 fueron fusionados por un humano. P2-18 final pasó 7/7 criterios para `ebe9795e`; queda pendiente únicamente el merge humano del PR documental final para actualizar la memoria de `main`.
 
 ### Línea de trabajo A — Contexto y estado
 
