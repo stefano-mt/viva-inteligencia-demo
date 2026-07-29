@@ -107,6 +107,10 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** demostrar profundidad multifuente y detectar comparaciones engañosas.
 
+**Estado:** planificación revisada con `PASS` en `docs/phase-3-evidence-inspector-plan`; implementación bloqueada hasta HUMAN-GATE-A.
+
+**Contrato propuesto:** `2.2.0`, con índice `inspector` y registros autoritativos integrados en `model`.
+
 ### Ola 3.1 — Ficha y cobertura
 
 - Ficha multifuente.

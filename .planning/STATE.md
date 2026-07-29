@@ -6,9 +6,9 @@
 
 **Última fase completada:** Fase 2 — contexto, geografía y escenario
 
-**Estado:** Fases 0, 1 y 2 completadas. Fase 2 está `deployed and verified` para el merge `ebe9795e408c190af8bc0881b98e4fd3389da59e`: los siete criterios P2-18 pasan. Este estado debe fusionarse mediante el PR documental final para quedar vigente en `main`.
+**Estado:** Fases 0, 1 y 2 completadas. Fase 2 está `deployed and verified`; el PR documental final #10 fue fusionado en `main` mediante `e2667240fc38f1fb764839f32937a5e47f6f714f`. Fase 3 está en planificación y no tiene implementación autorizada.
 
-**Rama activa de planificación:** `docs/phase-2-deployed-verified-final`.
+**Rama activa de planificación:** `docs/phase-3-evidence-inspector-plan`.
 
 ## Baseline vigente
 
@@ -20,6 +20,8 @@
 - PR documental inicial: [#8](https://github.com/stefano-mt/viva-inteligencia-demo/pull/8), fusionado.
 - PR correctivo: [#9](https://github.com/stefano-mt/viva-inteligencia-demo/pull/9), fusionado el `2026-07-29T14:34:18Z`.
 - SHA desplegado y verificado: `ebe9795e408c190af8bc0881b98e4fd3389da59e`.
+- PR documental final: [#10](https://github.com/stefano-mt/viva-inteligencia-demo/pull/10), fusionado el `2026-07-29T14:43:43Z`.
+- Merge documental final en `main`: `e2667240fc38f1fb764839f32937a5e47f6f714f`.
 - GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
 - Workflow Pages vigente: [run 30461539884](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/30461539884), `success`.
 - Contrato de datos: `2.1.0`; el reader 2.1 acepta 2.0 y 2.1.
@@ -101,13 +103,25 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Corrección de base path: PR #9 fusionado.
 - GitHub Pages: desplegado y verificado para `ebe9795e`.
 - P2-18 final: PASS.
-- Cierre de ship: `deployed and verified`; pendiente únicamente del merge humano de la memoria documental final.
+- Cierre de ship: `deployed and verified`; memoria documental final fusionada mediante PR #10.
+
+## Fase 3 — planificación vigente
+
+- Contexto: [phases/03-evidence-inspector/CONTEXT.md](phases/03-evidence-inspector/CONTEXT.md).
+- UX/UI: [phases/03-evidence-inspector/UI-SPEC.md](phases/03-evidence-inspector/UI-SPEC.md).
+- Inventario de 10 expedientes: [phases/03-evidence-inspector/CASE-INVENTORY.md](phases/03-evidence-inspector/CASE-INVENTORY.md).
+- Plan: [phases/03-evidence-inspector/PLAN.md](phases/03-evidence-inspector/PLAN.md).
+- Solicitud de aprobación: [phases/03-evidence-inspector/HUMAN-GATE-A-REQUEST.md](phases/03-evidence-inspector/HUMAN-GATE-A-REQUEST.md).
+- Revisión independiente: [phases/03-evidence-inspector/PLAN_REVIEW.md](phases/03-evidence-inspector/PLAN_REVIEW.md), `PASS`.
+- Contrato propuesto: `2.2.0`, todavía no implementado.
+- HUMAN-GATE-A: pendiente.
+- Código, datos y activos F3: sin cambios.
 
 ## Próxima acción recomendada
 
-1. Fusionar por decisión humana el PR documental final de P2-19.
-2. Realizar la comprobación humana breve de Chrome al 200% antes de una presentación.
-3. Iniciar Fase 3 solo mediante un nuevo contexto, plan y HUMAN-GATE correspondiente.
+1. Obtener aprobación explícita de A1–A8 antes de P3-00C.
+2. Persistir la aprobación mediante `APPROVAL.md`; solo después abrir la rama funcional.
+3. Realizar la comprobación humana breve de Chrome al 200% antes de una presentación.
 
 ## Regla para actualizar este archivo
 

@@ -57,7 +57,9 @@ Este caso no debe corregirse renombrando 53.37 m² como “área techada”; la 
 
 La amplitud de cobertura no implica igual profundidad para todas las inmobiliarias. La interfaz debe hacerlo visible.
 
-## Baseline técnico al 28 de julio de 2026
+## Baseline histórico previo a Fase 2 — 28 de julio de 2026
+
+Este bloque conserva el punto de partida de Fase 2; no describe el estado vigente.
 
 - Aplicación estática en HTML, CSS y JavaScript.
 - Despliegue automático a GitHub Pages al fusionar en `main`.
@@ -70,6 +72,19 @@ La amplitud de cobertura no implica igual profundidad para todas las inmobiliari
 - 180 inmobiliarias canónicas de mercado, 184 agencias en el modelo y piloto 30/22/5.
 - Fixtures CT-A/B/D/E/G/H implementados y verificados.
 - 714 de 714 proyectos legacy tienen coordenadas; todavía no existen geometrías distritales, cuadrantes, radio ni fixtures CT-C/CT-I.
+
+## Baseline vigente para Fase 3 — 29 de julio de 2026
+
+- Fases 0, 1 y 2 completadas; Fase 2 desplegada y verificada.
+- Contrato público `2.1.0`, con reader compatible 2.0/2.1.
+- Geometría distrital versionada, cuadrantes analíticos y selección por radio.
+- CT-C y CT-I implementados y verificados.
+- Un escenario serializado alimenta mapa y consumidores.
+- Miraflores: 90 observados, 85 comparables y 5 no reconciliados en CT-I.
+- Modelo: 676 proyectos, 184 agencias, 5 tipologías, 17 observaciones, 26 hechos, 4 documentos, 4 evidencias y 5 issues.
+- Piloto acumulativo: 30 base, 22 enriched y 5 deep estructuradas.
+- Ningún activo visual de evidencia está publicado.
+- Pardo Coast/Tipo 7 está modelado como inconsistente y no elegible al nivel de hechos/tipología; el proyecto permanece en el universo territorial.
 
 ## Principios no negociables
 
