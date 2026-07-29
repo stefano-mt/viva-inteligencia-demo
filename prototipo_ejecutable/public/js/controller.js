@@ -21,7 +21,6 @@ const {
   comparableScore,
   classifyPricePosition,
   buildCommercialRecommendation,
-  buildAssistantResponse,
   buildOpportunitySignals,
   checklistRisks,
   messageAngles,
@@ -216,9 +215,19 @@ export function bindEvents(render) {
       () => {
         selectScenarioProject(
           control.value || control.dataset.scenarioProject,
+          { focusId: control.id || null },
         );
       },
     );
+  });
+
+  document.querySelectorAll("details.component-help").forEach((details) => {
+    details.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || !details.open) return;
+      event.preventDefault();
+      details.open = false;
+      details.querySelector("summary")?.focus();
+    });
   });
 
   const productForm = document.getElementById("scenario-product-form");
@@ -241,7 +250,9 @@ export function bindEvents(render) {
 
   document.querySelectorAll("[data-select-project]").forEach((button) => {
     button.addEventListener("click", () => {
-      selectScenarioProject(button.dataset.selectProject);
+      selectScenarioProject(button.dataset.selectProject, {
+        focusId: button.id || null,
+      });
     });
   });
 
@@ -275,14 +286,12 @@ export function bindEvents(render) {
     event.preventDefault();
     const input = document.getElementById("assistant-input")?.value ?? "";
     state.assistantInput = input;
-    state.assistantResponse = buildAssistantResponse(input);
     render();
   });
 
   document.querySelectorAll("[data-suggest]").forEach((button) => {
     button.addEventListener("click", () => {
       state.assistantInput = button.dataset.suggest;
-      state.assistantResponse = buildAssistantResponse(button.dataset.suggest);
       render();
     });
   });
@@ -374,10 +383,14 @@ export function setScenarioVisualization(visualization, options = {}) {
   );
 }
 
-export function selectScenarioProject(projectId, { render = true } = {}) {
+export function selectScenarioProject(
+  projectId,
+  { render = true, focusId = null } = {},
+) {
   const project = findProjectById(projectId);
   if (!project || !isScenarioDisplayProject(project)) return false;
   state.selectedProjectId = project.id;
+  state.scenarioFocusId = focusId;
   if (render) renderApp?.();
   return true;
 }
@@ -402,7 +415,6 @@ export function resetScenario(options = {}) {
   state.projectLimit = 18;
   seedSelectionsForScenario();
   state.assistantInput = suggestedQuestions[0];
-  state.assistantResponse = buildAssistantResponse(state.assistantInput);
   if (options.render !== false) renderApp?.();
   return transition;
 }
@@ -451,11 +463,6 @@ function refreshScenarioDependents() {
   }
   state.projectLimit = 18;
   seedSelectionsForScenario();
-  if (state.assistantInput) {
-    state.assistantResponse = buildAssistantResponse(
-      state.assistantInput,
-    );
-  }
 }
 
 export function initializeScenarioFromLocation() {
@@ -556,7 +563,9 @@ function bindScenarioDocumentEvents() {
   });
   document.addEventListener(SCENARIO_EVENTS.projectSelect, (event) => {
     const detail = event.detail ?? {};
-    selectScenarioProject(detail.projectId ?? detail.project_id);
+    selectScenarioProject(detail.projectId ?? detail.project_id, {
+      focusId: detail.focusId ?? null,
+    });
   });
 }
 
