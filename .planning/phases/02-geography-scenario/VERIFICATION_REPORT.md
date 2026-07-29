@@ -1,12 +1,12 @@
 # Fase 2 — Informe de verificación independiente
 
-**Fecha de ejecución:** 2026-07-29  
-**Checker:** `/root/phase2_final_checker`  
-**Rol:** checker final independiente P2-16; no implementó P2-01 a P2-15  
-**Base:** `a8f028453ca185c3ccc0337836bcb528f9a90b31` (`main`)  
-**HEAD verificado:** `606452569040d0489685a3c26b16e15da0c476ac`  
-**Rama:** `feat/phase-2-geography-scenario`  
-**Remoto verificado:** `origin/feat/phase-2-geography-scenario` en el mismo SHA  
+**Fecha de ejecución:** 2026-07-29
+**Checker:** `/root/phase2_final_checker`
+**Rol:** checker final independiente P2-16; no implementó P2-01 a P2-15
+**Base:** `a8f028453ca185c3ccc0337836bcb528f9a90b31` (`main`)
+**HEAD verificado:** `606452569040d0489685a3c26b16e15da0c476ac`
+**Rama:** `feat/phase-2-geography-scenario`
+**Remoto verificado:** `origin/feat/phase-2-geography-scenario` en el mismo SHA
 **Veredicto:** `PASS WITH RISKS`
 
 ## Resumen ejecutivo
@@ -349,15 +349,15 @@ El gate confirma:
 
 ### R1 — Trazabilidad incompleta de makers y desviaciones de `write_set`
 
-**Severidad:** media procedimental.  
-**Impacto:** impide reconstruir solo desde Git qué agente implementó/aprobó cada tarea y demuestra que tres deltas escribieron fuera de la lista previa.  
-**Evidencia:** commits `20f282a`, `080cc61` y `ec6e6e9`; ausencia de handoff F2.  
+**Severidad:** media procedimental.
+**Impacto:** impide reconstruir solo desde Git qué agente implementó/aprobó cada tarea y demuestra que tres deltas escribieron fuera de la lista previa.
+**Evidencia:** commits `20f282a`, `080cc61` y `ec6e6e9`; ausencia de handoff F2.
 **Mitigación requerida:** P2-17 debe registrar maker, commit y comandos cuando sean verificables; listar explícitamente las tres desviaciones y prohibir atribuciones inferidas.
 
 ### R2 — Evidencia visual final almacenada en temporal
 
-**Severidad:** media de auditabilidad, baja funcional.  
-**Impacto:** las capturas y mediciones existen y sus hashes pasan, pero pueden desaparecer al limpiar `%TEMP%`.  
+**Severidad:** media de auditabilidad, baja funcional.
+**Impacto:** las capturas y mediciones existen y sus hashes pasan, pero pueden desaparecer al limpiar `%TEMP%`.
 **Evidencia actual:**
 
 ```text
@@ -370,20 +370,20 @@ C:\Users\Stefano\AppData\Local\Temp\viva-p2-15-route-smoke
 
 ### R3 — Contrato de pruebas sin documento único
 
-**Severidad:** baja.  
-**Impacto:** `TEST_CONTRACTS.md` no existe; la lectura exige navegar PLAN, REQUIREMENTS y múltiples tests.  
+**Severidad:** baja.
+**Impacto:** `TEST_CONTRACTS.md` no existe; la lectura exige navegar PLAN, REQUIREMENTS y múltiples tests.
 **Mitigación:** el handoff P2-17 debe enlazar los contratos ejecutables actuales. Un documento único puede agregarse en una fase futura con `write_set` aprobado; no debe crearse fuera del cierre autorizado.
 
 ### R4 — Limitación de Graphify en CSS/JSON
 
-**Severidad:** baja.  
-**Impacto:** 24 archivos no clasificados y 22 JSON sin nodos; el grafo no prueba cascada CSS ni contenido de datos.  
+**Severidad:** baja.
+**Impacto:** 24 archivos no clasificados y 22 JSON sin nodos; el grafo no prueba cascada CSS ni contenido de datos.
 **Mitigación aplicada:** tests de datos, hashes, Playwright, contraste y revisión visual directa. Mantener esta combinación en futuras fases.
 
 ### R5 — Evidencia de zoom basada en viewport efectivo/headless
 
-**Severidad:** baja.  
-**Impacto:** se verificó el equivalente de reflujo a 200% mediante viewport 720×450 y medición headless, no una sesión manual de Chrome con el control de zoom visible.  
+**Severidad:** baja.
+**Impacto:** se verificó el equivalente de reflujo a 200% mediante viewport 720×450 y medición headless, no una sesión manual de Chrome con el control de zoom visible.
 **Mitigación:** realizar una comprobación humana breve al 200% antes de la presentación o durante la revisión del PR; no se detectó ningún síntoma de overflow/truncamiento en la medición automatizada.
 
 ## Gaps y decisión del gate
