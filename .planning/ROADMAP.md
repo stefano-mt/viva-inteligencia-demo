@@ -75,7 +75,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** definir una zona objetivo y obtener comparables geográficos explicables.
 
-**Estado:** cierre técnico implementado y verificado con `PASS WITH RISKS`; HUMAN-GATE-B aprobada. P2-17/PR están en curso: los documentos están preparados en el worktree, pero su versionado y la apertura del PR siguen pendientes. La fase no se considera completada ni shipped hasta el merge humano, P2-18 y el merge humano del PR documental P2-19; el despliegue aún no está demostrado ni verificado.
+**Estado:** cierre técnico `PASS WITH RISKS` fusionado mediante el PR #7. GitHub Pages está desplegado y los artefactos/recorridos públicos funcionan, pero P2-18 terminó como `merged, deployment verification failed`: el harness CT-C pierde el subdirectorio del proyecto. Pendientes el PR documental P2-19, el PR correctivo, la repetición de P2-18 y la memoria final antes de declarar la fase shipped.
 
 ### Línea de trabajo A — Contexto y estado
 

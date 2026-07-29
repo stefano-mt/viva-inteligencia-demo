@@ -6,15 +6,19 @@
 
 **Última fase completada:** Fase 1 — datos, contratos y cobertura
 
-**Estado:** Fase 0 y Fase 1 completadas. El cierre técnico de Fase 2 está implementado y verificado con `PASS WITH RISKS`; HUMAN-GATE-B está aprobada. Los documentos P2-17 están preparados en el worktree, pero todavía deben versionarse; el PR, el merge humano, P2-18 y el merge del PR P2-19 siguen pendientes. El cierre de ship no está completo y el despliegue no está demostrado ni verificado.
+**Estado:** Fase 0 y Fase 1 completadas. El cierre técnico de Fase 2 fue fusionado mediante el PR #7 y GitHub Pages está operativo. P2-18 terminó como `merged, deployment verification failed`: seis de siete criterios pasaron, pero el comando CT-C público no conserva el subdirectorio de GitHub Pages. El cierre de ship sigue pendiente de corregir el harness, repetir P2-18 y fusionar la memoria documental final.
 
-**Rama activa de planificación:** `feat/phase-2-geography-scenario`, creada desde `main` en el merge `a8f0284`.
+**Rama activa de planificación:** `docs/phase-2-postmerge-report`.
 
 ## Baseline vigente
 
 - Base de Fase 2: `a8f0284`, merge de Fase 1 en `main`.
 - HEAD funcional verificado por P2-16: `606452569040d0489685a3c26b16e15da0c476ac`.
 - Informe P2-16 versionado en `49bf8de`.
+- PR funcional: [#7](https://github.com/stefano-mt/viva-inteligencia-demo/pull/7), fusionado el `2026-07-29T14:01:46Z`.
+- SHA del merge funcional: `69fbfc220caccb887fe61763e4f9c747233211f2`.
+- GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
+- Workflow Pages: [run 30458840428](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/30458840428), `success`.
 - Contrato de datos: `2.1.0`; el reader 2.1 acepta 2.0 y 2.1.
 - Dataset: `dataset:viva-platform-demo-2026-07-28`.
 - JSON público: 3,588,986 bytes.
@@ -42,8 +46,10 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Checker independiente: `/root/phase2_final_checker`.
 - `npm.cmd run verify`, E2E adicional, CT-C, CT-I, regresiones F1, accesibilidad y Graphify: PASS.
 - Smoke: 7 rutas × 3 viewports; sin errores de consola, HTTP o red externa.
-- Visual: 42 capturas finales P2-15 verificadas por SHA-256; su persistencia durable en el PR sigue pendiente.
+- Visual: evidencia completa y cuatro capturas representativas persistidas y verificadas en el PR #7.
 - HUMAN-GATE-B: Stefano declaró “Acepto R1–R5 y autorizo HUMAN-GATE-B.” en `2026-07-29T08:01:09.8984344-05:00`.
+- P2-18: **FAIL estrecho**. Merge, workflow, HTTP, contrato, GeoJSON/hash y recorridos equivalentes pasan; falla el comando versionado por pérdida del base path.
+- Informe post-merge: [phases/02-geography-scenario/POSTMERGE_REPORT.md](phases/02-geography-scenario/POSTMERGE_REPORT.md).
 - Informe: [phases/02-geography-scenario/VERIFICATION_REPORT.md](phases/02-geography-scenario/VERIFICATION_REPORT.md).
 - Resumen: [phases/02-geography-scenario/SUMMARY.md](phases/02-geography-scenario/SUMMARY.md).
 - Handoff: [phases/02-geography-scenario/HANDOFF.md](phases/02-geography-scenario/HANDOFF.md).
@@ -70,6 +76,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - R3: no existe `TEST_CONTRACTS.md`; se usan PLAN, informe y tests ejecutables.
 - R4: Graphify no cubre adecuadamente CSS/JSON; se complementa con tests, hashes y Playwright.
 - R5: el reflujo equivalente a 200% fue automatizado; falta una comprobación humana breve antes de la demo. Puede realizarse durante la revisión del PR únicamente si la revisión ocurre primero.
+- P2-18: `scenario-e2e.mjs` y su helper usan rutas absolutas incompatibles con GitHub Pages bajo `/viva-inteligencia-demo/`; el despliegue funciona, pero el gate automatizado no.
 - F3 necesita activos autorizados o neutrales: cinco tiers `deep` no equivalen a cinco dossiers visuales.
 - F4 no dispone de precio por m² de mercado elegible; los dos hechos actuales provienen de CT-A simulado.
 - F5 solo dispone de tres eventos controlados y ninguno tiene causa observada.
@@ -84,19 +91,20 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - HUMAN-GATE-A: [phases/02-geography-scenario/APPROVAL.md](phases/02-geography-scenario/APPROVAL.md).
 - HUMAN-GATE-B: aprobada con aceptación explícita de R1–R5.
 - Implementación P2-01–P2-15 y checker P2-16: terminados.
-- Memoria P2-17: preparada en el worktree; su commit/versionado queda pendiente porque esta ejecución no crea commit, push, PR o merge.
-- PR funcional: pendiente.
-- Cierre de ship: pendiente del merge humano, P2-18 y el merge humano del PR documental P2-19.
-- Despliegue y Pages: no demostrados ni verificados.
+- Memoria P2-17: versionada en `107f1bf`; normalización documental en `ac3e564`.
+- PR funcional: #7 fusionado por un humano.
+- GitHub Pages: desplegado y operativo para el merge `69fbfc2`.
+- P2-18: `merged, deployment verification failed`.
+- Cierre de ship: pendiente del merge humano de este P2-19, un PR correctivo, la repetición exitosa de P2-18 y la memoria documental final.
 
 ## Próxima acción recomendada
 
-1. Versionar los cinco documentos P2-17 en la rama antes de crear el PR.
-2. Abrir el PR contra `main` y adjuntar o enlazar la evidencia durable antes de solicitar merge, manteniendo `PASS WITH RISKS`.
-3. Realizar la comprobación humana breve de Chrome al 200% antes de la demo.
-4. Fusionar el PR funcional solo por decisión humana.
-5. Tras el merge, ejecutar P2-18 read-only sobre GitHub Pages con el workflow `Deploy demo to GitHub Pages`, la URL esperada `https://stefano-mt.github.io/viva-inteligencia-demo/` —a confirmar por P2-18— y el workflow run/SHA reales del merge.
-6. Persistir el resultado mediante P2-19 en una rama y PR documental separados; el merge de ese PR también es humano.
+1. Fusionar por decisión humana el PR documental P2-19 que registra el FAIL estrecho.
+2. Corregir en una rama/PR separados la resolución de rutas y fetches del harness para preservar el base path.
+3. Añadir una prueba de regresión para GitHub Pages de proyecto y ejecutar la suite completa.
+4. Fusionar el PR correctivo solo por decisión humana.
+5. Repetir P2-18 read-only contra el SHA correctivo.
+6. Persistir el veredicto final mediante otro PR documental y realizar la comprobación humana breve de Chrome al 200% antes de la demo.
 
 ## Regla para actualizar este archivo
 
