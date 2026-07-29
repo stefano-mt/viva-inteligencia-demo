@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import { createObservedPage, openPath, routes, viewports, withDemoBrowser } from "./helpers/demo-browser.mjs";
+import { resolveAppPath } from "./helpers/app-url.mjs";
 
 const descriptor = JSON.parse(
   await fs.readFile(new URL("./e2e-scenarios/ct-c-public.json", import.meta.url), "utf8"),
@@ -40,21 +41,29 @@ async function assertCanonicalIds(page, consumer, expected) {
   );
 }
 
-async function assertCurrentPath(page, expectedPath, message) {
+async function assertCurrentPath(page, baseUrl, expectedPath, message) {
+  const deployedPath = resolveAppPath(baseUrl, expectedPath);
   await page.waitForFunction(
     (path) => `${window.location.pathname}${window.location.search}${window.location.hash}` === path,
-    expectedPath,
+    deployedPath,
     { timeout: interactionTimeout },
   );
   const current = new URL(page.url());
   assert.equal(
     `${current.pathname}${current.search}${current.hash}`,
-    expectedPath,
+    deployedPath,
     message,
   );
 }
 
-async function waitForActiveRoute(page, routeId, { expectedPath = null, navClosed = false } = {}) {
+async function waitForActiveRoute(
+  page,
+  routeId,
+  { baseUrl = null, expectedPath = null, navClosed = false } = {},
+) {
+  const deployedPath = expectedPath && baseUrl
+    ? resolveAppPath(baseUrl, expectedPath)
+    : expectedPath;
   await page.waitForFunction(
     ({ id, path, requireClosedNav }) => {
       const currentPath = `${window.location.pathname}${window.location.search}${window.location.hash}`;
@@ -66,7 +75,7 @@ async function waitForActiveRoute(page, routeId, { expectedPath = null, navClose
         (!requireClosedNav || (shell && !shell.classList.contains("nav-is-open")))
       );
     },
-    { id: routeId, path: expectedPath, requireClosedNav: navClosed },
+    { id: routeId, path: deployedPath, requireClosedNav: navClosed },
     { timeout: interactionTimeout },
   );
 }
@@ -135,7 +144,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   } = await createObservedPage(desktop, baseUrl);
 
   await openPath(page, baseUrl, descriptor.canonical_path);
-  await assertCurrentPath(page, descriptor.canonical_path, "La URL CT-C debe ser canónica al cargar");
+  await assertCurrentPath(page, baseUrl, descriptor.canonical_path, "La URL CT-C debe ser canónica al cargar");
   assert.equal(
     await page.locator("#scenario-canonical-url").textContent(),
     page.url(),
@@ -143,7 +152,9 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   );
 
   const publicMetadata = await page.evaluate(async () => {
-    const response = await fetch("/demo-data/viva-platform-demo.json");
+    const response = await fetch(
+      new URL("demo-data/viva-platform-demo.json", window.location.href),
+    );
     if (!response.ok) throw new Error(`No se pudo leer el dataset público: HTTP ${response.status}`);
     return (await response.json()).metadata;
   });
@@ -157,7 +168,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 
   await page.reload({ waitUntil: "networkidle" });
   await page.locator("#main-content").waitFor({ state: "visible" });
-  await assertCurrentPath(page, descriptor.canonical_path, "Reload debe reproducir la URL CT-C");
+  await assertCurrentPath(page, baseUrl, descriptor.canonical_path, "Reload debe reproducir la URL CT-C");
   assert.deepEqual(
     await uniqueAttributeValues(page.locator("[data-geo-point-id]"), "data-geo-point-id"),
     mapIds,
@@ -204,10 +215,12 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   await openPath(page, baseUrl, descriptor.canonical_path);
   await page.locator("#scenario-view-comparables").click();
   await waitForActiveRoute(page, "projects", {
+    baseUrl,
     expectedPath: pathForRoute(descriptor.canonical_path, "projects"),
   });
   await assertCurrentPath(
     page,
+    baseUrl,
     pathForRoute(descriptor.canonical_path, "projects"),
     "La CTA debe preservar query y navegar a proyectos",
   );
@@ -239,7 +252,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 
   await openPath(page, baseUrl, descriptor.canonical_path);
   await page.locator("#reset-scenario").click();
-  await assertCurrentPath(page, "/#dashboard", "Reset debe restaurar el preset CT-I");
+  await assertCurrentPath(page, baseUrl, "/#dashboard", "Reset debe restaurar el preset CT-I");
   assert.equal(await page.evaluate(() => document.activeElement?.id), "reset-scenario", "Reset debe recuperar foco");
   assert.equal(await page.locator("[data-geo-point-id]").count(), 90, "CT-I debe mostrar 90 observaciones");
   assert.equal(await page.locator("#geo-project-select option").count(), 90, "CT-I debe ofrecer 90 observaciones por teclado");
@@ -367,11 +380,13 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   await mobileObserved.page.locator('.sidebar [data-view="projects"]').click();
   const mobileProjectsPath = pathForRoute(descriptor.canonical_path, "projects");
   await waitForActiveRoute(mobileObserved.page, "projects", {
+    baseUrl,
     expectedPath: mobileProjectsPath,
     navClosed: true,
   });
   await assertCurrentPath(
     mobileObserved.page,
+    baseUrl,
     mobileProjectsPath,
     "La navegación móvil debe conservar el escenario",
   );
