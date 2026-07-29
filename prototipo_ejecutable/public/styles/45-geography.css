@@ -61,7 +61,7 @@
   flex: 0 0 auto;
   min-width: 360px;
   padding: 4px;
-  border: 1px solid var(--line-strong);
+  border: 1px solid #73827c;
   border-radius: 12px;
   background: var(--surface-soft);
 }
@@ -97,8 +97,9 @@
 .geo-detail-actions a:focus-visible,
 .positioning-detail-actions a:focus-visible,
 .positioning-table summary:focus-visible {
-  outline: 3px solid #f3b61f;
-  outline-offset: 3px;
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px #202022;
 }
 
 .geo-notice,
@@ -129,7 +130,7 @@
 .geo-stage,
 .positioning-stage {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(280px, 0.72fr);
+  grid-template-columns: minmax(0, 7fr) minmax(320px, 3fr);
   gap: 0;
   min-height: 520px;
 }
@@ -137,7 +138,7 @@
 .geo-map-column,
 .positioning-chart-column {
   min-width: 0;
-  padding: 20px 22px 18px;
+  padding: 20px 12px 18px;
   border-right: 1px solid var(--line);
 }
 
@@ -145,7 +146,7 @@
 .positioning-frame {
   position: relative;
   overflow: hidden;
-  border: 1px solid var(--line-strong);
+  border: 1px solid #73827c;
   border-radius: 16px;
   background: #f4f8f5;
 }
@@ -161,6 +162,7 @@
 .geo-map-frame,
 .positioning-frame {
   overflow-x: auto;
+  scrollbar-gutter: stable;
   scrollbar-color: var(--teal-line) transparent;
 }
 
@@ -222,7 +224,7 @@
 
 .geo-radius-label {
   fill: #254a92;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 850;
 }
 
@@ -300,7 +302,7 @@
 .geo-target text,
 .positioning-target text {
   fill: #004b30;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
   paint-order: stroke;
   stroke: #f3f7f4;
@@ -317,7 +319,7 @@
 .geo-scale text,
 .geo-north text {
   fill: var(--ink);
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 900;
 }
 
@@ -355,7 +357,7 @@
 }
 
 .geo-empty-actions button {
-  min-height: 40px;
+  min-height: 44px;
   border: 1px solid var(--action);
   border-radius: 9px;
   padding: 7px 12px;
@@ -394,7 +396,7 @@
 .positioning-selector select {
   width: 100%;
   min-height: 46px;
-  border: 1px solid var(--line-strong);
+  border: 1px solid #73827c;
   border-radius: 10px;
   padding: 8px 36px 8px 12px;
   background: var(--surface);
@@ -666,7 +668,7 @@
   padding: 11px 24px 13px;
   background: var(--surface-soft);
   color: #46544f;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.45;
 }
 
@@ -763,7 +765,7 @@
 
 .positioning-grid text {
   fill: #53635d;
-  font-size: 12px;
+  font-size: 16px;
   font-weight: 700;
 }
 
@@ -775,7 +777,7 @@
 
 .positioning-axis-title {
   fill: #263a33;
-  font-size: 13px;
+  font-size: 17px;
   font-weight: 900;
 }
 
@@ -788,7 +790,7 @@
 
 .positioning-median text {
   fill: var(--teal);
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 900;
   paint-order: stroke;
   stroke: #f3f7f4;
@@ -828,6 +830,7 @@
 
 .positioning-table-scroll {
   overflow-x: auto;
+  scrollbar-gutter: stable;
   padding-bottom: 18px;
 }
 
@@ -858,7 +861,7 @@
   background: var(--teal-soft);
 }
 
-@media (max-width: 1180px) {
+@media (max-width: 1360px) {
   .geo-panel-header,
   .positioning-panel-header {
     align-items: stretch;
@@ -877,6 +880,7 @@
 
   .geo-map-column,
   .positioning-chart-column {
+    padding-inline: 22px;
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
@@ -918,6 +922,10 @@
   }
 
   .geo-map-frame {
+    min-height: 360px;
+  }
+
+  .positioning-frame {
     min-height: 360px;
   }
 
