@@ -205,3 +205,24 @@ Las mitigaciones obligatorias son:
 5. realizar una comprobación humana breve de Chrome al 200% antes de la demo; puede hacerse durante la revisión del PR solo si esa revisión ocurre primero.
 
 Las desviaciones `20f282a`, `080cc61` y `ec6e6e9` permanecen registradas como riesgo procedimental; no crean precedente para ampliar un `write_set` después de escribir. Los documentos P2-17 deben versionarse antes de crear el PR. El merge del PR funcional es humano. P2-18 verifica Pages de forma read-only después del merge. P2-19 persiste ese resultado en una rama y PR documental separados, y su PR también requiere merge humano antes de declarar `deployed and verified` o `merged, deployment verification failed`.
+
+## D-025 — HUMAN-GATE-A habilita P3-01 bajo A1–A8
+
+**Fecha:** 2026-07-29
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Acepto A1–A8 y autorizo HUMAN-GATE-A de la Fase 3.” con timestamp de sesión `2026-07-29T11:03:25.5945816-05:00`. La aprobación acepta el plan revisado en `2ca7cf3` y habilita P3-01.
+
+Queda decidido:
+
+1. los originales CT-G no se publican;
+2. los activos neutrales son propios, controlados y se identifican como no originales;
+3. `30 / 22 / 5`, tipologías inspectables y activos autorizados son denominadores separados;
+4. el inventario inicial contiene 10 tipologías, 5 agencias, 1 caso observado y 9 controlados;
+5. no se elige una verdad ni se infiere área techada;
+6. la elegibilidad se decide por hecho/tipología; Pardo Coast permanece en F2/CT-I;
+7. la demo sigue estática, sin OCR en vivo, scraping, backend o servicios externos;
+8. un cambio material a A1–A8, contrato, inventario, permisos, write sets, dependencias o CT-D/CT-G exige replanificación y nueva revisión.
+
+La aprobación no equivale a PASS técnico, merge o despliegue. P3-14 permanece independiente y HUMAN-GATE-B será obligatoria si el veredicto es `PASS WITH RISKS`.

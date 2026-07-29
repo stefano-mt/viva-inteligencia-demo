@@ -6,9 +6,9 @@
 
 **Última fase completada:** Fase 2 — contexto, geografía y escenario
 
-**Estado:** Fases 0, 1 y 2 completadas. Fase 2 está `deployed and verified`; el PR documental final #10 fue fusionado en `main` mediante `e2667240fc38f1fb764839f32937a5e47f6f714f`. Fase 3 está en planificación y no tiene implementación autorizada.
+**Estado:** Fases 0, 1 y 2 completadas. Fase 2 está `deployed and verified`; el PR documental final #10 fue fusionado en `main` mediante `e2667240fc38f1fb764839f32937a5e47f6f714f`. La planificación de Fase 3 pasó revisión y HUMAN-GATE-A; P3-01 está autorizado.
 
-**Rama activa de planificación:** `docs/phase-3-evidence-inspector-plan`.
+**Rama funcional autorizada:** `feat/phase-3-evidence-inspector`.
 
 ## Baseline vigente
 
@@ -114,13 +114,13 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Solicitud de aprobación: [phases/03-evidence-inspector/HUMAN-GATE-A-REQUEST.md](phases/03-evidence-inspector/HUMAN-GATE-A-REQUEST.md).
 - Revisión independiente: [phases/03-evidence-inspector/PLAN_REVIEW.md](phases/03-evidence-inspector/PLAN_REVIEW.md), `PASS`.
 - Contrato propuesto: `2.2.0`, todavía no implementado.
-- HUMAN-GATE-A: pendiente.
+- HUMAN-GATE-A: [phases/03-evidence-inspector/APPROVAL.md](phases/03-evidence-inspector/APPROVAL.md), aprobada el `2026-07-29T11:03:25.5945816-05:00`.
 - Código, datos y activos F3: sin cambios.
 
 ## Próxima acción recomendada
 
-1. Obtener aprobación explícita de A1–A8 antes de P3-00C.
-2. Persistir la aprobación mediante `APPROVAL.md`; solo después abrir la rama funcional.
+1. Ejecutar P3-01 en `feat/phase-3-evidence-inspector`: schema y reader 2.2.
+2. Verificar compatibilidad 2.0/2.1/2.2 antes de P3-02.
 3. Realizar la comprobación humana breve de Chrome al 200% antes de una presentación.
 
 ## Regla para actualizar este archivo
