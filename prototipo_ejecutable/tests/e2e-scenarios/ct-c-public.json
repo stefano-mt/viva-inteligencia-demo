@@ -1,0 +1,77 @@
+{
+  "id": "CT-C-public",
+  "description": "Escenario público reproducible con un comparable canónico y dos observaciones visibles de cobertura.",
+  "canonical_path": "/?sv=1&scope=radius&lat=-12.120166&lon=-77.024975&radius=500&typology=departamento&bedrooms=1&area=80&price=650000&delivery=2026#dashboard",
+  "dataset_id": "dataset:viva-platform-demo-2026-07-28",
+  "contract_version": "2.1.0",
+  "scenario_version": 1,
+  "scenario": {
+    "district_id": "150122",
+    "scope_mode": "radius",
+    "center_latitude": -12.120166,
+    "center_longitude": -77.024975,
+    "radius_meters": 500,
+    "typology": "departamento",
+    "bedrooms": 1,
+    "total_area": 80,
+    "list_price": 650000,
+    "delivery_year": 2026,
+    "visualization": "geographic"
+  },
+  "expected": {
+    "observed_project_ids": [
+      "observed:nexo-2417",
+      "observed:nexo-4088",
+      "observed:nexo-4135"
+    ],
+    "display_project_ids": [
+      "observed:nexo-2417",
+      "observed:nexo-4088",
+      "observed:nexo-4135"
+    ],
+    "comparable_project_ids": [
+      "project:nexo-2417"
+    ],
+    "price_reference_project_ids": [
+      "project:nexo-2417"
+    ],
+    "consumer_project_ids": {
+      "catalog": [
+        "project:nexo-2417"
+      ],
+      "compare": [
+        "project:nexo-2417"
+      ],
+      "checklist": [
+        "project:nexo-2417"
+      ],
+      "assistant": [
+        "project:nexo-2417"
+      ]
+    },
+    "statuses": {
+      "scenario": "valid",
+      "geography": "ready",
+      "comparability": "orientative",
+      "price": "insufficient"
+    },
+    "coverage": {
+      "geography_percent": 100,
+      "evidence_percent": 100
+    },
+    "exclusions": [
+      {
+        "observed_project_id": "observed:nexo-4088",
+        "axis": "reconciliation",
+        "reason": "not_reconciled",
+        "visible_as_coverage": true
+      },
+      {
+        "observed_project_id": "observed:nexo-4135",
+        "axis": "product",
+        "reason": "bedrooms_mismatch",
+        "visible_as_coverage": true
+      }
+    ]
+  }
+}
