@@ -3,6 +3,7 @@ import fs from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveAppUrl } from "./app-url.mjs";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
@@ -115,7 +116,7 @@ export async function openRoute(page, baseUrl, routeId) {
 }
 
 export async function openPath(page, baseUrl, relativeUrl) {
-  await page.goto(new URL(relativeUrl, `${baseUrl}/`).href, {
+  await page.goto(resolveAppUrl(baseUrl, relativeUrl), {
     waitUntil: "networkidle",
   });
   await page.locator("#main-content").waitFor({ state: "visible" });

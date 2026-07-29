@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import {
+  normalizeAppBaseUrl,
+  resolveAppPath,
+  resolveAppUrl,
+} from "./helpers/app-url.mjs";
+import {
   buildScenarioPresentation,
   loadBoundaryArtifact,
   renderScenarioBar,
@@ -582,6 +587,39 @@ assert.doesNotMatch(
 );
 assert.doesNotMatch(viewSource, /\son(?:click|change|submit)=/);
 
+assert.equal(
+  normalizeAppBaseUrl("http://127.0.0.1:4177").href,
+  "http://127.0.0.1:4177/",
+);
+assert.equal(
+  resolveAppUrl(
+    "http://127.0.0.1:4177",
+    "/?sv=1&scope=radius#dashboard",
+  ),
+  "http://127.0.0.1:4177/?sv=1&scope=radius#dashboard",
+);
+assert.equal(
+  resolveAppUrl(
+    "https://example.test/viva-inteligencia-demo/",
+    "/?sv=1&scope=radius#dashboard",
+  ),
+  "https://example.test/viva-inteligencia-demo/?sv=1&scope=radius#dashboard",
+);
+assert.equal(
+  resolveAppUrl(
+    "https://example.test/viva-inteligencia-demo",
+    "/#projects",
+  ),
+  "https://example.test/viva-inteligencia-demo/#projects",
+);
+assert.equal(
+  resolveAppPath(
+    "https://example.test/viva-inteligencia-demo/",
+    "/?sv=1#compare",
+  ),
+  "/viva-inteligencia-demo/?sv=1#compare",
+);
+
 console.log(
-  "Scenario context OK: territory lens render states, a11y hooks, same-origin byte-hash loader, URL hydration and responsive contract verified.",
+  "Scenario context OK: territory lens render states, a11y hooks, same-origin byte-hash loader, base-path URL hydration and responsive contract verified.",
 );
