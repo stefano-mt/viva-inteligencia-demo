@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import {
   INSPECTOR_QUALITY_PRECEDENCE,
   INSPECTOR_ROW_ORDER,
+  buildEligibilityProjection,
   buildEvidenceDossier,
   evaluateCompatibility,
   resolveEvidencePresentation,
@@ -15,6 +16,15 @@ const payload = JSON.parse(
   ),
 );
 const { inspector, model } = payload;
+const ctIFixture = JSON.parse(
+  await readFile(
+    new URL(
+      "../../datos_relevantes/demo-pilot/fixtures/ct-i.json",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
 
 const byId = (records, field) =>
   new Map(records.map((record) => [record[field], record]));
@@ -238,6 +248,425 @@ for (const evidenceId of [
   assert.equal(presentation.publicUrl, null);
   assert.equal(presentation.canOpen, false);
 }
+
+const typologyProjectionKeys = [
+  "caseId",
+  "projectId",
+  "typologyId",
+  "provenanceClassification",
+  "rollupStatus",
+  "eligibility",
+  "benchmarkEligible",
+  "reasonCodes",
+  "requiredFactIds",
+  "blockingIssueIds",
+  "eligibleFactIds",
+  "excludedFactIds",
+  "selectedTruthFactId",
+  "facts",
+];
+const factProjectionKeys = [
+  "factId",
+  "observationId",
+  "fieldName",
+  "semanticType",
+  "valueKind",
+  "provenanceClassification",
+  "sourceQualityStatus",
+  "required",
+  "eligibility",
+  "benchmarkEligible",
+  "blockingIssueIds",
+  "reasonCodes",
+];
+const factReasonOrder = [
+  "BLOCKING_ISSUE",
+  "QUALITY_NOT_CERTIFIED",
+  "BENCHMARK_FLAG_FALSE",
+];
+const typologyReasonOrder = [
+  "BLOCKING_REQUIRED_ISSUE",
+  "REQUIRED_FACT_EXCLUDED",
+  "ROLLUP_NOT_CERTIFIED",
+];
+const legacyProjectsBeforeProjection = clone(payload.projects);
+const geographyBeforeProjection = clone(payload.geography);
+const projectionInput = { model: clone(model), inspector: clone(inspector) };
+const projectionInputBefore = clone(projectionInput);
+const projection = buildEligibilityProjection(projectionInput);
+
+assert.deepEqual(Object.keys(projection), ["version", "scope", "typologies"]);
+assert.equal(projection.version, 1);
+assert.equal(projection.scope, "inspected_facts_and_typologies_only");
+assert.equal(projection.typologies.length, 10);
+assert.deepEqual(JSON.parse(JSON.stringify(projection)), projection);
+assert.deepEqual(projectionInput, projectionInputBefore);
+assert.deepEqual(
+  projection.typologies.map(({ caseId }) => caseId),
+  inspector.cases.map(({ case_id }) => case_id).sort(),
+);
+
+for (const typology of projection.typologies) {
+  assert.deepEqual(Object.keys(typology), typologyProjectionKeys);
+  assert.ok(["eligible", "excluded"].includes(typology.eligibility));
+  assert.equal(
+    typology.eligibility,
+    typology.benchmarkEligible ? "eligible" : "excluded",
+  );
+  assert.equal(typology.selectedTruthFactId, null);
+  assert.equal(
+    typology.reasonCodes.length === 0,
+    typology.benchmarkEligible,
+  );
+  assert.deepEqual(
+    typology.reasonCodes,
+    typologyReasonOrder.filter((reason) =>
+      typology.reasonCodes.includes(reason),
+    ),
+  );
+  const inspectorCase = caseById.get(typology.caseId);
+  assert.equal(typology.projectId, inspectorCase.project_id);
+  assert.equal(typology.typologyId, inspectorCase.typology_id);
+  assert.equal(
+    typology.provenanceClassification,
+    inspectorCase.provenance_classification,
+  );
+  assert.deepEqual(typology.requiredFactIds, inspectorCase.required_fact_ids);
+  assert.deepEqual(
+    typology.facts.map(({ factId }) => factId),
+    inspectorCase.fact_ids,
+  );
+  assert.deepEqual(
+    typology.eligibleFactIds,
+    typology.facts
+      .filter(({ benchmarkEligible }) => benchmarkEligible)
+      .map(({ factId }) => factId),
+  );
+  assert.deepEqual(
+    typology.excludedFactIds,
+    typology.facts
+      .filter(({ benchmarkEligible }) => !benchmarkEligible)
+      .map(({ factId }) => factId),
+  );
+  assert.equal(
+    new Set([
+      ...typology.eligibleFactIds,
+      ...typology.excludedFactIds,
+    ]).size,
+    typology.facts.length,
+  );
+
+  for (const projectedFact of typology.facts) {
+    assert.deepEqual(Object.keys(projectedFact), factProjectionKeys);
+    assert.equal(
+      projectedFact.provenanceClassification,
+      typology.provenanceClassification,
+    );
+    assert.equal(
+      projectedFact.eligibility,
+      projectedFact.benchmarkEligible ? "eligible" : "excluded",
+    );
+    assert.equal(
+      projectedFact.reasonCodes.length === 0,
+      projectedFact.benchmarkEligible,
+    );
+    assert.deepEqual(
+      projectedFact.reasonCodes,
+      factReasonOrder.filter((reason) =>
+        projectedFact.reasonCodes.includes(reason),
+      ),
+    );
+  }
+}
+
+const projectedCtG = projection.typologies.find(
+  ({ caseId }) => caseId === "case:f3-ct-g-pardo",
+);
+assert.deepEqual(
+  {
+    projectId: projectedCtG.projectId,
+    typologyId: projectedCtG.typologyId,
+    provenanceClassification: projectedCtG.provenanceClassification,
+    rollupStatus: projectedCtG.rollupStatus,
+    eligibility: projectedCtG.eligibility,
+    benchmarkEligible: projectedCtG.benchmarkEligible,
+    reasonCodes: projectedCtG.reasonCodes,
+    blockingIssueIds: projectedCtG.blockingIssueIds,
+    selectedTruthFactId: projectedCtG.selectedTruthFactId,
+  },
+  {
+    projectId: "project:nexo-2951",
+    typologyId: "typology:pardo-coast-tipo-7",
+    provenanceClassification: "observed",
+    rollupStatus: "inconsistent",
+    eligibility: "excluded",
+    benchmarkEligible: false,
+    reasonCodes: [
+      "BLOCKING_REQUIRED_ISSUE",
+      "REQUIRED_FACT_EXCLUDED",
+      "ROLLUP_NOT_CERTIFIED",
+    ],
+    blockingIssueIds: [
+      "issue:pardo-coast-area-source-conflict",
+      "issue:pardo-coast-floor-range-conflict-review",
+    ],
+    selectedTruthFactId: null,
+  },
+);
+assert.equal(projectedCtG.facts.length, 8);
+assert.deepEqual(
+  projectedCtG.excludedFactIds,
+  projectedCtG.facts.map(({ factId }) => factId),
+);
+assert.deepEqual(projectedCtG.eligibleFactIds, []);
+assert.deepEqual(
+  projectedCtG.facts.find(
+    ({ factId }) => factId === "fact:pardo-coast-card-area",
+  ).reasonCodes,
+  ["BLOCKING_ISSUE", "QUALITY_NOT_CERTIFIED", "BENCHMARK_FLAG_FALSE"],
+);
+
+const projectedCtD = projection.typologies.find(
+  ({ caseId }) => caseId === "case:f3-ct-d-finishes",
+);
+assert.equal(projectedCtD.rollupStatus, "certified");
+assert.equal(projectedCtD.eligibility, "eligible");
+assert.equal(projectedCtD.benchmarkEligible, true);
+assert.deepEqual(projectedCtD.reasonCodes, []);
+assert.deepEqual(
+  projectedCtD.facts.find(
+    ({ factId }) => factId === "fact:ct-d-countertop-material",
+  ),
+  {
+    factId: "fact:ct-d-countertop-material",
+    observationId: "observation:ct-d-countertop",
+    fieldName: "countertop_material",
+    semanticType: "attribute",
+    valueKind: "observed",
+    provenanceClassification: "controlled",
+    sourceQualityStatus: "certified",
+    required: true,
+    eligibility: "eligible",
+    benchmarkEligible: true,
+    blockingIssueIds: [],
+    reasonCodes: [],
+  },
+);
+assert.deepEqual(
+  projectedCtD.facts.find(
+    ({ factId }) => factId === "fact:ct-d-air-conditioning",
+  ),
+  {
+    factId: "fact:ct-d-air-conditioning",
+    observationId: "observation:ct-d-air-conditioning-absence",
+    fieldName: "air_conditioning",
+    semanticType: "attribute",
+    valueKind: "observed",
+    provenanceClassification: "controlled",
+    sourceQualityStatus: "insufficient",
+    required: false,
+    eligibility: "excluded",
+    benchmarkEligible: false,
+    blockingIssueIds: [],
+    reasonCodes: ["QUALITY_NOT_CERTIFIED", "BENCHMARK_FLAG_FALSE"],
+  },
+);
+
+const projectionWithBlockedCertifiedFact = clone(payload);
+const blockedCtDCase = projectionWithBlockedCertifiedFact.inspector.cases.find(
+  ({ case_id }) => case_id === "case:f3-ct-d-finishes",
+);
+const certifiedBlockIssue = {
+  issue_id: "issue:test-certified-countertop-block",
+  entity_type: "typology",
+  entity_id: blockedCtDCase.typology_id,
+  fact_ids: ["fact:ct-d-countertop-material"],
+  issue_code: "test_block",
+  severity: "medium",
+  quality_status: "reviewable",
+  detail: "Synthetic blocking issue for projection coverage.",
+  next_action: "Review the certified fact.",
+  benchmark_blocking: true,
+};
+projectionWithBlockedCertifiedFact.model.issues.push(certifiedBlockIssue);
+blockedCtDCase.issue_ids.push(certifiedBlockIssue.issue_id);
+const blockedCertifiedProjection = buildEligibilityProjection({
+  model: projectionWithBlockedCertifiedFact.model,
+  inspector: projectionWithBlockedCertifiedFact.inspector,
+});
+const blockedCertifiedCtD = blockedCertifiedProjection.typologies.find(
+  ({ caseId }) => caseId === blockedCtDCase.case_id,
+);
+assert.deepEqual(
+  blockedCertifiedCtD.facts.find(
+    ({ factId }) => factId === "fact:ct-d-countertop-material",
+  ).reasonCodes,
+  ["BLOCKING_ISSUE"],
+);
+assert.equal(blockedCertifiedCtD.eligibility, "excluded");
+assert.deepEqual(blockedCertifiedCtD.reasonCodes, [
+  "BLOCKING_REQUIRED_ISSUE",
+  "REQUIRED_FACT_EXCLUDED",
+  "ROLLUP_NOT_CERTIFIED",
+]);
+
+const projectionWithBlockedCertifiedOptionalFact = clone(payload);
+const optionalBlockCtDCase =
+  projectionWithBlockedCertifiedOptionalFact.inspector.cases.find(
+    ({ case_id }) => case_id === "case:f3-ct-d-finishes",
+  );
+const certifiedOptionalFact =
+  projectionWithBlockedCertifiedOptionalFact.model.facts.find(
+    ({ fact_id }) => fact_id === "fact:ct-d-air-conditioning",
+  );
+certifiedOptionalFact.quality_status = "certified";
+certifiedOptionalFact.benchmark_eligible = true;
+const certifiedOptionalBlockIssue = {
+  issue_id: "issue:test-certified-optional-air-conditioning-block",
+  entity_type: "typology",
+  entity_id: optionalBlockCtDCase.typology_id,
+  fact_ids: [certifiedOptionalFact.fact_id],
+  issue_code: "test_optional_block",
+  severity: "medium",
+  quality_status: "reviewable",
+  detail: "Synthetic blocking issue scoped to an optional certified fact.",
+  next_action: "Review the optional fact.",
+  benchmark_blocking: true,
+};
+projectionWithBlockedCertifiedOptionalFact.model.issues.push(
+  certifiedOptionalBlockIssue,
+);
+optionalBlockCtDCase.issue_ids.push(certifiedOptionalBlockIssue.issue_id);
+const blockedCertifiedOptionalProjection = buildEligibilityProjection({
+  model: projectionWithBlockedCertifiedOptionalFact.model,
+  inspector: projectionWithBlockedCertifiedOptionalFact.inspector,
+});
+const blockedCertifiedOptionalCtD =
+  blockedCertifiedOptionalProjection.typologies.find(
+    ({ caseId }) => caseId === optionalBlockCtDCase.case_id,
+  );
+const projectedBlockedOptionalFact = blockedCertifiedOptionalCtD.facts.find(
+  ({ factId }) => factId === certifiedOptionalFact.fact_id,
+);
+assert.equal(projectedBlockedOptionalFact.eligibility, "excluded");
+assert.equal(projectedBlockedOptionalFact.benchmarkEligible, false);
+assert.equal(projectedBlockedOptionalFact.sourceQualityStatus, "certified");
+assert.deepEqual(projectedBlockedOptionalFact.reasonCodes, [
+  "BLOCKING_ISSUE",
+]);
+assert.deepEqual(projectedBlockedOptionalFact.blockingIssueIds, [
+  certifiedOptionalBlockIssue.issue_id,
+]);
+assert.equal(blockedCertifiedOptionalCtD.eligibility, "eligible");
+assert.equal(blockedCertifiedOptionalCtD.benchmarkEligible, true);
+assert.deepEqual(blockedCertifiedOptionalCtD.reasonCodes, []);
+assert.deepEqual(blockedCertifiedOptionalCtD.blockingIssueIds, []);
+const projectedRequiredCountertop = blockedCertifiedOptionalCtD.facts.find(
+  ({ factId }) => factId === "fact:ct-d-countertop-material",
+);
+assert.equal(projectedRequiredCountertop.required, true);
+assert.equal(projectedRequiredCountertop.eligibility, "eligible");
+assert.equal(projectedRequiredCountertop.benchmarkEligible, true);
+assert.deepEqual(projectedRequiredCountertop.reasonCodes, []);
+
+const projectionWithRawFalseRequiredFact = clone(payload);
+projectionWithRawFalseRequiredFact.model.facts.find(
+  ({ fact_id }) => fact_id === "fact:ct-d-countertop-material",
+).benchmark_eligible = false;
+const rawFalseProjection = buildEligibilityProjection({
+  model: projectionWithRawFalseRequiredFact.model,
+  inspector: projectionWithRawFalseRequiredFact.inspector,
+});
+const rawFalseCtD = rawFalseProjection.typologies.find(
+  ({ caseId }) => caseId === "case:f3-ct-d-finishes",
+);
+assert.deepEqual(
+  rawFalseCtD.facts.find(
+    ({ factId }) => factId === "fact:ct-d-countertop-material",
+  ).reasonCodes,
+  ["BENCHMARK_FLAG_FALSE"],
+);
+assert.equal(rawFalseCtD.eligibility, "excluded");
+assert.deepEqual(rawFalseCtD.reasonCodes, ["REQUIRED_FACT_EXCLUDED"]);
+
+const projectionWithExpectedMutations = clone(payload);
+for (const inspectorCase of projectionWithExpectedMutations.inspector.cases) {
+  inspectorCase.expected_quality_status =
+    inspectorCase.expected_quality_status === "certified"
+      ? "inconsistent"
+      : "certified";
+  inspectorCase.expected_benchmark_eligible =
+    !inspectorCase.expected_benchmark_eligible;
+}
+assert.deepEqual(
+  buildEligibilityProjection({
+    model: projectionWithExpectedMutations.model,
+    inspector: projectionWithExpectedMutations.inspector,
+  }),
+  projection,
+);
+
+const reversedProjectionPayload = clone(payload);
+for (const collectionName of [
+  "documents",
+  "evidence",
+  "sources",
+  "observations",
+  "facts",
+  "issues",
+  "projects",
+]) {
+  reversedProjectionPayload.model[collectionName]?.reverse();
+}
+reversedProjectionPayload.inspector.cases.reverse();
+assert.deepEqual(
+  buildEligibilityProjection({
+    model: reversedProjectionPayload.model,
+    inspector: reversedProjectionPayload.inspector,
+  }),
+  projection,
+);
+
+const secondProjection = buildEligibilityProjection(projectionInput);
+projection.typologies[0].facts[0].reasonCodes.push("MUTATED_OUTPUT");
+assert.deepEqual(secondProjection, buildEligibilityProjection(projectionInput));
+assert.deepEqual(projectionInput, projectionInputBefore);
+
+assert.deepEqual(payload.projects, legacyProjectsBeforeProjection);
+assert.deepEqual(payload.geography, geographyBeforeProjection);
+const legacyPardo = payload.projects.find(
+  ({ id }) => id === "2951",
+);
+assert.ok(legacyPardo);
+for (const eligibilityProperty of [
+  "eligibility",
+  "benchmarkEligible",
+  "benchmark_eligible",
+]) {
+  assert.equal(
+    Object.hasOwn(legacyPardo, eligibilityProperty),
+    false,
+    `legacy project 2951 must not gain ${eligibilityProperty}`,
+  );
+}
+assert.equal(
+  secondProjection.typologies.some(({ projectId }) => projectId === "2951"),
+  false,
+);
+assert.equal(Object.hasOwn(secondProjection, "projects"), false);
+assert.ok(
+  ctIFixture.input.geography.districts[0].quadrants.some(
+    ({ authoritative_project_ids }) =>
+      authoritative_project_ids.includes("project:nexo-2951"),
+  ),
+);
+assert.ok(
+  ctIFixture.input.geography.assignments.some(
+    ({ authoritative_project_id, reconciliation_status }) =>
+      authoritative_project_id === "project:nexo-2951" &&
+      reconciliation_status === "matched",
+  ),
+);
 
 const syntheticObservation = {
   observation_id: "observation:synthetic",
@@ -660,6 +1089,80 @@ expectDossierFailure((candidate) => {
   candidate.model.facts.push(clone(candidate.model.facts[0]));
 }, /duplicate fact_id/);
 
+const expectProjectionFailure = (mutate, pattern) => {
+  const candidate = clone(payload);
+  mutate(candidate);
+  assert.throws(
+    () =>
+      buildEligibilityProjection({
+        model: candidate.model,
+        inspector: candidate.inspector,
+      }),
+    pattern,
+  );
+};
+
+assert.throws(() => buildEligibilityProjection(), /model must be an object/);
+assert.throws(
+  () => buildEligibilityProjection({ model }),
+  /inspector must be an object/,
+);
+expectProjectionFailure((candidate) => {
+  candidate.inspector.cases = [];
+}, /must not be empty/);
+expectProjectionFailure((candidate) => {
+  candidate.inspector.cases[0].provenance_classification = "legacy";
+}, /unsupported value/);
+expectProjectionFailure((candidate) => {
+  const factId = candidate.inspector.cases[0].fact_ids[0];
+  candidate.model.facts.find(({ fact_id }) => fact_id === factId).value_kind =
+    "estimated";
+}, /unsupported value/);
+expectProjectionFailure((candidate) => {
+  const factId = candidate.inspector.cases[0].fact_ids[0];
+  candidate.model.facts.find(
+    ({ fact_id }) => fact_id === factId,
+  ).benchmark_eligible = "true";
+}, /must be a boolean/);
+expectProjectionFailure((candidate) => {
+  const issueId = candidate.inspector.cases.find(
+    ({ issue_ids }) => issue_ids.length > 0,
+  ).issue_ids[0];
+  candidate.model.issues.find(
+    ({ issue_id }) => issue_id === issueId,
+  ).benchmark_blocking = 1;
+}, /must be a boolean/);
+for (const fieldName of [
+  "observation_id",
+  "field_name",
+  "semantic_type",
+]) {
+  expectProjectionFailure((candidate) => {
+    const factId = candidate.inspector.cases[0].fact_ids[0];
+    candidate.model.facts.find(({ fact_id }) => fact_id === factId)[
+      fieldName
+    ] = "";
+  }, /must be a non-empty string|belongs to undeclared observation/);
+}
+expectProjectionFailure((candidate) => {
+  candidate.model.typologies.find(
+    ({ typology_id }) => typology_id === "typology:pardo-coast-tipo-7",
+  ).project_id = "project:ct-a-controlled";
+}, /does not belong/);
+expectProjectionFailure((candidate) => {
+  const original = candidate.inspector.cases.find(
+    ({ case_id }) => case_id === "case:f3-ct-g-pardo",
+  );
+  candidate.inspector.cases.push({
+    ...clone(original),
+    case_id: "case:f3-ct-g-pardo-duplicate-pair",
+    route_slug: "f3-ct-g-pardo-duplicate-pair",
+  });
+}, /ambiguous/);
+expectProjectionFailure((candidate) => {
+  candidate.model.facts.push(clone(candidate.model.facts[0]));
+}, /duplicate fact_id/);
+
 assert.throws(
   () =>
     evaluate({
@@ -695,6 +1198,20 @@ const source = await readFile(
 );
 assert.doesNotMatch(source, /\b(?:window|fetch)\b/u);
 assert.doesNotMatch(source, /\bdocument\.(?:querySelector|getElementById)\b/u);
+assert.doesNotMatch(
+  source,
+  /from\s+["'][^"']*(?:domain|state)(?:[./\\][^"']*)?["']/u,
+);
+assert.doesNotMatch(source, /\bglobalThis\.document\b/u);
+const eligibilityProjectionSource = source.slice(
+  source.indexOf("function compareOrdinal"),
+  source.indexOf("function validatePermissionRecord"),
+);
+assert.ok(eligibilityProjectionSource.length > 0);
+assert.doesNotMatch(
+  eligibilityProjectionSource,
+  /\b(?:domain|state|window|document|fetch)\b/u,
+);
 
 console.log(
   "evidence-inspector.mjs: PASS — 10 dossiers, five-state roll-up, six presentation modes, ownership, purity and fail-closed paths verified.",

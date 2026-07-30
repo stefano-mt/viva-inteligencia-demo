@@ -16,6 +16,12 @@ export const INSPECTOR_ROW_ORDER = Object.freeze([
 ]);
 
 const QUALITY_STATUSES = new Set(INSPECTOR_QUALITY_PRECEDENCE);
+const PROVENANCE_CLASSIFICATIONS = new Set([
+  "observed",
+  "controlled",
+  "simulated",
+]);
+const FACT_VALUE_KINDS = new Set(["observed", "derived", "simulated"]);
 const PUBLISH_PERMISSIONS = new Set(["authorized", "restricted", "pending"]);
 const AVAILABILITY_STATUSES = new Set([
   "available",
@@ -58,6 +64,20 @@ function requireArray(value, name) {
 function requireId(value, name) {
   if (typeof value !== "string" || value.length === 0) {
     throw new TypeError(`${name} must be a non-empty string`);
+  }
+  return value;
+}
+
+function requireBoolean(value, name) {
+  if (typeof value !== "boolean") {
+    throw new TypeError(`${name} must be a boolean`);
+  }
+  return value;
+}
+
+function requireEnum(value, values, name) {
+  if (typeof value !== "string" || !values.has(value)) {
+    throw new TypeError(`${name} has unsupported value ${String(value)}`);
   }
   return value;
 }
@@ -556,6 +576,230 @@ export function buildEvidenceDossier({
     compatibilityRows: evaluation.rows,
     decision,
     coverage: inspector.coverage,
+  });
+}
+
+function compareOrdinal(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function projectedFact({
+  fact,
+  inspectorCase,
+  provenanceClassification,
+  issues,
+  eligibleFactIds,
+}) {
+  const factId = requireId(fact.fact_id, "fact.fact_id");
+  const observationId = requireId(
+    fact.observation_id,
+    `${factId}.observation_id`,
+  );
+  const fieldName = requireId(fact.field_name, `${factId}.field_name`);
+  const semanticType = requireId(
+    fact.semantic_type,
+    `${factId}.semantic_type`,
+  );
+  const valueKind = requireEnum(
+    fact.value_kind,
+    FACT_VALUE_KINDS,
+    `${factId}.value_kind`,
+  );
+  const sourceQualityStatus = requireEnum(
+    fact.quality_status,
+    QUALITY_STATUSES,
+    `${factId}.quality_status`,
+  );
+  const sourceBenchmarkEligible = requireBoolean(
+    fact.benchmark_eligible,
+    `${factId}.benchmark_eligible`,
+  );
+  const blockingIssueIds = issues
+    .filter(
+      (issue) =>
+        requireBoolean(
+          issue.benchmark_blocking,
+          `${issue.issue_id}.benchmark_blocking`,
+        ) && issue.fact_ids.includes(factId),
+    )
+    .map(({ issue_id: issueId }) => issueId);
+  const benchmarkEligible = eligibleFactIds.has(factId);
+  const reasonCodes = [];
+  if (blockingIssueIds.length > 0) reasonCodes.push("BLOCKING_ISSUE");
+  if (sourceQualityStatus !== "certified") {
+    reasonCodes.push("QUALITY_NOT_CERTIFIED");
+  }
+  if (!sourceBenchmarkEligible) reasonCodes.push("BENCHMARK_FLAG_FALSE");
+  if (benchmarkEligible && reasonCodes.length > 0) {
+    throw new Error(`${factId} is eligible but has exclusion reasons`);
+  }
+  if (!benchmarkEligible && reasonCodes.length === 0) {
+    throw new Error(`${factId} is excluded without an exclusion reason`);
+  }
+
+  return {
+    factId,
+    observationId,
+    fieldName,
+    semanticType,
+    valueKind,
+    provenanceClassification,
+    sourceQualityStatus,
+    required: inspectorCase.required_fact_ids.includes(factId),
+    eligibility: benchmarkEligible ? "eligible" : "excluded",
+    benchmarkEligible,
+    blockingIssueIds,
+    reasonCodes,
+  };
+}
+
+function projectedTypology(dossier) {
+  const inspectorCase = dossier.inspectorCase;
+  const caseId = requireId(inspectorCase.case_id, "inspectorCase.case_id");
+  const projectId = requireId(
+    inspectorCase.project_id,
+    `${caseId}.project_id`,
+  );
+  const typologyId = requireId(
+    inspectorCase.typology_id,
+    `${caseId}.typology_id`,
+  );
+  const provenanceClassification = requireEnum(
+    inspectorCase.provenance_classification,
+    PROVENANCE_CLASSIFICATIONS,
+    `${caseId}.provenance_classification`,
+  );
+  for (const issue of dossier.issues) {
+    requireId(issue.issue_id, "issue.issue_id");
+    requireBoolean(
+      issue.benchmark_blocking,
+      `${issue.issue_id}.benchmark_blocking`,
+    );
+  }
+  const eligibleFactIds = new Set(dossier.decision.eligibleFactIds);
+  const facts = dossier.facts.map((fact) =>
+    projectedFact({
+      fact,
+      inspectorCase,
+      provenanceClassification,
+      issues: dossier.issues,
+      eligibleFactIds,
+    }),
+  );
+  const factIds = facts.map(({ factId }) => factId);
+  const projectedEligibleFactIds = facts
+    .filter(({ benchmarkEligible }) => benchmarkEligible)
+    .map(({ factId }) => factId);
+  const projectedExcludedFactIds = facts
+    .filter(({ benchmarkEligible }) => !benchmarkEligible)
+    .map(({ factId }) => factId);
+  if (
+    new Set(factIds).size !== factIds.length ||
+    factIds.length !==
+      projectedEligibleFactIds.length + projectedExcludedFactIds.length ||
+    projectedEligibleFactIds.some((factId) =>
+      projectedExcludedFactIds.includes(factId),
+    )
+  ) {
+    throw new Error(`${caseId} has an invalid eligibility partition`);
+  }
+  if (
+    JSON.stringify(projectedEligibleFactIds) !==
+      JSON.stringify(dossier.decision.eligibleFactIds) ||
+    JSON.stringify(projectedExcludedFactIds) !==
+      JSON.stringify(dossier.decision.excludedFactIds)
+  ) {
+    throw new Error(`${caseId} eligibility projection diverges from decision`);
+  }
+
+  const benchmarkEligible = requireBoolean(
+    dossier.decision.benchmarkEligible,
+    `${caseId}.decision.benchmarkEligible`,
+  );
+  const rollupStatus = requireEnum(
+    dossier.decision.rollupStatus,
+    QUALITY_STATUSES,
+    `${caseId}.decision.rollupStatus`,
+  );
+  const blockingIssueIds = dossier.decision.blockingIssueIds.map(
+    (issueId, index) =>
+      requireId(issueId, `${caseId}.blockingIssueIds[${index}]`),
+  );
+  const requiredFactIds = inspectorCase.required_fact_ids.map(
+    (factId, index) =>
+      requireId(factId, `${caseId}.requiredFactIds[${index}]`),
+  );
+  const requiredFactExcluded = requiredFactIds.some(
+    (factId) => !eligibleFactIds.has(factId),
+  );
+  const reasonCodes = [];
+  if (blockingIssueIds.length > 0) {
+    reasonCodes.push("BLOCKING_REQUIRED_ISSUE");
+  }
+  if (requiredFactExcluded) reasonCodes.push("REQUIRED_FACT_EXCLUDED");
+  if (rollupStatus !== "certified") {
+    reasonCodes.push("ROLLUP_NOT_CERTIFIED");
+  }
+  if (benchmarkEligible && reasonCodes.length > 0) {
+    throw new Error(`${caseId} is eligible but has exclusion reasons`);
+  }
+  if (!benchmarkEligible && reasonCodes.length === 0) {
+    throw new Error(`${caseId} is excluded without an exclusion reason`);
+  }
+
+  return {
+    caseId,
+    projectId,
+    typologyId,
+    provenanceClassification,
+    rollupStatus,
+    eligibility: benchmarkEligible ? "eligible" : "excluded",
+    benchmarkEligible,
+    reasonCodes,
+    requiredFactIds,
+    blockingIssueIds,
+    eligibleFactIds: projectedEligibleFactIds,
+    excludedFactIds: projectedExcludedFactIds,
+    selectedTruthFactId: null,
+    facts,
+  };
+}
+
+export function buildEligibilityProjection({ model, inspector } = {}) {
+  requireRecord(model, "model");
+  requireRecord(inspector, "inspector");
+  const inspectorCases = requireArray(
+    inspector.cases,
+    "inspector.cases",
+  );
+  if (inspectorCases.length === 0) {
+    throw new RangeError("inspector.cases must not be empty");
+  }
+  const orderedCases = inspectorCases
+    .map((inspectorCase, index) => {
+      requireRecord(inspectorCase, `inspector.cases[${index}]`);
+      requireId(
+        inspectorCase.case_id,
+        `inspector.cases[${index}].case_id`,
+      );
+      return inspectorCase;
+    })
+    .sort((left, right) => compareOrdinal(left.case_id, right.case_id));
+  const typologies = orderedCases.map((inspectorCase) =>
+    projectedTypology(
+      buildEvidenceDossier({
+        model,
+        inspector,
+        projectId: inspectorCase.project_id,
+        typologyId: inspectorCase.typology_id,
+      }),
+    ),
+  );
+
+  return clone({
+    version: 1,
+    scope: "inspected_facts_and_typologies_only",
+    typologies,
   });
 }
 
