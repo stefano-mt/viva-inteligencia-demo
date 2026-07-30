@@ -2,7 +2,9 @@ import { suggestedQuestions } from "./config.js";
 import * as domain from "./domain.js";
 import { viewFromHash } from "./navigation.js";
 import {
+  INSPECTOR_ACTIONS,
   canonicalScenarioSearch,
+  dispatchInspector,
   dispatchScenario,
   resolveDistrictId,
   state,
@@ -110,15 +112,35 @@ export const SCENARIO_EVENTS = Object.freeze({
   projectSelect: "viva:scenario-project-select",
 });
 
+export const INSPECTOR_EVENTS = Object.freeze({
+  caseSelect: "viva:inspector-case-select",
+  projectSelect: "viva:inspector-project-select",
+  typologySelect: "viva:inspector-typology-select",
+  presetSelect: "viva:inspector-preset-select",
+  evidenceOpen: "viva:inspector-evidence-open",
+  evidenceClose: "viva:inspector-evidence-close",
+});
+
+export const INSPECTOR_PRESET_CASE_IDS = Object.freeze({
+  inconsistent: "case:f3-ct-g-pardo",
+  certified: "case:f3-ct-d-finishes",
+  reviewable: "case:f3-floor-review",
+  insufficient_restricted: "case:f3-insufficient-source",
+});
+
 let restoreFocus = null;
 let renderApp = null;
 let scenarioUrlInitialized = false;
 let scenarioDocumentEventsBound = false;
 let scenarioHistoryEventsBound = false;
 let scenarioHistorySearch = null;
+let inspectorDocumentEventsBound = false;
+let inspectorRestoreFocusId = null;
+const inspectorBoundElements = new WeakSet();
 
 export function bindEvents(render) {
   renderApp = render;
+  bindInspectorDocumentEvents();
   if (initializeScenarioFromLocation()) return;
   bindScenarioHistoryEvents();
   bindScenarioDocumentEvents();
@@ -295,6 +317,8 @@ export function bindEvents(render) {
       render();
     });
   });
+
+  bindInspectorElementEvents();
 }
 
 export function changeDistrict(district, options = {}) {
@@ -419,6 +443,63 @@ export function resetScenario(options = {}) {
   return transition;
 }
 
+export function selectInspectorCase(caseIdOrRoute, options = {}) {
+  return runInspectorAction(
+    {
+      type: INSPECTOR_ACTIONS.selectCase,
+      value: caseIdOrRoute,
+    },
+    options,
+  );
+}
+
+export function selectInspectorProject(projectId, options = {}) {
+  return runInspectorAction(
+    {
+      type: INSPECTOR_ACTIONS.selectProject,
+      projectId,
+    },
+    options,
+  );
+}
+
+export function selectInspectorTypology(typologyId, options = {}) {
+  return runInspectorAction(
+    {
+      type: INSPECTOR_ACTIONS.selectTypology,
+      typologyId,
+    },
+    options,
+  );
+}
+
+export function applyInspectorPreset(preset, options = {}) {
+  return runInspectorAction(
+    {
+      type: INSPECTOR_ACTIONS.selectPreset,
+      caseId: INSPECTOR_PRESET_CASE_IDS[preset] ?? preset,
+    },
+    options,
+  );
+}
+
+export function openInspectorEvidence(evidenceId, options = {}) {
+  return runInspectorAction(
+    {
+      type: INSPECTOR_ACTIONS.openEvidence,
+      evidenceId,
+    },
+    options,
+  );
+}
+
+export function closeInspectorEvidence(options = {}) {
+  return runInspectorAction(
+    { type: INSPECTOR_ACTIONS.closeEvidence },
+    options,
+  );
+}
+
 export function seedSelectionsForScenario() {
   const competitors = getCompetitors(state.strategy, 6);
   const displayProjects = getScenarioDisplayProjects();
@@ -441,6 +522,240 @@ export function seedSelectionsForScenario() {
 
 export function seedSelectionsForDistrict() {
   return seedSelectionsForScenario();
+}
+
+function runInspectorAction(action, options = {}) {
+  const isOpen = action.type === INSPECTOR_ACTIONS.openEvidence;
+  const isClose = action.type === INSPECTOR_ACTIONS.closeEvidence;
+  const wasDialogOpen = state.inspectorDialogOpen;
+  if (isOpen && !wasDialogOpen) {
+    inspectorRestoreFocusId =
+      typeof options.focusId === "string" && options.focusId.length > 0
+        ? options.focusId
+        : null;
+  }
+
+  const transition = dispatchInspector(action);
+  const applyEffects = options.render !== false;
+  if (applyEffects && (transition.changed || transition.corrected)) {
+    renderApp?.();
+  }
+  if (applyEffects) {
+    announceInspectorTransition(transition.announcement);
+    applyInspectorFocus(transition.focusIntent, options.focusId);
+  }
+
+  if (isClose || (!transition.selection.dialogOpen && !isOpen)) {
+    inspectorRestoreFocusId = null;
+  } else if (isOpen && !transition.selection.dialogOpen) {
+    inspectorRestoreFocusId = null;
+  }
+  return transition;
+}
+
+function bindInspectorElementEvents() {
+  document.querySelectorAll("[data-inspector-case]").forEach((control) => {
+    if (inspectorBoundElements.has(control)) return;
+    inspectorBoundElements.add(control);
+    control.addEventListener(
+      control.tagName === "SELECT" ? "change" : "click",
+      () => {
+        selectInspectorCase(
+          control.value || control.dataset.inspectorCase,
+          { focusId: control.id || null },
+        );
+      },
+    );
+  });
+  document.querySelectorAll("[data-inspector-project]").forEach((control) => {
+    if (inspectorBoundElements.has(control)) return;
+    inspectorBoundElements.add(control);
+    control.addEventListener(
+      control.tagName === "SELECT" ? "change" : "click",
+      () => {
+        selectInspectorProject(
+          control.value || control.dataset.inspectorProject,
+          { focusId: control.id || null },
+        );
+      },
+    );
+  });
+  document.querySelectorAll("[data-inspector-typology]").forEach((control) => {
+    if (inspectorBoundElements.has(control)) return;
+    inspectorBoundElements.add(control);
+    control.addEventListener(
+      control.tagName === "SELECT" ? "change" : "click",
+      () => {
+        selectInspectorTypology(
+          control.value || control.dataset.inspectorTypology,
+          { focusId: control.id || null },
+        );
+      },
+    );
+  });
+  document.querySelectorAll("[data-inspector-preset]").forEach((control) => {
+    if (inspectorBoundElements.has(control)) return;
+    inspectorBoundElements.add(control);
+    control.addEventListener(
+      control.tagName === "SELECT" ? "change" : "click",
+      () => {
+        applyInspectorPreset(
+          control.value || control.dataset.inspectorPreset,
+          { focusId: control.id || null },
+        );
+      },
+    );
+  });
+  document.querySelectorAll("[data-inspector-evidence]").forEach((control) => {
+    if (inspectorBoundElements.has(control)) return;
+    inspectorBoundElements.add(control);
+    control.addEventListener("click", () => {
+      openInspectorEvidence(control.dataset.inspectorEvidence || null, {
+        focusId: control.id || null,
+      });
+    });
+  });
+  document.querySelectorAll("[data-inspector-close]").forEach((control) => {
+    if (inspectorBoundElements.has(control)) return;
+    inspectorBoundElements.add(control);
+    control.addEventListener("click", () => {
+      closeInspectorEvidence();
+    });
+  });
+}
+
+function bindInspectorDocumentEvents() {
+  if (inspectorDocumentEventsBound || typeof document === "undefined") return;
+  inspectorDocumentEventsBound = true;
+  document.addEventListener(INSPECTOR_EVENTS.caseSelect, (event) => {
+    const detail = inspectorEventDetail(event);
+    if (!detail) return;
+    const value = inspectorDetailString(detail, [
+      "caseId",
+      "case_id",
+      "routeSlug",
+      "route_slug",
+    ]);
+    if (!value) return;
+    selectInspectorCase(
+      value,
+      {
+        focusId: inspectorFocusId(detail),
+      },
+    );
+  });
+  document.addEventListener(INSPECTOR_EVENTS.projectSelect, (event) => {
+    const detail = inspectorEventDetail(event);
+    if (!detail) return;
+    const value = inspectorDetailString(detail, ["projectId", "project_id"]);
+    if (!value) return;
+    selectInspectorProject(value, {
+      focusId: inspectorFocusId(detail),
+    });
+  });
+  document.addEventListener(INSPECTOR_EVENTS.typologySelect, (event) => {
+    const detail = inspectorEventDetail(event);
+    if (!detail) return;
+    const value = inspectorDetailString(detail, [
+      "typologyId",
+      "typology_id",
+    ]);
+    if (!value) return;
+    selectInspectorTypology(value, {
+      focusId: inspectorFocusId(detail),
+    });
+  });
+  document.addEventListener(INSPECTOR_EVENTS.presetSelect, (event) => {
+    const detail = inspectorEventDetail(event);
+    if (!detail) return;
+    const value = inspectorDetailString(detail, ["preset", "value"]);
+    if (!value) return;
+    applyInspectorPreset(value, {
+      focusId: inspectorFocusId(detail),
+    });
+  });
+  document.addEventListener(INSPECTOR_EVENTS.evidenceOpen, (event) => {
+    const detail = inspectorEventDetail(event);
+    if (!detail) return;
+    const evidenceKeys = ["evidenceId", "evidence_id"];
+    const providedEvidenceKey = evidenceKeys.find((key) =>
+      Object.hasOwn(detail, key),
+    );
+    const evidenceId = providedEvidenceKey
+      ? inspectorDetailString(detail, [providedEvidenceKey])
+      : null;
+    if (providedEvidenceKey && !evidenceId) return;
+    openInspectorEvidence(evidenceId, {
+      focusId: inspectorFocusId(detail),
+    });
+  });
+  document.addEventListener(INSPECTOR_EVENTS.evidenceClose, () => {
+    closeInspectorEvidence();
+  });
+}
+
+function inspectorEventDetail(event) {
+  const detail = event?.detail;
+  return detail && typeof detail === "object" && !Array.isArray(detail)
+    ? detail
+    : null;
+}
+
+function inspectorDetailString(detail, keys) {
+  for (const key of keys) {
+    const value = detail[key];
+    if (typeof value === "string" && value.length > 0) return value;
+  }
+  return null;
+}
+
+function inspectorFocusId(detail) {
+  return typeof detail.focusId === "string" && detail.focusId.length > 0
+    ? detail.focusId
+    : null;
+}
+
+function announceInspectorTransition(message) {
+  if (typeof document === "undefined" || !message) return;
+  const liveRegion = document.getElementById("inspector-live");
+  if (liveRegion) liveRegion.textContent = message;
+}
+
+function applyInspectorFocus(focusIntent, selectionFocusId) {
+  if (typeof document === "undefined") return;
+  if (focusIntent === "dialog") {
+    focusFirstInspectorElement([
+      "inspector-dialog-close",
+      "inspector-evidence-dialog",
+    ]);
+    return;
+  }
+  if (focusIntent === "restore") {
+    focusFirstInspectorElement([
+      inspectorRestoreFocusId,
+      "inspector-primary-action",
+      "inspector-case-selector",
+    ]);
+    return;
+  }
+  if (focusIntent === "selection") {
+    focusFirstInspectorElement([
+      selectionFocusId,
+      "inspector-case-selector",
+    ]);
+  }
+}
+
+function focusFirstInspectorElement(ids) {
+  for (const id of ids) {
+    if (typeof id !== "string" || !id) continue;
+    const element = document.getElementById(id);
+    if (element && typeof element.focus === "function") {
+      element.focus();
+      return true;
+    }
+  }
+  return false;
 }
 
 function runScenarioAction(action, options = {}) {
