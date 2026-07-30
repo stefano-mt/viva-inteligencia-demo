@@ -6,7 +6,9 @@ import {
 } from "../public/js/state.js";
 import {
   buildComparableRows,
+  buildProjectInspectorEntry,
   buildProjectCatalogModel,
+  renderProjectDetail,
   renderProjects,
 } from "../public/js/views/projects.js";
 import {
@@ -42,6 +44,11 @@ const baselineRows = buildComparableRows({
   projects: data.projects,
   scenarioContext: baselineContext,
 });
+const catalogScenarioSnapshot = structuredClone(state.scenario);
+const catalogContextSnapshot = structuredClone(state.scenarioContext);
+const catalogContextRevision = state.scenarioContextRevision;
+const catalogSelectedProject = state.selectedProjectId;
+const catalogCompareProjects = structuredClone(state.compareProjectIds);
 
 assert.equal(baselineRows.length, 85);
 assert.equal(
@@ -60,6 +67,131 @@ assert.ok(
       !String(row.distanceMeters).includes("NaN"),
   ),
 );
+
+const pardoRow = baselineRows.find(
+  ({ projectId }) => projectId === "project:nexo-2951",
+);
+assert.ok(pardoRow, "Pardo Coast permanece en el universo territorial F2");
+const pardoEntry = buildProjectInspectorEntry({
+  projectId: pardoRow.projectId,
+  inspectorCases: data.inspector.cases,
+  typologies: data.model.typologies,
+  currentCaseId: "case:f3-ct-g-pardo",
+});
+assert.deepEqual(pardoEntry, {
+  inspectable: true,
+  caseId: "case:f3-ct-g-pardo",
+  routeSlug: "f3-ct-g-pardo",
+  projectId: "project:nexo-2951",
+  typologyId: "typology:pardo-coast-tipo-7",
+  typologyLabel: "Tipo 7",
+  provenance: "observed",
+  href: "#inspector/case/f3-ct-g-pardo",
+});
+assert.equal(
+  buildProjectInspectorEntry({
+    projectId: pardoRow.legacyId,
+    inspectorCases: data.inspector.cases,
+    typologies: data.model.typologies,
+  }).inspectable,
+  false,
+  "el cruce exige project_id canónico exacto",
+);
+assert.equal(
+  buildProjectInspectorEntry({
+    projectId: pardoRow.projectId,
+    inspectorCases: data.inspector.cases,
+    typologies: [],
+  }).inspectable,
+  false,
+  "una tipología ausente no produce un CTA inspectable",
+);
+
+const deterministicEntry = buildProjectInspectorEntry({
+  projectId: "project:fixture",
+  inspectorCases: [
+    {
+      case_id: "case:z",
+      project_id: "project:fixture",
+      typology_id: "typology:z",
+      route_slug: "fixture-z",
+      provenance_classification: "controlled",
+    },
+    {
+      case_id: "case:a",
+      project_id: "project:fixture",
+      typology_id: "typology:a",
+      route_slug: "fixture-a",
+      provenance_classification: "simulated",
+    },
+  ],
+  typologies: [
+    { typology_id: "typology:z", model: "Z" },
+    { typology_id: "typology:a", model: "A" },
+  ],
+});
+assert.equal(deterministicEntry.caseId, "case:a");
+assert.equal(
+  buildProjectInspectorEntry({
+    projectId: "project:fixture",
+    inspectorCases: [
+      {
+        case_id: "case:z",
+        project_id: "project:fixture",
+        typology_id: "typology:z",
+        route_slug: "fixture-z",
+        provenance_classification: "controlled",
+      },
+      {
+        case_id: "case:a",
+        project_id: "project:fixture",
+        typology_id: "typology:a",
+        route_slug: "fixture-a",
+        provenance_classification: "simulated",
+      },
+    ],
+    typologies: [
+      { typology_id: "typology:z", model: "Z" },
+      { typology_id: "typology:a", model: "A" },
+    ],
+    currentCaseId: "case:z",
+  }).caseId,
+  "case:z",
+  "el expediente actual se conserva cuando pertenece al proyecto",
+);
+
+state.inspectorPreset = "case:f3-ct-g-pardo";
+const pardoDetail = renderProjectDetail(pardoRow);
+assert.match(pardoDetail, /data-project-inspector-entry="available"/);
+assert.match(
+  pardoDetail,
+  /href="#inspector\/case\/f3-ct-g-pardo"/,
+);
+assert.match(pardoDetail, />\s*Inspeccionar evidencia\s*</);
+assert.match(
+  pardoDetail,
+  /aria-label="Inspeccionar evidencia de PARDO COAST, Tipo 7"/,
+);
+
+const fallbackRow = baselineRows.find(
+  ({ projectId }) => projectId !== "project:nexo-2951",
+);
+assert.ok(fallbackRow);
+const fallbackDetail = renderProjectDetail(fallbackRow);
+assert.match(fallbackDetail, /data-project-inspector-entry="unavailable"/);
+assert.match(
+  fallbackDetail,
+  /Este proyecto no tiene una tipología inspeccionable en esta demo\. La cobertura territorial no implica expediente de evidencia\./,
+);
+assert.match(fallbackDetail, />\s*Ver cobertura disponible\s*</);
+assert.match(fallbackDetail, /href="#inspector"/);
+assert.match(fallbackDetail, /aria-describedby="project-inspector-description"/);
+assert.doesNotMatch(fallbackDetail, /f3-ct-g-pardo|\/case\/undefined/);
+assert.deepEqual(state.scenario, catalogScenarioSnapshot);
+assert.deepEqual(state.scenarioContext, catalogContextSnapshot);
+assert.equal(state.scenarioContextRevision, catalogContextRevision);
+assert.equal(state.selectedProjectId, catalogSelectedProject);
+assert.deepEqual(state.compareProjectIds, catalogCompareProjects);
 
 const localCatalog = buildProjectCatalogModel({
   projects: data.projects,
@@ -391,6 +523,18 @@ assert.match(
   /&lt;img src=x onerror=&quot;globalThis\.pwned=true&quot;&gt;/,
 );
 assert.doesNotMatch(escapedMarkup, /NaN|Infinity|undefined/);
+const maliciousInspectorData = structuredClone(data);
+maliciousInspectorData.model.typologies.find(
+  ({ typology_id: typologyId }) =>
+    typologyId === "typology:pardo-coast-tipo-7",
+).model = 'Tipo 7"><img src=x onerror=globalThis.pwned=true>';
+state.data = maliciousInspectorData;
+state.scenarioContext = baselineContext;
+state.inspectorPreset = "case:f3-ct-g-pardo";
+const escapedInspectorCta = renderProjectDetail(pardoRow);
+assert.doesNotMatch(escapedInspectorCta, /<img src=x/);
+assert.match(escapedInspectorCta, /&quot;&gt;&lt;img src=x/);
+assert.doesNotMatch(escapedInspectorCta, /\son(?:click|change|submit)=/);
 
 console.log(
   "Projects/compare OK: baseline 85/69, canonical order, local filters, deep search, radial distance, empty states, max 3 and escaping.",

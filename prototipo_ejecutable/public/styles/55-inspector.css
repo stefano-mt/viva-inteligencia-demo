@@ -458,6 +458,7 @@
 }
 
 .inspector-ledger {
+  --inspector-ledger-field-min: 130px;
   position: relative;
   border-top: 4px solid var(--teal);
   background: var(--surface);
@@ -468,7 +469,7 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 130px;
+  left: var(--inspector-ledger-field-min);
   width: 1px;
   background: var(--teal-line);
   pointer-events: none;
@@ -479,7 +480,7 @@
   min-width: 0;
   display: grid;
   grid-template-columns:
-    minmax(130px, 0.58fr)
+    minmax(var(--inspector-ledger-field-min), 0.58fr)
     minmax(180px, 1fr)
     minmax(180px, 1fr)
     minmax(220px, 1.28fr);
@@ -512,7 +513,7 @@
   content: "";
   position: absolute;
   top: 22px;
-  left: 125px;
+  left: calc(var(--inspector-ledger-field-min) - 5px);
   z-index: 1;
   width: 11px;
   height: 11px;
@@ -1129,6 +1130,31 @@
 .inspector-notice p {
   margin-top: 5px;
   color: var(--muted);
+}
+
+@media (min-width: 761px) and (max-width: 1320px) {
+  .inspector-module {
+    grid-template-columns: minmax(190px, 0.55fr) minmax(0, 1.7fr);
+    gap: 16px;
+  }
+
+  .inspector-ledger {
+    --inspector-ledger-field-min: 108px;
+  }
+
+  .inspector-ledger-head,
+  .inspector-ledger-row {
+    grid-template-columns:
+      minmax(var(--inspector-ledger-field-min), 0.54fr)
+      minmax(148px, 1fr)
+      minmax(148px, 1fr)
+      minmax(184px, 1.22fr);
+  }
+
+  .inspector-ledger-head span,
+  .inspector-ledger-cell {
+    padding-inline: 8px;
+  }
 }
 
 @media (max-width: 900px) {

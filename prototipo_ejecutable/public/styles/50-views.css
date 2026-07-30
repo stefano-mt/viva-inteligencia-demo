@@ -326,6 +326,30 @@
   background: var(--surface-warm);
 }
 
+.project-inspector-entry {
+  align-content: start;
+  border-left: 4px solid var(--action);
+  background: var(--teal-soft);
+}
+
+.project-inspector-entry.is-unavailable {
+  border-left-color: var(--line-strong);
+  background: var(--surface-soft);
+}
+
+.project-inspector-entry p {
+  color: var(--muted);
+}
+
+.project-inspector-action {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .subtle-note {
   background: var(--surface-soft);
 }
@@ -889,4 +913,10 @@ dd {
 
 .management-panel .weekly-list {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 620px) {
+  .project-inspector-action {
+    width: 100%;
+  }
 }

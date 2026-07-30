@@ -278,6 +278,7 @@ for (const section of requiredUpperSections) {
 const expectedRoutes = [
   "dashboard",
   "projects",
+  "inspector",
   "market",
   "compare",
   "trust",
@@ -287,7 +288,7 @@ const expectedRoutes = [
 assert.deepEqual(
   views.map((view) => view.id),
   expectedRoutes,
-  "the seven existing routes must remain registered"
+  "the seven existing routes and the inspector must remain registered"
 );
 
 const legacyIds = new Set();
