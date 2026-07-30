@@ -75,7 +75,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** definir una zona objetivo y obtener comparables geográficos explicables.
 
-**Estado:** completada, desplegada y verificada (`PASS WITH RISKS`) el 2026-07-29. El PR funcional #7, el reporte inicial #8 y la corrección #9 fueron fusionados por un humano. P2-18 final pasó 7/7 criterios para `ebe9795e`; queda pendiente únicamente el merge humano del PR documental final para actualizar la memoria de `main`.
+**Estado:** completada, desplegada y verificada (`PASS WITH RISKS`) el 2026-07-29. Los PR #7–#10 fueron fusionados por un humano; P2-18 final pasó 7/7 criterios para `ebe9795e` y el cierre documental quedó integrado en `main`.
 
 ### Línea de trabajo A — Contexto y estado
 
@@ -107,9 +107,9 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** demostrar profundidad multifuente y detectar comparaciones engañosas.
 
-**Estado:** planificación revisada con `PASS` en `docs/phase-3-evidence-inspector-plan`; implementación bloqueada hasta HUMAN-GATE-A.
+**Estado:** implementación P3-01–P3-13 completada; checker P3-14 `PASS`; P3-15 prepara memoria y PR funcional. Merge y verificación post-merge pendientes.
 
-**Contrato propuesto:** `2.2.0`, con índice `inspector` y registros autoritativos integrados en `model`.
+**Contrato implementado:** `2.2.0`, con índice `inspector` y registros autoritativos integrados en `model`; reader compatible con 2.0/2.1/2.2.
 
 ### Ola 3.1 — Ficha y cobertura
 
@@ -132,6 +132,10 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 **Gate de salida:** CT-D y CT-G pasan visual y analíticamente; la evidencia se abre desde el hallazgo.
 
 **Paralelismo:** ficha, cobertura e inspector pueden tener implementadores distintos solo si la fase 0 separó sus archivos.
+
+**Resultado técnico:** CT-D/CT-G PASS; 10 expedientes, 15 activos autorizados, 8 rutas × 3 viewports, zoom 200% y lector comercial en 1:28.548. HUMAN-GATE-B no aplica.
+
+**Ship pendiente:** PR y merge humano → P3-16 Pages → P3-17 memoria post-merge.
 
 ---
 

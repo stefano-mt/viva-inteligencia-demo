@@ -1,12 +1,12 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-07-29
+**Actualizado:** 2026-07-30
 
 **Milestone:** demo vNext orientada a venta
 
 **Última fase completada:** Fase 2 — contexto, geografía y escenario
 
-**Estado:** Fases 0, 1 y 2 completadas. Fase 2 está `deployed and verified`; el PR documental final #10 fue fusionado en `main` mediante `e2667240fc38f1fb764839f32937a5e47f6f714f`. La planificación de Fase 3 pasó revisión y HUMAN-GATE-A; P3-01 está autorizado.
+**Estado:** Fases 0, 1 y 2 completadas. Fase 2 está `deployed and verified`. Fase 3 completó P3-01–P3-14 con veredicto independiente `PASS`; la memoria P3-15 está preparada y su versionado/PR funcional están pendientes. Merge, Pages y cierre post-merge permanecen pendientes.
 
 **Rama funcional autorizada:** `feat/phase-3-evidence-inspector`.
 
@@ -62,6 +62,25 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Resumen: [phases/02-geography-scenario/SUMMARY.md](phases/02-geography-scenario/SUMMARY.md).
 - Handoff: [phases/02-geography-scenario/HANDOFF.md](phases/02-geography-scenario/HANDOFF.md).
 
+## Baseline funcional de Fase 3
+
+- Rama: `feat/phase-3-evidence-inspector`.
+- HEAD funcional verificado por P3-14: `c35646f1adfb4a0603c5838e32af6119ca5f66a1`.
+- Informe P3-14: `599d619`; veredicto `PASS`.
+- Contrato de datos en la rama: `2.2.0`; reader compatible con 2.0/2.1/2.2.
+- Dataset: `dataset:viva-platform-demo-2026-07-28`.
+- JSON público: 3,656,852 bytes; SHA-256 `9cf407c091fbb03b7d489e39079de57fd84af3fe16dc82b8ed559a7eda84646c`.
+- Modelo: 676 proyectos, 184 agencias, 11 tipologías, 30 observaciones, 40 hechos, 19 documentos, 19 evidencias, 10 issues y 3 eventos.
+- Inspector: 10 casos, 10 tipologías inspectables y 15 activos visuales autorizados.
+- Procedencia: 1 observado, 9 controlados y 0 simulados.
+- Calidad: 3 certificados, 1 revisable, 4 inconsistentes, 1 ilegible y 1 insuficiente.
+- Elegibilidad: 3 casos elegibles y 7 excluidos.
+- CT-D y CT-G: PASS visual y analítico.
+- Smoke y accesibilidad: 8 rutas × 3 viewports.
+- Lector comercial nuevo: PASS en `00:01:28.548`.
+- Graphify F3: 2,605 nodos y 5,120 relaciones; sin ciclo o hub nuevo bloqueante.
+- HUMAN-GATE-B: no requerido porque P3-14 emitió `PASS`.
+
 ## Decisiones vigentes de datos
 
 - `$.model` es autoritativo; `$.projects` es una proyección legacy temporal.
@@ -83,7 +102,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - R3: no existe `TEST_CONTRACTS.md`; se usan PLAN, informe y tests ejecutables.
 - R4: Graphify no cubre adecuadamente CSS/JSON; se complementa con tests, hashes y Playwright.
 - R5: el reflujo equivalente a 200% fue automatizado; falta una comprobación humana breve antes de la demo. Puede realizarse durante la revisión del PR únicamente si la revisión ocurre primero.
-- F3 necesita activos autorizados o neutrales: cinco tiers `deep` no equivalen a cinco dossiers visuales.
+- F3 mantiene tres notas no bloqueantes: posible confusión inicial entre porcentaje de evidencia y 30/22/5, cobertura parcial de Graphify para CSS/JSON y prerequisito local de instalar dependencias de desarrollo para Playwright.
 - F4 no dispone de precio por m² de mercado elegible; los dos hechos actuales provienen de CT-A simulado.
 - F5 solo dispone de tres eventos controlados y ninguno tiene causa observada.
 
@@ -105,7 +124,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P2-18 final: PASS.
 - Cierre de ship: `deployed and verified`; memoria documental final fusionada mediante PR #10.
 
-## Fase 3 — planificación vigente
+## Fase 3 — cierre técnico vigente
 
 - Contexto: [phases/03-evidence-inspector/CONTEXT.md](phases/03-evidence-inspector/CONTEXT.md).
 - UX/UI: [phases/03-evidence-inspector/UI-SPEC.md](phases/03-evidence-inspector/UI-SPEC.md).
@@ -113,16 +132,24 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Plan: [phases/03-evidence-inspector/PLAN.md](phases/03-evidence-inspector/PLAN.md).
 - Solicitud de aprobación: [phases/03-evidence-inspector/HUMAN-GATE-A-REQUEST.md](phases/03-evidence-inspector/HUMAN-GATE-A-REQUEST.md).
 - Revisión independiente: [phases/03-evidence-inspector/PLAN_REVIEW.md](phases/03-evidence-inspector/PLAN_REVIEW.md), `PASS`.
-- Contrato propuesto: `2.2.0`, todavía no implementado.
 - HUMAN-GATE-A: [phases/03-evidence-inspector/APPROVAL.md](phases/03-evidence-inspector/APPROVAL.md), aprobada el `2026-07-29T11:03:25.5945816-05:00`.
-- Código, datos y activos F3: sin cambios.
+- Implementación P3-01–P3-13: completada.
+- Checker P3-14: [VERIFICATION_REPORT.md](phases/03-evidence-inspector/VERIFICATION_REPORT.md), `PASS`.
+- Resumen: [SUMMARY.md](phases/03-evidence-inspector/SUMMARY.md).
+- Handoff: [HANDOFF.md](phases/03-evidence-inspector/HANDOFF.md).
+- P3-15: memoria preparada; versionado, push y PR funcional pendientes.
+- Merge: humano y pendiente.
+- P3-16/P3-17: pendientes y bloqueados hasta el merge.
+- Estado de ship de Fase 3: **no desplegado ni verificado todavía**.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P3-01 en `feat/phase-3-evidence-inspector`: schema y reader 2.2.
-2. Verificar compatibilidad 2.0/2.1/2.2 antes de P3-02.
-3. Realizar la comprobación humana breve de Chrome al 200% antes de una presentación.
+1. Versionar y publicar los cinco documentos P3-15.
+2. Abrir el PR funcional de `feat/phase-3-evidence-inspector` contra `main`.
+3. Solicitar revisión y merge humano.
+4. Ejecutar P3-16 contra GitHub Pages después del merge.
+5. Persistir el resultado mediante P3-17 en una rama y PR documental separados.
 
 ## Regla para actualizar este archivo
 
-Registrar solo estado vigente, decisiones, bloqueos y siguiente acción. El detalle histórico de Fase 2 vive en su resumen, handoff e informe de verificación.
+Registrar solo estado vigente, decisiones, bloqueos y siguiente acción. El detalle histórico vive en el resumen, handoff e informe de verificación de cada fase.

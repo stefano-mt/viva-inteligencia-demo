@@ -226,3 +226,31 @@ Queda decidido:
 8. un cambio material a A1–A8, contrato, inventario, permisos, write sets, dependencias o CT-D/CT-G exige replanificación y nueva revisión.
 
 La aprobación no equivale a PASS técnico, merge o despliegue. P3-14 permanece independiente y HUMAN-GATE-B será obligatoria si el veredicto es `PASS WITH RISKS`.
+
+## D-026 — Contrato 2.2 separa evidencia, permiso y elegibilidad territorial
+
+**Fecha:** 2026-07-30
+
+**Estado:** aceptada
+
+Fase 3 materializa `metadata.contract_version = 2.2.0` y un índice autoritativo `$.inspector`, manteniendo compatibilidad de lectura con 2.0 y 2.1. Los niveles 30/22/5, los diez expedientes y los quince activos visuales autorizados son denominadores distintos.
+
+La calidad y el permiso son ejes independientes. Un hecho `pending` o `restricted` puede conservar metadata trazable, pero no publica ruta, fragmento, binario, enlace o solicitud externa. Una representación controlada se identifica persistentemente como no original.
+
+El JSON conserva fingerprints completos de cadena de custodia y puede conservar el `source_url` público de la observación de tarjeta CT-G. Esa metadata no se presenta como evidencia abrible: para `pending`, `restricted` o `unavailable`, la UI no genera CTA externo, `href`, `src`, fragmento, recurso incrustado o solicitud de red, y muestra como máximo un hash abreviado.
+
+La elegibilidad se decide por hecho y tipología. Una incompatibilidad excluye esos datos de salidas certificadas sin retirar el proyecto del universo territorial. En CT-G, `typology:pardo-coast-tipo-7` y sus ocho hechos quedan excluidos; `project:nexo-2951` permanece en CT-I y comparables de Fase 2. No se selecciona una verdad ni se renombra `area_type = unknown` como área techada.
+
+## D-027 — P3-14 PASS habilita PR sin HUMAN-GATE-B
+
+**Fecha:** 2026-07-30
+
+**Estado:** aceptada
+
+El checker independiente `/root/phase3_checker` emitió `PASS` sobre `c35646f1adfb4a0603c5838e32af6119ca5f66a1`. Verificó historias 401–406/901, CT-D, CT-G, permisos, claims, determinismo, regresiones, accesibilidad, responsive, Graphify y un recorrido comercial por un lector nuevo en `00:01:28.548`.
+
+No existen gaps bloqueantes y `HUMAN-GATE-B` no aplica. Las notas de baja severidad no alteran el veredicto: terminología de porcentajes de evidencia, cobertura parcial de Graphify para CSS/JSON y prerequisito local de instalar dependencias de desarrollo.
+
+El alcance aprobado “17–20 documentos/evidencias” se materializó como 19 documentos y 19 evidencias emparejados uno a uno. P3-14 aceptó la interpretación por colección. Si el responsable pretendía un máximo combinado, ese alcance debe reabrirse antes de añadir nuevos registros; no se alteran los datos aprobados durante P3-15.
+
+P3-15 puede preparar el PR funcional. El merge continúa siendo humano. El `PASS` previo al PR no demuestra despliegue: P3-16 debe verificar Pages después del merge y P3-17 debe persistir el resultado en una rama y PR documental separados. Cualquier cambio posterior a P3-14 en código, datos, tests, activos o comportamiento exige repetir el checker sobre el nuevo SHA.
