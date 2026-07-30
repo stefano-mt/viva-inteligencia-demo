@@ -1,6 +1,7 @@
 export const views = [
   { id: "dashboard", label: "Radar comercial", hint: "Decisión del distrito", group: "Análisis" },
   { id: "projects", label: "Proyectos comparables", hint: "Competidores y detalle", group: "Análisis" },
+  { id: "inspector", label: "Inspector de evidencia", hint: "Fuentes, tipologías y calidad", group: "Análisis" },
   { id: "market", label: "Benchmark distrital", hint: "Oferta, precios y jugadores", group: "Análisis" },
   { id: "compare", label: "Comparador estratégico", hint: "Posicionamiento lado a lado", group: "Análisis" },
   { id: "trust", label: "Checklist comercial", hint: "Preparación de campaña", group: "Decisión" },
@@ -36,6 +37,15 @@ export const sectionGuides = {
     purpose: "Encuentra proyectos comparables y revisa el detalle que sustenta su cercanía competitiva.",
     steps: ["Filtra la oferta", "Selecciona un proyecto", "Revisa precio, atributos y fuente"],
     outcome: "Una lista corta de competidores con evidencia visible.",
+  },
+  inspector: {
+    purpose: "Contrasta fuentes y decide qué datos pueden entrar al benchmark.",
+    steps: [
+      "Selecciona un proyecto y una tipología",
+      "Contrasta valores y hallazgos fuente por fuente",
+      "Decide qué se usa, qué se excluye y cuál es el siguiente paso",
+    ],
+    outcome: "Una decisión trazable por tipología, con evidencia y limitaciones explícitas.",
   },
   market: {
     purpose: "Explica la presión competitiva de un distrito y la compara con otras zonas.",

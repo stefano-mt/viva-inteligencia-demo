@@ -3,9 +3,18 @@ import {
   bindEvents,
   initializeScenarioFromLocation,
   restoreActiveInput,
+  selectInspectorCase,
 } from "./js/controller.js";
 import * as domain from "./js/domain.js";
-import { activeView, interfaceIcon, viewFromHash, viewIcon } from "./js/navigation.js";
+import {
+  activeView,
+  inspectorCaseHash,
+  interfaceIcon,
+  parseHashRoute,
+  replaceHashPreservingLocation,
+  viewFromHash,
+  viewIcon,
+} from "./js/navigation.js";
 import {
   initializeScenarioData,
   state,
@@ -19,6 +28,7 @@ import {
   renderChecklist,
   renderCompare,
   renderDashboard,
+  renderInspector,
   renderMarket,
   renderProjects,
   renderScenarioBar,
@@ -126,6 +136,8 @@ let geographyArtifact = {
   geojson: null,
   reason: null,
 };
+let pendingInspectorAnnouncement = "";
+let pendingInspectorAnchorId = null;
 
 init();
 
@@ -139,9 +151,31 @@ async function init() {
     state.view = viewFromHash();
     initializeScenarioFromLocation();
     initializeScenario();
+    hydrateInspectorRoute();
     window.addEventListener("hashchange", () => {
-      state.view = viewFromHash();
+      const route = parseHashRoute(window.location.hash);
+      const previousView = state.view;
+      const sameInspectorAnchor =
+        previousView === "inspector" &&
+        route.kind === "inspector-anchor";
+      state.view = route.view;
       state.mobileNavOpen = false;
+      if (sameInspectorAnchor) {
+        focusInspectorAnchor(route.anchorId);
+        return;
+      }
+      hydrateInspectorRoute(route);
+      if (
+        previousView !== "inspector" &&
+        route.view === "inspector" &&
+        [
+          "inspector-base",
+          "inspector-case",
+          "inspector-invalid",
+        ].includes(route.kind)
+      ) {
+        pendingInspectorAnchorId = "inspector-selection-title";
+      }
       render();
     });
     window.addEventListener("keydown", (event) => {
@@ -184,6 +218,73 @@ function getCanonicalScenarioUrl() {
   return window.location.href;
 }
 
+function defaultInspectorCase() {
+  const inspector = state.data?.inspector;
+  return inspector?.cases?.find(
+    ({ case_id: caseId }) => caseId === inspector.default_case_id,
+  ) ?? null;
+}
+
+function hydrateInspectorRoute(
+  route = parseHashRoute(window.location.hash),
+) {
+  if (route.view !== "inspector") return null;
+  if (route.kind === "inspector-anchor") {
+    pendingInspectorAnchorId = route.anchorId;
+    return null;
+  }
+
+  const defaultCase = defaultInspectorCase();
+  if (!defaultCase) return null;
+  const requested =
+    route.kind === "inspector-case"
+      ? route.caseSlug
+      : defaultCase.case_id;
+  const transition = selectInspectorCase(requested, { render: false });
+  const mustCorrect =
+    route.kind === "inspector-invalid" ||
+    (route.kind === "inspector-case" && transition.corrected);
+
+  if (mustCorrect) {
+    const canonicalHash = inspectorCaseHash(defaultCase.route_slug);
+    if (canonicalHash) replaceHashPreservingLocation(canonicalHash);
+    pendingInspectorAnnouncement =
+      transition.announcement ||
+      "La selección no estaba disponible; se restauró el expediente predeterminado.";
+  } else if (transition.announcement) {
+    pendingInspectorAnnouncement = transition.announcement;
+  }
+  return transition;
+}
+
+function focusInspectorAnchor(anchorId) {
+  if (!anchorId) return false;
+  const target = document.getElementById(anchorId);
+  if (!target) return false;
+  if (!target.matches("a, button, input, select, textarea, summary, [tabindex]")) {
+    target.setAttribute("tabindex", "-1");
+  }
+  target.focus({ preventScroll: true });
+  target.scrollIntoView({ block: "start" });
+  return true;
+}
+
+function restoreInspectorRouteEffects() {
+  if (pendingInspectorAnnouncement) {
+    const liveRegion = document.getElementById("inspector-live");
+    if (liveRegion) {
+      liveRegion.textContent = pendingInspectorAnnouncement;
+      pendingInspectorAnnouncement = "";
+    }
+  }
+  if (
+    pendingInspectorAnchorId &&
+    focusInspectorAnchor(pendingInspectorAnchorId)
+  ) {
+    pendingInspectorAnchorId = null;
+  }
+}
+
 function render() {
   const scenarioPresentation = buildScenarioPresentation({
     data: state.data,
@@ -201,6 +302,7 @@ function render() {
       : ({
           dashboard: renderDashboard,
           projects: renderProjects,
+          inspector: renderInspector,
           market: renderMarket,
           compare: renderCompare,
           trust: renderChecklist,
@@ -275,4 +377,5 @@ function render() {
 
   bindEvents(render);
   restoreActiveInput();
+  restoreInspectorRouteEffects();
 }

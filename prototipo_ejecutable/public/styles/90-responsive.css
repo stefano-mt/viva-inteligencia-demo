@@ -402,3 +402,437 @@
     animation: none !important;
   }
 }
+
+/*
+ * P3-13: en el inspector, el escenario actúa como recibo territorial.
+ * Conserva controles y estados, pero prioriza el veredicto y la evidencia.
+ */
+.workspace:has(.inspector-view) .scenario-bar {
+  min-height: 0;
+  grid-template-columns:
+    minmax(170px, 0.58fr)
+    minmax(430px, 1.7fr)
+    minmax(210px, 0.72fr);
+  gap: 8px 14px;
+  padding: 9px 16px;
+}
+
+.workspace:has(.inspector-view) .scenario-bar__heading {
+  min-height: 44px;
+}
+
+.workspace:has(.inspector-view) .scenario-bar__heading .eyebrow {
+  font-size: 10px;
+}
+
+.workspace:has(.inspector-view) .scenario-bar__heading h1 {
+  font-size: 22px;
+}
+
+.workspace:has(.inspector-view) .scenario-bar__heading .view-context {
+  font-size: 11px;
+}
+
+.workspace:has(.inspector-view) .scenario-bar__controls {
+  grid-column: auto;
+  grid-row: auto;
+  grid-template-columns: minmax(150px, 0.58fr) minmax(270px, 1.42fr);
+  gap: 6px 9px;
+}
+
+.workspace:has(.inspector-view) .scenario-dependent-note,
+.workspace:has(.inspector-view) .scenario-scope > p,
+.workspace:has(.inspector-view) .scenario-dependent > p,
+.workspace:has(.inspector-view) .scenario-bar__meta span:nth-child(n + 2),
+.workspace:has(.inspector-view) .scenario-status small {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.workspace:has(.inspector-view) .scenario-scope legend,
+.workspace:has(.inspector-view) .scenario-dependent legend {
+  margin-bottom: 4px;
+}
+
+.workspace:has(.inspector-view) .scenario-segment {
+  min-height: 44px;
+}
+
+.workspace:has(.inspector-view) .scenario-bar__actions {
+  grid-column: auto;
+  grid-row: auto;
+  gap: 6px;
+}
+
+.workspace:has(.inspector-view) .scenario-bar__meta {
+  grid-template-columns: 1fr;
+  gap: 1px;
+  font-size: 11px;
+}
+
+@media (min-width: 901px) {
+  .workspace:has(.inspector-view) .scenario-bar__meta {
+    position: absolute;
+    bottom: 5px;
+    left: 16px;
+    z-index: 1;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+}
+
+.workspace:has(.inspector-view) .scenario-bar__buttons {
+  grid-template-columns: minmax(118px, 1fr) auto;
+}
+
+.workspace:has(.inspector-view) .scenario-bar .scenario-primary-action,
+.workspace:has(.inspector-view) .scenario-bar .scenario-reset {
+  min-height: 44px;
+}
+
+.workspace:has(.inspector-view) .scenario-summary {
+  display: grid;
+  grid-template-columns:
+    minmax(165px, 0.72fr)
+    minmax(0, 1.55fr)
+    minmax(230px, 0.86fr);
+  gap: 8px 14px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 13px 16px 11px;
+}
+
+.workspace:has(.inspector-view) .scenario-summary__heading {
+  display: grid;
+  gap: 5px;
+  align-content: center;
+  padding: 0;
+}
+
+.workspace:has(.inspector-view) .scenario-summary__heading h2 {
+  font-size: clamp(19px, 1.7vw, 24px);
+}
+
+.workspace:has(.inspector-view) .scenario-summary__eligibility {
+  font-size: 12px;
+  text-align: left;
+}
+
+.workspace:has(.inspector-view) .scenario-summary__metrics {
+  align-self: stretch;
+}
+
+.workspace:has(.inspector-view) .scenario-summary__metrics > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  align-content: center;
+  padding: 8px 10px;
+}
+
+.workspace:has(.inspector-view) .scenario-summary__metrics dt {
+  margin-bottom: 2px;
+  font-size: 11px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.workspace:has(.inspector-view) .scenario-summary__metrics dd {
+  font-size: 16px;
+  overflow-wrap: normal;
+}
+
+.workspace:has(.inspector-view) .scenario-summary__metrics dd small {
+  display: block;
+  margin: 2px 0 0;
+  font-size: 11px;
+}
+
+.workspace:has(.inspector-view) .scenario-summary__statuses {
+  grid-template-columns: 1fr;
+  gap: 4px;
+  padding-top: 0;
+}
+
+.workspace:has(.inspector-view) .scenario-status {
+  min-height: 30px;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 7px;
+  border-radius: 7px;
+  padding: 4px 7px;
+}
+
+.workspace:has(.inspector-view) .scenario-status__mark {
+  width: 22px;
+  height: 22px;
+  border-width: 1px;
+  font-size: 11px;
+}
+
+.workspace:has(.inspector-view) .scenario-status strong {
+  font-size: 11px;
+}
+
+.workspace:has(.inspector-view) .scenario-share {
+  grid-column: 1;
+  grid-row: 2;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.workspace:has(.inspector-view) .scenario-share summary {
+  min-height: 44px;
+  font-size: 11px;
+}
+
+@media (min-width: 901px) {
+  .workspace:has(.inspector-view) .scenario-summary__heading {
+    padding-bottom: 30px;
+  }
+
+  .workspace:has(.inspector-view) .scenario-share {
+    position: absolute;
+    bottom: 9px;
+    left: 16px;
+    width: max-content;
+    max-width: calc(33% - 16px);
+    border-top: 0;
+  }
+}
+
+.workspace:has(.inspector-view) .section-guide {
+  margin-bottom: 10px;
+}
+
+.workspace:has(.inspector-view) .section-guide summary {
+  min-height: 46px;
+  padding-block: 4px;
+}
+
+.workspace:has(.inspector-view) .section-guide .guide-summary small {
+  font-size: 12px;
+}
+
+@media (max-width: 1320px) {
+  .workspace:has(.inspector-view) .scenario-bar {
+    grid-template-columns:
+      minmax(160px, 0.5fr)
+      minmax(420px, 1.6fr)
+      minmax(205px, 0.7fr);
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1320px) {
+  .workspace:has(.inspector-view) .scenario-bar__heading .view-context {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 1120px) {
+  .workspace:has(.inspector-view) .scenario-bar {
+    grid-template-columns:
+      minmax(180px, 0.52fr)
+      minmax(460px, 1.65fr)
+      minmax(220px, 0.72fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .workspace:has(.inspector-view) .scenario-bar {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px 14px;
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__controls,
+  .workspace:has(.inspector-view) .scenario-bar__actions {
+    grid-column: 1;
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__controls {
+    grid-template-columns: minmax(150px, 0.55fr) minmax(280px, 1.45fr);
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__actions {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__meta {
+    align-self: center;
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary {
+    grid-template-columns: minmax(165px, 0.7fr) minmax(0, 1.3fr);
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary__statuses {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace:has(.inspector-view) .scenario-share {
+    position: static;
+    grid-column: 1 / -1;
+    grid-row: auto;
+    width: auto;
+    max-width: none;
+    border-top: 1px dashed var(--teal-line);
+  }
+}
+
+@media (max-width: 760px) {
+  .workspace:has(.inspector-view) .scenario-bar__controls {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__meta {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar .menu-toggle {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary__heading,
+  .workspace:has(.inspector-view) .scenario-summary__statuses,
+  .workspace:has(.inspector-view) .scenario-share {
+    grid-column: 1;
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary__heading {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary__metrics > div {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary__metrics > div:nth-child(even) {
+    border-left: 1px solid var(--line);
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary__statuses {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .workspace:has(.inspector-view) .content {
+    padding-top: 12px;
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__heading {
+    min-height: 40px;
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary {
+    padding: 12px;
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary__heading {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .workspace:has(.inspector-view) .scenario-summary__metrics > div {
+    padding: 8px;
+  }
+
+  .workspace:has(.inspector-view) .section-guide summary {
+    min-height: 52px;
+    padding: 8px 12px;
+  }
+
+  .workspace:has(.inspector-view) .section-guide .guide-summary small {
+    font-size: 11px;
+  }
+}
+
+@media (min-width: 1050px) and (max-width: 1320px) {
+  .workspace:has(.inspector-view) .scenario-bar {
+    grid-template-columns:
+      minmax(190px, 0.56fr)
+      minmax(530px, 1.7fr)
+      minmax(200px, 0.58fr);
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__controls {
+    grid-template-columns:
+      minmax(100px, 0.48fr)
+      minmax(185px, 0.82fr)
+      minmax(210px, 1fr);
+    align-items: end;
+  }
+
+  .workspace:has(.inspector-view) .scenario-dependent {
+    grid-column: auto;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1049px) {
+  .workspace:has(.inspector-view) .scenario-bar {
+    grid-template-columns: minmax(160px, 0.4fr) minmax(0, 1.6fr);
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__controls {
+    grid-column: 1 / -1;
+    grid-template-columns:
+      minmax(130px, 0.5fr)
+      minmax(220px, 0.85fr)
+      minmax(240px, 1fr);
+  }
+
+  .workspace:has(.inspector-view) .scenario-dependent {
+    grid-column: auto;
+  }
+
+  .workspace:has(.inspector-view) .scenario-bar__actions {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}

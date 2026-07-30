@@ -12,6 +12,7 @@ export const EVIDENCE_CATALOG_PATHS = Object.freeze({
   observations: "datos_relevantes/demo-pilot/observations.json",
   documents: "datos_relevantes/demo-pilot/documents.json",
   evidence: "datos_relevantes/demo-pilot/evidence.json",
+  manifest: "datos_relevantes/demo-pilot/evidence-manifest.json",
   transcriptions: "datos_relevantes/demo-pilot/evidence/ct-g-transcriptions.json"
 });
 
@@ -34,8 +35,15 @@ export const CT_G_TRANSCRIPTION_BINDINGS = Object.freeze([
 ]);
 
 const PUBLIC_ASSET_PREFIX = "assets/evidence/";
+const PUBLIC_DIRECTORY = "prototipo_ejecutable/public";
 const VERSIONED_EVIDENCE_DIRECTORY =
   "datos_relevantes/demo-pilot/evidence";
+const CONTROLLED_REPRESENTATION_PREFIX =
+  "Representación controlada para demo; no es el documento original";
+const FORBIDDEN_CT_G_ASSET_HASHES = new Set([
+  "41ab273c521fcc66025653e8cfe44f894afb01b2f1b9be72847dcf87db2f2c4b",
+  "3c108732cc1f9c0dbd884ed3d171a0abacffc96d9e80a95d994dc1d1a43bd60a"
+]);
 const TEXT_ASSET_EXTENSIONS = new Set([".json", ".md", ".txt"]);
 const PERMISSION_RESTRICTION = Object.freeze({
   authorized: 0,
@@ -490,13 +498,9 @@ function defaultPublicAssetPath(repositoryRoot, logicalPath) {
   ) {
     return null;
   }
-  const evidenceRoot = resolve(
-    repositoryRoot,
-    ...VERSIONED_EVIDENCE_DIRECTORY.split("/")
-  );
-  const suffix = logicalPath.slice(PUBLIC_ASSET_PREFIX.length);
-  const candidate = resolve(evidenceRoot, ...suffix.split("/"));
-  if (candidate !== evidenceRoot && !candidate.startsWith(`${evidenceRoot}${sep}`)) {
+  const publicRoot = resolve(repositoryRoot, ...PUBLIC_DIRECTORY.split("/"));
+  const candidate = resolve(publicRoot, ...logicalPath.split("/"));
+  if (candidate !== publicRoot && !candidate.startsWith(`${publicRoot}${sep}`)) {
     return null;
   }
   return candidate;
@@ -603,7 +607,10 @@ function validateEvidenceRestriction(bundle, errors) {
           `${record.evidence_id} fragment is not publicable under document and evidence policy`
         );
       }
-      if (sha256(record.fragment) !== record.sha256) {
+      if (
+        record.kind !== "image_region" &&
+        sha256(record.fragment) !== record.sha256
+      ) {
         addError(errors, `${record.evidence_id} fragment hash mismatch`);
       }
     }
@@ -663,6 +670,7 @@ export function assessPublicEvidenceAccess(
   if (
     evidenceRecord?.fragment !== null &&
     evidenceRecord?.fragment !== undefined &&
+    evidenceRecord?.kind !== "image_region" &&
     sha256(evidenceRecord.fragment) !== evidenceRecord.sha256
   ) {
     reasons.push("EVIDENCE_FRAGMENT_HASH_MISMATCH");
@@ -679,7 +687,11 @@ function validateVersionedEvidence(bundle, repositoryRoot, errors) {
 
   for (const record of bundle.evidence) {
     const repositoryRelativePath = VERSIONED_EVIDENCE_FILES[record.evidence_id];
-    if (record.availability === "available" && !repositoryRelativePath) {
+    if (
+      record.availability === "available" &&
+      record.kind !== "image_region" &&
+      !repositoryRelativePath
+    ) {
       addError(errors, `${record.evidence_id} is available but has no versioned file`);
       continue;
     }
@@ -718,6 +730,176 @@ function validateVersionedEvidence(bundle, repositoryRoot, errors) {
     }
     if (!existsSync(absolutePath(repositoryRoot, repositoryRelativePath))) {
       addError(errors, `Versioned evidence path does not exist: ${repositoryRelativePath}`);
+    }
+  }
+}
+
+function parseWebpDimensions(buffer) {
+  if (
+    buffer.length < 30 ||
+    buffer.subarray(0, 4).toString("ascii") !== "RIFF" ||
+    buffer.subarray(8, 12).toString("ascii") !== "WEBP" ||
+    buffer.readUInt32LE(4) + 8 !== buffer.length ||
+    buffer.subarray(12, 16).toString("ascii") !== "VP8 " ||
+    buffer[23] !== 0x9d ||
+    buffer[24] !== 0x01 ||
+    buffer[25] !== 0x2a
+  ) {
+    return null;
+  }
+  return {
+    width: buffer.readUInt16LE(26) & 0x3fff,
+    height: buffer.readUInt16LE(28) & 0x3fff
+  };
+}
+
+function validateEvidenceManifest(bundle, repositoryRoot, options, errors) {
+  const manifest = bundle.manifest;
+  if (
+    manifest === null ||
+    typeof manifest !== "object" ||
+    Array.isArray(manifest) ||
+    manifest.version !== 1 ||
+    !Array.isArray(manifest.assets)
+  ) {
+    addError(errors, "Evidence manifest header is invalid");
+    return;
+  }
+
+  const assets = manifest.assets;
+  validateUniqueIds(assets, "asset_id", "manifest.assets", errors);
+  validateSorted(assets, "asset_id", "manifest.assets", errors);
+  const documents = indexBy(bundle.documents, "document_id");
+  const evidenceByDocument = new Map();
+  for (const record of bundle.evidence) {
+    if (!record.document_id) continue;
+    const records = evidenceByDocument.get(record.document_id) ?? [];
+    records.push(record);
+    evidenceByDocument.set(record.document_id, records);
+  }
+  const publishedDocuments = bundle.documents.filter(
+    (document) => document.public_asset_path !== null
+  );
+  const publishedDocumentIds = new Set(
+    publishedDocuments.map((document) => document.document_id)
+  );
+  const manifestDocumentIds = assets.map((asset) => asset.document_id);
+  const manifestPaths = assets.map((asset) => asset.logical_path);
+  if (new Set(manifestDocumentIds).size !== assets.length) {
+    addError(errors, "Evidence manifest document IDs must be unique");
+  }
+  if (new Set(manifestPaths).size !== assets.length) {
+    addError(errors, "Evidence manifest logical paths must be unique");
+  }
+  if (
+    publishedDocumentIds.size !== assets.length ||
+    manifestDocumentIds.some((id) => !publishedDocumentIds.has(id))
+  ) {
+    addError(errors, "Evidence manifest must exactly cover published documents");
+  }
+
+  let totalBytes = 0;
+  for (const asset of assets) {
+    const context = asset.asset_id ?? "manifest asset";
+    const document = documents.get(asset.document_id);
+    if (!document) {
+      addError(errors, `${context} references a missing document`);
+      continue;
+    }
+    if (
+      typeof asset.logical_path !== "string" ||
+      !PUBLIC_ASSET_PATTERN.test(asset.logical_path) ||
+      asset.logical_path.includes("\\") ||
+      asset.logical_path.split("/").includes("..")
+    ) {
+      addError(errors, `${context} has an invalid public path`);
+      continue;
+    }
+    if (
+      asset.media_type !== "image/webp" ||
+      asset.publish_permission !== "authorized" ||
+      asset.provenance !== "controlled_original" ||
+      typeof asset.license_note !== "string" ||
+      asset.license_note.trim().length === 0
+    ) {
+      addError(errors, `${context} has invalid publication metadata`);
+    }
+    if (
+      document.public_asset_path !== asset.logical_path ||
+      document.sha256 !== asset.sha256 ||
+      document.publish_permission !== "authorized" ||
+      document.availability !== "available"
+    ) {
+      addError(errors, `${context} does not match its published document`);
+    }
+    const linkedEvidence = evidenceByDocument.get(asset.document_id) ?? [];
+    if (
+      linkedEvidence.length !== 1 ||
+      linkedEvidence[0].kind !== "image_region" ||
+      linkedEvidence[0].sha256 !== asset.sha256 ||
+      linkedEvidence[0].publish_permission !== "authorized" ||
+      linkedEvidence[0].availability !== "available" ||
+      typeof linkedEvidence[0].fragment !== "string" ||
+      !linkedEvidence[0].fragment.startsWith(CONTROLLED_REPRESENTATION_PREFIX)
+    ) {
+      addError(errors, `${context} does not have one valid visual evidence record`);
+    }
+    if (FORBIDDEN_CT_G_ASSET_HASHES.has(asset.sha256)) {
+      addError(errors, `${context} uses a forbidden CT-G source hash`);
+    }
+
+    const loaded = readPublicAsset(asset.logical_path, {
+      repositoryRoot,
+      readPublicAsset: options.readPublicAsset
+    });
+    if (!loaded.found) {
+      addError(errors, `${context} public asset is missing`);
+      continue;
+    }
+    const content = Buffer.isBuffer(loaded.content)
+      ? loaded.content
+      : Buffer.from(loaded.content);
+    const dimensions = parseWebpDimensions(content);
+    totalBytes += content.length;
+    if (sha256(content) !== asset.sha256) {
+      addError(errors, `${context} raw binary hash mismatch`);
+    }
+    if (content.length !== asset.bytes || asset.bytes >= 250_000) {
+      addError(errors, `${context} byte length mismatch or limit exceeded`);
+    }
+    if (
+      !dimensions ||
+      dimensions.width !== asset.width ||
+      dimensions.height !== asset.height
+    ) {
+      addError(errors, `${context} WebP dimensions or header are invalid`);
+    }
+  }
+  if (totalBytes >= 4_000_000) {
+    addError(errors, "Evidence manifest total byte limit exceeded");
+  }
+
+  if (!options.readPublicAsset) {
+    const assetDirectory = absolutePath(
+      repositoryRoot,
+      `${PUBLIC_DIRECTORY}/${PUBLIC_ASSET_PREFIX.slice(0, -1)}`
+    );
+    if (!existsSync(assetDirectory)) {
+      addError(errors, "Public evidence asset directory is missing");
+    } else {
+      const diskNames = readdirSync(assetDirectory, { withFileTypes: true })
+        .filter((entry) => entry.isFile() && extname(entry.name).toLowerCase() === ".webp")
+        .map((entry) => entry.name)
+        .sort(compareStrings);
+      const manifestNames = manifestPaths
+        .map((logicalPath) => logicalPath.slice(PUBLIC_ASSET_PREFIX.length))
+        .sort(compareStrings);
+      if (
+        diskNames.length !== manifestNames.length ||
+        diskNames.some((name, index) => name !== manifestNames[index])
+      ) {
+        addError(errors, "Public evidence directory contains orphan or unmanifested WebP assets");
+      }
     }
   }
 }
@@ -973,6 +1155,7 @@ export function readEvidenceBundle({
     observations: parseJsonFile(root, EVIDENCE_CATALOG_PATHS.observations, "array"),
     documents: parseJsonFile(root, EVIDENCE_CATALOG_PATHS.documents, "array"),
     evidence: parseJsonFile(root, EVIDENCE_CATALOG_PATHS.evidence, "array"),
+    manifest: parseJsonFile(root, EVIDENCE_CATALOG_PATHS.manifest, "object"),
     transcriptions: parseJsonFile(
       root,
       EVIDENCE_CATALOG_PATHS.transcriptions,
@@ -1018,6 +1201,12 @@ export function validateEvidenceBundle(
   validateVersionedEvidence(bundle, root, errors);
   validateEvidenceRestriction(bundle, errors);
   validatePublicAssets(bundle, root, { readPublicAsset: reader }, errors);
+  validateEvidenceManifest(
+    bundle,
+    root,
+    { readPublicAsset: reader },
+    errors
+  );
   validateTranscriptions(bundle, errors);
   validatePrivacy(bundle, root, errors);
   return [...new Set(errors)].sort(compareStrings);
@@ -1041,6 +1230,10 @@ export function buildEvidenceBundle(options = {}) {
     observations: cloneSorted(bundle.observations, "observation_id"),
     documents: cloneSorted(bundle.documents, "document_id"),
     evidence: cloneSorted(bundle.evidence, "evidence_id"),
+    manifest: {
+      version: bundle.manifest.version,
+      assets: cloneSorted(bundle.manifest.assets, "asset_id")
+    },
     transcriptions: {
       ...structuredClone(bundle.transcriptions),
       records: cloneSorted(bundle.transcriptions.records, "observation_id")

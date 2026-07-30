@@ -19,9 +19,12 @@
     "captured_at": "2026-01-01T00:00:00Z",
     "source_url": null,
     "extraction_method": "controlled_fixture",
-    "evidence_ids": [],
-    "evidence_status": "not_applicable",
-    "evidence_absence_reason": "Fixture matemático controlado sin activo externo."
+    "evidence_ids": [
+      "evidence:f3-ct-a-card",
+      "evidence:f3-ct-a-measurement"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
   },
   {
     "observation_id": "observation:ct-b-derived",
@@ -43,9 +46,11 @@
     "captured_at": "2026-01-01T00:00:00Z",
     "source_url": null,
     "extraction_method": "controlled_fixture",
-    "evidence_ids": [],
-    "evidence_status": "not_applicable",
-    "evidence_absence_reason": "Fuente controlada sin activo externo."
+    "evidence_ids": [
+      "evidence:f3-ct-b-source-a"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
   },
   {
     "observation_id": "observation:ct-b-source-b",
@@ -55,9 +60,11 @@
     "captured_at": "2026-01-02T00:00:00Z",
     "source_url": null,
     "extraction_method": "controlled_fixture",
-    "evidence_ids": [],
-    "evidence_status": "not_applicable",
-    "evidence_absence_reason": "Fuente controlada sin activo externo."
+    "evidence_ids": [
+      "evidence:f3-ct-b-source-b"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
   },
   {
     "observation_id": "observation:ct-d-air-conditioning-absence",
@@ -170,6 +177,184 @@
     "evidence_ids": [],
     "evidence_status": "not_applicable",
     "evidence_absence_reason": "Observación anterior del caso límite controlado de cambio extremo."
+  },
+  {
+    "observation_id": "observation:f3-area-match-card",
+    "source_id": "source:f3-neutral-card",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-area-match",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:f3-area-match-card"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:f3-area-match-measurement",
+    "source_id": "source:f3-neutral-measurement",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-area-match",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:f3-area-match-measurement"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:f3-bathroom-conflict-card",
+    "source_id": "source:f3-neutral-card",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-bathroom-conflict",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:f3-bathroom-conflict-card"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:f3-bathroom-conflict-measurement",
+    "source_id": "source:f3-neutral-measurement",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-bathroom-conflict",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:f3-bathroom-conflict-measurement"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:f3-bedroom-conflict-card",
+    "source_id": "source:f3-neutral-card",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-bedroom-conflict",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:f3-bedroom-conflict-card"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:f3-bedroom-conflict-measurement",
+    "source_id": "source:f3-neutral-measurement",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-bedroom-conflict",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:f3-bedroom-conflict-measurement"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:f3-floor-review-card",
+    "source_id": "source:f3-neutral-card",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-floor-review",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:f3-floor-review-card"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:f3-floor-review-derived",
+    "source_id": "source:f3-neutral-measurement",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-floor-review",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "deterministic_derivation",
+    "evidence_ids": [],
+    "evidence_status": "not_applicable",
+    "evidence_absence_reason": "Inferencia controlada reproducible desde el rango de unidades."
+  },
+  {
+    "observation_id": "observation:f3-floor-review-measurement",
+    "source_id": "source:f3-neutral-measurement",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-floor-review",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:f3-floor-review-measurement"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:f3-illegible-area-card",
+    "source_id": "source:f3-neutral-card",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-illegible-area",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:f3-illegible-area-card"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:f3-illegible-area-measurement",
+    "source_id": "source:f3-neutral-measurement",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-illegible-area",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_illegible_field",
+    "evidence_ids": [
+      "evidence:f3-illegible-area-measurement"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
+  },
+  {
+    "observation_id": "observation:f3-insufficient-source-absence",
+    "source_id": "source:f3-neutral-measurement",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-insufficient-source",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_absence",
+    "evidence_ids": [],
+    "evidence_status": "unavailable",
+    "evidence_absence_reason": "La segunda fuente controlada no está disponible."
+  },
+  {
+    "observation_id": "observation:f3-insufficient-source-card",
+    "source_id": "source:f3-neutral-card",
+    "entity_type": "typology",
+    "entity_id": "typology:f3-insufficient-source",
+    "captured_at": "2026-07-29T12:00:00-05:00",
+    "source_url": null,
+    "extraction_method": "controlled_transcription",
+    "evidence_ids": [
+      "evidence:f3-insufficient-source-card"
+    ],
+    "evidence_status": "available",
+    "evidence_absence_reason": null
   },
   {
     "observation_id": "observation:pardo-coast-card",

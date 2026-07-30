@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import { createObservedPage, openRoute, routes, viewports, withDemoBrowser } from "./helpers/demo-browser.mjs";
 
+assert.equal(routes.length, 8, "A11y debe cubrir las siete vistas previas y el inspector");
+assert.equal(viewports.length, 3, "A11y debe cubrir desktop, laptop y mobile");
+
 await withDemoBrowser(async ({ browser, baseUrl }) => {
-  for (const viewport of [viewports[0], viewports[2]]) {
+  for (const viewport of viewports) {
     const context = await browser.newContext({ viewport });
     const { page, problems, externalRequests } = await createObservedPage(context, baseUrl);
 
@@ -72,4 +75,6 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   }
 });
 
-console.log(`A11y smoke OK: landmarks, nombres accesibles y teclado en ${routes.length} rutas.`);
+console.log(
+  `A11y smoke OK: landmarks, nombres accesibles y teclado en ${routes.length} rutas × ${viewports.length} viewports.`,
+);

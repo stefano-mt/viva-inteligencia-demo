@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { validatePrivacy } from "../scripts/data/validate.js";
+
+const testDirectory = path.dirname(fileURLToPath(import.meta.url));
+const prototypeRoot = path.resolve(testDirectory, "..");
+const repositoryRoot = path.resolve(prototypeRoot, "..");
 
 const data = JSON.parse(
   await fs.readFile(
@@ -14,6 +21,28 @@ const geography = JSON.parse(
     "utf8"
   )
 );
+const coverageReport = JSON.parse(
+  await fs.readFile(
+    path.join(
+      repositoryRoot,
+      "datos_relevantes",
+      "demo-pilot",
+      "coverage-report.json"
+    ),
+    "utf8"
+  )
+);
+const evidenceManifest = JSON.parse(
+  await fs.readFile(
+    path.join(
+      repositoryRoot,
+      "datos_relevantes",
+      "demo-pilot",
+      "evidence-manifest.json"
+    ),
+    "utf8"
+  )
+);
 
 assert.deepEqual(validatePrivacy(data), [], "public root must be privacy-clean");
 assert.deepEqual(
@@ -21,6 +50,17 @@ assert.deepEqual(
   [],
   "public GeoJSON must be privacy-clean"
 );
+assert.deepEqual(
+  validatePrivacy(coverageReport),
+  [],
+  "derived coverage report must be privacy-clean"
+);
+assert.deepEqual(
+  validatePrivacy(evidenceManifest),
+  [],
+  "authorized manifest metadata must be privacy-clean"
+);
+assert.equal(data.metadata.contract_version, "2.2.0");
 assert.doesNotMatch(
   JSON.stringify(geography),
   /[A-Za-z]:\\\\|\/Users\/|\/home\/|\"email\"|\"phone\"|\"whatsapp\"|\"contact\"/i
@@ -60,6 +100,36 @@ for (const evidence of data.model.evidence) {
   }
 }
 
+assert.deepEqual(data.inspector.assets, evidenceManifest.assets);
+assert.equal(data.inspector.assets.length, 15);
+const forbiddenCtGHashes = new Set([
+  "41ab273c521fcc66025653e8cfe44f894afb01b2f1b9be72847dcf87db2f2c4b",
+  "3c108732cc1f9c0dbd884ed3d171a0abacffc96d9e80a95d994dc1d1a43bd60a"
+]);
+for (const asset of data.inspector.assets) {
+  assert.equal(path.isAbsolute(asset.logical_path), false);
+  assert.doesNotMatch(asset.logical_path, /\\|\.\.|^[A-Za-z]:/);
+  assert.equal(forbiddenCtGHashes.has(asset.sha256), false);
+  const bytes = await fs.readFile(
+    path.join(prototypeRoot, "public", ...asset.logical_path.split("/"))
+  );
+  assert.equal(
+    createHash("sha256").update(bytes).digest("hex"),
+    asset.sha256,
+    "privacy checks must preserve raw authorized binary bytes"
+  );
+}
+for (const documentId of [
+  "document:pardo-coast-card",
+  "document:pardo-coast-plan"
+]) {
+  assert.equal(
+    data.inspector.assets.some((asset) => asset.document_id === documentId),
+    false,
+    "restricted CT-G originals must not enter the public asset manifest"
+  );
+}
+
 for (const [value, expectedCode] of [
   [{ project_email: "persona@example.com" }, "PRIVACY_FORBIDDEN_KEY"],
   [{ note: "+51 987 654 321" }, "PRIVACY_PHONE"],
@@ -74,4 +144,6 @@ for (const [value, expectedCode] of [
   );
 }
 
-console.log("Privacy integration OK: recursive public policy and negatives pass.");
+console.log(
+  "Privacy integration OK: payload/report/manifest, 15 authorized binaries, CT-G denylist and negatives pass."
+);

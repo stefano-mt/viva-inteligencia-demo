@@ -10,9 +10,11 @@ import {
   validateFixture,
   validatePartialModel,
   validatePrivacy,
+  validateInspectorSemantics,
   validateRootDocument,
   validateSchemaShape
 } from "../scripts/data/validate.js";
+import { buildDemoData } from "../scripts/build-demo-data.js";
 
 const TEST_DIRECTORY = dirname(fileURLToPath(import.meta.url));
 const PROTOTYPE_ROOT = resolve(TEST_DIRECTORY, "..");
@@ -1047,7 +1049,53 @@ assert.deepEqual(
   "errors must be stable across repeated validation"
 );
 
+const built = await buildDemoData({
+  repositoryRoot: REPOSITORY_ROOT,
+  write: false
+});
+assert.deepEqual(
+  validateInspectorSemantics(built.payload.inspector, built.payload.model),
+  []
+);
+const expectInspectorMutation = (mutate, code) => {
+  const candidate = clone(built.payload);
+  mutate(candidate);
+  expectCode(
+    validateInspectorSemantics(candidate.inspector, candidate.model),
+    code
+  );
+};
+expectInspectorMutation((candidate) => {
+  candidate.inspector.default_case_id = "case:missing";
+}, "INSPECTOR_DEFAULT_CASE_REFERENCE");
+expectInspectorMutation((candidate) => {
+  candidate.inspector.cases[0].typology_id = "typology:ct-b-controlled";
+}, "INSPECTOR_CASE_TYPOLOGY_REFERENCE");
+expectInspectorMutation((candidate) => {
+  candidate.inspector.coverage.total_cases += 1;
+}, "INSPECTOR_COVERAGE_MISMATCH");
+expectInspectorMutation((candidate) => {
+  candidate.inspector.cases[0].expected_quality_status = "reviewable";
+}, "INSPECTOR_CASE_QUALITY");
+expectInspectorMutation((candidate) => {
+  candidate.inspector.assets[0].sha256 = "a".repeat(64);
+}, "INSPECTOR_ASSET_DOCUMENT_SHA");
+expectInspectorMutation((candidate) => {
+  const documentId = candidate.inspector.assets[0].document_id;
+  candidate.model.evidence.find(
+    (record) => record.document_id === documentId
+  ).fragment = "Documento original.";
+}, "INSPECTOR_ASSET_REPRESENTATION_LABEL");
+expectInspectorMutation((candidate) => {
+  const documentId = candidate.inspector.assets[0].document_id;
+  for (const inspectorCase of candidate.inspector.cases) {
+    inspectorCase.document_ids = inspectorCase.document_ids.filter(
+      (id) => id !== documentId
+    );
+  }
+}, "INSPECTOR_ASSET_ORPHAN");
+
 console.log(
   "Data validator unit OK: schema keywords, partial/root/fixture modes, references, " +
-    "tiers, eligibility, currencies, denominators, permissions, events and privacy verified."
+    "tiers, eligibility, currencies, denominators, permissions, inspector, events and privacy verified."
 );

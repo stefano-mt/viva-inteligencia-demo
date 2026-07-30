@@ -34,6 +34,12 @@ export const DEFAULT_GEOJSON_OUTPUT_PATH = path.join(
   "demo-data",
   "district-boundaries.geojson"
 );
+export const DEFAULT_COVERAGE_REPORT_OUTPUT_PATH = path.join(
+  DEFAULT_REPOSITORY_ROOT,
+  "datos_relevantes",
+  "demo-pilot",
+  "coverage-report.json"
+);
 
 export const DATASET_ID = "dataset:viva-platform-demo-2026-07-28";
 export const GENERATED_AT = "2026-07-28T01:24:28Z";
@@ -56,6 +62,8 @@ const PATHS = Object.freeze({
   observations: "datos_relevantes/demo-pilot/observations.json",
   documents: "datos_relevantes/demo-pilot/documents.json",
   evidence: "datos_relevantes/demo-pilot/evidence.json",
+  evidenceManifest: "datos_relevantes/demo-pilot/evidence-manifest.json",
+  inspectorCases: "datos_relevantes/demo-pilot/inspector-cases.json",
   transcriptions:
     "datos_relevantes/demo-pilot/evidence/ct-g-transcriptions.json",
   authorizedEvidence:
@@ -241,9 +249,38 @@ export function logicalInputSha256(value) {
   return sha256(canonicalizeLogicalEol(value));
 }
 
-async function readRequiredInputs(repositoryRoot) {
-  const buffers = new Map();
-  for (const logicalPath of REQUIRED_INPUT_PATHS) {
+export function binaryInputSha256(value) {
+  return sha256(Buffer.isBuffer(value) ? value : Buffer.from(value));
+}
+
+function isBinaryInputPath(logicalPath) {
+  return /\.(?:avif|bmp|gif|heic|jpe?g|png|tiff?|webp)$/i.test(logicalPath);
+}
+
+function manifestAssetInputPaths(manifest) {
+  if (!manifest || manifest.version !== 1 || !Array.isArray(manifest.assets)) {
+    throw new Error("Evidence manifest must contain version 1 and an assets array");
+  }
+  const paths = manifest.assets.map((asset) => {
+    const logicalPath = asset?.logical_path;
+    if (
+      typeof logicalPath !== "string" ||
+      !/^assets\/evidence\/[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]+)*$/.test(
+        logicalPath
+      )
+    ) {
+      throw new Error(`Invalid evidence manifest asset path: ${logicalPath}`);
+    }
+    return `prototipo_ejecutable/public/${logicalPath}`;
+  });
+  if (new Set(paths).size !== paths.length) {
+    throw new Error("Evidence manifest asset paths must be unique");
+  }
+  return paths.sort(compareText);
+}
+
+async function readLogicalPaths(repositoryRoot, logicalPaths, buffers) {
+  for (const logicalPath of logicalPaths) {
     const absolutePath = logicalAbsolutePath(repositoryRoot, logicalPath);
     let content;
     try {
@@ -257,7 +294,30 @@ async function readRequiredInputs(repositoryRoot) {
     }
     buffers.set(logicalPath, content);
   }
+}
+
+async function readRequiredInputs(repositoryRoot) {
+  const buffers = new Map();
+  await readLogicalPaths(repositoryRoot, REQUIRED_INPUT_PATHS, buffers);
+  const manifest = parseRequiredJson(
+    buffers,
+    PATHS.evidenceManifest,
+    "object"
+  );
+  await readLogicalPaths(
+    repositoryRoot,
+    manifestAssetInputPaths(manifest),
+    buffers
+  );
   return buffers;
+}
+
+export async function discoverRequiredInputPaths(
+  repositoryRoot = DEFAULT_REPOSITORY_ROOT
+) {
+  return [...(await readRequiredInputs(path.resolve(repositoryRoot))).keys()].sort(
+    compareText
+  );
 }
 
 function inputText(inputs, logicalPath) {
@@ -296,10 +356,12 @@ function parseRequiredCsv(inputs, logicalPath) {
 }
 
 function buildInputFingerprints(inputs) {
-  return REQUIRED_INPUT_PATHS.map((logicalPath, index) => ({
+  return [...inputs.keys()].sort(compareText).map((logicalPath, index) => ({
     input_id: `input:${String(index + 1).padStart(3, "0")}`,
     path: logicalPath,
-    sha256: logicalInputSha256(inputs.get(logicalPath))
+    sha256: isBinaryInputPath(logicalPath)
+      ? binaryInputSha256(inputs.get(logicalPath))
+      : logicalInputSha256(inputs.get(logicalPath))
   }));
 }
 
@@ -1085,7 +1147,27 @@ async function buildDemoBundle({
     );
   }
 
-  const evidenceBundle = buildEvidenceBundle({ repositoryRoot: root });
+  const evidenceManifest = parseRequiredJson(
+    inputs,
+    PATHS.evidenceManifest,
+    "object"
+  );
+  const inspectorCases = parseRequiredJson(
+    inputs,
+    PATHS.inspectorCases,
+    "object"
+  );
+  const evidenceBundle = buildEvidenceBundle({
+    repositoryRoot: root,
+    readPublicAsset(logicalPath) {
+      return inputs.get(`prototipo_ejecutable/public/${logicalPath}`) ?? null;
+    }
+  });
+  if (!equalJson(evidenceBundle.manifest, evidenceManifest)) {
+    throw new Error(
+      "Evidence manifest changed between input discovery and validation"
+    );
+  }
   const typologies = parseRequiredJson(inputs, PATHS.typologies, "array");
   const facts = parseRequiredJson(inputs, PATHS.facts, "array");
   const issues = parseRequiredJson(inputs, PATHS.issues, "array");
@@ -1093,7 +1175,10 @@ async function buildDemoBundle({
   const measures = materializeMeasureRecords(
     fixtures.filter((fixture) =>
       ["CT-A", "CT-B", "CT-D", "CT-E", "CT-G"].includes(fixture.case_id)
-    )
+    ),
+    {
+      supplemental: { typologies, facts, issues, events }
+    }
   );
   assertCatalogParity(typologies, measures.typologies, "typologies.json");
   assertCatalogParity(facts, measures.facts, "facts.json");
@@ -1187,7 +1272,7 @@ async function buildDemoBundle({
 
   const payload = {
     metadata: {
-      contract_version: "2.1.0",
+      contract_version: "2.2.0",
       dataset_id: DATASET_ID,
       generated_at: GENERATED_AT,
       cutoff_at: CUTOFF_AT,
@@ -1227,7 +1312,10 @@ async function buildDemoBundle({
         documents: model.documents.length,
         evidence: model.evidence.length,
         issues: model.issues.length,
-        events: model.events.length
+        events: model.events.length,
+        typologies: model.typologies.length,
+        inspector_cases: inspectorCases.cases.length,
+        inspector_assets: evidenceManifest.assets.length
       }
     },
     model,
@@ -1250,6 +1338,17 @@ async function buildDemoBundle({
       source: "default"
     },
     geography,
+    inspector: {
+      version: inspectorCases.version,
+      default_case_id: inspectorCases.default_case_id,
+      cases: structuredClone(inspectorCases.cases).sort(
+        compareById("case_id")
+      ),
+      assets: structuredClone(evidenceManifest.assets).sort(
+        compareById("asset_id")
+      ),
+      coverage: structuredClone(inspectorCases.coverage)
+    },
     projects: legacyProjects,
     executive: buildExecutive(legacyProjects, certifiedAggregates),
     rankings: {
@@ -1288,7 +1387,8 @@ async function buildDemoBundle({
     payload,
     geoJsonSerialized,
     geoJsonSha256,
-    geoJsonBytes
+    geoJsonBytes,
+    inputPaths: [...inputs.keys()].sort(compareText)
   };
 }
 
@@ -1300,14 +1400,587 @@ export function serializeDemoPayload(payload) {
   return `${JSON.stringify(payload, null, 2)}\n`;
 }
 
-function assertOutputDoesNotOverwriteInput(repositoryRoot, outputPath) {
+function countByValue(records, field) {
+  const counts = new Map();
+  for (const record of records) {
+    const value = String(record[field]);
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+  return Object.fromEntries([...counts].sort(([left], [right]) => compareText(left, right)));
+}
+
+export function buildCoverageReport(
+  payload,
+  serialized,
+  { geoJsonSha256, geoJsonBytes }
+) {
+  const facts = payload.model.facts;
+  const eligibleFacts = facts.filter((fact) => fact.benchmark_eligible);
+  const excludedFacts = facts.filter((fact) => !fact.benchmark_eligible);
+  const monetaryFacts = facts.filter((fact) =>
+    ["price", "price_per_m2"].includes(fact.semantic_type)
+  );
+  const selectedAgencyIds = new Set(payload.pilot.agency_ids);
+  const selectedModelProjects = payload.model.projects.filter((project) =>
+    selectedAgencyIds.has(project.agency_id)
+  );
+  const inspectorCases = payload.inspector.cases;
+  const qualityCaseDistribution = countByValue(
+    inspectorCases,
+    "expected_quality_status"
+  );
+  const miraflores = payload.geography.districts.find(
+    (district) => district.district_id === "150122"
+  );
+  const certifiedEvents = payload.model.events.filter(
+    (event) => event.quality_status === "certified"
+  );
+  const reviewableEvents = payload.model.events.filter(
+    (event) => event.quality_status === "reviewable"
+  );
+  return {
+    report_version: "2.0.0",
+    dataset_id: payload.metadata.dataset_id,
+    cutoff_at: payload.metadata.cutoff_at,
+    source_artifact: {
+      path: "prototipo_ejecutable/public/demo-data/viva-platform-demo.json",
+      contract_version: payload.metadata.contract_version,
+      sha256: sha256(serialized),
+      byte_length: Buffer.byteLength(serialized, "utf8")
+    },
+    derivation: {
+      authority:
+        "$.model and $.inspector are authoritative; $.projects is the temporary legacy projection.",
+      method:
+        "All counts and distributions are recomputed offline from the deterministic 2.2 payload.",
+      input_fingerprint_count: payload.metadata.input_fingerprints.length,
+      counting_rules: [
+        {
+          code: "MODEL_COLLECTION_COUNTS",
+          source_path: "$.model",
+          operation: "array_length_by_collection"
+        },
+        {
+          code: "INSPECTOR_COVERAGE",
+          source_path: "$.inspector",
+          operation: "derive cases, provenance, typologies and authorized assets"
+        },
+        {
+          code: "BENCHMARK_EXCLUSIONS",
+          source_path: "$.model.facts",
+          operation:
+            "group benchmark_eligible independently by quality_status, value_kind and semantic_type"
+        }
+      ],
+      interpretation_rules: [
+        "Counts grouped by different fact dimensions overlap and must not be added together.",
+        "Controlled fixtures and controlled visual representations are not market observations.",
+        "Visual evidence hashes identify raw binary bytes; textual fragment hashes identify canonical text."
+      ]
+    },
+    universe: {
+      legacy_projection: {
+        project_count: payload.projects.length,
+        distinct_agency_name_count: new Set(
+          payload.projects.map((project) => project.agency_name)
+        ).size,
+        distinct_district_count: new Set(
+          payload.projects.map((project) => project.district)
+        ).size,
+        currency_distribution: countByValue(payload.projects, "currency")
+      },
+      authoritative_model: {
+        project_count: payload.model.projects.length,
+        resolved_nexo_project_count: payload.model.projects.filter((project) =>
+          project.project_id.startsWith("project:nexo-")
+        ).length,
+        controlled_fixture_project_count: payload.model.projects.filter(
+          (project) => !project.project_id.startsWith("project:nexo-")
+        ).length,
+        canonical_agency_count: payload.model.agencies.length,
+        market_canonical_agency_count: payload.model.agencies.filter(
+          (agency) => !agency.agency_id.startsWith("agency:ct-")
+        ).length,
+        controlled_fixture_agency_count: payload.model.agencies.filter(
+          (agency) => agency.agency_id.startsWith("agency:ct-")
+        ).length
+      },
+      reconciliation: {
+        unresolved_legacy_project_count:
+          payload.metadata.counts.unresolved_legacy_projects,
+        manual_review_alias_count: payload.model.agencyAliases.filter(
+          (alias) => alias.resolution === "manual_review"
+        ).length,
+        resolved_alias_count: payload.model.agencyAliases.filter(
+          (alias) => alias.resolution !== "manual_review"
+        ).length
+      }
+    },
+    pilot_coverage: {
+      pilot_id: payload.pilot.pilot_id,
+      selected_agency_count: payload.pilot.agency_ids.length,
+      selected_model_project_count: selectedModelProjects.length,
+      exclusive_tier_counts: countByValue(
+        payload.model.agencies.filter((agency) => agency.pilot_selected),
+        "coverage_tier"
+      ),
+      cumulative_tier_counts: structuredClone(payload.pilot.counts),
+      selected_district_scope: structuredClone(payload.pilot.districts),
+      references: [
+        "$.pilot",
+        "$.model.agencies[*].pilot_selected",
+        "$.model.agencies[*].coverage_tier",
+        "$.model.projects[*].agency_id"
+      ]
+    },
+    inspector_coverage: {
+      ...structuredClone(payload.inspector.coverage),
+      case_quality_distribution: qualityCaseDistribution,
+      benchmark_eligible_cases: inspectorCases.filter(
+        (inspectorCase) => inspectorCase.expected_benchmark_eligible
+      ).length,
+      benchmark_excluded_cases: inspectorCases.filter(
+        (inspectorCase) => !inspectorCase.expected_benchmark_eligible
+      ).length,
+      asset_byte_length: payload.inspector.assets.reduce(
+        (total, asset) => total + asset.bytes,
+        0
+      ),
+      reference: "$.inspector"
+    },
+    source_observation_and_evidence_coverage: {
+      sources: {
+        count: payload.model.sources.length,
+        type_distribution: countByValue(payload.model.sources, "type"),
+        legal_status_distribution: countByValue(
+          payload.model.sources,
+          "legal_status"
+        ),
+        access_mode_distribution: countByValue(
+          payload.model.sources,
+          "access_mode"
+        ),
+        records: payload.model.sources.map(
+          ({ source_id, legal_status, access_mode }) => ({
+            source_id,
+            legal_status,
+            access_mode
+          })
+        ),
+        reference: "$.model.sources"
+      },
+      observations: {
+        count: payload.model.observations.length,
+        entity_type_distribution: countByValue(
+          payload.model.observations,
+          "entity_type"
+        ),
+        with_evidence_ids_count: payload.model.observations.filter(
+          (observation) => observation.evidence_ids.length > 0
+        ).length,
+        without_evidence_ids_count: payload.model.observations.filter(
+          (observation) => observation.evidence_ids.length === 0
+        ).length,
+        extraction_method_distribution: countByValue(
+          payload.model.observations,
+          "extraction_method"
+        ),
+        reference: "$.model.observations"
+      },
+      documents: {
+        count: payload.model.documents.length,
+        type_distribution: countByValue(
+          payload.model.documents,
+          "document_type"
+        ),
+        availability_distribution: countByValue(
+          payload.model.documents,
+          "availability"
+        ),
+        publish_permission_distribution: countByValue(
+          payload.model.documents,
+          "publish_permission"
+        ),
+        public_asset_path_count: payload.model.documents.filter(
+          (document) => document.public_asset_path !== null
+        ).length,
+        reference: "$.model.documents"
+      },
+      evidence: {
+        count: payload.model.evidence.length,
+        kind_distribution: countByValue(payload.model.evidence, "kind"),
+        availability_distribution: countByValue(
+          payload.model.evidence,
+          "availability"
+        ),
+        publish_permission_distribution: countByValue(
+          payload.model.evidence,
+          "publish_permission"
+        ),
+        authorized_and_available_count: payload.model.evidence.filter(
+          (record) =>
+            record.publish_permission === "authorized" &&
+            record.availability === "available"
+        ).length,
+        reference: "$.model.evidence"
+      }
+    },
+    model_coverage: {
+      collection_counts: {
+        sources: payload.model.sources.length,
+        agencies: payload.model.agencies.length,
+        projects: payload.model.projects.length,
+        typologies: payload.model.typologies.length,
+        observations: payload.model.observations.length,
+        facts: facts.length,
+        documents: payload.model.documents.length,
+        evidence: payload.model.evidence.length,
+        issues: payload.model.issues.length,
+        events: payload.model.events.length
+      },
+      sources: {
+        type_distribution: countByValue(payload.model.sources, "type"),
+        legal_status_distribution: countByValue(
+          payload.model.sources,
+          "legal_status"
+        ),
+        access_mode_distribution: countByValue(
+          payload.model.sources,
+          "access_mode"
+        )
+      },
+      observations: {
+        extraction_method_distribution: countByValue(
+          payload.model.observations,
+          "extraction_method"
+        ),
+        with_evidence_ids_count: payload.model.observations.filter(
+          (observation) => observation.evidence_ids.length > 0
+        ).length,
+        without_evidence_ids_count: payload.model.observations.filter(
+          (observation) => observation.evidence_ids.length === 0
+        ).length
+      },
+      documents: {
+        type_distribution: countByValue(
+          payload.model.documents,
+          "document_type"
+        ),
+        availability_distribution: countByValue(
+          payload.model.documents,
+          "availability"
+        ),
+        public_asset_path_count: payload.model.documents.filter(
+          (document) => document.public_asset_path !== null
+        ).length
+      },
+      evidence: {
+        kind_distribution: countByValue(payload.model.evidence, "kind"),
+        availability_distribution: countByValue(
+          payload.model.evidence,
+          "availability"
+        ),
+        authorized_and_available_count: payload.model.evidence.filter(
+          (record) =>
+            record.publish_permission === "authorized" &&
+            record.availability === "available"
+        ).length
+      }
+    },
+    analytical_quality_and_exclusions: {
+      facts: {
+        count: facts.length,
+        quality_status_distribution: countByValue(facts, "quality_status"),
+        value_kind_distribution: countByValue(facts, "value_kind"),
+        benchmark_eligibility: {
+          eligible: eligibleFacts.length,
+          excluded: excludedFacts.length
+        },
+        eligible_by_quality_status: countByValue(
+          eligibleFacts,
+          "quality_status"
+        ),
+        eligible_by_value_kind: countByValue(eligibleFacts, "value_kind"),
+        eligible_by_semantic_type: countByValue(
+          eligibleFacts,
+          "semantic_type"
+        ),
+        excluded_by_quality_status: countByValue(
+          excludedFacts,
+          "quality_status"
+        ),
+        excluded_by_value_kind: countByValue(excludedFacts, "value_kind"),
+        excluded_by_semantic_type: countByValue(
+          excludedFacts,
+          "semantic_type"
+        )
+      },
+      currency: {
+        legacy_projection: countByValue(payload.projects, "currency"),
+        model_monetary_facts: {
+          count: monetaryFacts.length,
+          currency_distribution: countByValue(monetaryFacts, "currency"),
+          eligible: monetaryFacts.filter((fact) => fact.benchmark_eligible)
+            .length,
+          excluded: monetaryFacts.filter((fact) => !fact.benchmark_eligible)
+            .length
+        }
+      },
+      issues: {
+        count: payload.model.issues.length,
+        benchmark_blocking_count: payload.model.issues.filter(
+          (issue) => issue.benchmark_blocking
+        ).length,
+        quality_status_distribution: countByValue(
+          payload.model.issues,
+          "quality_status"
+        ),
+        issue_code_distribution: countByValue(
+          payload.model.issues,
+          "issue_code"
+        )
+      },
+      events: {
+        count: payload.model.events.length,
+        quality_status_distribution: countByValue(
+          payload.model.events,
+          "quality_status"
+        ),
+        cause_present_count: payload.model.events.filter(
+          (event) => event.cause !== null
+        ).length,
+        cause_evidence_link_count: payload.model.events.reduce(
+          (total, event) => total + event.cause_evidence_ids.length,
+          0
+        )
+      }
+    },
+    fixture_coverage: [
+      {
+        case_id: "CT-A",
+        source_path: "datos_relevantes/demo-pilot/fixtures/ct-a.json",
+        purpose:
+          "Separate built, total and derived free area and calculate scenario price per compatible denominator.",
+        model_result: {
+          fact_count: facts.filter((fact) => fact.fact_id.startsWith("fact:ct-a-"))
+            .length,
+          certified_eligible_area_fact_count: facts.filter(
+            (fact) =>
+              fact.fact_id.startsWith("fact:ct-a-") &&
+              fact.semantic_type === "area" &&
+              fact.benchmark_eligible
+          ).length
+        }
+      },
+      {
+        case_id: "CT-B",
+        source_path: "datos_relevantes/demo-pilot/fixtures/ct-b.json",
+        purpose:
+          "Preserve conflicting observed list prices without choosing a winner.",
+        model_result: {
+          fact_count: facts.filter((fact) => fact.fact_id.startsWith("fact:ct-b-"))
+            .length,
+          benchmark_eligible_fact_count: facts.filter(
+            (fact) =>
+              fact.fact_id.startsWith("fact:ct-b-") &&
+              fact.benchmark_eligible
+          ).length
+        }
+      },
+      {
+        case_id: "CT-D",
+        source_path: "datos_relevantes/demo-pilot/fixtures/ct-d.json",
+        purpose:
+          "Distinguish evidenced, unobserved and restricted qualitative attributes.",
+        model_result: {
+          fact_count: facts.filter((fact) => fact.fact_id.startsWith("fact:ct-d-"))
+            .length,
+          authorized_available_evidence_count: payload.model.evidence.filter(
+            (record) =>
+              record.evidence_id.startsWith("evidence:ct-d-") &&
+              record.publish_permission === "authorized" &&
+              record.availability === "available"
+          ).length
+        }
+      },
+      {
+        case_id: "CT-E",
+        source_path: "datos_relevantes/demo-pilot/fixtures/ct-e.json",
+        purpose: "Materialize deterministic history without inventing causes.",
+        model_result: {
+          fact_count: facts.filter((fact) => fact.fact_id.startsWith("fact:ct-e-"))
+            .length,
+          event_count: payload.model.events.length
+        }
+      },
+      {
+        case_id: "CT-G",
+        source_path: "datos_relevantes/demo-pilot/fixtures/ct-g.json",
+        purpose:
+          "Preserve the Pardo Coast Tipo 7 card and plan as incompatible observations.",
+        model_result: {
+          fact_count: facts.filter((fact) =>
+            fact.fact_id.startsWith("fact:pardo-coast-")
+          ).length,
+          benchmark_eligible_fact_count: facts.filter(
+            (fact) =>
+              fact.fact_id.startsWith("fact:pardo-coast-") &&
+              fact.benchmark_eligible
+          ).length,
+          public_original_asset_count: payload.inspector.assets.filter(
+            (asset) => asset.document_id.startsWith("document:pardo-coast-")
+          ).length
+        }
+      },
+      {
+        case_id: "CT-H",
+        source_path: "datos_relevantes/demo-pilot/fixtures/ct-h.json",
+        purpose:
+          "Demonstrate stable canonical IDs, conservative aliases and tiered pilot coverage.",
+        model_result: {
+          selected_agency_count: payload.pilot.agency_ids.length,
+          cumulative_base_count: payload.pilot.counts.base_count,
+          cumulative_enriched_count: payload.pilot.counts.enriched_count,
+          cumulative_deep_count: payload.pilot.counts.deep_count,
+          manual_review_alias_count: payload.model.agencyAliases.filter(
+            (alias) => alias.resolution === "manual_review"
+          ).length
+        }
+      }
+    ],
+    geography_coverage: {
+      public_artifact: {
+        path: "prototipo_ejecutable/public/demo-data/district-boundaries.geojson",
+        sha256: geoJsonSha256,
+        byte_length: geoJsonBytes,
+        crs: payload.geography.crs,
+        feature_count: payload.geography.districts.length,
+        simplification_tolerance_degrees: 0,
+        maximum_displacement_meters: 0,
+        area_change_pct_max: 0
+      },
+      high_load_observed_project_count: payload.geography.assignments.length,
+      coordinate_valid_project_count: payload.geography.assignments.filter(
+        (assignment) => assignment.coordinate_valid
+      ).length,
+      polygon_valid_project_count: payload.geography.assignments.filter(
+        (assignment) => assignment.polygon_valid
+      ).length,
+      outside_district_polygon_count: payload.geography.assignments.filter(
+        (assignment) =>
+          assignment.coordinate_valid && !assignment.polygon_valid
+      ).length,
+      authoritative_project_count: payload.geography.assignments.filter(
+        (assignment) => assignment.authoritative_project_id !== null
+      ).length,
+      unreconciled_project_count: payload.geography.assignments.filter(
+        (assignment) => assignment.authoritative_project_id === null
+      ).length,
+      miraflores_gate: {
+        district_id: miraflores.district_id,
+        observed_project_count: miraflores.observed_project_count,
+        coordinate_valid_count: miraflores.coordinate_valid_count,
+        polygon_valid_count: miraflores.polygon_valid_count,
+        authoritative_project_count: miraflores.authoritative_project_count,
+        unreconciled_project_count: miraflores.unreconciled_project_count,
+        quadrant_observed_counts: Object.fromEntries(
+          miraflores.quadrants.map((quadrant) => [
+            quadrant.quadrant_id,
+            quadrant.observed_project_ids.length
+          ])
+        )
+      },
+      references: [
+        "$.geography",
+        "$.geography.districts",
+        "$.geography.assignments",
+        "$.geography.exclusions",
+        "datos_relevantes/geography/source-manifest.json#/derived"
+      ]
+    },
+    phase_gaps: [
+      {
+        gap_id: "GAP-F4-BENCHMARK",
+        target_phase: "F4",
+        severity: "blocking_for_phase",
+        current_evidence: {
+          benchmark_eligible_fact_count: eligibleFacts.length,
+          benchmark_eligible_price_fact_count: eligibleFacts.filter(
+            (fact) => fact.semantic_type === "price"
+          ).length,
+          benchmark_eligible_price_per_m2_fact_count: eligibleFacts.filter(
+            (fact) => fact.semantic_type === "price_per_m2"
+          ).length,
+          price_per_m2_fact_count: facts.filter(
+            (fact) => fact.semantic_type === "price_per_m2"
+          ).length,
+          legacy_unknown_currency_project_count: payload.projects.filter(
+            (project) => project.currency === "unknown"
+          ).length
+        },
+        required_outcome:
+          "Materialize market price and compatible area facts for the selected geography, grouped by currency, price type and denominator.",
+        references: [
+          "$.model.facts",
+          "$.projects[*].currency",
+          "fact:ct-a-price-per-built-m2",
+          "fact:ct-a-price-per-total-m2"
+        ]
+      },
+      {
+        gap_id: "GAP-F5-HISTORY-ASSISTANT",
+        target_phase: "F5",
+        severity: "blocking_for_phase",
+        current_evidence: {
+          event_count: payload.model.events.length,
+          certified_event_count: certifiedEvents.length,
+          reviewable_event_count: reviewableEvents.length,
+          event_with_observed_cause_count: payload.model.events.filter(
+            (event) => event.cause !== null
+          ).length,
+          event_with_cause_evidence_count: payload.model.events.filter(
+            (event) => event.cause_evidence_ids.length > 0
+          ).length
+        },
+        required_outcome:
+          "Expand dated observations beyond CT-E and resolve assistant answers against selected certified facts and evidence IDs.",
+        references: [
+          "$.model.events",
+          "$.model.observations",
+          "$.assistant.questions"
+        ]
+      }
+    ],
+    publication_safety: {
+      is_public_source_artifact: payload.metadata.publication.is_public_artifact,
+      source_pii_present: payload.metadata.publication.contains_contact_pii,
+      source_raw_records_present:
+        payload.metadata.publication.raw_payloads_included,
+      restricted_assets_included:
+        payload.metadata.publication.restricted_assets_included,
+      report_pii_present: false,
+      report_raw_records_present: false,
+      report_local_paths_present: false
+    }
+  };
+}
+
+export function serializeCoverageReport(report) {
+  return `${JSON.stringify(report, null, 2)}\n`;
+}
+
+function assertOutputDoesNotOverwriteInput(
+  repositoryRoot,
+  outputPath,
+  inputPaths = REQUIRED_INPUT_PATHS
+) {
   const resolvedOutput = path.resolve(outputPath);
-  const inputPaths = new Set(
-    REQUIRED_INPUT_PATHS.map((logicalPath) =>
+  const inputPathSet = new Set(
+    inputPaths.map((logicalPath) =>
       path.resolve(logicalAbsolutePath(repositoryRoot, logicalPath))
     )
   );
-  if (inputPaths.has(resolvedOutput)) {
+  if (inputPathSet.has(resolvedOutput)) {
     throw new Error(`Output path cannot overwrite an input: ${resolvedOutput}`);
   }
 }
@@ -1316,6 +1989,7 @@ export async function buildDemoData({
   repositoryRoot = DEFAULT_REPOSITORY_ROOT,
   outputPath = undefined,
   geoJsonOutputPath = undefined,
+  coverageReportOutputPath = undefined,
   write = true
 } = {}) {
   const root = path.resolve(repositoryRoot);
@@ -1339,20 +2013,38 @@ export async function buildDemoData({
         "district-boundaries.geojson"
       )
   );
-  assertOutputDoesNotOverwriteInput(root, target);
-  assertOutputDoesNotOverwriteInput(root, geographyTarget);
+  const coverageTarget = path.resolve(
+    coverageReportOutputPath ??
+      path.join(
+        root,
+        "datos_relevantes",
+        "demo-pilot",
+        "coverage-report.json"
+      )
+  );
   const {
     payload,
     geoJsonSerialized,
     geoJsonSha256,
-    geoJsonBytes
+    geoJsonBytes,
+    inputPaths
   } = await buildDemoBundle({ repositoryRoot: root });
+  assertOutputDoesNotOverwriteInput(root, target, inputPaths);
+  assertOutputDoesNotOverwriteInput(root, geographyTarget, inputPaths);
+  assertOutputDoesNotOverwriteInput(root, coverageTarget, inputPaths);
   const serialized = serializeDemoPayload(payload);
+  const coverageReport = buildCoverageReport(payload, serialized, {
+    geoJsonSha256,
+    geoJsonBytes
+  });
+  const coverageReportSerialized = serializeCoverageReport(coverageReport);
   if (write) {
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.mkdir(path.dirname(geographyTarget), { recursive: true });
+    await fs.mkdir(path.dirname(coverageTarget), { recursive: true });
     await fs.writeFile(target, serialized, "utf8");
     await fs.writeFile(geographyTarget, geoJsonSerialized, "utf8");
+    await fs.writeFile(coverageTarget, coverageReportSerialized, "utf8");
   }
   return {
     payload,
@@ -1362,7 +2054,12 @@ export async function buildDemoData({
     geoJsonSerialized,
     geoJsonSha256,
     geoJsonBytes,
-    geoJsonOutputPath: geographyTarget
+    geoJsonOutputPath: geographyTarget,
+    coverageReport,
+    coverageReportSerialized,
+    coverageReportSha256: sha256(coverageReportSerialized),
+    coverageReportOutputPath: coverageTarget,
+    inputPaths
   };
 }
 
@@ -1379,6 +2076,12 @@ async function main() {
   console.log(`SHA-256: ${result.sha256}`);
   console.log(
     `GeoJSON: ${result.geoJsonBytes} bytes, SHA-256 ${result.geoJsonSha256}`
+  );
+  console.log(
+    `Coverage report: ${Buffer.byteLength(
+      result.coverageReportSerialized,
+      "utf8"
+    )} bytes, SHA-256 ${result.coverageReportSha256}`
   );
 }
 

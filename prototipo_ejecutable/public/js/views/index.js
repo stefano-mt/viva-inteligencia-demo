@@ -1,5 +1,6 @@
 export { renderDashboard } from "./dashboard.js";
 export { renderProjects } from "./projects.js";
+export { renderInspector } from "./inspector.js";
 export { renderMarket } from "./market.js";
 export { renderCompare } from "./compare.js";
 export { renderChecklist } from "./checklist.js";

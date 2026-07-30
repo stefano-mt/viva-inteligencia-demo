@@ -9,10 +9,21 @@ import {
   buildComparabilityContext,
   roundHalfAwayFromZero,
 } from "./comparability.js";
+import { buildEvidenceDossier } from "./evidence-inspector.js";
 
 let dataValue = null;
 let scenarioEnvironment = null;
 let boundaryArtifactStatus = "missing";
+let inspectorRuntime = {
+  available: false,
+  reasonCode: "INSPECTOR_UNAVAILABLE",
+  cases: [],
+  caseById: new Map(),
+  caseByRoute: new Map(),
+  casesByProject: new Map(),
+  caseByProjectTypology: new Map(),
+  defaultCase: null,
+};
 
 const EMPTY_GEOGRAPHY_ARTIFACT = Object.freeze({
   status: "missing",
@@ -21,6 +32,15 @@ const EMPTY_GEOGRAPHY_ARTIFACT = Object.freeze({
   expected_sha256: null,
   actual_sha256: null,
   reason: null,
+});
+
+export const INSPECTOR_ACTIONS = Object.freeze({
+  selectCase: "SELECT_CASE",
+  selectProject: "SELECT_PROJECT",
+  selectTypology: "SELECT_TYPOLOGY",
+  selectPreset: "SELECT_PRESET",
+  openEvidence: "OPEN_EVIDENCE",
+  closeEvidence: "CLOSE_EVIDENCE",
 });
 
 export const state = {
@@ -74,10 +94,16 @@ export const state = {
   compareQuery: "",
   assistantInput: "",
   assistantResponse: null,
+  inspectorProjectId: null,
+  inspectorTypologyId: null,
+  inspectorEvidenceId: null,
+  inspectorPreset: null,
+  inspectorDialogOpen: false,
 };
 
 export function initializeScenarioData(data, options = {}) {
   dataValue = data ?? null;
+  initializeInspectorState(dataValue?.inspector);
   const initialArtifact = normalizeGeographyArtifact(
     options.geographyArtifact ?? {
       ...EMPTY_GEOGRAPHY_ARTIFACT,
@@ -106,6 +132,254 @@ export function initializeScenarioData(data, options = {}) {
   state.scenario_corrections = initial.corrections;
   state.projectFilters.district = districtNameForId(state.scenario.district_id);
   return recomputeScenarioContext();
+}
+
+export function initializeInspectorState(inspector = dataValue?.inspector) {
+  resetInspectorSelection();
+  inspectorRuntime = unavailableInspectorRuntime("INSPECTOR_UNAVAILABLE");
+  if (!inspector) return inspectorSelection();
+
+  try {
+    if (
+      !dataValue?.model ||
+      !Array.isArray(inspector.cases) ||
+      inspector.cases.length === 0 ||
+      typeof inspector.default_case_id !== "string" ||
+      inspector.default_case_id.length === 0
+    ) {
+      inspectorRuntime = unavailableInspectorRuntime("INSPECTOR_INVALID_DATA");
+      return inspectorSelection();
+    }
+
+    const cases = [...inspector.cases].sort((left, right) =>
+      compareInspectorIds(
+        String(left?.case_id ?? ""),
+        String(right?.case_id ?? ""),
+      ),
+    );
+    const caseById = new Map();
+    const caseByRoute = new Map();
+    const casesByProject = new Map();
+    const caseByProjectTypology = new Map();
+    for (const inspectorCase of cases) {
+      const caseId = inspectorCase?.case_id;
+      const routeSlug = inspectorCase?.route_slug;
+      const projectId = inspectorCase?.project_id;
+      const typologyId = inspectorCase?.typology_id;
+      if (
+        typeof caseId !== "string" ||
+        !caseId ||
+        typeof routeSlug !== "string" ||
+        !routeSlug ||
+        typeof projectId !== "string" ||
+        !projectId ||
+        typeof typologyId !== "string" ||
+        !typologyId ||
+        caseById.has(caseId) ||
+        caseByRoute.has(routeSlug)
+      ) {
+        throw new Error("Inspector case index is invalid");
+      }
+      const pairKey = inspectorPairKey(projectId, typologyId);
+      if (caseByProjectTypology.has(pairKey)) {
+        throw new Error("Inspector project and typology pair is ambiguous");
+      }
+      buildEvidenceDossier({
+        model: dataValue.model,
+        inspector,
+        projectId,
+        typologyId,
+      });
+      caseById.set(caseId, inspectorCase);
+      caseByRoute.set(routeSlug, inspectorCase);
+      caseByProjectTypology.set(pairKey, inspectorCase);
+      const projectCases = casesByProject.get(projectId) ?? [];
+      projectCases.push(inspectorCase);
+      casesByProject.set(projectId, projectCases);
+    }
+
+    const defaultCase = caseById.get(inspector.default_case_id);
+    if (!defaultCase) {
+      inspectorRuntime = unavailableInspectorRuntime(
+        "INSPECTOR_INVALID_DEFAULT",
+      );
+      return inspectorSelection();
+    }
+    inspectorRuntime = {
+      available: true,
+      reasonCode: null,
+      cases,
+      caseById,
+      caseByRoute,
+      casesByProject,
+      caseByProjectTypology,
+      defaultCase,
+    };
+    setInspectorCase(defaultCase);
+    return inspectorSelection();
+  } catch {
+    resetInspectorSelection();
+    inspectorRuntime = unavailableInspectorRuntime("INSPECTOR_INVALID_DATA");
+    return inspectorSelection();
+  }
+}
+
+export function inspectorSelection() {
+  return structuredClone({
+    available: inspectorRuntime.available,
+    reasonCode: inspectorRuntime.reasonCode,
+    caseId: state.inspectorPreset,
+    projectId: state.inspectorProjectId,
+    typologyId: state.inspectorTypologyId,
+    evidenceId: state.inspectorEvidenceId,
+    preset: state.inspectorPreset,
+    dialogOpen: state.inspectorDialogOpen,
+  });
+}
+
+export function dispatchInspector(action) {
+  if (!action || typeof action !== "object" || Array.isArray(action)) {
+    throw new TypeError("Inspector action must be an object");
+  }
+  if (typeof action.type !== "string" || !action.type) {
+    throw new TypeError("Inspector action type is required");
+  }
+  if (!inspectorRuntime.available) {
+    return inspectorTransition({
+      changed: false,
+      corrected: false,
+      reasonCode: inspectorRuntime.reasonCode,
+      announcement: "El inspector de evidencia no está disponible.",
+      focusIntent: "none",
+    });
+  }
+
+  const before = inspectorSelection();
+  let corrected = false;
+  let reasonCode = null;
+  let announcement = "";
+  let focusIntent = "none";
+
+  if (
+    action.type === INSPECTOR_ACTIONS.selectCase ||
+    action.type === INSPECTOR_ACTIONS.selectPreset
+  ) {
+    const requested =
+      action.caseId ??
+      action.case_id ??
+      action.routeSlug ??
+      action.route_slug ??
+      action.preset ??
+      action.value;
+    const selected = resolveInspectorCase(requested);
+    const target = selected ?? inspectorRuntime.defaultCase;
+    corrected = !selected;
+    reasonCode = corrected ? "INSPECTOR_CASE_CORRECTED" : null;
+    if (target.case_id !== state.inspectorPreset) setInspectorCase(target);
+    announcement = corrected
+      ? "La selección no estaba disponible; se restauró el expediente predeterminado."
+      : "Expediente de evidencia actualizado.";
+    focusIntent = "selection";
+  } else if (action.type === INSPECTOR_ACTIONS.selectProject) {
+    const requested = action.projectId ?? action.project_id ?? action.value;
+    const projectCases =
+      typeof requested === "string"
+        ? inspectorRuntime.casesByProject.get(requested)
+        : null;
+    let target = null;
+    if (projectCases?.length) {
+      const current = currentInspectorCase();
+      target =
+        current?.project_id === requested ? current : projectCases[0];
+    } else {
+      target = inspectorRuntime.defaultCase;
+      corrected = true;
+      reasonCode = "INSPECTOR_PROJECT_CORRECTED";
+    }
+    if (target.case_id !== state.inspectorPreset) setInspectorCase(target);
+    announcement = corrected
+      ? "El proyecto no estaba disponible; se restauró el expediente predeterminado."
+      : "Proyecto del inspector actualizado.";
+    focusIntent = "selection";
+  } else if (action.type === INSPECTOR_ACTIONS.selectTypology) {
+    const requested =
+      action.typologyId ?? action.typology_id ?? action.value;
+    const projectCases = inspectorRuntime.casesByProject.get(
+      state.inspectorProjectId,
+    );
+    let target =
+      typeof requested === "string" && state.inspectorProjectId
+        ? inspectorRuntime.caseByProjectTypology.get(
+            inspectorPairKey(state.inspectorProjectId, requested),
+          )
+        : null;
+    if (!target) {
+      target = projectCases?.[0] ?? inspectorRuntime.defaultCase;
+      corrected = true;
+      reasonCode = "INSPECTOR_TYPOLOGY_CORRECTED";
+    }
+    if (target.case_id !== state.inspectorPreset) setInspectorCase(target);
+    announcement = corrected
+      ? "La tipología no estaba disponible; se restauró una selección válida."
+      : "Tipología del inspector actualizada.";
+    focusIntent = "selection";
+  } else if (action.type === INSPECTOR_ACTIONS.openEvidence) {
+    const current = currentInspectorCase();
+    const requested =
+      action.evidenceId ?? action.evidence_id ?? action.value ?? null;
+    const hasExplicitEvidence =
+      typeof requested === "string" && requested.length > 0;
+    let evidenceId =
+      !hasExplicitEvidence
+        ? current?.primary_evidence_id ?? null
+        : requested;
+    if (!current?.evidence_ids?.includes(evidenceId)) {
+      evidenceId = current?.primary_evidence_id ?? null;
+      corrected = hasExplicitEvidence;
+      reasonCode =
+        hasExplicitEvidence && evidenceId
+          ? "INSPECTOR_EVIDENCE_CORRECTED"
+          : "INSPECTOR_EVIDENCE_UNAVAILABLE";
+    }
+    if (evidenceId && current.evidence_ids.includes(evidenceId)) {
+      state.inspectorEvidenceId = evidenceId;
+      state.inspectorDialogOpen = true;
+      announcement = corrected
+        ? "La evidencia solicitada no estaba disponible; se abrió la evidencia principal."
+        : "Evidencia abierta.";
+      focusIntent = "dialog";
+    } else {
+      state.inspectorEvidenceId = null;
+      state.inspectorDialogOpen = false;
+      announcement = "Este expediente no tiene evidencia disponible para abrir.";
+      focusIntent = "none";
+    }
+  } else if (action.type === INSPECTOR_ACTIONS.closeEvidence) {
+    state.inspectorEvidenceId = null;
+    state.inspectorDialogOpen = false;
+    announcement = "Visor de evidencia cerrado.";
+    focusIntent = before.dialogOpen || before.evidenceId ? "restore" : "none";
+  } else {
+    throw new TypeError(`Unsupported inspector action: ${action.type}`);
+  }
+
+  const after = inspectorSelection();
+  const changed = inspectorSelectionChanged(before, after);
+  if (
+    !changed &&
+    !corrected &&
+    action.type !== INSPECTOR_ACTIONS.openEvidence
+  ) {
+    announcement = "";
+    focusIntent = "none";
+  }
+  return inspectorTransition({
+    changed,
+    corrected,
+    reasonCode,
+    announcement,
+    focusIntent,
+  });
 }
 
 export function dispatchScenario(action, options = {}) {
@@ -332,6 +606,83 @@ function currentScenarioState() {
     scenario: structuredClone(state.scenario),
     scenario_status: state.scenario_status,
     corrections: structuredClone(state.scenario_corrections),
+  };
+}
+
+function unavailableInspectorRuntime(reasonCode) {
+  return {
+    available: false,
+    reasonCode,
+    cases: [],
+    caseById: new Map(),
+    caseByRoute: new Map(),
+    casesByProject: new Map(),
+    caseByProjectTypology: new Map(),
+    defaultCase: null,
+  };
+}
+
+function resetInspectorSelection() {
+  state.inspectorProjectId = null;
+  state.inspectorTypologyId = null;
+  state.inspectorEvidenceId = null;
+  state.inspectorPreset = null;
+  state.inspectorDialogOpen = false;
+}
+
+function inspectorPairKey(projectId, typologyId) {
+  return `${projectId}\u0000${typologyId}`;
+}
+
+function compareInspectorIds(left, right) {
+  return left < right ? -1 : left > right ? 1 : 0;
+}
+
+function setInspectorCase(inspectorCase) {
+  state.inspectorProjectId = inspectorCase.project_id;
+  state.inspectorTypologyId = inspectorCase.typology_id;
+  state.inspectorEvidenceId = null;
+  state.inspectorPreset = inspectorCase.case_id;
+  state.inspectorDialogOpen = false;
+}
+
+function currentInspectorCase() {
+  return inspectorRuntime.caseById.get(state.inspectorPreset) ?? null;
+}
+
+function resolveInspectorCase(value) {
+  if (typeof value !== "string" || !value) return null;
+  return (
+    inspectorRuntime.caseById.get(value) ??
+    inspectorRuntime.caseByRoute.get(value) ??
+    null
+  );
+}
+
+function inspectorSelectionChanged(before, after) {
+  return (
+    before.projectId !== after.projectId ||
+    before.typologyId !== after.typologyId ||
+    before.evidenceId !== after.evidenceId ||
+    before.preset !== after.preset ||
+    before.dialogOpen !== after.dialogOpen
+  );
+}
+
+function inspectorTransition({
+  changed,
+  corrected,
+  reasonCode,
+  announcement,
+  focusIntent,
+}) {
+  return {
+    changed: Boolean(changed),
+    corrected: Boolean(corrected),
+    reasonCode: reasonCode ?? null,
+    announcement: String(announcement ?? ""),
+    focusIntent: focusIntent ?? "none",
+    selection: inspectorSelection(),
   };
 }
 

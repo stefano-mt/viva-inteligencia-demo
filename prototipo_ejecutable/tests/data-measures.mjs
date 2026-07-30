@@ -10,6 +10,7 @@ import {
   calculateFreeArea,
   calculatePricePerM2,
   evaluateDerivedEligibility,
+  F3_SUPPLEMENTAL_IDS,
   halfUp,
   materializeMeasureRecords,
   sortEvents,
@@ -50,7 +51,14 @@ const observationById = indexBy(
   observationsData,
   "observation_id",
 );
-const materialized = materializeMeasureRecords(fixtures);
+const fixtureBaseline = materializeMeasureRecords(fixtures);
+const supplemental = {
+  typologies: typologiesData,
+  facts: factsData,
+  issues: issuesData,
+  events: eventsData
+};
+const materialized = materializeMeasureRecords(fixtures, { supplemental });
 const fixtureObservationIds = uniqueSorted(
   fixtures.flatMap((fixture) =>
     fixture.input.observations.map(
@@ -68,10 +76,16 @@ assert.deepEqual(typologiesData, materialized.typologies);
 assert.deepEqual(factsData, materialized.facts);
 assert.deepEqual(issuesData, materialized.issues);
 assert.deepEqual(eventsData, materialized.events);
+assert.ok(
+  fixtureBaseline.typologies.every((record) =>
+    materialized.typologies.some((candidate) => candidate.typology_id === record.typology_id)
+  ),
+  "the exact fixture baseline must remain present"
+);
 
 assert.deepEqual(
   uniqueSorted(typologiesData.map((typology) => typology.project_id)),
-  fixtureProjectIds,
+  materialized.external_references.project_ids,
 );
 assert.deepEqual(
   uniqueSorted(factsData.map((fact) => fact.observation_id)),
@@ -83,12 +97,12 @@ assert.ok(
   ),
 );
 assert.ok(
-  factsData.every((fact) =>
+  fixtureBaseline.facts.every((fact) =>
     fixtureObservationIds.includes(fact.observation_id),
   ),
 );
 assert.ok(
-  typologiesData.every((typology) =>
+  fixtureBaseline.typologies.every((typology) =>
     fixtureProjectIds.includes(typology.project_id),
   ),
 );
@@ -98,10 +112,16 @@ assert.ok(
   ),
 );
 
-assert.equal(typologiesData.length, 5);
-assert.equal(factsData.length, 26);
-assert.equal(issuesData.length, 5);
+assert.equal(typologiesData.length, 11);
+assert.equal(factsData.length, 40);
+assert.equal(issuesData.length, 10);
 assert.equal(eventsData.length, 3);
+assert.deepEqual(
+  typologiesData
+    .map((record) => record.typology_id)
+    .filter((id) => id.startsWith("typology:f3-")),
+  F3_SUPPLEMENTAL_IDS.typologies
+);
 
 assertUnique(typologiesData, "typology_id");
 assertUnique(factsData, "fact_id");
@@ -794,8 +814,45 @@ const reversedFixtures = [...fixtures].reverse().map((fixture) => ({
   ),
 }));
 assert.deepEqual(
-  materializeMeasureRecords(reversedFixtures),
+  materializeMeasureRecords(reversedFixtures, {
+    supplemental: Object.fromEntries(
+      Object.entries(supplemental).map(([key, records]) => [
+        key,
+        [...records].reverse()
+      ])
+    )
+  }),
   materialized,
+);
+assert.throws(
+  () =>
+    materializeMeasureRecords(fixtures, {
+      supplemental: {
+        ...supplemental,
+        facts: supplemental.facts.map((fact) =>
+          fact.fact_id === "fact:ct-a-built-area"
+            ? { ...fact, normalized_value: 999 }
+            : fact
+        )
+      }
+    }),
+  /conflicts with fixture baseline/
+);
+assert.throws(
+  () =>
+    materializeMeasureRecords(fixtures, {
+      supplemental: {
+        ...supplemental,
+        issues: [
+          ...supplemental.issues,
+          {
+            ...supplemental.issues[0],
+            issue_id: "issue:f3-unapproved"
+          }
+        ]
+      }
+    }),
+  /Unexpected supplemental record/
 );
 
 assert.equal(moduleSource.includes("new Date("), false);
@@ -873,7 +930,9 @@ function assertReferences() {
   );
   const factIds = new Set(factsData.map((fact) => fact.fact_id));
   const eventIds = new Set(eventsData.map((event) => event.event_id));
-  const externalObservationIds = new Set(fixtureObservationIds);
+  const externalObservationIds = new Set(
+    observationsData.map((observation) => observation.observation_id),
+  );
   const externalProjectIds = new Set(fixtureProjectIds);
 
   for (const typology of typologiesData) {

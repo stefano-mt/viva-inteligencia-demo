@@ -17,9 +17,17 @@ import {
   applyScenarioProduct,
   bindEvents,
   resetScenario,
+  selectInspectorCase,
   selectScenarioProject,
   setScenarioScope,
 } from "../public/js/controller.js";
+import { sectionGuides, views } from "../public/js/config.js";
+import {
+  inspectorCaseHash,
+  parseHashRoute,
+  replaceHashPreservingLocation,
+  viewIcon,
+} from "../public/js/navigation.js";
 
 const projectDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -31,6 +39,7 @@ const expectedModules = [
   "config.js",
   "controller.js",
   "domain.js",
+  "evidence-inspector.js",
   "navigation.js",
   "scenario.js",
   "state.js",
@@ -39,6 +48,7 @@ const expectedViews = [
   "index.js",
   "dashboard.js",
   "projects.js",
+  "inspector.js",
   "market.js",
   "compare.js",
   "checklist.js",
@@ -77,6 +87,107 @@ for (const [modulePath, dependencies] of graph) {
   );
 }
 
+assert.deepEqual(
+  views.map(({ id }) => id),
+  [
+    "dashboard",
+    "projects",
+    "inspector",
+    "market",
+    "compare",
+    "trust",
+    "assistant",
+    "activity",
+  ],
+);
+assert.deepEqual(views[2], {
+  id: "inspector",
+  label: "Inspector de evidencia",
+  hint: "Fuentes, tipologías y calidad",
+  group: "Análisis",
+});
+assert.equal(sectionGuides.inspector.steps.length, 3);
+assert.match(viewIcon("inspector"), /<svg/);
+
+assert.deepEqual(parseHashRoute("#inspector"), {
+  view: "inspector",
+  kind: "inspector-base",
+  caseSlug: null,
+  anchorId: null,
+  valid: true,
+});
+assert.deepEqual(
+  parseHashRoute("#inspector/case/f3-ct-g-pardo"),
+  {
+    view: "inspector",
+    kind: "inspector-case",
+    caseSlug: "f3-ct-g-pardo",
+    anchorId: null,
+    valid: true,
+  },
+);
+for (const anchorId of [
+  "inspector-row-area",
+  "inspector-row-floor_unit",
+  "inspector-row-model",
+  "inspector-row-bedrooms",
+  "inspector-row-bathrooms",
+  "inspector-limitations",
+  "inspector-evidence-shell",
+]) {
+  assert.deepEqual(parseHashRoute(`#${anchorId}`), {
+    view: "inspector",
+    kind: "inspector-anchor",
+    caseSlug: null,
+    anchorId,
+    valid: true,
+  });
+}
+for (const invalidHash of [
+  "#inspector/case/case:f3-ct-g-pardo",
+  "#inspector/case/f3-ct-g-pardo?source=catalog",
+  "#inspector/case/f3-ct-g-pardo/extra",
+  "#inspector/case/f3%2Fct-g-pardo",
+  "#inspector/case/%E0%A4%A",
+  "#inspector/other/f3-ct-g-pardo",
+]) {
+  const parsed = parseHashRoute(invalidHash);
+  assert.equal(parsed.view, "inspector");
+  assert.equal(parsed.kind, "inspector-invalid");
+  assert.equal(parsed.valid, false);
+  assert.equal(parsed.caseSlug, null);
+}
+assert.equal(parseHashRoute("#sources").view, "market");
+assert.equal(parseHashRoute("#matching").view, "compare");
+assert.equal(parseHashRoute("#quality").view, "trust");
+assert.equal(parseHashRoute("#pipeline").view, "activity");
+assert.equal(parseHashRoute("#market/extra").view, "dashboard");
+assert.equal(
+  inspectorCaseHash("case:f3-ct-g-pardo"),
+  null,
+  "los case_id técnicos no son slugs públicos",
+);
+assert.equal(inspectorCaseHash("f3/ct-g-pardo"), null);
+assert.equal(
+  inspectorCaseHash("f3-ct-g-pardo"),
+  "#inspector/case/f3-ct-g-pardo",
+);
+const replacedRoutes = [];
+assert.equal(
+  replaceHashPreservingLocation("#inspector/case/f3-ct-g-pardo", {
+    location: { pathname: "/viva/demo/", search: "?sv=1&area=80" },
+    history: {
+      replaceState(_state, _unused, value) {
+        replacedRoutes.push(value);
+      },
+    },
+  }),
+  true,
+);
+assert.deepEqual(replacedRoutes, [
+  "/viva/demo/?sv=1&area=80#inspector/case/f3-ct-g-pardo",
+]);
+
 const demoData = JSON.parse(
   await fs.readFile(
     path.join(
@@ -92,6 +203,26 @@ const geographyExclusionsBefore = JSON.stringify(
   demoData.geography.exclusions,
 );
 state.data = demoData;
+const inspectorScenarioSnapshot = structuredClone(state.scenario);
+const inspectorContextSnapshot = structuredClone(state.scenarioContext);
+const inspectorContextRevision = state.scenarioContextRevision;
+const inspectorSelectedProject = state.selectedProjectId;
+const inspectorCompareProjects = structuredClone(state.compareProjectIds);
+assert.equal(
+  selectInspectorCase("f3-ct-d-finishes", { render: false }).corrected,
+  false,
+);
+assert.equal(state.inspectorPreset, "case:f3-ct-d-finishes");
+const correctedInspector = selectInspectorCase("not-a-real-case", {
+  render: false,
+});
+assert.equal(correctedInspector.corrected, true);
+assert.equal(state.inspectorPreset, "case:f3-ct-g-pardo");
+assert.deepEqual(state.scenario, inspectorScenarioSnapshot);
+assert.deepEqual(state.scenarioContext, inspectorContextSnapshot);
+assert.equal(state.scenarioContextRevision, inspectorContextRevision);
+assert.equal(state.selectedProjectId, inspectorSelectedProject);
+assert.deepEqual(state.compareProjectIds, inspectorCompareProjects);
 assert.equal(
   state.scenarioContextRevision,
   1,
@@ -370,6 +501,14 @@ const domainSource = await fs.readFile(
   "utf8",
 );
 const appSource = await fs.readFile(entry, "utf8");
+const indexSource = await fs.readFile(
+  path.join(projectDir, "public", "js", "views", "index.js"),
+  "utf8",
+);
+const stylesManifestSource = await fs.readFile(
+  path.join(projectDir, "public", "styles.css"),
+  "utf8",
+);
 assert.equal(
   (stateSource.match(/\bbuildTerritorialContext\s*\(/g) ?? []).length,
   1,
@@ -389,6 +528,19 @@ assert.equal(
   1,
 );
 assert.doesNotMatch(appSource, /\bdispatchScenario\b/);
+assert.match(appSource, /inspector:\s*renderInspector/);
+assert.match(appSource, /selectInspectorCase\(requested,\s*\{\s*render:\s*false\s*\}\)/);
+assert.match(indexSource, /renderInspector/);
+const inspectorStyleOrder = [
+  "./styles/50-views.css",
+  "./styles/55-inspector.css",
+  "./styles/60-states.css",
+].map((specifier) => stylesManifestSource.indexOf(specifier));
+assert.ok(inspectorStyleOrder.every((index) => index >= 0));
+assert.deepEqual(
+  inspectorStyleOrder,
+  [...inspectorStyleOrder].sort((left, right) => left - right),
+);
 for (const eventName of [
   "viva:scenario-territory",
   "viva:scenario-product",

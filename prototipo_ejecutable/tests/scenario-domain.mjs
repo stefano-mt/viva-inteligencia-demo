@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import {
   EARTH_RADIUS_METERS,
   SCENARIO_QUERY_ORDER,
+  SUPPORTED_PUBLIC_CONTRACT_VERSIONS,
   buildTerritorialContext,
   canonicalizeScenarioUrl,
   createScenarioEnvironment,
@@ -31,7 +32,93 @@ const ctI = await readJson(
 const environment = createScenarioEnvironment(data);
 const defaults = environment.defaults;
 
-assert.equal(data.metadata.contract_version, "2.1.0");
+assert.equal(data.metadata.contract_version, "2.2.0");
+assert.deepEqual(SUPPORTED_PUBLIC_CONTRACT_VERSIONS, ["2.1.0", "2.2.0"]);
+const legacyData = structuredClone(data);
+legacyData.metadata.contract_version = "2.1.0";
+assert.deepEqual(
+  createScenarioEnvironment(legacyData),
+  environment,
+  "equivalent 2.1 and 2.2 payloads must expose identical F2 capabilities"
+);
+for (const contractVersion of [
+  "2.0.0",
+  "2.3.0",
+  "3.0.0",
+  "2.2",
+  "future",
+  null,
+  undefined
+]) {
+  const candidate = structuredClone(data);
+  if (contractVersion === undefined) {
+    delete candidate.metadata.contract_version;
+  } else {
+    candidate.metadata.contract_version = contractVersion;
+  }
+  assert.throws(
+    () => createScenarioEnvironment(candidate),
+    /requires public contract 2\.1\.0 or 2\.2\.0/,
+    `contract ${String(contractVersion)} must fail closed`
+  );
+}
+for (const section of [
+  "scenario_catalogs",
+  "scenario_defaults",
+  "geography"
+]) {
+  const candidate = structuredClone(data);
+  delete candidate[section];
+  assert.throws(
+    () => createScenarioEnvironment(candidate),
+    /must include scenario_catalogs, scenario_defaults and geography/,
+    `${section} is a required F2 capability`
+  );
+}
+for (const catalog of [
+  "typologies",
+  "bedrooms",
+  "delivery_years",
+  "scope_modes",
+  "quadrants",
+  "radius_meters",
+  "visualizations"
+]) {
+  const candidate = structuredClone(data);
+  candidate.scenario_catalogs[catalog] = [];
+  assert.throws(
+    () => createScenarioEnvironment(candidate),
+    new RegExp(`Scenario catalog ${catalog} is missing or empty`),
+    `${catalog} must remain a non-empty F2 catalog`
+  );
+}
+const incompatibleScopeModes = structuredClone(data);
+incompatibleScopeModes.scenario_catalogs.scope_modes = ["district"];
+assert.throws(
+  () => createScenarioEnvironment(incompatibleScopeModes),
+  /does not match the supported F2 contract/
+);
+for (const mutate of [
+  (candidate) => {
+    candidate.scenario_defaults.version = 2;
+  },
+  (candidate) => {
+    candidate.scenario_defaults.source = "url";
+  },
+  (candidate) => {
+    candidate.geography.districts = null;
+  },
+  (candidate) => {
+    candidate.geography.assignments = null;
+  }
+]) {
+  const candidate = structuredClone(data);
+  mutate(candidate);
+  assert.throws(
+    () => createScenarioEnvironment(candidate),
+    /do not match the supported F2 contract/
+  );
+}
 assert.deepEqual(createScenarioState(environment), {
   scenario: defaults,
   scenario_status: "valid",

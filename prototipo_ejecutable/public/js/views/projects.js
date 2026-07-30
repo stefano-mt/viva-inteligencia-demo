@@ -17,6 +17,7 @@ import {
   shortText,
   toArray,
 } from "../domain.js";
+import { inspectorCaseHash } from "../navigation.js";
 import { state } from "../state.js";
 
 const DEFAULT_FILTERS = Object.freeze({
@@ -60,6 +61,10 @@ function integerLimit(value, fallback) {
   return Number.isInteger(number) && number > 0 ? number : fallback;
 }
 
+function compareIds(left, right) {
+  return String(left ?? "").localeCompare(String(right ?? ""), "es");
+}
+
 export function canonicalProjectIdForView(projectOrId) {
   const value =
     typeof projectOrId === "object" && projectOrId !== null
@@ -72,6 +77,52 @@ export function canonicalProjectIdForView(projectOrId) {
     return `project:nexo-${id.slice("observed:nexo-".length)}`;
   }
   return id.includes(":") ? null : `project:nexo-${id}`;
+}
+
+export function buildProjectInspectorEntry({
+  projectId,
+  inspectorCases = [],
+  typologies = [],
+  currentCaseId = null,
+} = {}) {
+  if (typeof projectId !== "string" || !projectId) {
+    return { inspectable: false };
+  }
+  const typologyById = new Map(
+    toArray(typologies)
+      .filter(
+        (typology) =>
+          typeof typology?.typology_id === "string" &&
+          typology.typology_id,
+      )
+      .map((typology) => [typology.typology_id, typology]),
+  );
+  const candidates = toArray(inspectorCases)
+    .filter(
+      (inspectorCase) =>
+        inspectorCase?.project_id === projectId &&
+        typologyById.has(inspectorCase.typology_id) &&
+        inspectorCaseHash(inspectorCase.route_slug),
+    )
+    .sort((left, right) => compareIds(left.case_id, right.case_id));
+  const selected =
+    candidates.find(({ case_id: caseId }) => caseId === currentCaseId) ??
+    candidates[0] ??
+    null;
+  if (!selected) return { inspectable: false };
+
+  const typology = typologyById.get(selected.typology_id);
+  return {
+    inspectable: true,
+    caseId: selected.case_id,
+    routeSlug: selected.route_slug,
+    projectId,
+    typologyId: selected.typology_id,
+    typologyLabel:
+      String(typology?.model ?? "").trim() || "Tipología sin nombre",
+    provenance: selected.provenance_classification,
+    href: inspectorCaseHash(selected.route_slug),
+  };
 }
 
 function legacyProjectId(projectOrId) {
@@ -342,6 +393,72 @@ function scoreComponentsMarkup(row) {
     .join("");
 }
 
+function inspectorProvenanceLabel(value) {
+  return (
+    {
+      observed: "Caso observado",
+      controlled: "Caso controlado",
+      simulated: "Caso simulado",
+    }[value] ?? "Procedencia declarada"
+  );
+}
+
+function renderProjectInspectorEntry(row, data = state.data) {
+  const projectName =
+    row?.project?.project_name || "Proyecto sin nombre";
+  const entry = buildProjectInspectorEntry({
+    projectId: row?.projectId,
+    inspectorCases: data?.inspector?.cases,
+    typologies: data?.model?.typologies,
+    currentCaseId: state.inspectorPreset,
+  });
+  const descriptionId = "project-inspector-description";
+
+  if (!entry.inspectable) {
+    return `
+      <div
+        class="detail-section project-inspector-entry is-unavailable"
+        data-project-inspector-entry="unavailable"
+        data-inspector-project-id="${escapeAttr(row?.projectId ?? "")}"
+      >
+        <h3>Cobertura de evidencia</h3>
+        <p id="${descriptionId}">Este proyecto no tiene una tipología inspeccionable en esta demo. La cobertura territorial no implica expediente de evidencia.</p>
+        <a
+          class="secondary-button project-inspector-action"
+          href="#inspector"
+          aria-describedby="${descriptionId}"
+        >
+          Ver cobertura disponible
+        </a>
+      </div>
+    `;
+  }
+
+  return `
+    <div
+      class="detail-section project-inspector-entry"
+      data-project-inspector-entry="available"
+      data-inspector-project-id="${escapeAttr(entry.projectId)}"
+      data-inspector-route-slug="${escapeAttr(entry.routeSlug)}"
+    >
+      <h3>Evidencia por tipología</h3>
+      <p id="${descriptionId}">
+        ${escapeHtml(entry.typologyLabel)} ·
+        ${escapeHtml(inspectorProvenanceLabel(entry.provenance))}.
+        Abre el expediente sin cambiar el escenario territorial.
+      </p>
+      <a
+        class="primary-button project-inspector-action"
+        href="${escapeAttr(entry.href)}"
+        aria-label="Inspeccionar evidencia de ${escapeAttr(projectName)}, ${escapeAttr(entry.typologyLabel)}"
+        aria-describedby="${descriptionId}"
+      >
+        Inspeccionar evidencia
+      </a>
+    </div>
+  `;
+}
+
 export function renderProjectDetail(row) {
   if (!row) {
     return emptyState(
@@ -392,6 +509,7 @@ export function renderProjectDetail(row) {
       <h3>Por qué es comparable</h3>
       <dl>${scoreComponentsMarkup(row)}</dl>
     </div>
+    ${renderProjectInspectorEntry(row)}
     <div class="detail-section">
       <h3>Resumen ejecutivo</h3>
       <p>${escapeHtml(shortText(project.project_description, 260) || "No disponible en la información visible.")}</p>

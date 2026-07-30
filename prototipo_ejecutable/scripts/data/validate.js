@@ -1294,6 +1294,314 @@ function validateRootSemantics(document, errors) {
   });
 }
 
+const INSPECTOR_QUALITY_PRECEDENCE = Object.freeze([
+  "inconsistent",
+  "illegible",
+  "insufficient",
+  "reviewable",
+  "certified"
+]);
+const CONTROLLED_REPRESENTATION_PREFIX =
+  "Representación controlada para demo; no es el documento original";
+
+function deriveInspectorDecision(inspectorCase, facts, issues) {
+  const requiredFacts = inspectorCase.required_fact_ids
+    .map((factId) => facts.get(factId))
+    .filter(Boolean);
+  const requiredFactIds = new Set(inspectorCase.required_fact_ids);
+  const blockingIssues = inspectorCase.issue_ids
+    .map((issueId) => issues.get(issueId))
+    .filter(
+      (issue) =>
+        issue?.benchmark_blocking === true &&
+        issue.fact_ids.some((factId) => requiredFactIds.has(factId))
+    );
+  const statuses = new Set([
+    ...requiredFacts.map((fact) => fact.quality_status),
+    ...blockingIssues.map((issue) => issue.quality_status)
+  ]);
+  const qualityStatus =
+    INSPECTOR_QUALITY_PRECEDENCE.find((status) => statuses.has(status)) ??
+    "certified";
+  return {
+    qualityStatus,
+    benchmarkEligible:
+      qualityStatus === "certified" &&
+      requiredFacts.length === inspectorCase.required_fact_ids.length &&
+      requiredFacts.every(
+        (fact) =>
+          fact.quality_status === "certified" &&
+          fact.benchmark_eligible === true
+      ) &&
+      blockingIssues.length === 0
+  };
+}
+
+export function validateInspectorSemantics(
+  inspector,
+  model,
+  path = "$.inspector"
+) {
+  const errors = [];
+  if (!inspector || !Array.isArray(inspector.cases) || !Array.isArray(inspector.assets)) {
+    return errors;
+  }
+  const cases = inspector.cases;
+  const assets = inspector.assets;
+  const maps = Object.fromEntries(
+    [
+      ["sources", "source_id"],
+      ["agencies", "agency_id"],
+      ["projects", "project_id"],
+      ["typologies", "typology_id"],
+      ["observations", "observation_id"],
+      ["facts", "fact_id"],
+      ["documents", "document_id"],
+      ["evidence", "evidence_id"],
+      ["issues", "issue_id"]
+    ].map(([name, idField]) => [name, mapBy(collection(model, name), idField)])
+  );
+  const caseIds = new Set(cases.map((entry) => entry.case_id));
+  if (!caseIds.has(inspector.default_case_id)) {
+    push(errors, "INSPECTOR_DEFAULT_CASE_REFERENCE", `${path}.default_case_id`, "Default inspector case is missing");
+  }
+  for (const [field, idField] of [["cases", "case_id"], ["assets", "asset_id"]]) {
+    const ids = inspector[field].map((record) => record[idField]);
+    if (new Set(ids).size !== ids.length) {
+      push(errors, "INSPECTOR_DUPLICATE_ID", `${path}.${field}`, `${idField} must be unique`);
+    }
+    const expected = [...ids].sort(compareText);
+    if (ids.some((id, index) => id !== expected[index])) {
+      push(errors, "INSPECTOR_ORDER", `${path}.${field}`, `${field} must be ordered by ${idField}`);
+    }
+  }
+  const routes = cases.map((entry) => entry.route_slug);
+  if (new Set(routes).size !== routes.length) {
+    push(errors, "INSPECTOR_ROUTE_DUPLICATE", `${path}.cases`, "Inspector routes must be unique");
+  }
+
+  const assetByDocument = new Map();
+  const assetPaths = new Set();
+  for (const [index, asset] of assets.entries()) {
+    const assetPath = `${path}.assets[${index}]`;
+    if (assetByDocument.has(asset.document_id)) {
+      push(errors, "INSPECTOR_ASSET_DOCUMENT_DUPLICATE", `${assetPath}.document_id`, "Only one asset may represent a document");
+    }
+    assetByDocument.set(asset.document_id, asset);
+    if (assetPaths.has(asset.logical_path)) {
+      push(errors, "INSPECTOR_ASSET_PATH_DUPLICATE", `${assetPath}.logical_path`, "Asset paths must be unique");
+    }
+    assetPaths.add(asset.logical_path);
+    const document = maps.documents.get(asset.document_id);
+    if (!document) {
+      push(errors, "INSPECTOR_ASSET_DOCUMENT_REFERENCE", `${assetPath}.document_id`, "Asset document is missing");
+      continue;
+    }
+    if (document.public_asset_path !== asset.logical_path) {
+      push(errors, "INSPECTOR_ASSET_DOCUMENT_PATH", `${assetPath}.logical_path`, "Asset path differs from document");
+    }
+    if (document.sha256 !== asset.sha256) {
+      push(errors, "INSPECTOR_ASSET_DOCUMENT_SHA", `${assetPath}.sha256`, "Asset hash differs from document");
+    }
+    if (
+      document.publish_permission !== "authorized" ||
+      document.availability !== "available" ||
+      asset.publish_permission !== "authorized" ||
+      asset.provenance !== "controlled_original"
+    ) {
+      push(errors, "INSPECTOR_ASSET_PERMISSION", assetPath, "Inspector asset is not public and controlled");
+    }
+    const linkedEvidence = collection(model, "evidence").filter(
+      (record) => record.document_id === asset.document_id
+    );
+    if (
+      linkedEvidence.length !== 1 ||
+      linkedEvidence[0].sha256 !== asset.sha256 ||
+      linkedEvidence[0].publish_permission !== "authorized" ||
+      linkedEvidence[0].availability !== "available"
+    ) {
+      push(errors, "INSPECTOR_ASSET_EVIDENCE", assetPath, "Asset needs one public hash-matched image evidence record");
+    } else if (
+      linkedEvidence[0].kind === "image_region" &&
+      (
+        typeof linkedEvidence[0].fragment !== "string" ||
+        !linkedEvidence[0].fragment.startsWith(
+          CONTROLLED_REPRESENTATION_PREFIX
+        )
+      )
+    ) {
+      push(errors, "INSPECTOR_ASSET_REPRESENTATION_LABEL", assetPath, "Controlled representation label is missing");
+    }
+  }
+
+  const caseDocumentIds = new Set(
+    cases.flatMap((inspectorCase) => inspectorCase.document_ids)
+  );
+  for (const [index, asset] of assets.entries()) {
+    if (!caseDocumentIds.has(asset.document_id)) {
+      push(errors, "INSPECTOR_ASSET_ORPHAN", `${path}.assets[${index}].document_id`, "Asset is not referenced by an inspector case");
+    }
+  }
+
+  for (const [index, inspectorCase] of cases.entries()) {
+    const casePath = `${path}.cases[${index}]`;
+    const project = maps.projects.get(inspectorCase.project_id);
+    const typology = maps.typologies.get(inspectorCase.typology_id);
+    if (!project) {
+      push(errors, "INSPECTOR_CASE_PROJECT_REFERENCE", `${casePath}.project_id`, "Case project is missing");
+    } else if (!maps.agencies.has(project.agency_id)) {
+      push(errors, "INSPECTOR_CASE_AGENCY_REFERENCE", `${casePath}.project_id`, "Case project agency is missing");
+    }
+    if (!typology || typology.project_id !== inspectorCase.project_id) {
+      push(errors, "INSPECTOR_CASE_TYPOLOGY_REFERENCE", `${casePath}.typology_id`, "Case typology does not belong to its project");
+    }
+    const sourceUsage = new Set();
+    for (const sourceId of inspectorCase.source_ids) {
+      if (!maps.sources.has(sourceId)) {
+        push(errors, "INSPECTOR_CASE_SOURCE_REFERENCE", `${casePath}.source_ids`, `Missing ${sourceId}`);
+      }
+    }
+    for (const observationId of inspectorCase.observation_ids) {
+      const observation = maps.observations.get(observationId);
+      if (!observation) {
+        push(errors, "INSPECTOR_CASE_OBSERVATION_REFERENCE", `${casePath}.observation_ids`, `Missing ${observationId}`);
+        continue;
+      }
+      sourceUsage.add(observation.source_id);
+      if (!inspectorCase.source_ids.includes(observation.source_id)) {
+        push(errors, "INSPECTOR_CASE_OBSERVATION_SOURCE", `${casePath}.observation_ids`, `${observationId} uses an undeclared source`);
+      }
+      if (
+        ![
+          inspectorCase.project_id,
+          inspectorCase.typology_id,
+          ...inspectorCase.document_ids
+        ].includes(observation.entity_id)
+      ) {
+        push(errors, "INSPECTOR_CASE_OBSERVATION_ENTITY", `${casePath}.observation_ids`, `${observationId} belongs to another entity`);
+      }
+    }
+    for (const factId of inspectorCase.fact_ids) {
+      const fact = maps.facts.get(factId);
+      if (!fact) {
+        push(errors, "INSPECTOR_CASE_FACT_REFERENCE", `${casePath}.fact_ids`, `Missing ${factId}`);
+        continue;
+      }
+      if (!inspectorCase.observation_ids.includes(fact.observation_id)) {
+        push(errors, "INSPECTOR_CASE_FACT_OBSERVATION", `${casePath}.fact_ids`, `${factId} belongs to another observation`);
+      }
+      if (![inspectorCase.project_id, inspectorCase.typology_id].includes(fact.entity_id)) {
+        push(errors, "INSPECTOR_CASE_FACT_ENTITY", `${casePath}.fact_ids`, `${factId} belongs to another entity`);
+      }
+    }
+    if (
+      inspectorCase.required_fact_ids.some(
+        (factId) => !inspectorCase.fact_ids.includes(factId)
+      )
+    ) {
+      push(errors, "INSPECTOR_CASE_REQUIRED_FACT_SUBSET", `${casePath}.required_fact_ids`, "Required facts must be included in fact_ids");
+    }
+    for (const documentId of inspectorCase.document_ids) {
+      const document = maps.documents.get(documentId);
+      if (!document) {
+        push(errors, "INSPECTOR_CASE_DOCUMENT_REFERENCE", `${casePath}.document_ids`, `Missing ${documentId}`);
+        continue;
+      }
+      sourceUsage.add(document.source_id);
+      if (!inspectorCase.source_ids.includes(document.source_id)) {
+        push(errors, "INSPECTOR_CASE_DOCUMENT_SOURCE", `${casePath}.document_ids`, `${documentId} uses an undeclared source`);
+      }
+    }
+    for (const evidenceId of inspectorCase.evidence_ids) {
+      const evidence = maps.evidence.get(evidenceId);
+      if (!evidence) {
+        push(errors, "INSPECTOR_CASE_EVIDENCE_REFERENCE", `${casePath}.evidence_ids`, `Missing ${evidenceId}`);
+        continue;
+      }
+      if (!inspectorCase.observation_ids.includes(evidence.observation_id)) {
+        push(errors, "INSPECTOR_CASE_EVIDENCE_OBSERVATION", `${casePath}.evidence_ids`, `${evidenceId} belongs to another observation`);
+      }
+      if (!inspectorCase.document_ids.includes(evidence.document_id)) {
+        push(errors, "INSPECTOR_CASE_EVIDENCE_DOCUMENT", `${casePath}.evidence_ids`, `${evidenceId} belongs to another document`);
+      }
+    }
+    if (
+      inspectorCase.primary_evidence_id !== null &&
+      !inspectorCase.evidence_ids.includes(inspectorCase.primary_evidence_id)
+    ) {
+      push(errors, "INSPECTOR_CASE_PRIMARY_EVIDENCE", `${casePath}.primary_evidence_id`, "Primary evidence must belong to the case");
+    }
+    for (const issueId of inspectorCase.issue_ids) {
+      const issue = maps.issues.get(issueId);
+      if (!issue) {
+        push(errors, "INSPECTOR_CASE_ISSUE_REFERENCE", `${casePath}.issue_ids`, `Missing ${issueId}`);
+        continue;
+      }
+      if (issue.entity_id !== inspectorCase.typology_id) {
+        push(errors, "INSPECTOR_CASE_ISSUE_ENTITY", `${casePath}.issue_ids`, `${issueId} belongs to another typology`);
+      }
+      if (issue.fact_ids.some((factId) => !inspectorCase.fact_ids.includes(factId))) {
+        push(errors, "INSPECTOR_CASE_ISSUE_FACT", `${casePath}.issue_ids`, `${issueId} references a fact outside the case`);
+      }
+    }
+    if (inspectorCase.source_ids.some((sourceId) => !sourceUsage.has(sourceId))) {
+      push(errors, "INSPECTOR_CASE_UNUSED_SOURCE", `${casePath}.source_ids`, "Every declared source must be used");
+    }
+    const visualCount = inspectorCase.document_ids.filter((documentId) =>
+      assetByDocument.has(documentId)
+    ).length;
+    if (visualCount !== inspectorCase.public_visual_asset_count) {
+      push(errors, "INSPECTOR_CASE_VISUAL_COUNT", `${casePath}.public_visual_asset_count`, `Expected ${visualCount}`);
+    }
+    const decision = deriveInspectorDecision(
+      inspectorCase,
+      maps.facts,
+      maps.issues
+    );
+    if (decision.qualityStatus !== inspectorCase.expected_quality_status) {
+      push(errors, "INSPECTOR_CASE_QUALITY", `${casePath}.expected_quality_status`, `Expected ${decision.qualityStatus}`);
+    }
+    if (
+      decision.benchmarkEligible !==
+      inspectorCase.expected_benchmark_eligible
+    ) {
+      push(errors, "INSPECTOR_CASE_ELIGIBILITY", `${casePath}.expected_benchmark_eligible`, `Expected ${decision.benchmarkEligible}`);
+    }
+  }
+
+  const derivedCoverage = {
+    total_cases: cases.length,
+    observed_cases: cases.filter(
+      (entry) => entry.provenance_classification === "observed"
+    ).length,
+    controlled_cases: cases.filter(
+      (entry) => entry.provenance_classification === "controlled"
+    ).length,
+    simulated_cases: cases.filter(
+      (entry) => entry.provenance_classification === "simulated"
+    ).length,
+    inspectable_typologies: new Set(cases.map((entry) => entry.typology_id)).size,
+    authorized_visual_assets: assets.filter(
+      (asset) =>
+        asset.publish_permission === "authorized" &&
+        asset.media_type.startsWith("image/")
+    ).length
+  };
+  for (const [field, expected] of Object.entries(derivedCoverage)) {
+    if (inspector.coverage?.[field] !== expected) {
+      push(errors, "INSPECTOR_COVERAGE_MISMATCH", `${path}.coverage.${field}`, `Expected ${expected}`);
+    }
+  }
+  const declaredVisualCount = cases.reduce(
+    (sum, entry) => sum + entry.public_visual_asset_count,
+    0
+  );
+  if (declaredVisualCount !== derivedCoverage.authorized_visual_assets) {
+    push(errors, "INSPECTOR_VISUAL_TOTAL", `${path}.cases`, `Expected ${derivedCoverage.authorized_visual_assets} declared visual assets`);
+  }
+  return stableErrors(errors);
+}
+
 export function validateRootDocument(
   document,
   { schema = loadContractSchema(), assetExists } = {}
@@ -1309,6 +1617,9 @@ export function validateRootDocument(
         requireDeterministicOrder: true
       })
     );
+  }
+  if (document?.inspector && document?.model) {
+    errors.push(...validateInspectorSemantics(document.inspector, document.model));
   }
   validateRootSemantics(document, errors);
   errors.push(...validatePrivacy(document));

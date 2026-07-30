@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "contract_version": "2.1.0",
+    "contract_version": "2.2.0",
     "dataset_id": "dataset:viva-platform-demo-2026-07-28",
     "generated_at": "2026-07-28T01:24:28Z",
     "cutoff_at": "2026-07-28T01:24:28Z",
@@ -28,7 +28,7 @@
       {
         "input_id": "input:005",
         "path": "datos_relevantes/demo-pilot/documents.json",
-        "sha256": "aee3dc3f0cea8f7ba4dd61843de8ddd38840c37d25c6b893322e049113fdc06e"
+        "sha256": "cf65a3066256b57372b328c10a0af4dc4aa0febd8e7ac9cbdaa0d52b98b47977"
       },
       {
         "input_id": "input:006",
@@ -37,128 +37,213 @@
       },
       {
         "input_id": "input:007",
-        "path": "datos_relevantes/demo-pilot/evidence.json",
-        "sha256": "d776b04fb898c0785bda09efc0bd75d3cdabcbc1f9509a2153e55a8058b5c382"
+        "path": "datos_relevantes/demo-pilot/evidence-manifest.json",
+        "sha256": "fdbba2de62125ca3ff37a5cf918ad0ba51a2fc7366dd4057cfa8f361fd2a7c06"
       },
       {
         "input_id": "input:008",
+        "path": "datos_relevantes/demo-pilot/evidence.json",
+        "sha256": "79e790620be2e9e4ed8752bdb744cf72ddabc4d128cbcceb04c591595570ec93"
+      },
+      {
+        "input_id": "input:009",
         "path": "datos_relevantes/demo-pilot/evidence/ct-d-countertop-fragment.txt",
         "sha256": "cc50af822071091c0ffa6ee08ba131e1e49c607fd31cd35cb0b5c8aa20b9baa8"
       },
       {
-        "input_id": "input:009",
+        "input_id": "input:010",
         "path": "datos_relevantes/demo-pilot/evidence/ct-g-transcriptions.json",
         "sha256": "bf0c423915e7dc78486364cf76397909806d45259e056c4dd464d5ff6c4fe487"
       },
       {
-        "input_id": "input:010",
+        "input_id": "input:011",
         "path": "datos_relevantes/demo-pilot/facts.json",
-        "sha256": "ae0b4201d31ab1017da21f97b70f9bc91e48f8cf7459f6699b639f8013420c42"
+        "sha256": "c88fc76ae2ec4484a4c95b48c8ae3f604dcd5718ab751e24b0e8c6a006c70970"
       },
       {
-        "input_id": "input:011",
+        "input_id": "input:012",
         "path": "datos_relevantes/demo-pilot/fixtures/ct-a.json",
         "sha256": "96fda0f38e5e7033615e8458031a947808d893765ed7c1c0797b55da87d1e02d"
       },
       {
-        "input_id": "input:012",
+        "input_id": "input:013",
         "path": "datos_relevantes/demo-pilot/fixtures/ct-b.json",
         "sha256": "2dd19a8a97243c1f4499d368bb3229f7c5ad24c74a9751dcb2a42bb1cb969213"
       },
       {
-        "input_id": "input:013",
+        "input_id": "input:014",
         "path": "datos_relevantes/demo-pilot/fixtures/ct-c.json",
         "sha256": "445e3d8b6d6dae667d0d8bc07d3275ea2d3e85880803878ba4b41814efc7b18c"
       },
       {
-        "input_id": "input:014",
+        "input_id": "input:015",
         "path": "datos_relevantes/demo-pilot/fixtures/ct-d.json",
         "sha256": "fd2f192525ad42a1d6ce356d46979a385aff920fc33aafefb7ff27158a2f3426"
       },
       {
-        "input_id": "input:015",
+        "input_id": "input:016",
         "path": "datos_relevantes/demo-pilot/fixtures/ct-e.json",
         "sha256": "8d5d9cf8b9c4e1f94b7701f01e18c29730096cbf158a8e2a70d2597920fc2269"
       },
       {
-        "input_id": "input:016",
+        "input_id": "input:017",
         "path": "datos_relevantes/demo-pilot/fixtures/ct-g.json",
         "sha256": "322faa31cb4d1a8eaf45a37eef5f6403d6417116b351c6f21af2e19f3bfdbc2f"
       },
       {
-        "input_id": "input:017",
+        "input_id": "input:018",
         "path": "datos_relevantes/demo-pilot/fixtures/ct-h.json",
         "sha256": "01571d4dedf0b739855e0aa0b9eece0ad9dc853fdc4db69e74c2d2eb0aff8745"
       },
       {
-        "input_id": "input:018",
+        "input_id": "input:019",
         "path": "datos_relevantes/demo-pilot/fixtures/ct-i.json",
         "sha256": "aa4bd56b375fb0ad1c8a20405ac3f9ca5c7d1ab1d535027caf7e9525011e90a4"
       },
       {
-        "input_id": "input:019",
-        "path": "datos_relevantes/demo-pilot/issues.json",
-        "sha256": "580c28bcc075ed445e788b0fe33dea4e83367ff38bff71db78e9ba8017665e12"
-      },
-      {
         "input_id": "input:020",
-        "path": "datos_relevantes/demo-pilot/observations.json",
-        "sha256": "bdb7987260933e66d32f349c7e5d4e3581c28133d6da6b53f4addc8f40032002"
+        "path": "datos_relevantes/demo-pilot/inspector-cases.json",
+        "sha256": "ebbb7fd07b973a2740f0e8d4b5148b524b3687ab5834d5286f9fa4c2af840301"
       },
       {
         "input_id": "input:021",
+        "path": "datos_relevantes/demo-pilot/issues.json",
+        "sha256": "9935587f515e2a6b275a95374ad19f949d86d7849625879f77b02ae903138c0b"
+      },
+      {
+        "input_id": "input:022",
+        "path": "datos_relevantes/demo-pilot/observations.json",
+        "sha256": "56a2e4afcde3c61fa85fb8c15e16fabf75b88d9bc0f5268a1372d26dbe6991f6"
+      },
+      {
+        "input_id": "input:023",
         "path": "datos_relevantes/demo-pilot/pilot-selection.json",
         "sha256": "a0599a9c8ce4bee374aae57b0377767570b8d61cfe63a847da55efc182c5af1b"
       },
       {
-        "input_id": "input:022",
-        "path": "datos_relevantes/demo-pilot/sources.json",
-        "sha256": "345ffb355cffc4c6f69ff252c0c5c7b8e0289c5844cca7ed5ad1a6072365ca2c"
-      },
-      {
-        "input_id": "input:023",
-        "path": "datos_relevantes/demo-pilot/typologies.json",
-        "sha256": "a7d0a339bce261706fd4942be38c1ecde554f82eba27f68e936986318bc78f2a"
-      },
-      {
         "input_id": "input:024",
+        "path": "datos_relevantes/demo-pilot/sources.json",
+        "sha256": "fd8f8e68ab128ed1919b191d34568a50ee66f1280e3fc35eb75041cc29e47bbe"
+      },
+      {
+        "input_id": "input:025",
+        "path": "datos_relevantes/demo-pilot/typologies.json",
+        "sha256": "9a6875f0f342f22ef851f8d9adb62a284b9911d5abe4efc0a57e556c9c1c3418"
+      },
+      {
+        "input_id": "input:026",
         "path": "datos_relevantes/geography/district-boundaries-source.geojson",
         "sha256": "ef75b5deb43f2ed94cc9661c3f1926e94608e0b2e4a41c8ce9197dbea71b16c0"
       },
       {
-        "input_id": "input:025",
+        "input_id": "input:027",
         "path": "datos_relevantes/geography/source-manifest.json",
         "sha256": "c9b7f14679c26b0b76072225248081f79d11283bf94164d8ad49beda91ab6117"
       },
       {
-        "input_id": "input:026",
+        "input_id": "input:028",
         "path": "datos_relevantes/nexo_web_project_match.csv",
         "sha256": "2ad09f63f8a880e706c4826f5a3784cbec4a127a8e6c601c3e834b45a2d64fe0"
       },
       {
-        "input_id": "input:027",
+        "input_id": "input:029",
         "path": "datos_relevantes/service_scope_matrix.csv",
         "sha256": "16854ea93b4c0e17e0bf1af9e83a6e57a3fef375e0ba9efc515e1fab612fad16"
       },
       {
-        "input_id": "input:028",
+        "input_id": "input:030",
         "path": "datos_relevantes/viva_minimum_dataset_latest.csv",
         "sha256": "902747a251be63fd6ff6bd4662142145de7de584979ac793017f92fb97213de9"
       },
       {
-        "input_id": "input:029",
+        "input_id": "input:031",
         "path": "datos_relevantes/webs_propias_sample_dataset.csv",
         "sha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc"
       },
       {
-        "input_id": "input:030",
+        "input_id": "input:032",
         "path": "datos_relevantes/webs_propias_source_field_feasibility.csv",
         "sha256": "7282372aef6e0ca3a86348141ec719cedcd359acfb8b05767edfd8089f8c25df"
       },
       {
-        "input_id": "input:031",
+        "input_id": "input:033",
         "path": "prototipo_ejecutable/contracts/demo-v2.schema.json",
-        "sha256": "c0948cb8718e3aa8862f46e28c22be0ad23c58c8dd772417a48dd574987d94e8"
+        "sha256": "2a376ab9d8a459a6f706c69a891a93a71cc8fb8a120f4c076c6c48f2f9af5127"
+      },
+      {
+        "input_id": "input:034",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-area-match-card.webp",
+        "sha256": "b9963787a88880b3dc5f880bb830c16d0700369f7991629925a03287fc170bd8"
+      },
+      {
+        "input_id": "input:035",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-area-match-measurement.webp",
+        "sha256": "3d323194b0803fefc47cba8e2b36dabd99b44506750dae68297c1aa4d2571720"
+      },
+      {
+        "input_id": "input:036",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-bathroom-conflict-card.webp",
+        "sha256": "4f80198159c280e502450f0bb576092ab2a69bfa3d2b9ecf59fb1e0037f68998"
+      },
+      {
+        "input_id": "input:037",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-bathroom-conflict-measurement.webp",
+        "sha256": "1d0959eae7159c77be8a8bb91bb45e3d45fdd267d5003517e7320c31308a1562"
+      },
+      {
+        "input_id": "input:038",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-bedroom-conflict-card.webp",
+        "sha256": "8cd274db2b4df525823463d57ecdc751ec67e81a9bb23d8b2c70533384349d27"
+      },
+      {
+        "input_id": "input:039",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-bedroom-conflict-measurement.webp",
+        "sha256": "33e7021fb8a88e54e8ae2301702a2854dace381351e2f7d97b7b87b0c7c0182c"
+      },
+      {
+        "input_id": "input:040",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-ct-a-card.webp",
+        "sha256": "203bf07dc927c4fa6fcab6e572ae620b4551a801ef82417dc12a28e8872fe38f"
+      },
+      {
+        "input_id": "input:041",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-ct-a-measurement.webp",
+        "sha256": "3b2ce8c3a6f07fcfd938574f252fa58733fba835af3aefa4b6d3eb6cafa311fd"
+      },
+      {
+        "input_id": "input:042",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-ct-b-source-a.webp",
+        "sha256": "f2120188548a7365a33d1d311144377e97e8b028de5711a376cc60c8419e76a1"
+      },
+      {
+        "input_id": "input:043",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-ct-b-source-b.webp",
+        "sha256": "6735eef1859fc1b838a74438ffe3ccdbb560f3eb67ce4d4910878e5f8e385df2"
+      },
+      {
+        "input_id": "input:044",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-floor-review-card.webp",
+        "sha256": "58875cd8b4c6588ccf3c116d4bedc0120bce330ce6912774162b3d5cea243f65"
+      },
+      {
+        "input_id": "input:045",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-floor-review-measurement.webp",
+        "sha256": "12b047235d5b79598f7aaf6163591e116bbbcdf561b562fd8728f4f6590362b3"
+      },
+      {
+        "input_id": "input:046",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-illegible-area-card.webp",
+        "sha256": "a61efc8a19f6bc4336f7e2fda55bad5629b069c09e08e0c49ff944710aaf7682"
+      },
+      {
+        "input_id": "input:047",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-illegible-area-measurement.webp",
+        "sha256": "8300dbbae35c766c72d0d7ccc0482b10b02b4466f7605d7c1bf5d76e258c539c"
+      },
+      {
+        "input_id": "input:048",
+        "path": "prototipo_ejecutable/public/assets/evidence/f3-insufficient-source-card.webp",
+        "sha256": "76c29db8d49f90d7271b55597c61052aa9a3d79d0de958be9e9be16db6a97b51"
       }
     ],
     "publication": {
@@ -183,13 +268,16 @@
       "canonical_agencies": 184,
       "selected_agencies": 30,
       "districts": 45,
-      "sources": 8,
-      "observations": 17,
-      "facts": 26,
-      "documents": 4,
-      "evidence": 4,
-      "issues": 5,
-      "events": 3
+      "sources": 10,
+      "observations": 30,
+      "facts": 40,
+      "documents": 19,
+      "evidence": 19,
+      "issues": 10,
+      "events": 3,
+      "typologies": 11,
+      "inspector_cases": 10,
+      "inspector_assets": 15
     }
   },
   "model": {
@@ -249,6 +337,22 @@
         "base_url": null,
         "legal_status": "restricted",
         "access_mode": "user_provided"
+      },
+      {
+        "source_id": "source:f3-neutral-card",
+        "name": "Tarjeta neutral controlada Fase 3",
+        "type": "controlled_fixture",
+        "base_url": null,
+        "legal_status": "cleared_for_demo",
+        "access_mode": "controlled_fixture"
+      },
+      {
+        "source_id": "source:f3-neutral-measurement",
+        "name": "Ficha de medición neutral controlada Fase 3",
+        "type": "controlled_fixture",
+        "base_url": null,
+        "legal_status": "cleared_for_demo",
+        "access_mode": "controlled_fixture"
       },
       {
         "source_id": "source:nexo",
@@ -17393,6 +17497,84 @@
         "quality_status": "reviewable"
       },
       {
+        "typology_id": "typology:f3-area-match",
+        "project_id": "project:ct-a-controlled",
+        "model": "F3 Área compatible",
+        "floor_label_original": null,
+        "floor_min": null,
+        "floor_max": null,
+        "bedrooms_min": null,
+        "bedrooms_max": null,
+        "bathrooms_min": null,
+        "bathrooms_max": null,
+        "quality_status": "certified"
+      },
+      {
+        "typology_id": "typology:f3-bathroom-conflict",
+        "project_id": "project:ct-e-controlled",
+        "model": "F3 Conflicto de baños",
+        "floor_label_original": null,
+        "floor_min": null,
+        "floor_max": null,
+        "bedrooms_min": null,
+        "bedrooms_max": null,
+        "bathrooms_min": null,
+        "bathrooms_max": null,
+        "quality_status": "inconsistent"
+      },
+      {
+        "typology_id": "typology:f3-bedroom-conflict",
+        "project_id": "project:ct-d-controlled",
+        "model": "F3 Conflicto de dormitorios",
+        "floor_label_original": null,
+        "floor_min": null,
+        "floor_max": null,
+        "bedrooms_min": null,
+        "bedrooms_max": null,
+        "bathrooms_min": null,
+        "bathrooms_max": null,
+        "quality_status": "inconsistent"
+      },
+      {
+        "typology_id": "typology:f3-floor-review",
+        "project_id": "project:ct-b-controlled",
+        "model": "F3 Piso revisable",
+        "floor_label_original": null,
+        "floor_min": null,
+        "floor_max": null,
+        "bedrooms_min": null,
+        "bedrooms_max": null,
+        "bathrooms_min": null,
+        "bathrooms_max": null,
+        "quality_status": "reviewable"
+      },
+      {
+        "typology_id": "typology:f3-illegible-area",
+        "project_id": "project:ct-e-controlled",
+        "model": "F3 Área ilegible",
+        "floor_label_original": null,
+        "floor_min": null,
+        "floor_max": null,
+        "bedrooms_min": null,
+        "bedrooms_max": null,
+        "bathrooms_min": null,
+        "bathrooms_max": null,
+        "quality_status": "illegible"
+      },
+      {
+        "typology_id": "typology:f3-insufficient-source",
+        "project_id": "project:ct-a-controlled",
+        "model": "F3 Fuente insuficiente",
+        "floor_label_original": null,
+        "floor_min": null,
+        "floor_max": null,
+        "bedrooms_min": null,
+        "bedrooms_max": null,
+        "bathrooms_min": null,
+        "bathrooms_max": null,
+        "quality_status": "insufficient"
+      },
+      {
         "typology_id": "typology:pardo-coast-tipo-7",
         "project_id": "project:nexo-2951",
         "model": "Tipo 7",
@@ -17427,9 +17609,12 @@
         "captured_at": "2026-01-01T00:00:00Z",
         "source_url": null,
         "extraction_method": "controlled_fixture",
-        "evidence_ids": [],
-        "evidence_status": "not_applicable",
-        "evidence_absence_reason": "Fixture matemático controlado sin activo externo."
+        "evidence_ids": [
+          "evidence:f3-ct-a-card",
+          "evidence:f3-ct-a-measurement"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
       },
       {
         "observation_id": "observation:ct-b-derived",
@@ -17451,9 +17636,11 @@
         "captured_at": "2026-01-01T00:00:00Z",
         "source_url": null,
         "extraction_method": "controlled_fixture",
-        "evidence_ids": [],
-        "evidence_status": "not_applicable",
-        "evidence_absence_reason": "Fuente controlada sin activo externo."
+        "evidence_ids": [
+          "evidence:f3-ct-b-source-a"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
       },
       {
         "observation_id": "observation:ct-b-source-b",
@@ -17463,9 +17650,11 @@
         "captured_at": "2026-01-02T00:00:00Z",
         "source_url": null,
         "extraction_method": "controlled_fixture",
-        "evidence_ids": [],
-        "evidence_status": "not_applicable",
-        "evidence_absence_reason": "Fuente controlada sin activo externo."
+        "evidence_ids": [
+          "evidence:f3-ct-b-source-b"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
       },
       {
         "observation_id": "observation:ct-d-air-conditioning-absence",
@@ -17578,6 +17767,184 @@
         "evidence_ids": [],
         "evidence_status": "not_applicable",
         "evidence_absence_reason": "Observación anterior del caso límite controlado de cambio extremo."
+      },
+      {
+        "observation_id": "observation:f3-area-match-card",
+        "source_id": "source:f3-neutral-card",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-area-match",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_transcription",
+        "evidence_ids": [
+          "evidence:f3-area-match-card"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:f3-area-match-measurement",
+        "source_id": "source:f3-neutral-measurement",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-area-match",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_transcription",
+        "evidence_ids": [
+          "evidence:f3-area-match-measurement"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:f3-bathroom-conflict-card",
+        "source_id": "source:f3-neutral-card",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-bathroom-conflict",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_transcription",
+        "evidence_ids": [
+          "evidence:f3-bathroom-conflict-card"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:f3-bathroom-conflict-measurement",
+        "source_id": "source:f3-neutral-measurement",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-bathroom-conflict",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_transcription",
+        "evidence_ids": [
+          "evidence:f3-bathroom-conflict-measurement"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:f3-bedroom-conflict-card",
+        "source_id": "source:f3-neutral-card",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-bedroom-conflict",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_transcription",
+        "evidence_ids": [
+          "evidence:f3-bedroom-conflict-card"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:f3-bedroom-conflict-measurement",
+        "source_id": "source:f3-neutral-measurement",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-bedroom-conflict",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_transcription",
+        "evidence_ids": [
+          "evidence:f3-bedroom-conflict-measurement"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:f3-floor-review-card",
+        "source_id": "source:f3-neutral-card",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-floor-review",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_transcription",
+        "evidence_ids": [
+          "evidence:f3-floor-review-card"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:f3-floor-review-derived",
+        "source_id": "source:f3-neutral-measurement",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-floor-review",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "deterministic_derivation",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Inferencia controlada reproducible desde el rango de unidades."
+      },
+      {
+        "observation_id": "observation:f3-floor-review-measurement",
+        "source_id": "source:f3-neutral-measurement",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-floor-review",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_transcription",
+        "evidence_ids": [
+          "evidence:f3-floor-review-measurement"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:f3-illegible-area-card",
+        "source_id": "source:f3-neutral-card",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-illegible-area",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_transcription",
+        "evidence_ids": [
+          "evidence:f3-illegible-area-card"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:f3-illegible-area-measurement",
+        "source_id": "source:f3-neutral-measurement",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-illegible-area",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_illegible_field",
+        "evidence_ids": [
+          "evidence:f3-illegible-area-measurement"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
+      },
+      {
+        "observation_id": "observation:f3-insufficient-source-absence",
+        "source_id": "source:f3-neutral-measurement",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-insufficient-source",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_absence",
+        "evidence_ids": [],
+        "evidence_status": "unavailable",
+        "evidence_absence_reason": "La segunda fuente controlada no está disponible."
+      },
+      {
+        "observation_id": "observation:f3-insufficient-source-card",
+        "source_id": "source:f3-neutral-card",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-insufficient-source",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "extraction_method": "controlled_transcription",
+        "evidence_ids": [
+          "evidence:f3-insufficient-source-card"
+        ],
+        "evidence_status": "available",
+        "evidence_absence_reason": null
       },
       {
         "observation_id": "observation:pardo-coast-card",
@@ -18032,6 +18399,304 @@
         "derivation": null
       },
       {
+        "fact_id": "fact:f3-area-match-card-area",
+        "observation_id": "observation:f3-area-match-card",
+        "entity_id": "typology:f3-area-match",
+        "field_name": "total_area",
+        "original_value": "Área total 76.20 m²",
+        "normalized_value": 76.2,
+        "unit": "m2",
+        "value_kind": "observed",
+        "semantic_type": "area",
+        "area_type": "total",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "certified",
+        "benchmark_eligible": true,
+        "exclusion_reason": null,
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-area-match-measurement-area",
+        "observation_id": "observation:f3-area-match-measurement",
+        "entity_id": "typology:f3-area-match",
+        "field_name": "total_area",
+        "original_value": "Área Total 76.20 m2",
+        "normalized_value": 76.2,
+        "unit": "m2",
+        "value_kind": "observed",
+        "semantic_type": "area",
+        "area_type": "total",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "certified",
+        "benchmark_eligible": true,
+        "exclusion_reason": null,
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-bathroom-conflict-card-bathrooms",
+        "observation_id": "observation:f3-bathroom-conflict-card",
+        "entity_id": "typology:f3-bathroom-conflict",
+        "field_name": "bathrooms",
+        "original_value": "2 baños",
+        "normalized_value": 2,
+        "unit": "count",
+        "value_kind": "observed",
+        "semantic_type": "count",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "inconsistent",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Conflicto con fact:f3-bathroom-conflict-measurement-bathrooms.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-bathroom-conflict-measurement-bathrooms",
+        "observation_id": "observation:f3-bathroom-conflict-measurement",
+        "entity_id": "typology:f3-bathroom-conflict",
+        "field_name": "bathrooms",
+        "original_value": "1 baño",
+        "normalized_value": 1,
+        "unit": "count",
+        "value_kind": "observed",
+        "semantic_type": "count",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "inconsistent",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Conflicto con fact:f3-bathroom-conflict-card-bathrooms.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-bedroom-conflict-card-bedrooms",
+        "observation_id": "observation:f3-bedroom-conflict-card",
+        "entity_id": "typology:f3-bedroom-conflict",
+        "field_name": "bedrooms",
+        "original_value": "2 dormitorios",
+        "normalized_value": 2,
+        "unit": "count",
+        "value_kind": "observed",
+        "semantic_type": "count",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "inconsistent",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Conflicto con fact:f3-bedroom-conflict-measurement-bedrooms.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-bedroom-conflict-measurement-bedrooms",
+        "observation_id": "observation:f3-bedroom-conflict-measurement",
+        "entity_id": "typology:f3-bedroom-conflict",
+        "field_name": "bedrooms",
+        "original_value": "3 dormitorios",
+        "normalized_value": 3,
+        "unit": "count",
+        "value_kind": "observed",
+        "semantic_type": "count",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "inconsistent",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Conflicto con fact:f3-bedroom-conflict-card-bedrooms.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-floor-review-card-floor",
+        "observation_id": "observation:f3-floor-review-card",
+        "entity_id": "typology:f3-floor-review",
+        "field_name": "floor_label",
+        "original_value": "Piso 5",
+        "normalized_value": 5,
+        "unit": "count",
+        "value_kind": "observed",
+        "semantic_type": "count",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Requiere validar la inferencia desde el rango de unidades.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-floor-review-inferred-floor-max",
+        "observation_id": "observation:f3-floor-review-derived",
+        "entity_id": "typology:f3-floor-review",
+        "field_name": "inferred_floor_max",
+        "original_value": null,
+        "normalized_value": 5,
+        "unit": "count",
+        "value_kind": "derived",
+        "semantic_type": "count",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "low",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Inferencia por convención de numeración; requiere revisión.",
+        "derivation": {
+          "formula": "floor_from_unit_prefix(unit_range.end)",
+          "input_fact_ids": [
+            "fact:f3-floor-review-measurement-unit-range"
+          ],
+          "rounding": {
+            "mode": "none",
+            "digits": 0
+          }
+        }
+      },
+      {
+        "fact_id": "fact:f3-floor-review-inferred-floor-min",
+        "observation_id": "observation:f3-floor-review-derived",
+        "entity_id": "typology:f3-floor-review",
+        "field_name": "inferred_floor_min",
+        "original_value": null,
+        "normalized_value": 5,
+        "unit": "count",
+        "value_kind": "derived",
+        "semantic_type": "count",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "low",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Inferencia por convención de numeración; requiere revisión.",
+        "derivation": {
+          "formula": "floor_from_unit_prefix(unit_range.start)",
+          "input_fact_ids": [
+            "fact:f3-floor-review-measurement-unit-range"
+          ],
+          "rounding": {
+            "mode": "none",
+            "digits": 0
+          }
+        }
+      },
+      {
+        "fact_id": "fact:f3-floor-review-measurement-unit-range",
+        "observation_id": "observation:f3-floor-review-measurement",
+        "entity_id": "typology:f3-floor-review",
+        "field_name": "unit_range",
+        "original_value": "Unidades 501–504",
+        "normalized_value": "501-504",
+        "unit": "text",
+        "value_kind": "observed",
+        "semantic_type": "text",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "El piso coincide solo mediante una inferencia de numeración.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-illegible-area-card-area",
+        "observation_id": "observation:f3-illegible-area-card",
+        "entity_id": "typology:f3-illegible-area",
+        "field_name": "total_area",
+        "original_value": "Área total 64.80 m²",
+        "normalized_value": 64.8,
+        "unit": "m2",
+        "value_kind": "observed",
+        "semantic_type": "area",
+        "area_type": "total",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "certified",
+        "benchmark_eligible": true,
+        "exclusion_reason": null,
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-illegible-area-measurement-area",
+        "observation_id": "observation:f3-illegible-area-measurement",
+        "entity_id": "typology:f3-illegible-area",
+        "field_name": "total_area",
+        "original_value": null,
+        "normalized_value": null,
+        "unit": "m2",
+        "value_kind": "observed",
+        "semantic_type": "area",
+        "area_type": "unknown",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "unknown",
+        "quality_status": "illegible",
+        "benchmark_eligible": false,
+        "exclusion_reason": "El campo existe, pero no puede leerse con seguridad.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-insufficient-source-card-area",
+        "observation_id": "observation:f3-insufficient-source-card",
+        "entity_id": "typology:f3-insufficient-source",
+        "field_name": "total_area",
+        "original_value": "Área total 71.00 m²",
+        "normalized_value": 71,
+        "unit": "m2",
+        "value_kind": "observed",
+        "semantic_type": "area",
+        "area_type": "total",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "certified",
+        "benchmark_eligible": true,
+        "exclusion_reason": null,
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:f3-insufficient-source-missing-area",
+        "observation_id": "observation:f3-insufficient-source-absence",
+        "entity_id": "typology:f3-insufficient-source",
+        "field_name": "total_area",
+        "original_value": null,
+        "normalized_value": null,
+        "unit": "m2",
+        "value_kind": "observed",
+        "semantic_type": "area",
+        "area_type": "unknown",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "unknown",
+        "quality_status": "insufficient",
+        "benchmark_eligible": false,
+        "exclusion_reason": "No existe una segunda fuente disponible para comparar.",
+        "derivation": null
+      },
+      {
         "fact_id": "fact:pardo-coast-area-delta",
         "observation_id": "observation:pardo-coast-conflict-derived",
         "entity_id": "typology:pardo-coast-tipo-7",
@@ -18256,6 +18921,186 @@
         "public_asset_path": null
       },
       {
+        "document_id": "document:f3-area-match-card",
+        "source_id": "source:f3-neutral-card",
+        "document_type": "card",
+        "title": "Tarjeta neutral de área compatible",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "b9963787a88880b3dc5f880bb830c16d0700369f7991629925a03287fc170bd8",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-area-match-card.webp"
+      },
+      {
+        "document_id": "document:f3-area-match-measurement",
+        "source_id": "source:f3-neutral-measurement",
+        "document_type": "specification",
+        "title": "Ficha de medición neutral de área compatible",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "3d323194b0803fefc47cba8e2b36dabd99b44506750dae68297c1aa4d2571720",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-area-match-measurement.webp"
+      },
+      {
+        "document_id": "document:f3-bathroom-conflict-card",
+        "source_id": "source:f3-neutral-card",
+        "document_type": "card",
+        "title": "Tarjeta neutral de baños",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "4f80198159c280e502450f0bb576092ab2a69bfa3d2b9ecf59fb1e0037f68998",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-bathroom-conflict-card.webp"
+      },
+      {
+        "document_id": "document:f3-bathroom-conflict-measurement",
+        "source_id": "source:f3-neutral-measurement",
+        "document_type": "specification",
+        "title": "Ficha de medición neutral de baños",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "1d0959eae7159c77be8a8bb91bb45e3d45fdd267d5003517e7320c31308a1562",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-bathroom-conflict-measurement.webp"
+      },
+      {
+        "document_id": "document:f3-bedroom-conflict-card",
+        "source_id": "source:f3-neutral-card",
+        "document_type": "card",
+        "title": "Tarjeta neutral de dormitorios",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "8cd274db2b4df525823463d57ecdc751ec67e81a9bb23d8b2c70533384349d27",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-bedroom-conflict-card.webp"
+      },
+      {
+        "document_id": "document:f3-bedroom-conflict-measurement",
+        "source_id": "source:f3-neutral-measurement",
+        "document_type": "specification",
+        "title": "Ficha de medición neutral de dormitorios",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "33e7021fb8a88e54e8ae2301702a2854dace381351e2f7d97b7b87b0c7c0182c",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-bedroom-conflict-measurement.webp"
+      },
+      {
+        "document_id": "document:f3-ct-a-card",
+        "source_id": "source:ct-a-controlled",
+        "document_type": "card",
+        "title": "Tarjeta neutral CT-A",
+        "captured_at": "2026-01-01T00:00:00Z",
+        "source_url": null,
+        "sha256": "203bf07dc927c4fa6fcab6e572ae620b4551a801ef82417dc12a28e8872fe38f",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-ct-a-card.webp"
+      },
+      {
+        "document_id": "document:f3-ct-a-measurement",
+        "source_id": "source:ct-a-controlled",
+        "document_type": "specification",
+        "title": "Ficha de medición neutral CT-A",
+        "captured_at": "2026-01-01T00:00:00Z",
+        "source_url": null,
+        "sha256": "3b2ce8c3a6f07fcfd938574f252fa58733fba835af3aefa4b6d3eb6cafa311fd",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-ct-a-measurement.webp"
+      },
+      {
+        "document_id": "document:f3-ct-b-source-a",
+        "source_id": "source:ct-b-a",
+        "document_type": "card",
+        "title": "Ficha de medición neutral CT-B A",
+        "captured_at": "2026-01-01T00:00:00Z",
+        "source_url": null,
+        "sha256": "f2120188548a7365a33d1d311144377e97e8b028de5711a376cc60c8419e76a1",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-ct-b-source-a.webp"
+      },
+      {
+        "document_id": "document:f3-ct-b-source-b",
+        "source_id": "source:ct-b-b",
+        "document_type": "specification",
+        "title": "Ficha de medición neutral CT-B B",
+        "captured_at": "2026-01-02T00:00:00Z",
+        "source_url": null,
+        "sha256": "6735eef1859fc1b838a74438ffe3ccdbb560f3eb67ce4d4910878e5f8e385df2",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-ct-b-source-b.webp"
+      },
+      {
+        "document_id": "document:f3-floor-review-card",
+        "source_id": "source:f3-neutral-card",
+        "document_type": "card",
+        "title": "Tarjeta neutral de piso revisable",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "58875cd8b4c6588ccf3c116d4bedc0120bce330ce6912774162b3d5cea243f65",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-floor-review-card.webp"
+      },
+      {
+        "document_id": "document:f3-floor-review-measurement",
+        "source_id": "source:f3-neutral-measurement",
+        "document_type": "specification",
+        "title": "Ficha de medición neutral de piso revisable",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "12b047235d5b79598f7aaf6163591e116bbbcdf561b562fd8728f4f6590362b3",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-floor-review-measurement.webp"
+      },
+      {
+        "document_id": "document:f3-illegible-area-card",
+        "source_id": "source:f3-neutral-card",
+        "document_type": "card",
+        "title": "Tarjeta neutral de área ilegible",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "a61efc8a19f6bc4336f7e2fda55bad5629b069c09e08e0c49ff944710aaf7682",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-illegible-area-card.webp"
+      },
+      {
+        "document_id": "document:f3-illegible-area-measurement",
+        "source_id": "source:f3-neutral-measurement",
+        "document_type": "specification",
+        "title": "Ficha de medición neutral de área ilegible",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "8300dbbae35c766c72d0d7ccc0482b10b02b4466f7605d7c1bf5d76e258c539c",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-illegible-area-measurement.webp"
+      },
+      {
+        "document_id": "document:f3-insufficient-source-card",
+        "source_id": "source:f3-neutral-card",
+        "document_type": "card",
+        "title": "Tarjeta neutral de fuente insuficiente",
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "source_url": null,
+        "sha256": "76c29db8d49f90d7271b55597c61052aa9a3d79d0de958be9e9be16db6a97b51",
+        "publish_permission": "authorized",
+        "availability": "available",
+        "public_asset_path": "assets/evidence/f3-insufficient-source-card.webp"
+      },
+      {
         "document_id": "document:pardo-coast-card",
         "source_id": "source:nexo",
         "document_type": "card",
@@ -18306,6 +19151,201 @@
         "sha256": "2a1dec7dfa2602fdba8c9b66677ff6dd92b1a3e64cdfe4f54ebe1fadb9f6caff",
         "publish_permission": "restricted",
         "availability": "restricted"
+      },
+      {
+        "evidence_id": "evidence:f3-area-match-card",
+        "observation_id": "observation:f3-area-match-card",
+        "document_id": "document:f3-area-match-card",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. Área total publicada: 76.20 m².",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "b9963787a88880b3dc5f880bb830c16d0700369f7991629925a03287fc170bd8",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-area-match-measurement",
+        "observation_id": "observation:f3-area-match-measurement",
+        "document_id": "document:f3-area-match-measurement",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La ficha de medición declara Área Total 76.20 m2.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "3d323194b0803fefc47cba8e2b36dabd99b44506750dae68297c1aa4d2571720",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-bathroom-conflict-card",
+        "observation_id": "observation:f3-bathroom-conflict-card",
+        "document_id": "document:f3-bathroom-conflict-card",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La tarjeta declara 2 baños.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "4f80198159c280e502450f0bb576092ab2a69bfa3d2b9ecf59fb1e0037f68998",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-bathroom-conflict-measurement",
+        "observation_id": "observation:f3-bathroom-conflict-measurement",
+        "document_id": "document:f3-bathroom-conflict-measurement",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La ficha de medición declara 1 baño.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "1d0959eae7159c77be8a8bb91bb45e3d45fdd267d5003517e7320c31308a1562",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-bedroom-conflict-card",
+        "observation_id": "observation:f3-bedroom-conflict-card",
+        "document_id": "document:f3-bedroom-conflict-card",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La tarjeta declara 2 dormitorios.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "8cd274db2b4df525823463d57ecdc751ec67e81a9bb23d8b2c70533384349d27",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-bedroom-conflict-measurement",
+        "observation_id": "observation:f3-bedroom-conflict-measurement",
+        "document_id": "document:f3-bedroom-conflict-measurement",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La ficha de medición declara 3 dormitorios.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "33e7021fb8a88e54e8ae2301702a2854dace381351e2f7d97b7b87b0c7c0182c",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-ct-a-card",
+        "observation_id": "observation:ct-a-inputs",
+        "document_id": "document:f3-ct-a-card",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La tarjeta separa 98 m² de área built.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-01-01T00:00:00Z",
+        "sha256": "203bf07dc927c4fa6fcab6e572ae620b4551a801ef82417dc12a28e8872fe38f",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-ct-a-measurement",
+        "observation_id": "observation:ct-a-inputs",
+        "document_id": "document:f3-ct-a-measurement",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La ficha de medición separa 206 m² de área total.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-01-01T00:00:00Z",
+        "sha256": "3b2ce8c3a6f07fcfd938574f252fa58733fba835af3aefa4b6d3eb6cafa311fd",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-ct-b-source-a",
+        "observation_id": "observation:ct-b-source-a",
+        "document_id": "document:f3-ct-b-source-a",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La ficha de medición neutral A declara PEN 600,000.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-01-01T00:00:00Z",
+        "sha256": "f2120188548a7365a33d1d311144377e97e8b028de5711a376cc60c8419e76a1",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-ct-b-source-b",
+        "observation_id": "observation:ct-b-source-b",
+        "document_id": "document:f3-ct-b-source-b",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La ficha de medición neutral B declara PEN 625,000.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-01-02T00:00:00Z",
+        "sha256": "6735eef1859fc1b838a74438ffe3ccdbb560f3eb67ce4d4910878e5f8e385df2",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-floor-review-card",
+        "observation_id": "observation:f3-floor-review-card",
+        "document_id": "document:f3-floor-review-card",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La tarjeta declara Piso 5.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "58875cd8b4c6588ccf3c116d4bedc0120bce330ce6912774162b3d5cea243f65",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-floor-review-measurement",
+        "observation_id": "observation:f3-floor-review-measurement",
+        "document_id": "document:f3-floor-review-measurement",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La ficha de medición declara Unidades 501–504.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "12b047235d5b79598f7aaf6163591e116bbbcdf561b562fd8728f4f6590362b3",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-illegible-area-card",
+        "observation_id": "observation:f3-illegible-area-card",
+        "document_id": "document:f3-illegible-area-card",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La tarjeta declara Área total 64.80 m².",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "a61efc8a19f6bc4336f7e2fda55bad5629b069c09e08e0c49ff944710aaf7682",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-illegible-area-measurement",
+        "observation_id": "observation:f3-illegible-area-measurement",
+        "document_id": "document:f3-illegible-area-measurement",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. En la ficha de medición el campo de área está marcado como ilegible y no se transcribe un valor.",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "8300dbbae35c766c72d0d7ccc0482b10b02b4466f7605d7c1bf5d76e258c539c",
+        "publish_permission": "authorized",
+        "availability": "available"
+      },
+      {
+        "evidence_id": "evidence:f3-insufficient-source-card",
+        "observation_id": "observation:f3-insufficient-source-card",
+        "document_id": "document:f3-insufficient-source-card",
+        "kind": "image_region",
+        "fragment": "Representación controlada para demo; no es el documento original. La tarjeta declara Área total 71.00 m².",
+        "page": 1,
+        "region": null,
+        "captured_at": "2026-07-29T12:00:00-05:00",
+        "sha256": "76c29db8d49f90d7271b55597c61052aa9a3d79d0de958be9e9be16db6a97b51",
+        "publish_permission": "authorized",
+        "availability": "available"
       },
       {
         "evidence_id": "evidence:pardo-coast-card-metadata",
@@ -18378,6 +19418,81 @@
         "quality_status": "reviewable",
         "detail": "El valor anterior es cero; el delta es calculable y el porcentaje no.",
         "next_action": "Mostrar porcentaje como no disponible y conservar el delta numérico.",
+        "benchmark_blocking": true
+      },
+      {
+        "issue_id": "issue:f3-bathroom-source-conflict",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-bathroom-conflict",
+        "fact_ids": [
+          "fact:f3-bathroom-conflict-card-bathrooms",
+          "fact:f3-bathroom-conflict-measurement-bathrooms"
+        ],
+        "issue_code": "BATHROOM_SOURCE_CONFLICT",
+        "severity": "blocking",
+        "quality_status": "inconsistent",
+        "detail": "Las dos fuentes controladas declaran cantidades incompatibles de baños.",
+        "next_action": "Conservar ambas observaciones y solicitar revisión; no elegir una fuente.",
+        "benchmark_blocking": true
+      },
+      {
+        "issue_id": "issue:f3-bedroom-source-conflict",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-bedroom-conflict",
+        "fact_ids": [
+          "fact:f3-bedroom-conflict-card-bedrooms",
+          "fact:f3-bedroom-conflict-measurement-bedrooms"
+        ],
+        "issue_code": "BEDROOM_SOURCE_CONFLICT",
+        "severity": "blocking",
+        "quality_status": "inconsistent",
+        "detail": "Las dos fuentes controladas declaran cantidades incompatibles de dormitorios.",
+        "next_action": "Conservar ambas observaciones y solicitar revisión; no elegir una fuente.",
+        "benchmark_blocking": true
+      },
+      {
+        "issue_id": "issue:f3-floor-review-inference",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-floor-review",
+        "fact_ids": [
+          "fact:f3-floor-review-card-floor",
+          "fact:f3-floor-review-inferred-floor-max",
+          "fact:f3-floor-review-inferred-floor-min",
+          "fact:f3-floor-review-measurement-unit-range"
+        ],
+        "issue_code": "FLOOR_RANGE_INFERENCE_REVIEW",
+        "severity": "high",
+        "quality_status": "reviewable",
+        "detail": "Piso 5 coincide con unidades 501–504 solo mediante una inferencia de numeración.",
+        "next_action": "Validar la convención de numeración con una fuente adicional.",
+        "benchmark_blocking": true
+      },
+      {
+        "issue_id": "issue:f3-illegible-area-evidence",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-illegible-area",
+        "fact_ids": [
+          "fact:f3-illegible-area-measurement-area"
+        ],
+        "issue_code": "AREA_EVIDENCE_ILLEGIBLE",
+        "severity": "blocking",
+        "quality_status": "illegible",
+        "detail": "La segunda fuente existe, pero el campo de área no puede leerse con seguridad.",
+        "next_action": "Solicitar una copia legible; no transcribir ni agregar el valor.",
+        "benchmark_blocking": true
+      },
+      {
+        "issue_id": "issue:f3-insufficient-source-absence",
+        "entity_type": "typology",
+        "entity_id": "typology:f3-insufficient-source",
+        "fact_ids": [
+          "fact:f3-insufficient-source-missing-area"
+        ],
+        "issue_code": "SECOND_SOURCE_UNAVAILABLE",
+        "severity": "blocking",
+        "quality_status": "insufficient",
+        "detail": "No existe una segunda fuente disponible para afirmar compatibilidad.",
+        "next_action": "Conservar el dato observado y solicitar una segunda fuente.",
         "benchmark_blocking": true
       },
       {
@@ -24727,6 +25842,610 @@
         "visible_as_coverage": true
       }
     ]
+  },
+  "inspector": {
+    "version": 1,
+    "default_case_id": "case:f3-ct-g-pardo",
+    "cases": [
+      {
+        "case_id": "case:f3-area-match",
+        "route_slug": "f3-area-match",
+        "project_id": "project:ct-a-controlled",
+        "typology_id": "typology:f3-area-match",
+        "provenance_classification": "controlled",
+        "source_ids": [
+          "source:f3-neutral-card",
+          "source:f3-neutral-measurement"
+        ],
+        "observation_ids": [
+          "observation:f3-area-match-card",
+          "observation:f3-area-match-measurement"
+        ],
+        "fact_ids": [
+          "fact:f3-area-match-card-area",
+          "fact:f3-area-match-measurement-area"
+        ],
+        "document_ids": [
+          "document:f3-area-match-card",
+          "document:f3-area-match-measurement"
+        ],
+        "evidence_ids": [
+          "evidence:f3-area-match-card",
+          "evidence:f3-area-match-measurement"
+        ],
+        "issue_ids": [],
+        "required_fact_ids": [
+          "fact:f3-area-match-card-area",
+          "fact:f3-area-match-measurement-area"
+        ],
+        "primary_evidence_id": "evidence:f3-area-match-measurement",
+        "expected_quality_status": "certified",
+        "expected_benchmark_eligible": true,
+        "public_visual_asset_count": 2
+      },
+      {
+        "case_id": "case:f3-bathroom-conflict",
+        "route_slug": "f3-bathroom-conflict",
+        "project_id": "project:ct-e-controlled",
+        "typology_id": "typology:f3-bathroom-conflict",
+        "provenance_classification": "controlled",
+        "source_ids": [
+          "source:f3-neutral-card",
+          "source:f3-neutral-measurement"
+        ],
+        "observation_ids": [
+          "observation:f3-bathroom-conflict-card",
+          "observation:f3-bathroom-conflict-measurement"
+        ],
+        "fact_ids": [
+          "fact:f3-bathroom-conflict-card-bathrooms",
+          "fact:f3-bathroom-conflict-measurement-bathrooms"
+        ],
+        "document_ids": [
+          "document:f3-bathroom-conflict-card",
+          "document:f3-bathroom-conflict-measurement"
+        ],
+        "evidence_ids": [
+          "evidence:f3-bathroom-conflict-card",
+          "evidence:f3-bathroom-conflict-measurement"
+        ],
+        "issue_ids": [
+          "issue:f3-bathroom-source-conflict"
+        ],
+        "required_fact_ids": [
+          "fact:f3-bathroom-conflict-card-bathrooms",
+          "fact:f3-bathroom-conflict-measurement-bathrooms"
+        ],
+        "primary_evidence_id": "evidence:f3-bathroom-conflict-card",
+        "expected_quality_status": "inconsistent",
+        "expected_benchmark_eligible": false,
+        "public_visual_asset_count": 2
+      },
+      {
+        "case_id": "case:f3-bedroom-conflict",
+        "route_slug": "f3-bedroom-conflict",
+        "project_id": "project:ct-d-controlled",
+        "typology_id": "typology:f3-bedroom-conflict",
+        "provenance_classification": "controlled",
+        "source_ids": [
+          "source:f3-neutral-card",
+          "source:f3-neutral-measurement"
+        ],
+        "observation_ids": [
+          "observation:f3-bedroom-conflict-card",
+          "observation:f3-bedroom-conflict-measurement"
+        ],
+        "fact_ids": [
+          "fact:f3-bedroom-conflict-card-bedrooms",
+          "fact:f3-bedroom-conflict-measurement-bedrooms"
+        ],
+        "document_ids": [
+          "document:f3-bedroom-conflict-card",
+          "document:f3-bedroom-conflict-measurement"
+        ],
+        "evidence_ids": [
+          "evidence:f3-bedroom-conflict-card",
+          "evidence:f3-bedroom-conflict-measurement"
+        ],
+        "issue_ids": [
+          "issue:f3-bedroom-source-conflict"
+        ],
+        "required_fact_ids": [
+          "fact:f3-bedroom-conflict-card-bedrooms",
+          "fact:f3-bedroom-conflict-measurement-bedrooms"
+        ],
+        "primary_evidence_id": "evidence:f3-bedroom-conflict-card",
+        "expected_quality_status": "inconsistent",
+        "expected_benchmark_eligible": false,
+        "public_visual_asset_count": 2
+      },
+      {
+        "case_id": "case:f3-ct-a-area-types",
+        "route_slug": "f3-ct-a-area-types",
+        "project_id": "project:ct-a-controlled",
+        "typology_id": "typology:ct-a-controlled",
+        "provenance_classification": "controlled",
+        "source_ids": [
+          "source:ct-a-controlled"
+        ],
+        "observation_ids": [
+          "observation:ct-a-derived",
+          "observation:ct-a-inputs"
+        ],
+        "fact_ids": [
+          "fact:ct-a-built-area",
+          "fact:ct-a-free-area",
+          "fact:ct-a-price-per-built-m2",
+          "fact:ct-a-price-per-total-m2",
+          "fact:ct-a-scenario-price",
+          "fact:ct-a-total-area"
+        ],
+        "document_ids": [
+          "document:f3-ct-a-card",
+          "document:f3-ct-a-measurement"
+        ],
+        "evidence_ids": [
+          "evidence:f3-ct-a-card",
+          "evidence:f3-ct-a-measurement"
+        ],
+        "issue_ids": [],
+        "required_fact_ids": [
+          "fact:ct-a-built-area",
+          "fact:ct-a-total-area"
+        ],
+        "primary_evidence_id": "evidence:f3-ct-a-measurement",
+        "expected_quality_status": "certified",
+        "expected_benchmark_eligible": true,
+        "public_visual_asset_count": 2
+      },
+      {
+        "case_id": "case:f3-ct-b-price-conflict",
+        "route_slug": "f3-ct-b-price-conflict",
+        "project_id": "project:ct-b-controlled",
+        "typology_id": "typology:ct-b-controlled",
+        "provenance_classification": "controlled",
+        "source_ids": [
+          "source:ct-b-a",
+          "source:ct-b-b"
+        ],
+        "observation_ids": [
+          "observation:ct-b-derived",
+          "observation:ct-b-source-a",
+          "observation:ct-b-source-b"
+        ],
+        "fact_ids": [
+          "fact:ct-b-price-a",
+          "fact:ct-b-price-b",
+          "fact:ct-b-price-delta",
+          "fact:ct-b-price-delta-percent"
+        ],
+        "document_ids": [
+          "document:f3-ct-b-source-a",
+          "document:f3-ct-b-source-b"
+        ],
+        "evidence_ids": [
+          "evidence:f3-ct-b-source-a",
+          "evidence:f3-ct-b-source-b"
+        ],
+        "issue_ids": [
+          "issue:ct-b-price-source-conflict"
+        ],
+        "required_fact_ids": [
+          "fact:ct-b-price-a",
+          "fact:ct-b-price-b"
+        ],
+        "primary_evidence_id": "evidence:f3-ct-b-source-a",
+        "expected_quality_status": "inconsistent",
+        "expected_benchmark_eligible": false,
+        "public_visual_asset_count": 2
+      },
+      {
+        "case_id": "case:f3-ct-d-finishes",
+        "route_slug": "f3-ct-d-finishes",
+        "project_id": "project:ct-d-controlled",
+        "typology_id": "typology:ct-d-controlled",
+        "provenance_classification": "controlled",
+        "source_ids": [
+          "source:ct-d-authorized",
+          "source:ct-d-restricted"
+        ],
+        "observation_ids": [
+          "observation:ct-d-air-conditioning-absence",
+          "observation:ct-d-countertop",
+          "observation:ct-d-restricted-document"
+        ],
+        "fact_ids": [
+          "fact:ct-d-air-conditioning",
+          "fact:ct-d-countertop-material"
+        ],
+        "document_ids": [
+          "document:ct-d-authorized",
+          "document:ct-d-restricted"
+        ],
+        "evidence_ids": [
+          "evidence:ct-d-countertop-fragment",
+          "evidence:ct-d-restricted-metadata"
+        ],
+        "issue_ids": [],
+        "required_fact_ids": [
+          "fact:ct-d-countertop-material"
+        ],
+        "primary_evidence_id": "evidence:ct-d-countertop-fragment",
+        "expected_quality_status": "certified",
+        "expected_benchmark_eligible": true,
+        "public_visual_asset_count": 0
+      },
+      {
+        "case_id": "case:f3-ct-g-pardo",
+        "route_slug": "f3-ct-g-pardo",
+        "project_id": "project:nexo-2951",
+        "typology_id": "typology:pardo-coast-tipo-7",
+        "provenance_classification": "observed",
+        "source_ids": [
+          "source:ct-g-user-plan",
+          "source:nexo"
+        ],
+        "observation_ids": [
+          "observation:pardo-coast-card",
+          "observation:pardo-coast-conflict-derived",
+          "observation:pardo-coast-plan"
+        ],
+        "fact_ids": [
+          "fact:pardo-coast-area-delta",
+          "fact:pardo-coast-area-delta-percent",
+          "fact:pardo-coast-card-area",
+          "fact:pardo-coast-card-floor",
+          "fact:pardo-coast-inferred-floor-max",
+          "fact:pardo-coast-inferred-floor-min",
+          "fact:pardo-coast-plan-area",
+          "fact:pardo-coast-plan-unit-range"
+        ],
+        "document_ids": [
+          "document:pardo-coast-card",
+          "document:pardo-coast-plan"
+        ],
+        "evidence_ids": [
+          "evidence:pardo-coast-card-metadata",
+          "evidence:pardo-coast-plan-metadata"
+        ],
+        "issue_ids": [
+          "issue:pardo-coast-area-source-conflict",
+          "issue:pardo-coast-floor-range-conflict-review"
+        ],
+        "required_fact_ids": [
+          "fact:pardo-coast-card-area",
+          "fact:pardo-coast-card-floor",
+          "fact:pardo-coast-plan-area",
+          "fact:pardo-coast-plan-unit-range"
+        ],
+        "primary_evidence_id": "evidence:pardo-coast-card-metadata",
+        "expected_quality_status": "inconsistent",
+        "expected_benchmark_eligible": false,
+        "public_visual_asset_count": 0
+      },
+      {
+        "case_id": "case:f3-floor-review",
+        "route_slug": "f3-floor-review",
+        "project_id": "project:ct-b-controlled",
+        "typology_id": "typology:f3-floor-review",
+        "provenance_classification": "controlled",
+        "source_ids": [
+          "source:f3-neutral-card",
+          "source:f3-neutral-measurement"
+        ],
+        "observation_ids": [
+          "observation:f3-floor-review-card",
+          "observation:f3-floor-review-derived",
+          "observation:f3-floor-review-measurement"
+        ],
+        "fact_ids": [
+          "fact:f3-floor-review-card-floor",
+          "fact:f3-floor-review-inferred-floor-max",
+          "fact:f3-floor-review-inferred-floor-min",
+          "fact:f3-floor-review-measurement-unit-range"
+        ],
+        "document_ids": [
+          "document:f3-floor-review-card",
+          "document:f3-floor-review-measurement"
+        ],
+        "evidence_ids": [
+          "evidence:f3-floor-review-card",
+          "evidence:f3-floor-review-measurement"
+        ],
+        "issue_ids": [
+          "issue:f3-floor-review-inference"
+        ],
+        "required_fact_ids": [
+          "fact:f3-floor-review-card-floor",
+          "fact:f3-floor-review-inferred-floor-max",
+          "fact:f3-floor-review-inferred-floor-min",
+          "fact:f3-floor-review-measurement-unit-range"
+        ],
+        "primary_evidence_id": "evidence:f3-floor-review-measurement",
+        "expected_quality_status": "reviewable",
+        "expected_benchmark_eligible": false,
+        "public_visual_asset_count": 2
+      },
+      {
+        "case_id": "case:f3-illegible-area",
+        "route_slug": "f3-illegible-area",
+        "project_id": "project:ct-e-controlled",
+        "typology_id": "typology:f3-illegible-area",
+        "provenance_classification": "controlled",
+        "source_ids": [
+          "source:f3-neutral-card",
+          "source:f3-neutral-measurement"
+        ],
+        "observation_ids": [
+          "observation:f3-illegible-area-card",
+          "observation:f3-illegible-area-measurement"
+        ],
+        "fact_ids": [
+          "fact:f3-illegible-area-card-area",
+          "fact:f3-illegible-area-measurement-area"
+        ],
+        "document_ids": [
+          "document:f3-illegible-area-card",
+          "document:f3-illegible-area-measurement"
+        ],
+        "evidence_ids": [
+          "evidence:f3-illegible-area-card",
+          "evidence:f3-illegible-area-measurement"
+        ],
+        "issue_ids": [
+          "issue:f3-illegible-area-evidence"
+        ],
+        "required_fact_ids": [
+          "fact:f3-illegible-area-card-area",
+          "fact:f3-illegible-area-measurement-area"
+        ],
+        "primary_evidence_id": "evidence:f3-illegible-area-measurement",
+        "expected_quality_status": "illegible",
+        "expected_benchmark_eligible": false,
+        "public_visual_asset_count": 2
+      },
+      {
+        "case_id": "case:f3-insufficient-source",
+        "route_slug": "f3-insufficient-source",
+        "project_id": "project:ct-a-controlled",
+        "typology_id": "typology:f3-insufficient-source",
+        "provenance_classification": "controlled",
+        "source_ids": [
+          "source:f3-neutral-card",
+          "source:f3-neutral-measurement"
+        ],
+        "observation_ids": [
+          "observation:f3-insufficient-source-absence",
+          "observation:f3-insufficient-source-card"
+        ],
+        "fact_ids": [
+          "fact:f3-insufficient-source-card-area",
+          "fact:f3-insufficient-source-missing-area"
+        ],
+        "document_ids": [
+          "document:f3-insufficient-source-card"
+        ],
+        "evidence_ids": [
+          "evidence:f3-insufficient-source-card"
+        ],
+        "issue_ids": [
+          "issue:f3-insufficient-source-absence"
+        ],
+        "required_fact_ids": [
+          "fact:f3-insufficient-source-card-area",
+          "fact:f3-insufficient-source-missing-area"
+        ],
+        "primary_evidence_id": "evidence:f3-insufficient-source-card",
+        "expected_quality_status": "insufficient",
+        "expected_benchmark_eligible": false,
+        "public_visual_asset_count": 1
+      }
+    ],
+    "assets": [
+      {
+        "asset_id": "asset:f3-area-match-card",
+        "document_id": "document:f3-area-match-card",
+        "logical_path": "assets/evidence/f3-area-match-card.webp",
+        "sha256": "b9963787a88880b3dc5f880bb830c16d0700369f7991629925a03287fc170bd8",
+        "media_type": "image/webp",
+        "bytes": 12686,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-area-match-measurement",
+        "document_id": "document:f3-area-match-measurement",
+        "logical_path": "assets/evidence/f3-area-match-measurement.webp",
+        "sha256": "3d323194b0803fefc47cba8e2b36dabd99b44506750dae68297c1aa4d2571720",
+        "media_type": "image/webp",
+        "bytes": 14442,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-bathroom-conflict-card",
+        "document_id": "document:f3-bathroom-conflict-card",
+        "logical_path": "assets/evidence/f3-bathroom-conflict-card.webp",
+        "sha256": "4f80198159c280e502450f0bb576092ab2a69bfa3d2b9ecf59fb1e0037f68998",
+        "media_type": "image/webp",
+        "bytes": 11798,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-bathroom-conflict-measurement",
+        "document_id": "document:f3-bathroom-conflict-measurement",
+        "logical_path": "assets/evidence/f3-bathroom-conflict-measurement.webp",
+        "sha256": "1d0959eae7159c77be8a8bb91bb45e3d45fdd267d5003517e7320c31308a1562",
+        "media_type": "image/webp",
+        "bytes": 12818,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-bedroom-conflict-card",
+        "document_id": "document:f3-bedroom-conflict-card",
+        "logical_path": "assets/evidence/f3-bedroom-conflict-card.webp",
+        "sha256": "8cd274db2b4df525823463d57ecdc751ec67e81a9bb23d8b2c70533384349d27",
+        "media_type": "image/webp",
+        "bytes": 12728,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-bedroom-conflict-measurement",
+        "document_id": "document:f3-bedroom-conflict-measurement",
+        "logical_path": "assets/evidence/f3-bedroom-conflict-measurement.webp",
+        "sha256": "33e7021fb8a88e54e8ae2301702a2854dace381351e2f7d97b7b87b0c7c0182c",
+        "media_type": "image/webp",
+        "bytes": 13892,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-ct-a-card",
+        "document_id": "document:f3-ct-a-card",
+        "logical_path": "assets/evidence/f3-ct-a-card.webp",
+        "sha256": "203bf07dc927c4fa6fcab6e572ae620b4551a801ef82417dc12a28e8872fe38f",
+        "media_type": "image/webp",
+        "bytes": 13858,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-ct-a-measurement",
+        "document_id": "document:f3-ct-a-measurement",
+        "logical_path": "assets/evidence/f3-ct-a-measurement.webp",
+        "sha256": "3b2ce8c3a6f07fcfd938574f252fa58733fba835af3aefa4b6d3eb6cafa311fd",
+        "media_type": "image/webp",
+        "bytes": 14006,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-ct-b-source-a",
+        "document_id": "document:f3-ct-b-source-a",
+        "logical_path": "assets/evidence/f3-ct-b-source-a.webp",
+        "sha256": "f2120188548a7365a33d1d311144377e97e8b028de5711a376cc60c8419e76a1",
+        "media_type": "image/webp",
+        "bytes": 17722,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-ct-b-source-b",
+        "document_id": "document:f3-ct-b-source-b",
+        "logical_path": "assets/evidence/f3-ct-b-source-b.webp",
+        "sha256": "6735eef1859fc1b838a74438ffe3ccdbb560f3eb67ce4d4910878e5f8e385df2",
+        "media_type": "image/webp",
+        "bytes": 17776,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-floor-review-card",
+        "document_id": "document:f3-floor-review-card",
+        "logical_path": "assets/evidence/f3-floor-review-card.webp",
+        "sha256": "58875cd8b4c6588ccf3c116d4bedc0120bce330ce6912774162b3d5cea243f65",
+        "media_type": "image/webp",
+        "bytes": 14062,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-floor-review-measurement",
+        "document_id": "document:f3-floor-review-measurement",
+        "logical_path": "assets/evidence/f3-floor-review-measurement.webp",
+        "sha256": "12b047235d5b79598f7aaf6163591e116bbbcdf561b562fd8728f4f6590362b3",
+        "media_type": "image/webp",
+        "bytes": 12964,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-illegible-area-card",
+        "document_id": "document:f3-illegible-area-card",
+        "logical_path": "assets/evidence/f3-illegible-area-card.webp",
+        "sha256": "a61efc8a19f6bc4336f7e2fda55bad5629b069c09e08e0c49ff944710aaf7682",
+        "media_type": "image/webp",
+        "bytes": 13126,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-illegible-area-measurement",
+        "document_id": "document:f3-illegible-area-measurement",
+        "logical_path": "assets/evidence/f3-illegible-area-measurement.webp",
+        "sha256": "8300dbbae35c766c72d0d7ccc0482b10b02b4466f7605d7c1bf5d76e258c539c",
+        "media_type": "image/webp",
+        "bytes": 15156,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      },
+      {
+        "asset_id": "asset:f3-insufficient-source-card",
+        "document_id": "document:f3-insufficient-source-card",
+        "logical_path": "assets/evidence/f3-insufficient-source-card.webp",
+        "sha256": "76c29db8d49f90d7271b55597c61052aa9a3d79d0de958be9e9be16db6a97b51",
+        "media_type": "image/webp",
+        "bytes": 14800,
+        "width": 800,
+        "height": 560,
+        "provenance": "controlled_original",
+        "publish_permission": "authorized",
+        "license_note": "Activo neutral original creado para la demo; uso público autorizado."
+      }
+    ],
+    "coverage": {
+      "total_cases": 10,
+      "observed_cases": 1,
+      "controlled_cases": 9,
+      "simulated_cases": 0,
+      "inspectable_typologies": 10,
+      "authorized_visual_assets": 15
+    }
   },
   "projects": [
     {
@@ -63543,9 +65262,9 @@
         "price_type": null,
         "area_type": "total",
         "denominator_area_type": null,
-        "count": 1,
-        "mean": 206,
-        "minimum": 206,
+        "count": 5,
+        "mean": 98.84,
+        "minimum": 64.8,
         "maximum": 206
       },
       {

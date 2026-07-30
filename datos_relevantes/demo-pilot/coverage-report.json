@@ -1,49 +1,38 @@
 {
-  "report_version": "1.0.0",
+  "report_version": "2.0.0",
   "dataset_id": "dataset:viva-platform-demo-2026-07-28",
   "cutoff_at": "2026-07-28T01:24:28Z",
   "source_artifact": {
     "path": "prototipo_ejecutable/public/demo-data/viva-platform-demo.json",
-    "contract_version": "2.1.0",
-    "sha256": "fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4",
-    "byte_length": 3588986
+    "contract_version": "2.2.0",
+    "sha256": "9cf407c091fbb03b7d489e39079de57fd84af3fe16dc82b8ed559a7eda84646c",
+    "byte_length": 3656852
   },
   "derivation": {
-    "authority": "$.model is authoritative; $.projects is the temporary legacy projection.",
-    "method": "All counts and distributions in this report are recomputed from the versioned source artifact bytes identified above.",
-    "input_fingerprint_count": 31,
+    "authority": "$.model and $.inspector are authoritative; $.projects is the temporary legacy projection.",
+    "method": "All counts and distributions are recomputed offline from the deterministic 2.2 payload.",
+    "input_fingerprint_count": 48,
     "counting_rules": [
-      {
-        "code": "LEGACY_PROJECT_COUNT",
-        "source_path": "$.projects",
-        "operation": "array_length"
-      },
       {
         "code": "MODEL_COLLECTION_COUNTS",
         "source_path": "$.model",
         "operation": "array_length_by_collection"
       },
       {
-        "code": "PILOT_CUMULATIVE_TIERS",
-        "source_path": "$.model.agencies",
-        "operation": "base=all pilot_selected; enriched=pilot_selected with coverage_tier enriched or deep; deep=pilot_selected with coverage_tier deep"
-      },
-      {
-        "code": "MANUAL_REVIEW_IMPACT",
-        "source_path": "$.model.agencyAliases and $.projects",
-        "operation": "join alias_original to legacy agency_name where resolution=manual_review"
+        "code": "INSPECTOR_COVERAGE",
+        "source_path": "$.inspector",
+        "operation": "derive cases, provenance, typologies and authorized assets"
       },
       {
         "code": "BENCHMARK_EXCLUSIONS",
         "source_path": "$.model.facts",
-        "operation": "group benchmark_eligible=false independently by quality_status, value_kind and semantic_type"
+        "operation": "group benchmark_eligible independently by quality_status, value_kind and semantic_type"
       }
     ],
     "interpretation_rules": [
       "Counts grouped by different fact dimensions overlap and must not be added together.",
-      "The 37 legacy currency values normalized as unknown remain unknown; this report does not infer USD from a symbol.",
-      "Coverage tiers describe demonstrated data depth, not permission to publish every referenced asset.",
-      "Controlled fixtures demonstrate contract behavior and are not market observations."
+      "Controlled fixtures and controlled visual representations are not market observations.",
+      "Visual evidence hashes identify raw binary bytes; textual fragment hashes identify canonical text."
     ]
   },
   "universe": {
@@ -53,15 +42,8 @@
       "distinct_district_count": 45,
       "currency_distribution": {
         "PEN": 677,
-        "USD": 0,
         "unknown": 37
-      },
-      "references": [
-        "$.projects",
-        "$.metadata.counts.projects",
-        "$.metadata.counts.agencies_in_market",
-        "$.metadata.counts.districts"
-      ]
+      }
     },
     "authoritative_model": {
       "project_count": 676,
@@ -69,69 +51,12 @@
       "controlled_fixture_project_count": 4,
       "canonical_agency_count": 184,
       "market_canonical_agency_count": 180,
-      "controlled_fixture_agency_count": 4,
-      "references": [
-        "$.model.projects",
-        "$.model.agencies",
-        "$.metadata.counts.model_projects",
-        "$.metadata.counts.canonical_agencies"
-      ]
+      "controlled_fixture_agency_count": 4
     },
     "reconciliation": {
-      "equation": "714 legacy projects - 42 unresolved legacy projects + 4 controlled fixture projects = 676 model projects",
       "unresolved_legacy_project_count": 42,
       "manual_review_alias_count": 11,
-      "resolved_alias_count": 181,
-      "manual_review_alias_impact": [
-        {
-          "alias_original": "AKAMAI",
-          "legacy_project_count": 3
-        },
-        {
-          "alias_original": "ALBAMAR GRUPO INMOBILIARIO",
-          "legacy_project_count": 16
-        },
-        {
-          "alias_original": "ALERCES INMOBILIARIA",
-          "legacy_project_count": 3
-        },
-        {
-          "alias_original": "Cresiente",
-          "legacy_project_count": 1
-        },
-        {
-          "alias_original": "ESPARQ EOM",
-          "legacy_project_count": 3
-        },
-        {
-          "alias_original": "FUNDAMENTA",
-          "legacy_project_count": 3
-        },
-        {
-          "alias_original": "INMOBILIARIA HUANWIL",
-          "legacy_project_count": 1
-        },
-        {
-          "alias_original": "LOS PORTALES",
-          "legacy_project_count": 1
-        },
-        {
-          "alias_original": "LOS PORTALES DEPARTAMENTOS",
-          "legacy_project_count": 5
-        },
-        {
-          "alias_original": "VIBRANT",
-          "legacy_project_count": 1
-        },
-        {
-          "alias_original": "ZAFIRA INMOBILIARIA",
-          "legacy_project_count": 5
-        }
-      ],
-      "references": [
-        "$.model.agencyAliases[*].resolution",
-        "$.metadata.counts.unresolved_legacy_projects"
-      ]
+      "resolved_alias_count": 181
     }
   },
   "pilot_coverage": {
@@ -140,10 +65,11 @@
     "selected_model_project_count": 118,
     "exclusive_tier_counts": {
       "base": 8,
-      "enriched": 17,
-      "deep": 5
+      "deep": 5,
+      "enriched": 17
     },
     "cumulative_tier_counts": {
+      "market_raw_count": 192,
       "base_count": 30,
       "enriched_count": 22,
       "deep_count": 5
@@ -164,21 +90,40 @@
       "$.model.projects[*].agency_id"
     ]
   },
+  "inspector_coverage": {
+    "total_cases": 10,
+    "observed_cases": 1,
+    "controlled_cases": 9,
+    "simulated_cases": 0,
+    "inspectable_typologies": 10,
+    "authorized_visual_assets": 15,
+    "case_quality_distribution": {
+      "certified": 3,
+      "illegible": 1,
+      "inconsistent": 4,
+      "insufficient": 1,
+      "reviewable": 1
+    },
+    "benchmark_eligible_cases": 3,
+    "benchmark_excluded_cases": 7,
+    "asset_byte_length": 211834,
+    "reference": "$.inspector"
+  },
   "source_observation_and_evidence_coverage": {
     "sources": {
-      "count": 8,
+      "count": 10,
       "type_distribution": {
-        "controlled_fixture": 5,
+        "controlled_fixture": 7,
         "portal": 1,
         "user_provided": 2
       },
       "legal_status_distribution": {
-        "cleared_for_demo": 5,
+        "cleared_for_demo": 7,
         "pending_review": 1,
         "restricted": 2
       },
       "access_mode_distribution": {
-        "controlled_fixture": 5,
+        "controlled_fixture": 7,
         "public_reference": 1,
         "user_provided": 2
       },
@@ -219,6 +164,16 @@
           "access_mode": "user_provided"
         },
         {
+          "source_id": "source:f3-neutral-card",
+          "legal_status": "cleared_for_demo",
+          "access_mode": "controlled_fixture"
+        },
+        {
+          "source_id": "source:f3-neutral-measurement",
+          "legal_status": "cleared_for_demo",
+          "access_mode": "controlled_fixture"
+        },
+        {
           "source_id": "source:nexo",
           "legal_status": "pending_review",
           "access_mode": "public_reference"
@@ -227,18 +182,19 @@
       "reference": "$.model.sources"
     },
     "observations": {
-      "count": 17,
+      "count": 30,
       "entity_type_distribution": {
         "document": 1,
-        "typology": 16
+        "typology": 29
       },
-      "with_evidence_ids_count": 4,
-      "without_evidence_ids_count": 13,
+      "with_evidence_ids_count": 18,
+      "without_evidence_ids_count": 12,
       "extraction_method_distribution": {
-        "controlled_absence": 1,
+        "controlled_absence": 2,
         "controlled_fixture": 9,
-        "controlled_transcription": 1,
-        "deterministic_derivation": 3,
+        "controlled_illegible_field": 1,
+        "controlled_transcription": 11,
+        "deterministic_derivation": 4,
         "user_provided_image_manual_transcription": 1,
         "user_provided_metadata_only": 1,
         "user_provided_screenshot_transcription": 1
@@ -246,155 +202,204 @@
       "reference": "$.model.observations"
     },
     "documents": {
-      "count": 4,
+      "count": 19,
       "type_distribution": {
-        "card": 1,
+        "card": 9,
         "plan": 1,
-        "specification": 2
+        "specification": 9
       },
       "availability_distribution": {
-        "available": 1,
+        "available": 16,
         "restricted": 2,
         "unavailable": 1
       },
       "publish_permission_distribution": {
-        "authorized": 1,
+        "authorized": 16,
         "pending": 1,
         "restricted": 2
       },
-      "public_asset_path_count": 0,
+      "public_asset_path_count": 15,
       "reference": "$.model.documents"
     },
     "evidence": {
-      "count": 4,
+      "count": 19,
       "kind_distribution": {
         "fragment": 1,
+        "image_region": 15,
         "metadata": 3
       },
       "availability_distribution": {
-        "available": 1,
+        "available": 16,
         "restricted": 2,
         "unavailable": 1
       },
       "publish_permission_distribution": {
-        "authorized": 1,
+        "authorized": 16,
         "pending": 1,
         "restricted": 2
       },
-      "authorized_and_available_count": 1,
+      "authorized_and_available_count": 16,
       "reference": "$.model.evidence"
+    }
+  },
+  "model_coverage": {
+    "collection_counts": {
+      "sources": 10,
+      "agencies": 184,
+      "projects": 676,
+      "typologies": 11,
+      "observations": 30,
+      "facts": 40,
+      "documents": 19,
+      "evidence": 19,
+      "issues": 10,
+      "events": 3
+    },
+    "sources": {
+      "type_distribution": {
+        "controlled_fixture": 7,
+        "portal": 1,
+        "user_provided": 2
+      },
+      "legal_status_distribution": {
+        "cleared_for_demo": 7,
+        "pending_review": 1,
+        "restricted": 2
+      },
+      "access_mode_distribution": {
+        "controlled_fixture": 7,
+        "public_reference": 1,
+        "user_provided": 2
+      }
+    },
+    "observations": {
+      "extraction_method_distribution": {
+        "controlled_absence": 2,
+        "controlled_fixture": 9,
+        "controlled_illegible_field": 1,
+        "controlled_transcription": 11,
+        "deterministic_derivation": 4,
+        "user_provided_image_manual_transcription": 1,
+        "user_provided_metadata_only": 1,
+        "user_provided_screenshot_transcription": 1
+      },
+      "with_evidence_ids_count": 18,
+      "without_evidence_ids_count": 12
+    },
+    "documents": {
+      "type_distribution": {
+        "card": 9,
+        "plan": 1,
+        "specification": 9
+      },
+      "availability_distribution": {
+        "available": 16,
+        "restricted": 2,
+        "unavailable": 1
+      },
+      "public_asset_path_count": 15
+    },
+    "evidence": {
+      "kind_distribution": {
+        "fragment": 1,
+        "image_region": 15,
+        "metadata": 3
+      },
+      "availability_distribution": {
+        "available": 16,
+        "restricted": 2,
+        "unavailable": 1
+      },
+      "authorized_and_available_count": 16
     }
   },
   "analytical_quality_and_exclusions": {
     "facts": {
-      "count": 26,
+      "count": 40,
       "quality_status_distribution": {
-        "certified": 6,
-        "reviewable": 13,
-        "inconsistent": 6,
-        "illegible": 0,
-        "insufficient": 1
+        "certified": 10,
+        "illegible": 1,
+        "inconsistent": 10,
+        "insufficient": 2,
+        "reviewable": 17
       },
       "value_kind_distribution": {
-        "observed": 16,
-        "derived": 9,
+        "derived": 11,
+        "observed": 28,
         "simulated": 1
       },
       "benchmark_eligibility": {
-        "eligible": 6,
-        "excluded": 20
+        "eligible": 10,
+        "excluded": 30
       },
       "eligible_by_quality_status": {
-        "certified": 6
+        "certified": 10
       },
       "eligible_by_value_kind": {
-        "observed": 5,
         "derived": 1,
-        "simulated": 0
+        "observed": 9
       },
       "eligible_by_semantic_type": {
-        "area": 3,
+        "area": 7,
         "attribute": 1,
         "price": 2
       },
       "excluded_by_quality_status": {
-        "reviewable": 13,
-        "inconsistent": 6,
-        "insufficient": 1
+        "illegible": 1,
+        "inconsistent": 10,
+        "insufficient": 2,
+        "reviewable": 17
       },
       "excluded_by_value_kind": {
-        "observed": 11,
-        "derived": 8,
+        "derived": 10,
+        "observed": 19,
         "simulated": 1
       },
       "excluded_by_semantic_type": {
-        "area": 3,
+        "area": 5,
         "attribute": 1,
-        "count": 3,
+        "count": 10,
         "percentage": 2,
         "price": 8,
         "price_per_m2": 2,
-        "text": 1
-      },
-      "reference": "$.model.facts"
+        "text": 2
+      }
     },
     "currency": {
       "legacy_projection": {
         "PEN": 677,
-        "USD": 0,
-        "unknown": 37,
-        "unknown_benchmark_policy": "excluded_from_certified_monetary_aggregation"
+        "unknown": 37
       },
       "model_monetary_facts": {
         "count": 12,
-        "PEN": 12,
-        "USD": 0,
-        "unknown": 0,
+        "currency_distribution": {
+          "PEN": 12
+        },
         "eligible": 2,
         "excluded": 10
-      },
-      "normalization_decision": "No value is promoted from unknown to USD without an observed currency context or exchange-rate fact.",
-      "references": [
-        "$.projects[*].currency",
-        "$.model.facts[?(@.semantic_type=='price' || @.semantic_type=='price_per_m2')].currency"
-      ]
-    },
-    "price_type_and_denominator": {
-      "monetary_fact_price_type_distribution": {
-        "list": 9,
-        "scenario": 3
-      },
-      "price_per_m2_fact_count": 2,
-      "price_per_m2_price_type_distribution": {
-        "scenario": 2
-      },
-      "price_per_m2_denominator_distribution": {
-        "built": 1,
-        "total": 1
-      },
-      "eligible_price_per_m2_fact_count": 0,
-      "exclusion": "Both price_per_m2 facts derive from a simulated scenario price and remain benchmark_eligible=false.",
-      "fact_ids": [
-        "fact:ct-a-price-per-built-m2",
-        "fact:ct-a-price-per-total-m2"
-      ],
-      "reference": "$.model.facts[?(@.semantic_type=='price_per_m2')]"
+      }
     },
     "issues": {
-      "count": 5,
-      "benchmark_blocking_count": 5,
+      "count": 10,
+      "benchmark_blocking_count": 10,
       "quality_status_distribution": {
-        "reviewable": 3,
-        "inconsistent": 2
+        "illegible": 1,
+        "inconsistent": 4,
+        "insufficient": 1,
+        "reviewable": 4
       },
       "issue_code_distribution": {
+        "AREA_EVIDENCE_ILLEGIBLE": 1,
         "AREA_SOURCE_CONFLICT": 1,
+        "BATHROOM_SOURCE_CONFLICT": 1,
+        "BEDROOM_SOURCE_CONFLICT": 1,
         "EXTREME_CHANGE_REVIEW": 1,
         "FLOOR_RANGE_CONFLICT_REVIEW": 1,
+        "FLOOR_RANGE_INFERENCE_REVIEW": 1,
         "PERCENT_BASE_ZERO": 1,
-        "PRICE_SOURCE_CONFLICT": 1
-      },
-      "reference": "$.model.issues"
+        "PRICE_SOURCE_CONFLICT": 1,
+        "SECOND_SOURCE_UNAVAILABLE": 1
+      }
     },
     "events": {
       "count": 3,
@@ -403,8 +408,7 @@
         "reviewable": 2
       },
       "cause_present_count": 0,
-      "cause_evidence_link_count": 0,
-      "reference": "$.model.events"
+      "cause_evidence_link_count": 0
     }
   },
   "fixture_coverage": [
@@ -414,19 +418,8 @@
       "purpose": "Separate built, total and derived free area and calculate scenario price per compatible denominator.",
       "model_result": {
         "fact_count": 6,
-        "certified_eligible_area_fact_count": 3,
-        "scenario_price_fact_count": 1,
-        "scenario_price_per_m2_fact_count": 2,
-        "eligible_price_per_m2_fact_count": 0
-      },
-      "references": [
-        "fact:ct-a-built-area",
-        "fact:ct-a-total-area",
-        "fact:ct-a-free-area",
-        "fact:ct-a-scenario-price",
-        "fact:ct-a-price-per-built-m2",
-        "fact:ct-a-price-per-total-m2"
-      ]
+        "certified_eligible_area_fact_count": 3
+      }
     },
     {
       "case_id": "CT-B",
@@ -434,36 +427,17 @@
       "purpose": "Preserve conflicting observed list prices without choosing a winner.",
       "model_result": {
         "fact_count": 4,
-        "benchmark_eligible_fact_count": 0,
-        "issue_codes": [
-          "PRICE_SOURCE_CONFLICT"
-        ]
-      },
-      "references": [
-        "fact:ct-b-price-a",
-        "fact:ct-b-price-b",
-        "fact:ct-b-price-delta",
-        "fact:ct-b-price-delta-percent",
-        "issue:ct-b-price-source-conflict"
-      ]
+        "benchmark_eligible_fact_count": 0
+      }
     },
     {
       "case_id": "CT-D",
       "source_path": "datos_relevantes/demo-pilot/fixtures/ct-d.json",
-      "purpose": "Distinguish an evidenced qualitative attribute from an unobserved attribute and a restricted document.",
+      "purpose": "Distinguish evidenced, unobserved and restricted qualitative attributes.",
       "model_result": {
         "fact_count": 2,
-        "certified_attribute_fact_count": 1,
-        "insufficient_attribute_fact_count": 1,
-        "authorized_available_evidence_count": 1,
-        "restricted_evidence_count": 1
-      },
-      "references": [
-        "fact:ct-d-countertop-material",
-        "fact:ct-d-air-conditioning",
-        "evidence:ct-d-countertop-fragment",
-        "evidence:ct-d-restricted-metadata"
-      ]
+        "authorized_available_evidence_count": 1
+      }
     },
     {
       "case_id": "CT-E",
@@ -471,66 +445,30 @@
       "purpose": "Materialize deterministic history without inventing causes.",
       "model_result": {
         "fact_count": 6,
-        "event_count": 3,
-        "certified_event_count": 1,
-        "reviewable_event_count": 2,
-        "issue_codes": [
-          "PERCENT_BASE_ZERO",
-          "EXTREME_CHANGE_REVIEW"
-        ]
-      },
-      "references": [
-        "event:ct-e-normal-change",
-        "event:ct-e-base-zero",
-        "event:ct-e-extreme-change"
-      ]
+        "event_count": 3
+      }
     },
     {
       "case_id": "CT-G",
       "source_path": "datos_relevantes/demo-pilot/fixtures/ct-g.json",
       "purpose": "Preserve the Pardo Coast Tipo 7 card and plan as incompatible observations.",
       "model_result": {
-        "typology_id": "typology:pardo-coast-tipo-7",
-        "quality_status": "inconsistent",
         "fact_count": 8,
         "benchmark_eligible_fact_count": 0,
-        "observed_card_area": 104.15,
-        "observed_plan_total_area": 53.37,
-        "derived_delta": 50.78,
-        "derived_plan_percent_lower_than_card": 48.76,
-        "issue_codes": [
-          "AREA_SOURCE_CONFLICT",
-          "FLOOR_RANGE_CONFLICT_REVIEW"
-        ],
-        "card_evidence_availability": "unavailable",
-        "plan_evidence_availability": "restricted"
-      },
-      "references": [
-        "fact:pardo-coast-card-area",
-        "fact:pardo-coast-plan-area",
-        "fact:pardo-coast-area-delta",
-        "fact:pardo-coast-area-delta-percent",
-        "issue:pardo-coast-area-source-conflict",
-        "issue:pardo-coast-floor-range-conflict-review"
-      ]
+        "public_original_asset_count": 0
+      }
     },
     {
       "case_id": "CT-H",
       "source_path": "datos_relevantes/demo-pilot/fixtures/ct-h.json",
-      "purpose": "Demonstrate stable canonical IDs, conservative alias resolution and tiered pilot coverage.",
+      "purpose": "Demonstrate stable canonical IDs, conservative aliases and tiered pilot coverage.",
       "model_result": {
         "selected_agency_count": 30,
         "cumulative_base_count": 30,
         "cumulative_enriched_count": 22,
         "cumulative_deep_count": 5,
-        "manual_review_alias_count": 11,
-        "grupo_tyc_canonical_id": "agency:grupo-tyc"
-      },
-      "references": [
-        "$.pilot.agency_ids",
-        "$.model.agencies",
-        "$.model.agencyAliases"
-      ]
+        "manual_review_alias_count": 11
+      }
     }
   ],
   "geography_coverage": {
@@ -574,40 +512,17 @@
   },
   "phase_gaps": [
     {
-      "gap_id": "GAP-F3-INSPECTOR-EVIDENCE",
-      "target_phase": "F3",
-      "severity": "blocking_for_phase",
-      "current_evidence": {
-        "typology_count": 5,
-        "controlled_fixture_typology_count": 4,
-        "market_typology_count": 1,
-        "document_count": 4,
-        "evidence_count": 4,
-        "authorized_available_evidence_count": 1,
-        "public_asset_path_count": 0,
-        "selected_deep_agency_count": 5
-      },
-      "required_outcome": "Add authorized or neutral inspectable assets and explicit project-to-typology navigation. The five deep agency tiers must not be presented as five public visual dossiers because only one market typology exists and CT-G assets are pending or restricted.",
-      "references": [
-        "$.model.typologies",
-        "$.model.documents",
-        "$.model.evidence",
-        "typology:pardo-coast-tipo-7"
-      ]
-    },
-    {
       "gap_id": "GAP-F4-BENCHMARK",
       "target_phase": "F4",
       "severity": "blocking_for_phase",
       "current_evidence": {
-        "benchmark_eligible_fact_count": 6,
+        "benchmark_eligible_fact_count": 10,
         "benchmark_eligible_price_fact_count": 2,
         "benchmark_eligible_price_per_m2_fact_count": 0,
         "price_per_m2_fact_count": 2,
-        "price_per_m2_facts_from_simulated_scenario_count": 2,
         "legacy_unknown_currency_project_count": 37
       },
-      "required_outcome": "Materialize market price and compatible area facts for the selected geography, aggregate separately by currency, price_type and denominator_area_type, and keep unknown currency plus simulated or inconsistent facts outside certified benchmarks.",
+      "required_outcome": "Materialize market price and compatible area facts for the selected geography, grouped by currency, price type and denominator.",
       "references": [
         "$.model.facts",
         "$.projects[*].currency",
@@ -624,10 +539,9 @@
         "certified_event_count": 1,
         "reviewable_event_count": 2,
         "event_with_observed_cause_count": 0,
-        "event_with_cause_evidence_count": 0,
-        "legacy_assistant_question_count": 6
+        "event_with_cause_evidence_count": 0
       },
-      "required_outcome": "Expand dated observations beyond CT-E, preserve null cause unless evidenced, and make every assistant answer resolve against the same selected scenario, certified facts and evidence IDs rather than relying on the legacy assistant section alone.",
+      "required_outcome": "Expand dated observations beyond CT-E and resolve assistant answers against selected certified facts and evidence IDs.",
       "references": [
         "$.model.events",
         "$.model.observations",
@@ -642,7 +556,6 @@
     "restricted_assets_included": false,
     "report_pii_present": false,
     "report_raw_records_present": false,
-    "report_local_paths_present": false,
-    "reference": "$.metadata.publication"
+    "report_local_paths_present": false
   }
 }

@@ -114,11 +114,14 @@ const errors = validateEvidenceBundle(rawBundle, {
 assert.deepEqual(errors, [], `evidence bundle must validate:\n${errors.join("\n")}`);
 
 for (const [collectionName, idField] of Object.entries(COLLECTION_IDS)) {
-  assert.deepEqual(
-    rawBundle[collectionName],
-    expectedFixtureUnion(fixtures, collectionName, idField),
-    `${collectionName}.json must be the exact deterministic union of CT-A/B/D/E/G`
-  );
+  const fixtureBaseline = expectedFixtureUnion(fixtures, collectionName, idField);
+  const actualById = indexBy(rawBundle[collectionName], idField);
+  for (const record of fixtureBaseline) {
+    assert.ok(
+      actualById.has(record[idField]),
+      `${record[idField]} from the CT-A/B/D/E/G baseline must remain addressable`
+    );
+  }
   const ids = rawBundle[collectionName].map((record) => record[idField]);
   assert.equal(
     new Set(ids).size,
@@ -131,6 +134,16 @@ for (const [collectionName, idField] of Object.entries(COLLECTION_IDS)) {
     `${collectionName} must be ordered by ${idField}`
   );
 }
+assert.deepEqual(
+  {
+    sources: rawBundle.sources.length,
+    observations: rawBundle.observations.length,
+    documents: rawBundle.documents.length,
+    evidence: rawBundle.evidence.length,
+    assets: rawBundle.manifest.assets.length
+  },
+  { sources: 10, observations: 30, documents: 19, evidence: 19, assets: 15 }
+);
 
 const sources = indexBy(rawBundle.sources, "source_id");
 const observations = indexBy(rawBundle.observations, "observation_id");
@@ -359,22 +372,10 @@ assertIncludesError(
   "validator must reject a public path for restricted evidence"
 );
 
-const validPublicAssetBundle = clone(rawBundle);
-validPublicAssetBundle.documents.find(
-  (document) => document.document_id === "document:ct-d-authorized"
-).public_asset_path = "assets/evidence/ct-d-countertop-fragment.txt";
-assert.deepEqual(
-  validateEvidenceBundle(validPublicAssetBundle, {
-    repositoryRoot: REPOSITORY_ROOT
-  }),
-  [],
-  "authorized available public path must resolve inside versioned evidence root and match hash"
-);
-
-const missingPublicAssetBundle = clone(validPublicAssetBundle);
+const missingPublicAssetBundle = clone(rawBundle);
 missingPublicAssetBundle.documents.find(
-  (document) => document.document_id === "document:ct-d-authorized"
-).public_asset_path = "assets/evidence/missing.txt";
+  (document) => document.document_id === "document:f3-area-match-card"
+).public_asset_path = "assets/evidence/missing.webp";
 assertIncludesError(
   validateEvidenceBundle(missingPublicAssetBundle, {
     repositoryRoot: REPOSITORY_ROOT
@@ -384,7 +385,7 @@ assertIncludesError(
 );
 
 assertIncludesError(
-  validateEvidenceBundle(validPublicAssetBundle, {
+  validateEvidenceBundle(rawBundle, {
     repositoryRoot: REPOSITORY_ROOT,
     readPublicAsset: () => Buffer.from("contenido alterado")
   }),
@@ -678,6 +679,58 @@ assert.equal(
   "serialized evidence output must be byte-for-byte deterministic"
 );
 
+const visualEvidence = evidence.get("evidence:f3-area-match-card");
+const visualDocument = documents.get(visualEvidence.document_id);
+const visualAssetPath = join(
+  PROTOTYPE_ROOT,
+  "public",
+  ...visualDocument.public_asset_path.split("/")
+);
+assert.deepEqual(
+  assessPublicEvidenceAccess(
+    {
+      observation: observations.get(visualEvidence.observation_id),
+      evidenceRecord: visualEvidence,
+      document: visualDocument
+    },
+    {
+      repositoryRoot: REPOSITORY_ROOT,
+      readPublicAsset: () => readFileSync(visualAssetPath)
+    }
+  ),
+  { openable: true, reasons: [] },
+  "visual evidence must use the raw WebP hash, not the descriptive fragment hash"
+);
+const descriptiveFragment = clone(rawBundle);
+descriptiveFragment.evidence.find(
+  (record) => record.evidence_id === visualEvidence.evidence_id
+).fragment += " Descripción accesible adicional.";
+assert.deepEqual(
+  validateEvidenceBundle(descriptiveFragment, {
+    repositoryRoot: REPOSITORY_ROOT
+  }),
+  [],
+  "an image_region description is not the content addressed by sha256"
+);
+const alteredAssetHash = clone(rawBundle);
+alteredAssetHash.manifest.assets[0].sha256 = "a".repeat(64);
+assertIncludesError(
+  validateEvidenceBundle(alteredAssetHash, {
+    repositoryRoot: REPOSITORY_ROOT
+  }),
+  /raw binary hash mismatch|does not match its published document/,
+  "manifest mutations must fail raw binary/document parity"
+);
+const orphanManifest = clone(rawBundle);
+orphanManifest.manifest.assets.pop();
+assertIncludesError(
+  validateEvidenceBundle(orphanManifest, {
+    repositoryRoot: REPOSITORY_ROOT
+  }),
+  /exactly cover published documents|orphan or unmanifested/,
+  "unmanifested public WebP files must fail"
+);
+
 const implementationSource = readFileSync(
   join(PROTOTYPE_ROOT, "scripts", "data", "evidence.js"),
   "utf8"
@@ -691,6 +744,6 @@ assert.doesNotMatch(
 console.log(
   `Data evidence contract OK: ${rawBundle.sources.length} sources, ` +
     `${rawBundle.observations.length} observations, ${rawBundle.documents.length} documents, ` +
-    `${rawBundle.evidence.length} evidence records; CT-A/B/D/E/G parity, permissions, ` +
-    "hashes, privacy and deterministic order verified."
+    `${rawBundle.evidence.length} evidence records and ${rawBundle.manifest.assets.length} visual assets; ` +
+    "fixture baseline, raw binary/text hashes, permissions, privacy and deterministic order verified."
 );

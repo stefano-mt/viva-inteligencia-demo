@@ -42,6 +42,103 @@ assert.deepEqual(
     .join("\n")}`
 );
 
+const inspectorCaseShape = {
+  case_id: "case:ct-d-controlled",
+  route_slug: "ct-d-controlled",
+  project_id: "project:ct-d-controlled",
+  typology_id: "typology:ct-d-controlled",
+  provenance_classification: "controlled",
+  source_ids: ["source:ct-d-authorized"],
+  observation_ids: ["observation:ct-d-countertop"],
+  fact_ids: ["fact:ct-d-countertop-material"],
+  document_ids: ["document:ct-d-authorized"],
+  evidence_ids: ["evidence:ct-d-countertop-fragment"],
+  issue_ids: [],
+  required_fact_ids: ["fact:ct-d-countertop-material"],
+  primary_evidence_id: "evidence:ct-d-countertop-fragment",
+  expected_quality_status: "certified",
+  expected_benchmark_eligible: true,
+  public_visual_asset_count: 1
+};
+assert.deepEqual(
+  validateSchemaShape(inspectorCaseShape, "inspectorCase", {
+    rootSchema: schema,
+    path: "$.inspector.cases[0]"
+  }),
+  [],
+  "InspectorCase 2.2 shape must pass"
+);
+assert.ok(
+  validateSchemaShape(
+    { ...inspectorCaseShape, required_fact_ids: [] },
+    "inspectorCase",
+    {
+      rootSchema: schema,
+      path: "$.inspector.cases[0]"
+    }
+  ).some((error) => error.code === "SCHEMA_MIN_ITEMS"),
+  "InspectorCase required_fact_ids must be non-empty"
+);
+assert.ok(
+  validateSchemaShape(
+    { ...inspectorCaseShape, duplicated_fact: true },
+    "inspectorCase",
+    {
+      rootSchema: schema,
+      path: "$.inspector.cases[0]"
+    }
+  ).some((error) => error.code === "SCHEMA_ADDITIONAL_PROPERTY"),
+  "InspectorCase must remain closed"
+);
+
+const inspectorAssetShape = {
+  asset_id: "asset:ct-d-countertop",
+  document_id: "document:ct-d-authorized",
+  logical_path: "assets/evidence/ct-d-countertop.webp",
+  sha256:
+    "76997883b31990c766b433f21da0a699ffe502d40e15072b24bbacec11bfc850",
+  media_type: "image/webp",
+  bytes: 1024,
+  width: 640,
+  height: 480,
+  provenance: "controlled_original",
+  publish_permission: "authorized",
+  license_note: "Activo controlado y autorizado para la demo."
+};
+assert.deepEqual(
+  validateSchemaShape(inspectorAssetShape, "inspectorAsset", {
+    rootSchema: schema,
+    path: "$.inspector.assets[0]"
+  }),
+  [],
+  "InspectorAsset 2.2 shape must pass"
+);
+assert.ok(
+  validateSchemaShape(
+    { ...inspectorAssetShape, provenance: "observed_original" },
+    "inspectorAsset",
+    {
+      rootSchema: schema,
+      path: "$.inspector.assets[0]"
+    }
+  ).some((error) => error.code === "SCHEMA_CONST"),
+  "controlled InspectorAsset must never claim original observed provenance"
+);
+assert.ok(
+  validateSchemaShape(
+    {
+      ...inspectorAssetShape,
+      logical_path: "assets/evidence/../escape.webp"
+    },
+    "inspectorAsset",
+    {
+      rootSchema: schema,
+      path: "$.inspector.assets[0]"
+    }
+  ).some((error) => error.code === "SCHEMA_PATTERN"),
+  "InspectorAsset logical_path must reject dot and traversal segments"
+);
+
 for (const name of [
   "ct-a.json",
   "ct-b.json",
