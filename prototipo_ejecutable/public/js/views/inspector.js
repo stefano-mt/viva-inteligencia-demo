@@ -126,6 +126,23 @@ const FULL_HASH_MODES = new Set([
 ]);
 const CONTROLLED_REPRESENTATION_WARNING =
   "Representación controlada para demo; no es el documento original.";
+const LEDGER_ROW_KEYS = Object.freeze([
+  "area",
+  "floor_unit",
+  "model",
+  "bedrooms",
+  "bathrooms",
+]);
+const AREA_TYPE_LABELS = Object.freeze({
+  unknown: "Tipo de área no declarado",
+  total: "Área total",
+  built: "Área construida",
+  free: "Área libre",
+});
+const LEDGER_NUMBER_FORMATTER = new Intl.NumberFormat("es-PE", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
 
 function toArray(value) {
   return Array.isArray(value) ? value : [];
@@ -419,6 +436,423 @@ function buildEvidenceOptions(dossier, inspector) {
   });
 }
 
+function ledgerNumber(value) {
+  return Number.isFinite(value)
+    ? LEDGER_NUMBER_FORMATTER.format(value)
+    : "No determinado";
+}
+
+function ledgerValue(value, unit, valueKind = "observed") {
+  if (value === null || value === undefined) {
+    return valueKind === "derived" ? "Valor derivado" : "No determinado";
+  }
+  if (value === "unknown") return "No determinado";
+  if (typeof value === "boolean") return value ? "Sí" : "No";
+  if (typeof value === "number") {
+    const formatted = ledgerNumber(value);
+    if (unit === "m2") return `${formatted} m²`;
+    if (unit === "percent") return `${formatted}%`;
+    return formatted;
+  }
+  const text = String(value).trim();
+  return text || "No determinado";
+}
+
+function normalizedLedgerValue(fact) {
+  const value = ledgerValue(
+    fact.normalized_value,
+    fact.unit,
+    fact.value_kind,
+  );
+  const semanticLabel =
+    fact.semantic_type === "area"
+      ? AREA_TYPE_LABELS[fact.area_type] ?? null
+      : null;
+  return semanticLabel ? `${value} · ${semanticLabel}` : value;
+}
+
+function assertDossierTraceability(dossier) {
+  const observationById = new Map(
+    dossier.observations.map((observation) => [
+      observation.observation_id,
+      observation,
+    ]),
+  );
+  const sourceById = new Map(
+    dossier.sources.map((source) => [source.source_id, source]),
+  );
+  for (const fact of dossier.facts) {
+    const observation = observationById.get(fact.observation_id);
+    const source = observation
+      ? sourceById.get(observation.source_id)
+      : null;
+    if (
+      !observation ||
+      !source ||
+      !String(source.name ?? "").trim() ||
+      !Number.isFinite(Date.parse(observation.captured_at))
+    ) {
+      throw new Error("Fact traceability is incomplete");
+    }
+  }
+}
+
+function evidenceActionsForObservation(dossier, inspector, observation) {
+  if (!Array.isArray(observation.evidence_ids)) {
+    throw new Error("Observation evidence backlinks are invalid");
+  }
+  const seenEvidenceIds = new Set();
+  return observation.evidence_ids
+    .filter((evidenceId) => {
+      if (seenEvidenceIds.has(evidenceId)) return false;
+      seenEvidenceIds.add(evidenceId);
+      return true;
+    })
+    .map((evidenceId) => {
+      const context = evidenceContext(dossier, inspector, evidenceId);
+      if (
+        !context ||
+        !dossier.evidence.some(
+          (evidence) =>
+            evidence.evidence_id === evidenceId &&
+            evidence.observation_id === observation.observation_id,
+        )
+      ) {
+        throw new Error("Ledger evidence ownership is invalid");
+      }
+      return {
+        evidenceId,
+        modeLabel: context.modeLabel,
+      };
+    });
+}
+
+function sourceRole(actions, dossier) {
+  for (const action of actions) {
+    const evidence = dossier.evidence.find(
+      ({ evidence_id: evidenceId }) =>
+        evidenceId === action.evidenceId,
+    );
+    const documentRecord = dossier.documents.find(
+      ({ document_id: documentId }) =>
+        documentId === evidence?.document_id,
+    );
+    if (documentRecord) {
+      return (
+        DOCUMENT_TYPE_LABELS[documentRecord.document_type] ??
+        "Referencia documentada"
+      );
+    }
+  }
+  return "Referencia documentada";
+}
+
+function sourceEligibilityLabel(facts, row) {
+  if (
+    !Array.isArray(row.eligibleFactIds) ||
+    !Array.isArray(row.excludedFactIds)
+  ) {
+    throw new Error("Ledger row eligibility is invalid");
+  }
+  const eligibleIds = new Set(row.eligibleFactIds);
+  const excludedIds = new Set(row.excludedFactIds);
+  const factIds = facts.map(({ fact_id: factId }) => factId);
+  if (
+    factIds.some(
+      (factId) =>
+        eligibleIds.has(factId) === excludedIds.has(factId),
+    )
+  ) {
+    throw new Error("Ledger fact eligibility is ambiguous");
+  }
+  const eligibleCount = factIds.filter((factId) =>
+    eligibleIds.has(factId),
+  ).length;
+  if (eligibleCount === facts.length) {
+    return "Elegible según las reglas de la demo";
+  }
+  if (eligibleCount === 0) {
+    return "No elegible según las reglas de la demo";
+  }
+  return "Elegibilidad mixta según las reglas de la demo";
+}
+
+function buildLedgerSource({
+  dossier,
+  inspector,
+  observation,
+  facts,
+  columnIndex,
+  row,
+}) {
+  const source = dossier.sources.find(
+    ({ source_id: sourceId }) => sourceId === observation.source_id,
+  );
+  if (
+    !source ||
+    !String(source.name ?? "").trim() ||
+    !Number.isFinite(Date.parse(observation.captured_at))
+  ) {
+    throw new Error("Ledger source traceability is incomplete");
+  }
+  const actions = evidenceActionsForObservation(
+    dossier,
+    inspector,
+    observation,
+  );
+  return {
+    label: `Fuente ${columnIndex === 0 ? "A" : "B"}`,
+    role: sourceRole(actions, dossier),
+    observed: true,
+    values: facts.map((fact) => ({
+      field: readableFieldName(fact.field_name),
+      original: ledgerValue(
+        fact.original_value,
+        fact.unit,
+        fact.value_kind,
+      ),
+      normalized: normalizedLedgerValue(fact),
+    })),
+    sourceName: String(source.name).trim(),
+    capturedAt: observation.captured_at,
+    capturedLabel: captureDateLabel(observation.captured_at),
+    method: extractionMethodLabel(observation.extraction_method),
+    statusLabel: [
+      ...new Set(
+        facts.map(({ quality_status: qualityStatus }) =>
+          statusLabel(qualityStatus),
+        ),
+      ),
+    ].join(" · "),
+    eligibilityLabel: sourceEligibilityLabel(facts, row),
+    actions,
+  };
+}
+
+function emptyLedgerSource(columnIndex) {
+  return {
+    label: `Fuente ${columnIndex === 0 ? "A" : "B"}`,
+    role: "Sin referencia",
+    observed: false,
+    values: [
+      {
+        field: null,
+        original: "No observado",
+        normalized: null,
+      },
+    ],
+    sourceName: null,
+    capturedAt: null,
+    capturedLabel: null,
+    method: null,
+    statusLabel: null,
+    eligibilityLabel: null,
+    actions: [],
+  };
+}
+
+function buildAreaCalculation(derivedFacts, factById, sources) {
+  const delta = derivedFacts.find(
+    ({ field_name: fieldName }) => fieldName === "area_source_delta",
+  );
+  const relative = derivedFacts.find(
+    ({ field_name: fieldName }) =>
+      fieldName === "area_source_delta_percent",
+  );
+  const inputIds = delta?.derivation?.input_fact_ids;
+  if (
+    !delta ||
+    !relative ||
+    !Array.isArray(inputIds) ||
+    inputIds.length !== 2
+  ) {
+    return null;
+  }
+  const inputs = inputIds.map((factId) => factById.get(factId));
+  if (
+    inputs.some(
+      (fact) =>
+        !fact ||
+        fact.value_kind !== "observed" ||
+        !Number.isFinite(fact.normalized_value),
+    ) ||
+    !Number.isFinite(delta.normalized_value) ||
+    !Number.isFinite(relative.normalized_value)
+  ) {
+    return null;
+  }
+  const baseFactId = relative.derivation?.input_fact_ids?.[0];
+  const baseSource = sources.find((source) =>
+    source.factIds?.includes(baseFactId),
+  );
+  return {
+    expression: `${ledgerNumber(inputs[0].normalized_value)} − ${ledgerNumber(
+      inputs[1].normalized_value,
+    )} = ${ledgerNumber(delta.normalized_value)} m²`,
+    relative: `${ledgerNumber(
+      relative.normalized_value,
+    )}% · base: ${(baseSource?.role ?? "Fuente A").toLocaleLowerCase(
+      "es-PE",
+    )}`,
+  };
+}
+
+function buildFloorInference(derivedFacts) {
+  const minimum = derivedFacts.find(
+    ({ field_name: fieldName }) => fieldName === "inferred_floor_min",
+  );
+  const maximum = derivedFacts.find(
+    ({ field_name: fieldName }) => fieldName === "inferred_floor_max",
+  );
+  if (
+    !minimum ||
+    !maximum ||
+    !Number.isFinite(minimum.normalized_value) ||
+    !Number.isFinite(maximum.normalized_value)
+  ) {
+    return null;
+  }
+  const confidence =
+    minimum.confidence === maximum.confidence
+      ? confidenceLabel(minimum.confidence)
+      : confidenceLabel("unknown");
+  return {
+    value: `${ledgerNumber(minimum.normalized_value)}–${ledgerNumber(
+      maximum.normalized_value,
+    )}`,
+    confidence,
+  };
+}
+
+function buildLedgerRow(
+  dossier,
+  inspector,
+  row,
+  rowIndex,
+) {
+  const factById = new Map(
+    dossier.facts.map((fact) => [fact.fact_id, fact]),
+  );
+  const issueById = new Map(
+    dossier.issues.map((issue) => [issue.issue_id, issue]),
+  );
+  const rowFacts = row.factIds.map((factId) => factById.get(factId));
+  if (rowFacts.some((fact) => !fact)) {
+    throw new Error("Ledger row references a missing fact");
+  }
+  const observedFacts = rowFacts.filter(
+    ({ value_kind: valueKind }) => valueKind === "observed",
+  );
+  const derivedFacts = rowFacts.filter(
+    ({ value_kind: valueKind }) => valueKind === "derived",
+  );
+  const groups = dossier.observations
+    .map((observation) => ({
+      observation,
+      facts: observedFacts.filter(
+        ({ observation_id: observationId }) =>
+          observationId === observation.observation_id,
+      ),
+    }))
+    .filter(({ facts }) => facts.length > 0);
+  if (groups.length > 2) {
+    throw new Error("Ledger row exceeds the two-source contract");
+  }
+  const sourcesWithFacts = groups.map(({ observation, facts }, columnIndex) => ({
+    ...buildLedgerSource({
+      dossier,
+      inspector,
+      observation,
+      facts,
+      columnIndex,
+      row,
+    }),
+    factIds: facts.map(({ fact_id: factId }) => factId),
+  }));
+  while (sourcesWithFacts.length < 2) {
+    sourcesWithFacts.push(emptyLedgerSource(sourcesWithFacts.length));
+  }
+  const issues = row.issueIds.map((issueId) => issueById.get(issueId));
+  if (
+    issues.some(
+      (issue) =>
+        !issue ||
+        !String(issue.detail ?? "").trim() ||
+        !String(issue.next_action ?? "").trim(),
+    )
+  ) {
+    throw new Error("Ledger issue traceability is incomplete");
+  }
+  const areaCalculation =
+    row.key === "area"
+      ? buildAreaCalculation(derivedFacts, factById, sourcesWithFacts)
+      : null;
+  const floorInference =
+    row.key === "floor_unit"
+      ? buildFloorInference(derivedFacts)
+      : null;
+  const sources = sourcesWithFacts.map(({ factIds, ...source }) => source);
+  return {
+    key: row.key,
+    id: `inspector-row-${row.key}`,
+    label: ROW_LABELS[row.key],
+    rowIndex,
+    status: row.status,
+    statusLabel: statusLabel(row.status),
+    benchmarkBlocking: row.benchmarkBlocking === true,
+    benchmarkLabel:
+      row.benchmarkBlocking === true
+        ? "Bloquea el benchmark"
+        : "No bloquea el benchmark",
+    sources,
+    reading: {
+      areaCalculation,
+      floorInference,
+      issues: issues.map((issue) => ({
+        detail: String(issue.detail).trim(),
+        nextAction: String(issue.next_action).trim(),
+      })),
+      otherDerived: derivedFacts
+        .filter(
+          ({ field_name: fieldName }) =>
+            ![
+              "area_source_delta",
+              "area_source_delta_percent",
+              "inferred_floor_min",
+              "inferred_floor_max",
+            ].includes(fieldName),
+        )
+        .map((fact) => ({
+          field: readableFieldName(fact.field_name),
+          original: ledgerValue(
+            fact.original_value,
+            fact.unit,
+            fact.value_kind,
+          ),
+          normalized: normalizedLedgerValue(fact),
+          confidence: confidenceLabel(fact.confidence),
+        })),
+    },
+  };
+}
+
+function buildLedger(dossier, inspector) {
+  assertDossierTraceability(dossier);
+  const ledgerRows = dossier.compatibilityRows.filter(({ key }) =>
+    LEDGER_ROW_KEYS.includes(key),
+  );
+  if (
+    ledgerRows.length !== LEDGER_ROW_KEYS.length ||
+    new Set(ledgerRows.map(({ key }) => key)).size !== LEDGER_ROW_KEYS.length
+  ) {
+    throw new Error("Ledger row contract is incomplete");
+  }
+  return LEDGER_ROW_KEYS.map((key, rowIndex) => {
+    const row = ledgerRows.find(({ key: rowKey }) => rowKey === key);
+    return buildLedgerRow(dossier, inspector, row, rowIndex);
+  });
+}
+
 function buildProjectOptions(data, selectedProjectId) {
   const projectById = new Map(
     toArray(data?.model?.projects).map((project) => [
@@ -508,14 +942,17 @@ function primaryEvidencePresentation(dossier) {
 }
 
 function firstBlockingRow(dossier) {
+  const orderedRows = LEDGER_ROW_KEYS.map((key) =>
+    dossier.compatibilityRows.find(({ key: rowKey }) => rowKey === key),
+  ).filter(Boolean);
   return (
-    dossier.compatibilityRows.find(
+    orderedRows.find(
       (row) =>
         row.benchmarkBlocking &&
         row.issueIds.some((issueId) =>
           dossier.decision.blockingIssueIds.includes(issueId),
         ),
-    ) ?? dossier.compatibilityRows.find((row) => row.benchmarkBlocking)
+    ) ?? orderedRows.find((row) => row.benchmarkBlocking)
   );
 }
 
@@ -534,7 +971,7 @@ function decisionCause(dossier) {
 
 function primaryAction(dossier, presentation) {
   const row = firstBlockingRow(dossier);
-  const rowHref = `#inspector-row-${row?.key ?? "other"}`;
+  const rowHref = `#inspector-row-${row?.key ?? LEDGER_ROW_KEYS[0]}`;
   if (dossier.decision.qualityStatus === "inconsistent") {
     return {
       kind: "link",
@@ -634,6 +1071,7 @@ export function buildInspectorViewModel({
       dossier,
       data.inspector,
     );
+    const ledger = buildLedger(dossier, data.inspector);
 
     return {
       available: true,
@@ -721,8 +1159,8 @@ export function buildInspectorViewModel({
         ],
       },
       blockingRow: {
-        key: blockingRow?.key ?? "other",
-        label: ROW_LABELS[blockingRow?.key] ?? ROW_LABELS.other,
+        key: blockingRow?.key ?? LEDGER_ROW_KEYS[0],
+        label: ROW_LABELS[blockingRow?.key] ?? ROW_LABELS[LEDGER_ROW_KEYS[0]],
       },
       decision: {
         eligibleFactCount: dossier.decision.eligibleFactIds.length,
@@ -735,6 +1173,7 @@ export function buildInspectorViewModel({
         reason: presentation.reason,
       },
       evidenceOptions,
+      ledger,
       viewer,
       dialogOpen: Boolean(dialogOpen && viewer?.safe),
       primaryAction: primaryAction(dossier, presentation),
@@ -995,6 +1434,188 @@ function renderEvidenceDialog(model) {
   `;
 }
 
+function renderLedgerEvidenceActions(actions, rowIndex, sourceIndex, sourceLabel) {
+  if (!actions.length) return "";
+  return `
+    <div class="inspector-ledger-evidence-actions">
+      ${actions
+        .map(
+          (action, actionIndex) => `
+            <button
+              id="inspector-ledger-evidence-${rowIndex + 1}-${sourceIndex + 1}-${actionIndex + 1}"
+              class="inspector-ledger-evidence"
+              type="button"
+              data-inspector-evidence="${escapeAttr(action.evidenceId)}"
+              aria-haspopup="dialog"
+              aria-label="${escapeAttr(`Ver evidencia de ${sourceLabel}: ${action.modeLabel}`)}"
+            >
+              Ver evidencia
+            </button>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderLedgerSource(source, rowIndex, sourceIndex) {
+  return `
+    <div
+      class="inspector-ledger-cell inspector-ledger-source${
+        source.observed ? "" : " is-empty"
+      }"
+      role="cell"
+      aria-label="${escapeAttr(source.label)}"
+    >
+      <span class="inspector-ledger-mobile-label">${escapeHtml(source.label)}</span>
+      <span class="inspector-ledger-source-role">${escapeHtml(source.role)}</span>
+      <div class="inspector-ledger-values">
+        ${source.values
+          .map(
+            (value) => `
+              <div class="inspector-ledger-value">
+                ${
+                  value.field
+                    ? `<span class="inspector-ledger-field-name">${escapeHtml(value.field)}</span>`
+                    : ""
+                }
+                <strong>${escapeHtml(value.original)}</strong>
+                ${
+                  value.normalized
+                    ? `<span class="inspector-ledger-normalized">Normalizado: ${escapeHtml(value.normalized)}</span>`
+                    : ""
+                }
+              </div>
+            `,
+          )
+          .join("")}
+      </div>
+      ${
+        source.observed
+          ? `
+            <p class="inspector-ledger-origin">
+              <strong>${escapeHtml(source.sourceName)}</strong>
+              <span>
+                <time datetime="${escapeAttr(source.capturedAt)}">${escapeHtml(source.capturedLabel)}</time>
+                · ${escapeHtml(source.method)}
+              </span>
+            </p>
+            <p class="inspector-ledger-fact-state">
+              <span>${escapeHtml(source.statusLabel)}</span>
+              <span>${escapeHtml(source.eligibilityLabel)}</span>
+            </p>
+            ${renderLedgerEvidenceActions(
+              source.actions,
+              rowIndex,
+              sourceIndex,
+              source.label,
+            )}
+          `
+          : ""
+      }
+    </div>
+  `;
+}
+
+function renderLedgerReading(row) {
+  return `
+    <div class="inspector-ledger-cell inspector-ledger-reading" role="cell">
+      <span class="inspector-ledger-mobile-label">Lectura</span>
+      <div class="inspector-ledger-reading-flags">
+        <strong data-inspector-ledger-status="${escapeAttr(row.status)}">${escapeHtml(row.statusLabel)}</strong>
+        <span>${escapeHtml(row.benchmarkLabel)}</span>
+      </div>
+      ${
+        row.reading.areaCalculation
+          ? `
+            <p class="inspector-ledger-calculation">
+              <span>Valor derivado · Cálculo documentado</span>
+              <strong>${escapeHtml(row.reading.areaCalculation.expression)}</strong>
+              <small>${escapeHtml(row.reading.areaCalculation.relative)}</small>
+            </p>
+          `
+          : ""
+      }
+      ${
+        row.reading.floorInference
+          ? `
+            <p class="inspector-ledger-inference">
+              <span>Valor derivado · Inferencia de pisos</span>
+              <strong>${escapeHtml(row.reading.floorInference.value)}</strong>
+              <small>Confianza ${escapeHtml(row.reading.floorInference.confidence)}</small>
+            </p>
+          `
+          : ""
+      }
+      ${row.reading.otherDerived
+        .map(
+          (derived) => `
+            <p class="inspector-ledger-derived">
+              <span>${escapeHtml(derived.field)}</span>
+              <strong>${escapeHtml(derived.original)} · ${escapeHtml(derived.normalized)}</strong>
+              <small>Confianza ${escapeHtml(derived.confidence)}</small>
+            </p>
+          `,
+        )
+        .join("")}
+      ${row.reading.issues
+        .map(
+          (issue) => `
+            <div class="inspector-ledger-issue">
+              <p><strong>Hallazgo:</strong> ${escapeHtml(issue.detail)}</p>
+              <p><strong>Siguiente acción:</strong> ${escapeHtml(issue.nextAction)}</p>
+            </div>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderLedger(model) {
+  return `
+    <div
+      class="inspector-ledger"
+      role="table"
+      aria-label="Contraste de compatibilidad por campo"
+      aria-rowcount="${model.ledger.length + 1}"
+      aria-colcount="4"
+    >
+      <div class="inspector-ledger-head" role="row">
+        <span role="columnheader">Campo</span>
+        <span role="columnheader">Fuente A</span>
+        <span role="columnheader">Fuente B</span>
+        <span role="columnheader">Lectura</span>
+      </div>
+      <div class="inspector-ledger-body" role="rowgroup">
+        ${model.ledger
+          .map(
+            (row, rowIndex) => `
+              <div
+                class="inspector-ledger-row"
+                id="${escapeAttr(row.id)}"
+                role="row"
+                tabindex="-1"
+                data-inspector-ledger-row="${escapeAttr(row.key)}"
+                data-inspector-ledger-blocking="${row.benchmarkBlocking ? "true" : "false"}"
+              >
+                <div class="inspector-ledger-cell inspector-ledger-field" role="rowheader">
+                  <span class="inspector-ledger-mobile-label">Campo</span>
+                  <span aria-hidden="true">${String(rowIndex + 1).padStart(2, "0")}</span>
+                  <strong>${escapeHtml(row.label)}</strong>
+                </div>
+                ${renderLedgerSource(row.sources[0], rowIndex, 0)}
+                ${renderLedgerSource(row.sources[1], rowIndex, 1)}
+                ${renderLedgerReading(row)}
+              </div>
+            `,
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderUnavailable(model) {
   return `
     <section class="inspector-view inspector-unavailable" data-inspector-state="unavailable">
@@ -1208,15 +1829,11 @@ export function renderInspectorModel(model) {
               <p class="inspector-module-help">Compara valores fuente por fuente y explica cada incompatibilidad</p>
             </div>
           </div>
-          <div
-            class="inspector-future-surface"
-            id="inspector-row-${escapeAttr(model.blockingRow.key)}"
-            tabindex="-1"
-          >
-            <span>Primer foco de revisión</span>
-            <strong>${escapeHtml(model.blockingRow.label)}</strong>
-            <p>La comparación detallada por filas se incorpora en el siguiente incremento.</p>
-          </div>
+          <p class="inspector-ledger-provenance">
+            Procedencia del expediente: <strong>${escapeHtml(model.provenance)}</strong>.
+            Los valores derivados se presentan únicamente en la lectura.
+          </p>
+          ${renderLedger(model)}
         </section>
 
         <section class="inspector-module inspector-viewer-shell" id="inspector-evidence-shell" aria-labelledby="inspector-viewer-title">
