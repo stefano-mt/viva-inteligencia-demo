@@ -107,7 +107,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** demostrar profundidad multifuente y detectar comparaciones engañosas.
 
-**Estado:** implementación P3-01–P3-13 completada; checker P3-14 `PASS`; P3-15 prepara memoria y PR funcional. Merge y verificación post-merge pendientes.
+**Estado:** implementación P3-01–P3-13 completada; checker P3-14 `PASS`; PR funcional #11 abierto como borrador mediante P3-15. Evidencia visual portable, revisión, merge y verificación post-merge pendientes.
 
 **Contrato implementado:** `2.2.0`, con índice `inspector` y registros autoritativos integrados en `model`; reader compatible con 2.0/2.1/2.2.
 

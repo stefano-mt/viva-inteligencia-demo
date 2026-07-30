@@ -6,7 +6,7 @@
 
 **Última fase completada:** Fase 2 — contexto, geografía y escenario
 
-**Estado:** Fases 0, 1 y 2 completadas. Fase 2 está `deployed and verified`. Fase 3 completó P3-01–P3-14 con veredicto independiente `PASS`; la memoria P3-15 está preparada y su versionado/PR funcional están pendientes. Merge, Pages y cierre post-merge permanecen pendientes.
+**Estado:** Fases 0, 1 y 2 completadas. Fase 2 está `deployed and verified`. Fase 3 completó P3-01–P3-14 con veredicto independiente `PASS`; P3-15 abrió el PR funcional [#11](https://github.com/stefano-mt/viva-inteligencia-demo/pull/11) como borrador. Capturas portables, revisión, merge, Pages y cierre post-merge permanecen pendientes.
 
 **Rama funcional autorizada:** `feat/phase-3-evidence-inspector`.
 
@@ -137,15 +137,17 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Checker P3-14: [VERIFICATION_REPORT.md](phases/03-evidence-inspector/VERIFICATION_REPORT.md), `PASS`.
 - Resumen: [SUMMARY.md](phases/03-evidence-inspector/SUMMARY.md).
 - Handoff: [HANDOFF.md](phases/03-evidence-inspector/HANDOFF.md).
-- P3-15: memoria preparada; versionado, push y PR funcional pendientes.
+- P3-15: memoria versionada; PR funcional #11 abierto como borrador.
+- Estado del PR al abrirlo: `MERGEABLE / CLEAN`, base `main`, compare `feat/phase-3-evidence-inspector`.
+- Gate de revisión pendiente: adjuntar capturas como GitHub user-attachments y confirmar el checklist humano.
 - Merge: humano y pendiente.
 - P3-16/P3-17: pendientes y bloqueados hasta el merge.
 - Estado de ship de Fase 3: **no desplegado ni verificado todavía**.
 
 ## Próxima acción recomendada
 
-1. Versionar y publicar los cinco documentos P3-15.
-2. Abrir el PR funcional de `feat/phase-3-evidence-inspector` contra `main`.
+1. Adjuntar evidencia visual portable al PR #11.
+2. Completar el checklist y convertir el borrador en listo para revisión.
 3. Solicitar revisión y merge humano.
 4. Ejecutar P3-16 contra GitHub Pages después del merge.
 5. Persistir el resultado mediante P3-17 en una rama y PR documental separados.

@@ -2,7 +2,7 @@
 
 **Fecha de cierre técnico:** 2026-07-30
 
-**Estado:** implementación y verificación independiente completadas; P3-15 prepara memoria y PR funcional; merge y verificación de GitHub Pages pendientes
+**Estado:** implementación y verificación independiente completadas; PR funcional [#11](https://github.com/stefano-mt/viva-inteligencia-demo/pull/11) abierto como borrador; capturas portables, revisión humana, merge y verificación de GitHub Pages pendientes
 
 **Veredicto independiente:** `PASS`
 
@@ -211,7 +211,8 @@ Ninguna nota altera el `PASS` ni requiere HUMAN-GATE-B.
 
 - Implementación P3-01–P3-13: completada.
 - Checker P3-14: `PASS`.
-- P3-15: memoria preparada; creación y enriquecimiento del PR funcional pendientes dentro de esta tarea.
+- P3-15: memoria versionada y PR funcional #11 abierto como borrador.
+- Gate previo a solicitar merge: adjuntar las capturas como GitHub user-attachments y completar revisión humana.
 - Merge: humano y pendiente.
 - P3-16: verificación read-only de GitHub Pages, pendiente y bloqueada hasta el merge.
 - P3-17: persistencia post-merge en rama/PR documental separados, pendiente.

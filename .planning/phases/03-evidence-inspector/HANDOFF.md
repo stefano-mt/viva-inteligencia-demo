@@ -2,7 +2,7 @@
 
 ## Estado
 
-`done técnico — PASS; memoria P3-15 preparada; PR funcional, merge y cierre de ship pendientes`
+`P3-15 done — PASS técnico; PR funcional #11 abierto como borrador; capturas portables, revisión, merge y cierre de ship pendientes`
 
 ## Resultado
 
@@ -125,11 +125,13 @@ Base: `main`.
 
 Compare: `feat/phase-3-evidence-inspector`.
 
-Título propuesto:
+PR: [#11 — feat: add evidence inspector and certified eligibility](https://github.com/stefano-mt/viva-inteligencia-demo/pull/11).
 
-```text
-feat: add evidence inspector and certified eligibility
-```
+Estado al crear este handoff: `OPEN / DRAFT / MERGEABLE / CLEAN`.
+
+HEAD observado al abrir el PR: `9a03bd9efba0f73c15a1cd9a7fa2e9ff676eee5f`. Este SHA integra `origin/main` sin cambiar el árbol verificado; el merge tree y `HEAD^{tree}` coincidieron en `b40c7d28620d26e62bdc728fd20eaee33dab991c`.
+
+Los commits posteriores a ese HEAD solo pueden actualizar los cinco documentos de P3-15. El revisor debe usar el HEAD que GitHub muestre en #11 como autoridad final.
 
 El PR debe incluir:
 
@@ -144,6 +146,8 @@ El PR debe incluir:
 - notas no bloqueantes;
 - condición de merge humano;
 - pasos P3-16/P3-17 posteriores al merge.
+
+El cuerpo del PR ya contiene historias, resultado, permisos, verificación, notas y checklist. Continúa como borrador hasta adjuntar evidencia visual portable.
 
 ## Instrucción al siguiente rol
 
