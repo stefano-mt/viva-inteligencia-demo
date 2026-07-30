@@ -1385,3 +1385,220 @@
     scroll-behavior: auto;
   }
 }
+
+/* P3-13: lectura robusta, reflow y foco inequívoco. */
+.inspector-view :where(
+    .inspector-selectors select,
+    .inspector-primary-action,
+    .inspector-metadata summary,
+    .inspector-future-surface,
+    .inspector-ledger-row,
+    .inspector-ledger-evidence,
+    .inspector-evidence-option,
+    .inspector-dialog-close,
+    .inspector-full-hash summary
+  ):focus-visible {
+  outline: 3px solid #ffffff !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 6px #202022 !important;
+}
+
+.inspector-dialog-close:focus {
+  outline: 3px solid #ffffff !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 6px #202022 !important;
+}
+
+.inspector-view :where(
+    .inspector-module-help,
+    .inspector-coverage-denominators,
+    .inspector-provenance,
+    .inspector-verdict-meta,
+    .inspector-viewer-index > p,
+    .inspector-dialog-header #inspector-evidence-description
+  ) {
+  font-size: 0.78rem;
+  line-height: 1.42;
+}
+
+.inspector-ledger-source-role,
+.inspector-ledger-field-name,
+.inspector-ledger-fact-state,
+.inspector-ledger-calculation > span,
+.inspector-ledger-inference > span,
+.inspector-ledger-derived > span {
+  font-size: 0.69rem;
+}
+
+.inspector-ledger-normalized,
+.inspector-ledger-origin,
+.inspector-ledger-issue p,
+.inspector-related-facts li span,
+.inspector-related-facts > p {
+  font-size: 0.72rem;
+}
+
+.inspector-ledger-origin strong,
+.inspector-ledger-calculation small,
+.inspector-ledger-inference small,
+.inspector-ledger-derived small,
+.inspector-evidence-option small,
+.inspector-evidence-asset figcaption,
+.inspector-evidence-custody dt {
+  font-size: 0.71rem;
+}
+
+.inspector-ledger-value strong,
+.inspector-ledger-calculation strong,
+.inspector-ledger-inference strong,
+.inspector-ledger-derived strong,
+.inspector-decision-summary strong {
+  font-variant-numeric: tabular-nums;
+}
+
+.inspector-step,
+.inspector-ledger-field > span:not(.inspector-ledger-mobile-label) {
+  color: var(--teal);
+}
+
+.inspector-ledger-shell > .inspector-ledger {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+@media (min-width: 901px) and (max-width: 1320px) {
+  .inspector-intro {
+    grid-template-columns: minmax(0, 1.75fr) minmax(230px, 0.7fr);
+    gap: 14px;
+    padding-bottom: 8px;
+  }
+
+  .inspector-intro h1 {
+    font-size: clamp(1.9rem, 3vw, 2.35rem);
+  }
+
+  .inspector-purpose {
+    margin-top: 4px;
+    font-size: 0.84rem;
+  }
+
+  .inspector-journey {
+    gap: 5px 12px;
+    padding-top: 7px;
+  }
+
+  .inspector-journey p {
+    font-size: 0.74rem;
+  }
+
+  .inspector-module {
+    grid-template-columns: minmax(190px, 0.5fr) minmax(0, 1.7fr);
+    gap: 14px;
+    padding-block: 7px;
+  }
+
+  .inspector-module::before {
+    top: 14px;
+  }
+
+  .inspector-module-help {
+    margin-top: 3px;
+  }
+
+  .inspector-depth-track li {
+    min-width: 96px;
+    padding: 5px 8px;
+  }
+
+  .inspector-depth-track strong,
+  .inspector-decision-summary strong {
+    font-size: 1.18rem;
+  }
+
+  .inspector-coverage-denominators {
+    margin-top: -5px;
+  }
+
+  .inspector-selectors {
+    gap: 8px;
+  }
+
+  .inspector-selectors label {
+    gap: 3px;
+  }
+
+  .inspector-selectors select {
+    min-height: 44px;
+  }
+
+  .inspector-verdict-body {
+    align-items: start;
+  }
+
+  .inspector-ledger-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .inspector-ledger-shell :where(
+      .inspector-module-heading,
+      .inspector-ledger-provenance,
+      .inspector-ledger
+    ) {
+    grid-column: 1;
+  }
+
+  .inspector-ledger-shell .inspector-ledger-provenance {
+    margin-top: 0;
+  }
+
+  .inspector-ledger {
+    --inspector-ledger-field-min: 122px;
+  }
+}
+
+@media (max-width: 760px) {
+  .inspector-selectors {
+    grid-template-columns: 1fr;
+  }
+
+  .inspector-ledger-row {
+    scroll-margin-top: 72px;
+  }
+
+  .inspector-ledger-cell {
+    padding: 11px 12px;
+  }
+
+  .inspector-ledger-source,
+  .inspector-ledger-reading {
+    gap: 7px;
+  }
+
+  .inspector-ledger-origin {
+    padding-top: 6px;
+  }
+}
+
+@media (max-width: 620px) {
+  .inspector-intro h1 {
+    font-size: clamp(1.75rem, 9vw, 2rem);
+  }
+
+  .inspector-purpose {
+    font-size: 0.9rem;
+  }
+
+  .inspector-module-help,
+  .inspector-viewer-index > p {
+    max-width: none;
+  }
+
+  .inspector-dialog-header #inspector-evidence-description {
+    font-size: 0.78rem;
+  }
+
+  .inspector-dialog-close {
+    width: 48px;
+    height: 48px;
+  }
+}
