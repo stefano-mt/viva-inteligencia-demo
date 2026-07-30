@@ -7,6 +7,13 @@ import { createObservedPage, openRoute, routes, viewports, withDemoBrowser } fro
 const evidenceDir = process.env.EVIDENCE_DIR ? path.resolve(process.env.EVIDENCE_DIR) : null;
 const hashes = {};
 
+assert.deepEqual(
+  routes.map(({ id }) => id),
+  ["dashboard", "projects", "inspector", "market", "compare", "trust", "assistant", "activity"],
+  "El smoke debe congelar las siete vistas previas y el inspector",
+);
+assert.equal(viewports.length, 3, "El smoke debe cubrir desktop, laptop y mobile");
+
 await withDemoBrowser(async ({ browser, baseUrl }) => {
   for (const viewport of viewports) {
     const context = await browser.newContext({ viewport });

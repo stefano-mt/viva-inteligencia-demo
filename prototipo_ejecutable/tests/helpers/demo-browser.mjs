@@ -1,5 +1,7 @@
 import { spawn } from "node:child_process";
 import fs from "node:fs";
+import fsPromises from "node:fs/promises";
+import http from "node:http";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -10,11 +12,23 @@ const { chromium } = require("playwright");
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_DIR = path.resolve(TEST_DIR, "..", "..");
+const PUBLIC_DIR = path.join(PROJECT_DIR, "public");
 const SERVER_FILE = path.join(PROJECT_DIR, "server-static.js");
+const contentTypes = new Map([
+  [".css", "text/css; charset=utf-8"],
+  [".html", "text/html; charset=utf-8"],
+  [".jpg", "image/jpeg"],
+  [".js", "text/javascript; charset=utf-8"],
+  [".json", "application/json; charset=utf-8"],
+  [".png", "image/png"],
+  [".svg", "image/svg+xml"],
+  [".webp", "image/webp"],
+]);
 
 export const routes = [
   { id: "dashboard", title: "Radar comercial" },
   { id: "projects", title: "Proyectos comparables" },
+  { id: "inspector", title: "Inspector de evidencia" },
   { id: "market", title: "Benchmark distrital" },
   { id: "compare", title: "Comparador estratégico" },
   { id: "trust", title: "Checklist comercial" },
@@ -28,20 +42,24 @@ export const viewports = [
   { name: "mobile", width: 390, height: 844 },
 ];
 
-export async function withDemoBrowser(run) {
-  const port = Number(process.env.TEST_PORT ?? 4177);
-  const baseUrl = process.env.BASE_URL ?? `http://127.0.0.1:${port}`;
+export async function withDemoBrowser(run, options = {}) {
+  const port = Number(options.port ?? process.env.TEST_PORT ?? 4177);
+  const basePath = normalizeBasePath(options.basePath ?? process.env.TEST_BASE_PATH ?? "");
+  const origin = `http://127.0.0.1:${port}`;
+  const baseUrl = process.env.BASE_URL ?? `${origin}${basePath}`;
   const ownsServer = !process.env.BASE_URL;
-  const server = ownsServer
-    ? spawn(process.execPath, [SERVER_FILE], {
+  const server = !ownsServer
+    ? null
+    : basePath
+      ? await startPagesStyleServer({ port, basePath })
+      : spawn(process.execPath, [SERVER_FILE], {
         cwd: PROJECT_DIR,
         env: { ...process.env, PORT: String(port) },
         stdio: ["ignore", "pipe", "pipe"],
-      })
-    : null;
+      });
 
   try {
-    if (server) await waitForServer(baseUrl, server);
+    if (server?.stderr) await waitForServer(baseUrl, server);
     const executablePath = [
       process.env.PLAYWRIGHT_CHROME_PATH,
       chromium.executablePath(),
@@ -55,16 +73,25 @@ export async function withDemoBrowser(run) {
       await browser.close();
     }
   } finally {
-    if (server && !server.killed) server.kill();
+    await stopServer(server);
   }
 }
 
 export async function createObservedPage(context, baseUrl) {
   const page = await context.newPage();
+  const requests = [];
+  page.on("request", (request) => {
+    requests.push({
+      method: request.method(),
+      resourceType: request.resourceType(),
+      url: request.url(),
+    });
+  });
   return {
     page,
     problems: observePage(page),
     externalRequests: await guardSameOrigin(page, baseUrl),
+    requests,
   };
 }
 
@@ -85,7 +112,11 @@ export function observePage(page) {
 
 export async function guardSameOrigin(page, baseUrl) {
   const externalRequests = [];
-  const allowedOrigin = new URL(baseUrl).origin;
+  const allowedBaseUrl = new URL(baseUrl);
+  const allowedOrigin = allowedBaseUrl.origin;
+  const allowedPath = allowedBaseUrl.pathname.endsWith("/")
+    ? allowedBaseUrl.pathname
+    : `${allowedBaseUrl.pathname}/`;
 
   await page.route("**/*", async (route) => {
     const request = route.request();
@@ -99,7 +130,8 @@ export async function guardSameOrigin(page, baseUrl) {
 
     if (
       (requestUrl.protocol === "http:" || requestUrl.protocol === "https:") &&
-      requestUrl.origin !== allowedOrigin
+      (requestUrl.origin !== allowedOrigin ||
+        (allowedPath !== "/" && !requestUrl.pathname.startsWith(allowedPath)))
     ) {
       externalRequests.push(`${request.method()} ${request.url()}`);
       await route.abort("blockedbyclient");
@@ -124,6 +156,70 @@ export async function openPath(page, baseUrl, relativeUrl) {
   await page.addStyleTag({
     content: "*, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }",
   });
+}
+
+function normalizeBasePath(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw || raw === "/") return "";
+  return `/${raw.replace(/^\/+|\/+$/gu, "")}/`;
+}
+
+async function startPagesStyleServer({ port, basePath }) {
+  const server = http.createServer(async (request, response) => {
+    try {
+      const url = new URL(request.url, `http://${request.headers.host}`);
+      const baseWithoutSlash = basePath.slice(0, -1);
+      if (url.pathname !== baseWithoutSlash && !url.pathname.startsWith(basePath)) {
+        return send(response, 404, "Not found", "text/plain; charset=utf-8");
+      }
+      const relativePath =
+        url.pathname === baseWithoutSlash || url.pathname === basePath
+          ? "index.html"
+          : url.pathname.slice(basePath.length);
+      const filePath = path.resolve(PUBLIC_DIR, relativePath);
+      const relativeToPublic = path.relative(PUBLIC_DIR, filePath);
+      if (relativeToPublic.startsWith("..") || path.isAbsolute(relativeToPublic)) {
+        return send(response, 403, "Forbidden", "text/plain; charset=utf-8");
+      }
+      const data = await fsPromises.readFile(filePath);
+      return send(
+        response,
+        200,
+        data,
+        contentTypes.get(path.extname(filePath).toLowerCase()) ?? "application/octet-stream",
+      );
+    } catch (error) {
+      if (error.code === "ENOENT") {
+        return send(response, 404, "Not found", "text/plain; charset=utf-8");
+      }
+      return send(response, 500, error.message, "text/plain; charset=utf-8");
+    }
+  });
+  await new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(port, "127.0.0.1", resolve);
+  });
+  return server;
+}
+
+async function stopServer(server) {
+  if (!server) return;
+  if (typeof server.close === "function" && !server.kill) {
+    await new Promise((resolve, reject) => {
+      server.close((error) => (error ? reject(error) : resolve()));
+    });
+    return;
+  }
+  if (server.exitCode !== null || server.killed) return;
+  await new Promise((resolve) => {
+    server.once("exit", resolve);
+    server.kill();
+  });
+}
+
+function send(response, status, body, contentType) {
+  response.writeHead(status, { "content-type": contentType });
+  response.end(body);
 }
 
 async function waitForServer(baseUrl, server) {

@@ -166,6 +166,42 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.deepEqual(mapIds, sorted(descriptor.expected.display_project_ids), "El mapa debe mostrar el set observado CT-C");
   assert.deepEqual(selectIds, mapIds, "Mapa y select nativo deben exponer los mismos IDs observados");
 
+  const ctCTerritorialPath = await page.evaluate(
+    () => `${window.location.pathname}${window.location.search}`,
+  );
+  await page.locator('[data-view="inspector"]').first().click();
+  await waitForActiveRoute(page, "inspector", {
+    baseUrl,
+    expectedPath: pathForRoute(descriptor.canonical_path, "inspector"),
+  });
+  assert.equal(
+    await page.evaluate(() => `${window.location.pathname}${window.location.search}`),
+    ctCTerritorialPath,
+    "Abrir el inspector no debe cambiar la query territorial CT-C",
+  );
+  const pendingEvidence = page.locator(
+    '.inspector-evidence-option[data-inspector-evidence="evidence:pardo-coast-card-metadata"]',
+  );
+  await pendingEvidence.click();
+  await page.locator("#inspector-evidence-dialog[open]").waitFor({ state: "visible" });
+  await page.locator("#inspector-dialog-close").click();
+  await page.locator("#inspector-evidence-dialog").waitFor({ state: "detached" });
+  assert.equal(
+    await page.evaluate(() => `${window.location.pathname}${window.location.search}`),
+    ctCTerritorialPath,
+    "Abrir y cerrar evidencia no debe cambiar la query territorial CT-C",
+  );
+  await page.locator('[data-view="dashboard"]').first().click();
+  await waitForActiveRoute(page, "dashboard", {
+    baseUrl,
+    expectedPath: descriptor.canonical_path,
+  });
+  assert.deepEqual(
+    await uniqueAttributeValues(page.locator("[data-geo-point-id]"), "data-geo-point-id"),
+    mapIds,
+    "Entrar y salir del inspector no debe cambiar los IDs observados CT-C",
+  );
+
   await page.reload({ waitUntil: "networkidle" });
   await page.locator("#main-content").waitFor({ state: "visible" });
   await assertCurrentPath(page, baseUrl, descriptor.canonical_path, "Reload debe reproducir la URL CT-C");
@@ -263,6 +299,10 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     "data-canonical-project-id",
   );
   assert.equal(baselineCompareIds.length, 85, "CT-I debe contener 85 IDs canónicos comparables");
+  assert.ok(
+    baselineCompareIds.includes("project:nexo-2951"),
+    "CT-I debe conservar project:nexo-2951 en el universo territorial",
+  );
 
   await openPath(page, baseUrl, "/#projects");
   await expandProjectCatalog(page);
