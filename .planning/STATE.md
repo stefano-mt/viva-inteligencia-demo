@@ -4,11 +4,11 @@
 
 **Milestone:** demo vNext orientada a venta
 
-**Última fase completada:** Fase 2 — contexto, geografía y escenario
+**Última fase completada:** Fase 3 — ficha, evidencia e inspector
 
-**Estado:** Fases 0, 1 y 2 completadas. Fase 2 está `deployed and verified`. Fase 3 completó P3-01–P3-14 con veredicto independiente `PASS`; P3-15 abrió el PR funcional [#11](https://github.com/stefano-mt/viva-inteligencia-demo/pull/11) como borrador. Capturas portables, revisión, merge, Pages y cierre post-merge permanecen pendientes.
+**Estado:** Fases 0, 1, 2 y 3 completadas. Fase 3 está técnicamente `deployed and verified` para el merge `cc51769fbc4c0be270fc48295b8a604db0382378`: P3-16 obtuvo `PASS` en GitHub Pages. Este cierre debe fusionarse mediante el PR documental de P3-17 para quedar vigente en `main`.
 
-**Rama funcional autorizada:** `feat/phase-3-evidence-inspector`.
+**Rama documental activa:** `docs/phase-3-postmerge-report`.
 
 ## Baseline vigente
 
@@ -67,6 +67,11 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Rama: `feat/phase-3-evidence-inspector`.
 - HEAD funcional verificado por P3-14: `c35646f1adfb4a0603c5838e32af6119ca5f66a1`.
 - Informe P3-14: `599d619`; veredicto `PASS`.
+- PR funcional: [#11](https://github.com/stefano-mt/viva-inteligencia-demo/pull/11), fusionado el `2026-07-30T21:38:19Z`.
+- Head final del PR funcional: `a9feb0590f1d45c45f65541878441c6cab821281`.
+- SHA del merge funcional, desplegado y verificado: `cc51769fbc4c0be270fc48295b8a604db0382378`.
+- Workflow Pages: [run 30584187019](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/30584187019), `success`.
+- GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
 - Contrato de datos en la rama: `2.2.0`; reader compatible con 2.0/2.1/2.2.
 - Dataset: `dataset:viva-platform-demo-2026-07-28`.
 - JSON público: 3,656,852 bytes; SHA-256 `9cf407c091fbb03b7d489e39079de57fd84af3fe16dc82b8ed559a7eda84646c`.
@@ -80,6 +85,10 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Lector comercial nuevo: PASS en `00:01:28.548`.
 - Graphify F3: 2,605 nodos y 5,120 relaciones; sin ciclo o hub nuevo bloqueante.
 - HUMAN-GATE-B: no requerido porque P3-14 emitió `PASS`.
+- P3-16: **PASS** el `2026-07-30T16:44:37-05:00`.
+- Checker post-merge independiente: `/root/phase3_checker`.
+- CT-D/CT-G, activos permitidos, permisos, escritorio, móvil, zoom 200%, consola y red: PASS.
+- Informe post-merge: [phases/03-evidence-inspector/POSTMERGE_REPORT.md](phases/03-evidence-inspector/POSTMERGE_REPORT.md).
 
 ## Decisiones vigentes de datos
 
@@ -137,20 +146,17 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Checker P3-14: [VERIFICATION_REPORT.md](phases/03-evidence-inspector/VERIFICATION_REPORT.md), `PASS`.
 - Resumen: [SUMMARY.md](phases/03-evidence-inspector/SUMMARY.md).
 - Handoff: [HANDOFF.md](phases/03-evidence-inspector/HANDOFF.md).
-- P3-15: memoria versionada; PR funcional #11 abierto como borrador.
-- Estado del PR al abrirlo: `MERGEABLE / CLEAN`, base `main`, compare `feat/phase-3-evidence-inspector`.
-- Gate de revisión pendiente: adjuntar capturas como GitHub user-attachments y confirmar el checklist humano.
-- Merge: humano y pendiente.
-- P3-16/P3-17: pendientes y bloqueados hasta el merge.
-- Estado de ship de Fase 3: **no desplegado ni verificado todavía**.
+- P3-15: memoria versionada y evidencia portable adjunta; PR funcional #11 revisado y fusionado por un humano.
+- Merge funcional: `cc51769fbc4c0be270fc48295b8a604db0382378`.
+- GitHub Pages: desplegado y verificado mediante el run `30584187019`.
+- P3-16: `PASS`; contrato `2.2.0`, CT-D, CT-G, quince activos autorizados y permisos verificados en la URL pública.
+- P3-17: resultado persistido en `POSTMERGE_REPORT.md` y este estado mediante una rama/PR documental separados.
+- Estado de ship de Fase 3: **`deployed and verified`**, pendiente únicamente del merge humano de la memoria documental P3-17.
 
 ## Próxima acción recomendada
 
-1. Adjuntar evidencia visual portable al PR #11.
-2. Completar el checklist y convertir el borrador en listo para revisión.
-3. Solicitar revisión y merge humano.
-4. Ejecutar P3-16 contra GitHub Pages después del merge.
-5. Persistir el resultado mediante P3-17 en una rama y PR documental separados.
+1. Revisar y fusionar por decisión humana el PR documental de P3-17.
+2. Iniciar Fase 4 únicamente mediante contexto, especificación, plan y gates propios.
 
 ## Regla para actualizar este archivo
 
