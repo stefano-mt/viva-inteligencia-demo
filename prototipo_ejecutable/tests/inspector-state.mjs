@@ -455,11 +455,21 @@ const documentListeners = new Map();
 const windowListeners = new Map();
 const focusLog = [];
 const elements = new Map();
+let activeElement = null;
 const element = (id) => ({
   id,
   textContent: "",
+  disabled: false,
+  hidden: false,
+  getAttribute() {
+    return null;
+  },
+  getClientRects() {
+    return [{}];
+  },
   focus() {
     focusLog.push(id);
+    activeElement = this;
   },
 });
 for (const id of [
@@ -467,12 +477,39 @@ for (const id of [
   "evidence-trigger",
   "evidence-trigger-b",
   "inspector-dialog-close",
+  "inspector-dialog-summary",
+  "inspector-dialog-hidden-summary",
   "inspector-evidence-dialog",
   "inspector-primary-action",
   "inspector-case-selector",
 ]) {
   elements.set(id, element(id));
 }
+const evidenceDialog = elements.get("inspector-evidence-dialog");
+evidenceDialog.open = false;
+evidenceDialog.showModalCount = 0;
+evidenceDialog.closeCount = 0;
+evidenceDialog.listeners = [];
+evidenceDialog.addEventListener = function addEventListener(type, listener) {
+  this.listeners.push({ type, listener });
+};
+evidenceDialog.showModal = function showModal() {
+  this.showModalCount += 1;
+  this.open = true;
+};
+evidenceDialog.close = function close() {
+  this.closeCount += 1;
+  this.open = false;
+};
+let dialogFocusableElements = [elements.get("inspector-dialog-close")];
+evidenceDialog.querySelectorAll = function querySelectorAll(selector) {
+  this.lastFocusableSelector = selector;
+  return dialogFocusableElements;
+};
+evidenceDialog.contains = function contains(candidate) {
+  return candidate === this || dialogFocusableElements.includes(candidate);
+};
+elements.get("inspector-dialog-hidden-summary").hidden = true;
 const persistentPresetControl = {
   id: "persistent-preset-control",
   tagName: "BUTTON",
@@ -503,6 +540,9 @@ globalThis.window = {
   },
 };
 globalThis.document = {
+  get activeElement() {
+    return activeElement;
+  },
   querySelectorAll(selector) {
     return selector === "[data-inspector-preset]"
       ? [persistentPresetControl]
@@ -540,6 +580,16 @@ assert.equal(
   1,
   "a persistent inspector control must bind exactly once",
 );
+assert.equal(
+  evidenceDialog.listeners.filter(({ type }) => type === "cancel").length,
+  1,
+  "the dialog cancel handler must bind exactly once per element",
+);
+assert.equal(
+  evidenceDialog.listeners.filter(({ type }) => type === "keydown").length,
+  1,
+  "the dialog focus trap must bind exactly once per element",
+);
 
 initializeInspectorState(payload.inspector);
 const invalidDefaultRenderBefore = renderCount;
@@ -571,6 +621,70 @@ assert.equal(controllerOpen.changed, true);
 assert.equal(renderCount, openRenderBefore + 1);
 assert.ok(elements.get("inspector-live").textContent);
 assert.equal(focusLog.at(-1), "inspector-dialog-close");
+assert.equal(evidenceDialog.showModalCount, 1);
+assert.equal(evidenceDialog.open, true);
+
+const keydownListener = evidenceDialog.listeners.find(
+  ({ type }) => type === "keydown",
+).listener;
+const pressDialogTab = ({ shiftKey = false } = {}) => {
+  let prevented = 0;
+  keydownListener({
+    key: "Tab",
+    shiftKey,
+    preventDefault() {
+      prevented += 1;
+    },
+  });
+  if (prevented === 0) {
+    const visibleElements = dialogFocusableElements.filter(
+      (candidate) => !candidate.hidden && !candidate.disabled,
+    );
+    const activeIndex = visibleElements.indexOf(activeElement);
+    const nextIndex = shiftKey ? activeIndex - 1 : activeIndex + 1;
+    visibleElements[nextIndex]?.focus();
+  }
+  return prevented;
+};
+
+elements.get("inspector-dialog-close").focus();
+assert.equal(pressDialogTab(), 1);
+assert.equal(activeElement, elements.get("inspector-dialog-close"));
+assert.equal(pressDialogTab({ shiftKey: true }), 1);
+assert.equal(activeElement, elements.get("inspector-dialog-close"));
+
+dialogFocusableElements = [
+  elements.get("inspector-dialog-close"),
+  elements.get("inspector-dialog-summary"),
+  elements.get("inspector-dialog-hidden-summary"),
+];
+elements.get("inspector-dialog-close").focus();
+assert.equal(pressDialogTab(), 0, "native Tab must advance to the summary");
+assert.equal(activeElement, elements.get("inspector-dialog-summary"));
+assert.equal(pressDialogTab(), 1, "Tab on the summary must wrap to close");
+assert.equal(activeElement, elements.get("inspector-dialog-close"));
+assert.ok(evidenceDialog.contains(activeElement), "Tab focus must remain in dialog");
+assert.equal(
+  pressDialogTab({ shiftKey: true }),
+  1,
+  "Shift+Tab on the first control must wrap",
+);
+assert.equal(activeElement, elements.get("inspector-dialog-summary"));
+assert.equal(
+  pressDialogTab({ shiftKey: true }),
+  0,
+  "native Shift+Tab must return from summary to close",
+);
+assert.equal(activeElement, elements.get("inspector-dialog-close"));
+assert.ok(
+  evidenceDialog.contains(activeElement),
+  "Shift+Tab focus must remain in dialog",
+);
+assert.match(
+  evidenceDialog.lastFocusableSelector,
+  /summary/u,
+  "the focusable selector must include native summary controls",
+);
 
 const reopenRenderBefore = renderCount;
 openInspectorEvidence("evidence:pardo-coast-card-metadata", {
@@ -578,12 +692,25 @@ openInspectorEvidence("evidence:pardo-coast-card-metadata", {
 });
 assert.equal(renderCount, reopenRenderBefore, "reopen must not render unchanged state");
 assert.equal(focusLog.at(-1), "inspector-dialog-close");
+assert.equal(
+  evidenceDialog.showModalCount,
+  1,
+  "an already modal dialog must not call showModal again",
+);
 
 const closeRenderBefore = renderCount;
-closeInspectorEvidence();
+let cancelPrevented = 0;
+evidenceDialog.listeners.find(({ type }) => type === "cancel").listener({
+  preventDefault() {
+    cancelPrevented += 1;
+  },
+});
 assert.equal(renderCount, closeRenderBefore + 1);
 assert.equal(focusLog.at(-1), "evidence-trigger");
 assert.ok(elements.get("inspector-live").textContent);
+assert.equal(cancelPrevented, 1, "native cancel must be intercepted");
+assert.equal(evidenceDialog.open, false);
+assert.equal(evidenceDialog.closeCount, 1);
 
 openInspectorEvidence(null, { focusId: "evidence-trigger" });
 initializeScenarioData(payload);
@@ -713,6 +840,12 @@ assert.ok(controllerSource.includes("data-inspector-project"));
 assert.ok(controllerSource.includes("data-inspector-typology"));
 assert.ok(controllerSource.includes("data-inspector-preset"));
 assert.ok(controllerSource.includes("data-inspector-evidence"));
+assert.match(controllerSource, /\bdialog\.showModal\(\)/u);
+assert.match(controllerSource, /addEventListener\?\.\("cancel"/u);
+assert.match(controllerSource, /addEventListener\?\.\("keydown"/u);
+assert.match(controllerSource, /event\.key !== "Tab"/u);
+assert.match(controllerSource, /inspectorDialogFocusableElements/u);
+assert.match(controllerSource, /event\.preventDefault\(\)/u);
 assert.equal(
   (controllerSource.match(/let inspectorRestoreFocusId = null;/gu) ?? [])
     .length,

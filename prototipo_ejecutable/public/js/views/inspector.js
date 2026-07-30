@@ -23,6 +23,50 @@ const PROVENANCE_LABELS = Object.freeze({
   simulated: "Simulado",
 });
 
+const EXTRACTION_METHOD_LABELS = Object.freeze({
+  controlled_transcription: "Transcripción controlada",
+  user_provided_metadata_only: "Metadatos proporcionados por el usuario",
+  user_provided_screenshot_transcription:
+    "Transcripción de captura proporcionada por el usuario",
+  user_provided_image_manual_transcription:
+    "Transcripción manual de imagen proporcionada por el usuario",
+  controlled_fixture: "Dato controlado de demostración",
+  controlled_absence: "Ausencia controlada",
+  controlled_illegible: "Contenido ilegible controlado",
+  controlled_illegible_field: "Campo ilegible controlado",
+  deterministic_derivation: "Derivación determinista",
+});
+
+const CONFIDENCE_LABELS = Object.freeze({
+  high: "alta",
+  low: "baja",
+  unknown: "desconocida",
+});
+
+const FIELD_LABELS = Object.freeze({
+  air_conditioning: "Aire acondicionado",
+  area_source_delta: "Diferencia de área entre fuentes",
+  area_source_delta_percent: "Diferencia porcentual de área entre fuentes",
+  bathrooms: "Baños",
+  bedrooms: "Dormitorios",
+  built_area: "Área construida",
+  countertop_material: "Material de la cubierta",
+  floor_label: "Piso publicado",
+  free_area: "Área libre",
+  inferred_floor_max: "Piso máximo inferido",
+  inferred_floor_min: "Piso mínimo inferido",
+  list_price: "Precio de lista",
+  list_price_source_delta: "Diferencia de precio entre fuentes",
+  list_price_source_delta_percent:
+    "Diferencia porcentual de precio entre fuentes",
+  published_area: "Área publicada",
+  scenario_price: "Precio del escenario",
+  scenario_price_per_built_m2: "Precio por m² construido del escenario",
+  scenario_price_per_total_m2: "Precio por m² total del escenario",
+  total_area: "Área total",
+  unit_range: "Rango de unidades",
+});
+
 const PRESET_OPTIONS = Object.freeze([
   Object.freeze({
     value: "inconsistent",
@@ -56,6 +100,32 @@ const SOURCE_TYPE_LABELS = Object.freeze({
   portal: "Portal público",
   user_provided: "Aporte del usuario",
 });
+
+const EVIDENCE_MODE_LABELS = Object.freeze({
+  asset: "Original autorizado",
+  fragment: "Fragmento autorizado",
+  controlled_transcription: "Transcripción controlada",
+  restricted: "Evidencia restringida",
+  pending: "Permiso pendiente",
+  unavailable: "Evidencia no disponible",
+});
+
+const DOCUMENT_TYPE_LABELS = Object.freeze({
+  card: "Tarjeta",
+  plan: "Recurso visual",
+  specification: "Especificación",
+  measurement: "Medición",
+  source: "Fuente",
+});
+
+const AUTHORIZED_ASSET_MEDIA_TYPES = new Set(["image/webp"]);
+const FULL_HASH_MODES = new Set([
+  "asset",
+  "fragment",
+  "controlled_transcription",
+]);
+const CONTROLLED_REPRESENTATION_WARNING =
+  "Representación controlada para demo; no es el documento original.";
 
 function toArray(value) {
   return Array.isArray(value) ? value : [];
@@ -108,6 +178,245 @@ function captureDateLabel(value) {
 
 function countedNoun(count, singular, plural) {
   return `${formatNumber(count)} ${count === 1 ? singular : plural}`;
+}
+
+function readableFieldName(value) {
+  if (FIELD_LABELS[value]) return FIELD_LABELS[value];
+  const words = String(value ?? "")
+    .trim()
+    .replaceAll("_", " ");
+  return words
+    ? `${words[0].toLocaleUpperCase("es-PE")}${words.slice(1)}`
+    : "Campo relacionado";
+}
+
+function extractionMethodLabel(value) {
+  return EXTRACTION_METHOD_LABELS[value] ?? "Método no informado";
+}
+
+function confidenceLabel(value) {
+  return CONFIDENCE_LABELS[value] ?? CONFIDENCE_LABELS.unknown;
+}
+
+function validSha256(value) {
+  const hash = String(value ?? "");
+  return /^[a-f0-9]{64}$/u.test(hash) ? hash : null;
+}
+
+function evidenceHash({ evidence, documentRecord, mode }) {
+  const hash =
+    validSha256(evidence.sha256) ?? validSha256(documentRecord.sha256);
+  if (!hash) return null;
+  const canRevealFull =
+    FULL_HASH_MODES.has(mode) &&
+    evidence.publish_permission === "authorized" &&
+    documentRecord.publish_permission === "authorized";
+  return {
+    abbreviated: `${hash.slice(0, 8)}…`,
+    full: canRevealFull ? hash : null,
+  };
+}
+
+function finiteRegionNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function normalizedEvidenceRegion(region, asset) {
+  if (!region || typeof region !== "object" || Array.isArray(region)) {
+    return null;
+  }
+  const x = finiteRegionNumber(region.x);
+  const y = finiteRegionNumber(region.y);
+  const width = finiteRegionNumber(region.width);
+  const height = finiteRegionNumber(region.height);
+  if (
+    x === null ||
+    y === null ||
+    width === null ||
+    height === null ||
+    x < 0 ||
+    y < 0 ||
+    width <= 0 ||
+    height <= 0
+  ) {
+    return null;
+  }
+
+  let scaleWidth = 1;
+  let scaleHeight = 1;
+  if (region.coordinate_space === "pixels") {
+    scaleWidth = finiteRegionNumber(asset?.width);
+    scaleHeight = finiteRegionNumber(asset?.height);
+    if (
+      scaleWidth === null ||
+      scaleHeight === null ||
+      scaleWidth <= 0 ||
+      scaleHeight <= 0
+    ) {
+      return null;
+    }
+  } else if (region.coordinate_space !== "normalized") {
+    return null;
+  }
+
+  if (x + width > scaleWidth || y + height > scaleHeight) return null;
+  return {
+    left: (x / scaleWidth) * 100,
+    top: (y / scaleHeight) * 100,
+    width: (width / scaleWidth) * 100,
+    height: (height / scaleHeight) * 100,
+  };
+}
+
+function authorizedAssetManifestEntry({
+  inspector,
+  documentRecord,
+  evidence,
+  presentation,
+}) {
+  const matches = toArray(inspector?.assets).filter(
+    ({ document_id: documentId }) =>
+      documentId === documentRecord.document_id,
+  );
+  if (matches.length !== 1) return null;
+  const asset = matches[0];
+  const documentHash = validSha256(documentRecord.sha256);
+  const evidenceHashValue = validSha256(evidence.sha256);
+  const assetHash = validSha256(asset.sha256);
+  if (
+    asset.logical_path !== documentRecord.public_asset_path ||
+    asset.logical_path !== presentation.publicUrl ||
+    asset.publish_permission !== "authorized" ||
+    !AUTHORIZED_ASSET_MEDIA_TYPES.has(asset.media_type) ||
+    !documentHash ||
+    !evidenceHashValue ||
+    !assetHash ||
+    documentHash !== evidenceHashValue ||
+    assetHash !== documentHash
+  ) {
+    return null;
+  }
+  return asset;
+}
+
+function evidenceContext(dossier, inspector, evidenceId) {
+  if (typeof evidenceId !== "string" || !evidenceId) return null;
+  const evidence = dossier.evidence.find(
+    ({ evidence_id: candidateId }) => candidateId === evidenceId,
+  );
+  if (!evidence) return null;
+  const documentRecord = dossier.documents.find(
+    ({ document_id: documentId }) =>
+      documentId === evidence.document_id,
+  );
+  const observation = dossier.observations.find(
+    ({ observation_id: observationId }) =>
+      observationId === evidence.observation_id,
+  );
+  if (!documentRecord || !observation) return null;
+  if (
+    !Array.isArray(observation.evidence_ids) ||
+    !observation.evidence_ids.includes(evidence.evidence_id)
+  ) {
+    return null;
+  }
+  const source = dossier.sources.find(
+    ({ source_id: sourceId }) => sourceId === observation.source_id,
+  );
+  if (!source || documentRecord.source_id !== source.source_id) return null;
+  const presentation = resolveEvidencePresentation({
+    document: documentRecord,
+    evidence,
+  });
+  const mode = presentation.mode;
+  const asset =
+    mode === "asset"
+      ? authorizedAssetManifestEntry({
+          inspector,
+          documentRecord,
+          evidence,
+          presentation,
+        })
+      : null;
+  if (mode === "asset" && !asset) return null;
+  const contentAllowed = [
+    "fragment",
+    "controlled_transcription",
+  ].includes(mode);
+  const region =
+    mode === "asset"
+      ? normalizedEvidenceRegion(evidence.region, asset)
+      : null;
+  return {
+    safe: true,
+    evidenceId: evidence.evidence_id,
+    mode,
+    modeLabel: EVIDENCE_MODE_LABELS[mode] ?? "Estado de evidencia",
+    title: documentRecord.title || "Evidencia sin título",
+    type:
+      DOCUMENT_TYPE_LABELS[documentRecord.document_type] ??
+      documentRecord.document_type ??
+      "Tipo no informado",
+    capturedAt:
+      evidence.captured_at ??
+      documentRecord.captured_at ??
+      observation.captured_at ??
+      null,
+    capturedLabel: captureDateLabel(
+      evidence.captured_at ??
+        documentRecord.captured_at ??
+        observation.captured_at,
+    ),
+    source: source.name || "Fuente no informada",
+    method: extractionMethodLabel(observation.extraction_method),
+    page: Number.isInteger(evidence.page) && evidence.page > 0
+      ? evidence.page
+      : null,
+    hash: evidenceHash({ evidence, documentRecord, mode }),
+    provenance: provenanceLabel(
+      dossier.inspectorCase.provenance_classification,
+    ),
+    relatedFacts: dossier.facts
+      .filter(
+        ({ observation_id: observationId }) =>
+          observationId === observation.observation_id,
+      )
+      .map((fact) => ({
+        id: fact.fact_id,
+        field: readableFieldName(fact.field_name),
+        confidence: confidenceLabel(fact.confidence),
+        qualityStatus: fact.quality_status,
+      })),
+    publicUrl: mode === "asset" ? presentation.publicUrl : null,
+    content: contentAllowed ? evidence.fragment : null,
+    controlledRepresentation:
+      (["asset", "fragment", "controlled_transcription"].includes(mode) &&
+        dossier.inspectorCase.provenance_classification === "controlled") ||
+      asset?.provenance === "controlled_original",
+    reason: presentation.reason,
+    region,
+  };
+}
+
+function buildEvidenceOptions(dossier, inspector) {
+  return dossier.evidence.map((evidence, index) => {
+    const context = evidenceContext(
+      dossier,
+      inspector,
+      evidence.evidence_id,
+    );
+    if (!context) {
+      throw new Error("Evidence option ownership is invalid");
+    }
+    return {
+      id: evidence.evidence_id,
+      controlId: `inspector-evidence-option-${index + 1}`,
+      label: context.title,
+      mode: context.mode,
+      modeLabel: context.modeLabel,
+    };
+  });
 }
 
 function buildProjectOptions(data, selectedProjectId) {
@@ -274,6 +583,8 @@ export function buildInspectorViewModel({
   projectId,
   typologyId,
   preset = null,
+  evidenceId = null,
+  dialogOpen = false,
 } = {}) {
   if (!data?.model || !data?.inspector || !data?.pilot?.counts) {
     return unavailableModel(
@@ -314,6 +625,15 @@ export function buildInspectorViewModel({
       !dossier.decision.benchmarkEligible
         ? "El proyecto permanece en la lectura territorial; esta tipología y sus hechos incompatibles quedan fuera del benchmark certificado."
         : null;
+    const viewer = evidenceContext(
+      dossier,
+      data.inspector,
+      evidenceId,
+    );
+    const evidenceOptions = buildEvidenceOptions(
+      dossier,
+      data.inspector,
+    );
 
     return {
       available: true,
@@ -394,7 +714,8 @@ export function buildInspectorViewModel({
         methods: [
           ...new Set(
             dossier.observations.map(
-              ({ extraction_method: extractionMethod }) => extractionMethod,
+              ({ extraction_method: extractionMethod }) =>
+                extractionMethodLabel(extractionMethod),
             ),
           ),
         ],
@@ -413,6 +734,9 @@ export function buildInspectorViewModel({
         canOpen: presentation.canOpen,
         reason: presentation.reason,
       },
+      evidenceOptions,
+      viewer,
+      dialogOpen: Boolean(dialogOpen && viewer?.safe),
       primaryAction: primaryAction(dossier, presentation),
     };
   } catch {
@@ -458,6 +782,216 @@ function renderPrimaryAction(action) {
     >
       ${escapeHtml(action.label)}
     </a>
+  `;
+}
+
+function renderEvidenceOptions(options) {
+  return `
+    <div class="inspector-evidence-index" aria-label="Evidencias del expediente">
+      ${options
+        .map(
+          (option) => `
+            <button
+              id="${escapeAttr(option.controlId)}"
+              class="inspector-evidence-option"
+              type="button"
+              data-inspector-evidence="${escapeAttr(option.id)}"
+            >
+              <span>${escapeHtml(option.label)}</span>
+              <small>${escapeHtml(option.modeLabel)}</small>
+            </button>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function regionStyle(region) {
+  if (!region) return "";
+  const values = [
+    ["left", region.left],
+    ["top", region.top],
+    ["width", region.width],
+    ["height", region.height],
+  ];
+  if (
+    values.some(([, value]) => !Number.isFinite(value) || value < 0 || value > 100)
+  ) {
+    return "";
+  }
+  return values
+    .map(([property, value]) => `${property}:${value.toFixed(4)}%`)
+    .join(";");
+}
+
+function renderEvidenceBody(viewer) {
+  if (viewer.mode === "asset") {
+    const overlayStyle = regionStyle(viewer.region);
+    return `
+      <figure class="inspector-evidence-asset">
+        <div class="inspector-evidence-image-frame">
+          <img
+            src="${escapeAttr(viewer.publicUrl)}"
+            alt="${escapeAttr(`Evidencia visual: ${viewer.title}`)}"
+          >
+          ${
+            overlayStyle
+              ? `<span class="inspector-evidence-region" style="${escapeAttr(overlayStyle)}" aria-hidden="true"></span>`
+              : ""
+          }
+        </div>
+        <figcaption>Activo local autorizado para esta demostración.</figcaption>
+      </figure>
+    `;
+  }
+  if (
+    viewer.mode === "fragment" ||
+    viewer.mode === "controlled_transcription"
+  ) {
+    return `
+      <blockquote class="inspector-evidence-fragment">
+        ${escapeHtml(viewer.content)}
+      </blockquote>
+    `;
+  }
+  return `
+    <div class="inspector-evidence-blocked" role="status">
+      <strong>${escapeHtml(viewer.modeLabel)}</strong>
+      <p>${escapeHtml(
+        viewer.reason ??
+          "La referencia no contiene una representación pública disponible.",
+      )}</p>
+    </div>
+  `;
+}
+
+function renderEvidenceDialog(model) {
+  if (!model.dialogOpen || !model.viewer?.safe) return "";
+  const viewer = model.viewer;
+  return `
+    <dialog
+      id="inspector-evidence-dialog"
+      class="inspector-evidence-dialog"
+      aria-modal="true"
+      aria-labelledby="inspector-evidence-dialog-title"
+      aria-describedby="inspector-evidence-description"
+      data-inspector-evidence-mode="${escapeAttr(viewer.mode)}"
+    >
+      <div class="inspector-dialog-shell">
+        <header class="inspector-dialog-header">
+          <div>
+            <p class="inspector-section-label">Mesa de evidencia · ${escapeHtml(viewer.provenance)}</p>
+            <h2 id="inspector-evidence-dialog-title">${escapeHtml(viewer.title)}</h2>
+            <p id="inspector-evidence-description">
+              Revisa la representación permitida junto con su cadena de custodia.
+            </p>
+          </div>
+          <button
+            id="inspector-dialog-close"
+            class="inspector-dialog-close"
+            type="button"
+            data-inspector-close
+            aria-label="Cerrar visor de evidencia"
+          >
+            <span aria-hidden="true">×</span>
+            <span>Cerrar</span>
+          </button>
+        </header>
+        <div class="inspector-dialog-grid">
+          <section class="inspector-evidence-stage" aria-label="${escapeAttr(viewer.modeLabel)}">
+            <span class="inspector-evidence-mode">${escapeHtml(viewer.modeLabel)}</span>
+            ${
+              viewer.controlledRepresentation
+                ? `
+                  <p class="inspector-transcription-warning" role="note">
+                    ${CONTROLLED_REPRESENTATION_WARNING}
+                  </p>
+                `
+                : ""
+            }
+            ${renderEvidenceBody(viewer)}
+          </section>
+          <aside class="inspector-evidence-custody" aria-label="Cadena de custodia">
+            <h3>Cadena de custodia</h3>
+            <dl>
+              <div>
+                <dt>Tipo</dt>
+                <dd>${escapeHtml(viewer.type)}</dd>
+              </div>
+              <div>
+                <dt>Fuente</dt>
+                <dd>${escapeHtml(viewer.source)}</dd>
+              </div>
+              <div>
+                <dt>Fecha</dt>
+                <dd><time datetime="${escapeAttr(viewer.capturedAt ?? "")}">${escapeHtml(viewer.capturedLabel)}</time></dd>
+              </div>
+              <div>
+                <dt>Método</dt>
+                <dd>${escapeHtml(viewer.method)}</dd>
+              </div>
+              ${
+                viewer.page
+                  ? `
+                    <div>
+                      <dt>Página</dt>
+                      <dd>${formatNumber(viewer.page)}</dd>
+                    </div>
+                  `
+                  : ""
+              }
+              ${
+                viewer.hash
+                  ? `
+                    <div>
+                      <dt>Huella abreviada</dt>
+                      <dd><code data-inspector-hash="abbreviated">${escapeHtml(viewer.hash.abbreviated)}</code></dd>
+                    </div>
+                    ${
+                      viewer.hash.full
+                        ? `
+                          <div>
+                            <dt>Verificación</dt>
+                            <dd>
+                              <details class="inspector-full-hash">
+                                <summary>Ver huella completa</summary>
+                                <code data-inspector-hash="complete">${escapeHtml(viewer.hash.full)}</code>
+                              </details>
+                            </dd>
+                          </div>
+                        `
+                        : ""
+                    }
+                  `
+                  : ""
+              }
+            </dl>
+            <div class="inspector-related-facts">
+              <h3>Hechos relacionados</h3>
+              ${
+                viewer.relatedFacts.length
+                  ? `
+                    <ul>
+                      ${viewer.relatedFacts
+                        .map(
+                          (fact) => `
+                            <li data-inspector-related-fact="${escapeAttr(fact.id)}">
+                              <strong>${escapeHtml(fact.field)}</strong>
+                              <span>${escapeHtml(statusLabel(fact.qualityStatus))} · confianza ${escapeHtml(fact.confidence)}</span>
+                            </li>
+                          `,
+                        )
+                        .join("")}
+                    </ul>
+                  `
+                  : "<p>Sin hechos vinculados a esta observación.</p>"
+              }
+            </div>
+          </aside>
+        </div>
+      </div>
+    </dialog>
   `;
 }
 
@@ -694,13 +1228,12 @@ export function renderInspectorModel(model) {
               <p class="inspector-module-help">Abre únicamente evidencia permitida y conserva su contexto</p>
             </div>
           </div>
-          <div class="inspector-future-surface">
-            <strong>${model.presentation.canOpen ? "Evidencia preparada para apertura" : "Apertura no disponible"}</strong>
-            <p>${escapeHtml(
-              model.presentation.canOpen
-                ? "El visor conservará procedencia, fecha y límites de publicación."
-                : model.presentation.reason,
-            )}</p>
+          <div class="inspector-viewer-index">
+            <p>
+              Selecciona una referencia para abrir su representación permitida.
+              Los estados restringidos conservan solo metadata segura.
+            </p>
+            ${renderEvidenceOptions(model.evidenceOptions)}
           </div>
         </section>
 
@@ -729,6 +1262,7 @@ export function renderInspectorModel(model) {
           </div>
         </section>
       </div>
+      ${renderEvidenceDialog(model)}
     </article>
   `;
 }
@@ -740,6 +1274,8 @@ export function renderInspector() {
       projectId: state.inspectorProjectId,
       typologyId: state.inspectorTypologyId,
       preset: state.inspectorPreset,
+      evidenceId: state.inspectorEvidenceId,
+      dialogOpen: state.inspectorDialogOpen,
     }),
   );
 }

@@ -137,6 +137,7 @@ let scenarioHistorySearch = null;
 let inspectorDocumentEventsBound = false;
 let inspectorRestoreFocusId = null;
 const inspectorBoundElements = new WeakSet();
+const inspectorDialogBoundElements = new WeakSet();
 
 export function bindEvents(render) {
   renderApp = render;
@@ -541,6 +542,7 @@ function runInspectorAction(action, options = {}) {
     renderApp?.();
   }
   if (applyEffects) {
+    syncInspectorDialog();
     announceInspectorTransition(transition.announcement);
     applyInspectorFocus(transition.focusIntent, options.focusId);
   }
@@ -622,6 +624,83 @@ function bindInspectorElementEvents() {
       closeInspectorEvidence();
     });
   });
+  syncInspectorDialog();
+}
+
+function syncInspectorDialog() {
+  if (typeof document === "undefined") return;
+  const dialog = document.getElementById("inspector-evidence-dialog");
+  if (!dialog) return;
+  if (!inspectorDialogBoundElements.has(dialog)) {
+    inspectorDialogBoundElements.add(dialog);
+    dialog.addEventListener?.("cancel", (event) => {
+      event.preventDefault();
+      closeInspectorEvidence();
+    });
+    dialog.addEventListener?.("keydown", (event) => {
+      if (event.key !== "Tab") return;
+      const focusableElements = inspectorDialogFocusableElements(dialog);
+      const firstElement = focusableElements[0] ?? null;
+      const lastElement = focusableElements.at(-1) ?? null;
+      if (!firstElement || !lastElement) {
+        event.preventDefault();
+        dialog.focus?.();
+        return;
+      }
+
+      const activeElement = document.activeElement;
+      const activeElementIsInside = dialog.contains?.(activeElement) ?? false;
+      const mustWrap =
+        focusableElements.length === 1 ||
+        !activeElementIsInside ||
+        (event.shiftKey && activeElement === firstElement) ||
+        (!event.shiftKey && activeElement === lastElement);
+      if (!mustWrap) return;
+
+      event.preventDefault();
+      (event.shiftKey ? lastElement : firstElement).focus();
+    });
+  }
+  if (state.inspectorDialogOpen) {
+    if (!dialog.open && typeof dialog.showModal === "function") {
+      dialog.showModal();
+    }
+    return;
+  }
+  if (dialog.open && typeof dialog.close === "function") {
+    dialog.close();
+  }
+}
+
+function inspectorDialogFocusableElements(dialog) {
+  const selector = [
+    "a[href]",
+    "button:not([disabled])",
+    "input:not([disabled])",
+    "select:not([disabled])",
+    "textarea:not([disabled])",
+    "summary",
+    '[tabindex]:not([tabindex="-1"])',
+  ].join(",");
+  return Array.from(dialog.querySelectorAll?.(selector) ?? []).filter(
+    (element) => {
+      if (
+        element.disabled ||
+        element.hidden ||
+        element.getAttribute?.("aria-hidden") === "true"
+      ) {
+        return false;
+      }
+      const style = globalThis.getComputedStyle?.(element);
+      if (style?.display === "none" || style?.visibility === "hidden") {
+        return false;
+      }
+      return (
+        typeof element.getClientRects !== "function" ||
+        element.getClientRects().length > 0
+      );
+    },
+  );
 }
 
 function bindInspectorDocumentEvents() {

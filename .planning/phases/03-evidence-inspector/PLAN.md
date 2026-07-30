@@ -585,11 +585,36 @@ Assertions obligatorias:
 
 **Mismo escritor que P3-07 o commit secuencial.**
 
+#### Enmienda técnica aprobada P3-08
+
+La implementación del visor requiere una enmienda acotada al `write_set`:
+
+- `prototipo_ejecutable/public/js/controller.js`;
+- `prototipo_ejecutable/tests/inspector-state.mjs`.
+
+El controlador sincroniza el `<dialog>` nativo mediante `showModal()`, gestiona
+`cancel`/Escape y conserva el retorno de foco ya congelado en P3-06. No se
+amplía `state.js` ni se introduce un segundo estado mutable.
+
+Reglas de cobertura y navegación:
+
+- el payload vigente ofrece cuatro modos navegables: `asset`, `fragment`,
+  `restricted` y `pending`;
+- `controlled_transcription` y `unavailable` se cubren con fixtures
+  sintéticos del componente y no se presentan como rutas navegables del
+  payload;
+- el hash completo solo puede mostrarse para evidencia
+  `authorized + available`;
+- `pending`, `restricted` y `unavailable` muestran como máximo un hash
+  abreviado, sin enlace, ruta, fragmento ni recurso incrustado.
+
 **Write set:**
 
 - `prototipo_ejecutable/public/js/views/inspector.js`;
 - `prototipo_ejecutable/public/styles/55-inspector.css`;
 - `prototipo_ejecutable/tests/inspector-viewer.mjs`.
+- `prototipo_ejecutable/public/js/controller.js`;
+- `prototipo_ejecutable/tests/inspector-state.mjs`.
 
 **Criterios:** modos asset/fragment/transcripción/restringido/pending/unavailable, teclado y retorno de foco.
 
