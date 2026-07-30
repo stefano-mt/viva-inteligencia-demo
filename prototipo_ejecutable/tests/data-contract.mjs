@@ -37,11 +37,21 @@ const logicalBytes = (value) =>
 const logicalDataBytes = logicalBytes(dataBytes);
 const logicalBoundaryBytes = logicalBytes(boundaryBytes);
 
-assert.equal(data.metadata.contract_version, "2.1.0");
+assert.equal(data.metadata.contract_version, "2.2.0");
 assert.equal(data.metadata.dataset_id, "dataset:viva-platform-demo-2026-07-28");
 assert.equal(data.metadata.generated_at, "2026-07-28T01:24:28Z");
 assert.equal(data.metadata.cutoff_at, "2026-07-28T01:24:28Z");
-assert.ok(data.metadata.input_fingerprints.length >= 20);
+assert.equal(data.metadata.input_fingerprints.length, 48);
+const fingerprintPaths = data.metadata.input_fingerprints.map(
+  (fingerprint) => fingerprint.path
+);
+assert.equal(new Set(fingerprintPaths).size, 48);
+assert.deepEqual(fingerprintPaths, [...fingerprintPaths].sort());
+assert.equal(
+  fingerprintPaths.filter((logicalPath) => logicalPath.endsWith(".webp"))
+    .length,
+  15
+);
 assert.equal(data.metadata.publication.contains_contact_pii, false);
 assert.equal(data.metadata.publication.raw_payloads_included, false);
 assert.equal(data.metadata.publication.restricted_assets_included, false);
@@ -51,6 +61,122 @@ assert.equal(data.metadata.counts.projects, data.projects.length);
 assert.equal(data.model.projects.length, 676);
 assert.equal(data.metadata.counts.model_projects, data.model.projects.length);
 assert.equal(data.metadata.counts.unresolved_legacy_projects, 42);
+assert.equal(data.model.agencies.length, 184);
+assert.equal(data.metadata.counts.canonical_agencies, 184);
+assert.deepEqual(
+  {
+    sources: data.model.sources.length,
+    typologies: data.model.typologies.length,
+    observations: data.model.observations.length,
+    facts: data.model.facts.length,
+    documents: data.model.documents.length,
+    evidence: data.model.evidence.length,
+    issues: data.model.issues.length,
+    events: data.model.events.length
+  },
+  {
+    sources: 10,
+    typologies: 11,
+    observations: 30,
+    facts: 40,
+    documents: 19,
+    evidence: 19,
+    issues: 10,
+    events: 3
+  }
+);
+assert.equal(data.inspector.cases.length, 10);
+assert.equal(data.inspector.assets.length, 15);
+assert.deepEqual(data.inspector.coverage, {
+  total_cases: 10,
+  observed_cases: 1,
+  controlled_cases: 9,
+  simulated_cases: 0,
+  inspectable_typologies: 10,
+  authorized_visual_assets: 15
+});
+assert.equal(
+  data.inspector.assets.reduce((total, asset) => total + asset.bytes, 0),
+  211_834
+);
+const modelMaps = {
+  sources: new Map(
+    data.model.sources.map((record) => [record.source_id, record])
+  ),
+  projects: new Map(
+    data.model.projects.map((record) => [record.project_id, record])
+  ),
+  typologies: new Map(
+    data.model.typologies.map((record) => [record.typology_id, record])
+  ),
+  observations: new Map(
+    data.model.observations.map((record) => [record.observation_id, record])
+  ),
+  facts: new Map(
+    data.model.facts.map((record) => [record.fact_id, record])
+  ),
+  documents: new Map(
+    data.model.documents.map((record) => [record.document_id, record])
+  ),
+  evidence: new Map(
+    data.model.evidence.map((record) => [record.evidence_id, record])
+  ),
+  issues: new Map(
+    data.model.issues.map((record) => [record.issue_id, record])
+  )
+};
+assert.ok(
+  data.inspector.cases.some(
+    (inspectorCase) =>
+      inspectorCase.case_id === data.inspector.default_case_id
+  )
+);
+for (const inspectorCase of data.inspector.cases) {
+  assert.ok(modelMaps.projects.has(inspectorCase.project_id));
+  assert.equal(
+    modelMaps.typologies.get(inspectorCase.typology_id)?.project_id,
+    inspectorCase.project_id
+  );
+  for (const [ids, records] of [
+    [inspectorCase.source_ids, modelMaps.sources],
+    [inspectorCase.observation_ids, modelMaps.observations],
+    [inspectorCase.fact_ids, modelMaps.facts],
+    [inspectorCase.document_ids, modelMaps.documents],
+    [inspectorCase.evidence_ids, modelMaps.evidence],
+    [inspectorCase.issue_ids, modelMaps.issues]
+  ]) {
+    assert.ok(ids.every((id) => records.has(id)));
+  }
+  assert.ok(
+    inspectorCase.required_fact_ids.every((factId) =>
+      inspectorCase.fact_ids.includes(factId)
+    )
+  );
+  assert.ok(
+    inspectorCase.primary_evidence_id === null ||
+      inspectorCase.evidence_ids.includes(inspectorCase.primary_evidence_id)
+  );
+}
+for (const asset of data.inspector.assets) {
+  const document = modelMaps.documents.get(asset.document_id);
+  const evidence = data.model.evidence.find(
+    (record) => record.document_id === asset.document_id
+  );
+  assert.equal(document?.public_asset_path, asset.logical_path);
+  assert.equal(document?.sha256, asset.sha256);
+  assert.equal(evidence?.sha256, asset.sha256);
+  assert.equal(evidence?.kind, "image_region");
+}
+assert.ok(
+  data.inspector.assets.every(
+    (asset) =>
+      ![
+        "document:pardo-coast-card",
+        "document:pardo-coast-plan"
+      ].includes(asset.document_id)
+  ),
+  "restricted CT-G originals must not be public inspector assets"
+);
 assert.deepEqual(data.scenario_catalogs.typologies, [
   "all",
   "casa",
@@ -99,6 +225,8 @@ assert.equal(
   hash(logicalDataBytes),
   coverageReport.source_artifact.sha256
 );
+assert.equal(coverageReport.source_artifact.contract_version, "2.2.0");
+assert.equal(coverageReport.derivation.input_fingerprint_count, 48);
 assert.equal(
   logicalDataBytes.length,
   coverageReport.source_artifact.byte_length

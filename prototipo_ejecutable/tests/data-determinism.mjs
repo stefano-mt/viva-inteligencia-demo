@@ -4,9 +4,10 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-  REQUIRED_INPUT_PATHS,
+  binaryInputSha256,
   buildDemoData,
   canonicalizeLogicalEol,
+  discoverRequiredInputPaths,
   logicalInputSha256,
   sha256
 } from "../scripts/build-demo-data.js";
@@ -26,6 +27,12 @@ const versionedGeoJsonPath = path.join(
   "demo-data",
   "district-boundaries.geojson"
 );
+const versionedCoveragePath = path.join(
+  repositoryRoot,
+  "datos_relevantes",
+  "demo-pilot",
+  "coverage-report.json"
+);
 
 const first = await buildDemoData({ repositoryRoot, write: false });
 const second = await buildDemoData({ repositoryRoot, write: false });
@@ -33,6 +40,8 @@ assert.equal(first.serialized, second.serialized);
 assert.equal(first.sha256, second.sha256);
 assert.equal(first.geoJsonSerialized, second.geoJsonSerialized);
 assert.equal(first.geoJsonSha256, second.geoJsonSha256);
+assert.equal(first.coverageReportSerialized, second.coverageReportSerialized);
+assert.equal(first.coverageReportSha256, second.coverageReportSha256);
 assert.equal(
   canonicalizeLogicalEol(await fs.readFile(versionedOutputPath)),
   first.serialized,
@@ -42,6 +51,11 @@ assert.equal(
   canonicalizeLogicalEol(await fs.readFile(versionedGeoJsonPath)),
   first.geoJsonSerialized,
   "versioned GeoJSON must equal the unsimplified generator after logical EOL normalization"
+);
+assert.equal(
+  canonicalizeLogicalEol(await fs.readFile(versionedCoveragePath)),
+  first.coverageReportSerialized,
+  "versioned coverage report must equal the deterministic writer"
 );
 assert.equal(first.geoJsonBytes, 46650);
 assert.equal(
@@ -67,18 +81,23 @@ const fingerprintByPath = new Map(
     fingerprint.sha256
   ])
 );
+const requiredInputPaths = await discoverRequiredInputPaths(repositoryRoot);
 assert.deepEqual(
   [...fingerprintByPath.keys()],
-  [...REQUIRED_INPUT_PATHS],
+  requiredInputPaths,
   "every required input must be fingerprinted once"
 );
-for (const logicalPath of REQUIRED_INPUT_PATHS) {
+assert.equal(requiredInputPaths.length, 48);
+assert.equal(fingerprintByPath.size, 48);
+for (const logicalPath of requiredInputPaths) {
   const content = await fs.readFile(
     path.join(repositoryRoot, ...logicalPath.split("/"))
   );
   assert.equal(
     fingerprintByPath.get(logicalPath),
-    logicalInputSha256(content),
+    logicalPath.endsWith(".webp")
+      ? binaryInputSha256(content)
+      : logicalInputSha256(content),
     logicalPath
   );
 }
@@ -87,14 +106,14 @@ const temporaryRoot = await fs.mkdtemp(
   path.join(os.tmpdir(), "viva-p1-07-")
 );
 try {
-  for (const logicalPath of REQUIRED_INPUT_PATHS) {
+  for (const logicalPath of requiredInputPaths) {
     const source = path.join(repositoryRoot, ...logicalPath.split("/"));
     const target = path.join(temporaryRoot, ...logicalPath.split("/"));
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.copyFile(source, target);
   }
   const hashesBefore = new Map();
-  for (const logicalPath of REQUIRED_INPUT_PATHS) {
+  for (const logicalPath of requiredInputPaths) {
     hashesBefore.set(
       logicalPath,
       sha256(
@@ -116,7 +135,11 @@ try {
   );
   assert.equal(temporaryBuild.serialized, first.serialized);
   assert.equal(temporaryBuild.geoJsonSerialized, first.geoJsonSerialized);
-  for (const logicalPath of REQUIRED_INPUT_PATHS) {
+  assert.equal(
+    temporaryBuild.coverageReportSerialized,
+    first.coverageReportSerialized
+  );
+  for (const logicalPath of requiredInputPaths) {
     assert.equal(
       sha256(
         await fs.readFile(
@@ -180,6 +203,30 @@ try {
     "logical LF/CRLF differences must not change fingerprints or payload bytes"
   );
   assert.equal(crossPlatformBuild.geoJsonSha256, first.geoJsonSha256);
+  assert.equal(
+    crossPlatformBuild.coverageReportSerialized,
+    first.coverageReportSerialized
+  );
+
+  const webpLogicalPath = requiredInputPaths.find((logicalPath) =>
+    logicalPath.endsWith(".webp")
+  );
+  const webpPath = path.join(
+    temporaryRoot,
+    ...webpLogicalPath.split("/")
+  );
+  const validWebp = await fs.readFile(webpPath);
+  const corruptWebp = Buffer.from(validWebp);
+  corruptWebp[corruptWebp.length - 1] ^= 0xff;
+  await fs.writeFile(webpPath, corruptWebp);
+  await assert.rejects(
+    buildDemoData({
+      repositoryRoot: temporaryRoot,
+      write: false
+    }),
+    /raw binary hash mismatch|public asset hash mismatch/
+  );
+  await fs.writeFile(webpPath, validWebp);
 
   await assert.rejects(
     buildDemoData({
@@ -188,10 +235,18 @@ try {
     }),
     /Output path cannot overwrite an input/
   );
+  await assert.rejects(
+    buildDemoData({
+      repositoryRoot: temporaryRoot,
+      outputPath: webpPath
+    }),
+    /Output path cannot overwrite an input/
+  );
 } finally {
   await fs.rm(temporaryRoot, { recursive: true, force: true });
 }
 
 console.log(
-  `Determinism OK: JSON ${first.sha256}, GeoJSON ${first.geoJsonSha256}, logical EOL canonicalization and strict inputs.`
+  `Determinism OK: JSON ${first.sha256}, report ${first.coverageReportSha256}, ` +
+    `GeoJSON ${first.geoJsonSha256}, 48 sorted text/binary inputs.`
 );

@@ -1,5 +1,9 @@
 export const SCENARIO_VERSION = 1;
 export const EARTH_RADIUS_METERS = 6_371_008.8;
+export const SUPPORTED_PUBLIC_CONTRACT_VERSIONS = Object.freeze([
+  "2.1.0",
+  "2.2.0"
+]);
 export const SCENARIO_QUERY_ORDER = Object.freeze([
   "sv",
   "district",
@@ -110,20 +114,25 @@ function assertCatalog(name, actual, expected = null) {
     throw new Error(`Scenario catalog ${name} is missing or empty`);
   }
   if (expected && JSON.stringify(actual) !== JSON.stringify(expected)) {
-    throw new Error(`Scenario catalog ${name} does not match contract 2.1`);
+    throw new Error(
+      `Scenario catalog ${name} does not match the supported F2 contract`
+    );
   }
 }
 
 export function createScenarioEnvironment(data) {
-  if (data?.metadata?.contract_version !== "2.1.0") {
-    throw new Error("Scenario domain requires public contract 2.1.0");
+  const contractVersion = data?.metadata?.contract_version;
+  if (!SUPPORTED_PUBLIC_CONTRACT_VERSIONS.includes(contractVersion)) {
+    throw new Error(
+      "Scenario domain requires public contract 2.1.0 or 2.2.0"
+    );
   }
   const catalogs = clone(data.scenario_catalogs);
   const defaults = clone(data.scenario_defaults);
   const geography = clone(data.geography);
   if (!catalogs || !defaults || !geography) {
     throw new Error(
-      "Contract 2.1 must include scenario_catalogs, scenario_defaults and geography"
+      "The supported F2 contract must include scenario_catalogs, scenario_defaults and geography"
     );
   }
   assertCatalog("typologies", catalogs.typologies, [
@@ -152,7 +161,9 @@ export function createScenarioEnvironment(data) {
     !Array.isArray(geography.districts) ||
     !Array.isArray(geography.assignments)
   ) {
-    throw new Error("Scenario defaults or geography do not match contract 2.1");
+    throw new Error(
+      "Scenario defaults or geography do not match the supported F2 contract"
+    );
   }
   const districtIds = new Set(
     geography.districts.map((district) => district.district_id)

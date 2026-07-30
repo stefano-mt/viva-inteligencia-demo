@@ -791,23 +791,124 @@ export function aggregateCertifiedMean(facts, options = {}) {
   };
 }
 
-export function materializeMeasureRecords(fixtures) {
+export const F3_SUPPLEMENTAL_IDS = Object.freeze({
+  typologies: Object.freeze([
+    "typology:f3-area-match",
+    "typology:f3-bathroom-conflict",
+    "typology:f3-bedroom-conflict",
+    "typology:f3-floor-review",
+    "typology:f3-illegible-area",
+    "typology:f3-insufficient-source"
+  ]),
+  facts: Object.freeze([
+    "fact:f3-area-match-card-area",
+    "fact:f3-area-match-measurement-area",
+    "fact:f3-bathroom-conflict-card-bathrooms",
+    "fact:f3-bathroom-conflict-measurement-bathrooms",
+    "fact:f3-bedroom-conflict-card-bedrooms",
+    "fact:f3-bedroom-conflict-measurement-bedrooms",
+    "fact:f3-floor-review-card-floor",
+    "fact:f3-floor-review-inferred-floor-max",
+    "fact:f3-floor-review-inferred-floor-min",
+    "fact:f3-floor-review-measurement-unit-range",
+    "fact:f3-illegible-area-card-area",
+    "fact:f3-illegible-area-measurement-area",
+    "fact:f3-insufficient-source-card-area",
+    "fact:f3-insufficient-source-missing-area"
+  ]),
+  issues: Object.freeze([
+    "issue:f3-bathroom-source-conflict",
+    "issue:f3-bedroom-source-conflict",
+    "issue:f3-floor-review-inference",
+    "issue:f3-illegible-area-evidence",
+    "issue:f3-insufficient-source-absence"
+  ]),
+  events: Object.freeze([])
+});
+
+function mergeSupplementalRecords(
+  baseline,
+  supplemental,
+  idField,
+  allowedSupplementalIds,
+  sorter = (records) => sortById(records, idField)
+) {
+  if (!Array.isArray(supplemental)) {
+    throw new Error(`Supplemental ${idField} catalog must be an array.`);
+  }
+  const merged = new Map(baseline.map((record) => [record[idField], record]));
+  const allowed = new Set(allowedSupplementalIds);
+  const observedSupplemental = new Set();
+  for (const record of supplemental) {
+    const id = record?.[idField];
+    if (merged.has(id)) {
+      if (JSON.stringify(merged.get(id)) !== JSON.stringify(record)) {
+        throw new Error(`Supplemental record conflicts with fixture baseline: ${id}`);
+      }
+      continue;
+    }
+    if (!allowed.has(id)) {
+      throw new Error(`Unexpected supplemental record: ${id}`);
+    }
+    observedSupplemental.add(id);
+    merged.set(id, structuredClone(record));
+  }
+  const missing = allowedSupplementalIds.filter(
+    (id) => !observedSupplemental.has(id)
+  );
+  if (missing.length > 0) {
+    throw new Error(`Missing supplemental records: ${missing.join(", ")}`);
+  }
+  const records = sorter([...merged.values()]);
+  assertUnique(records, idField);
+  return records;
+}
+
+export function materializeMeasureRecords(fixtures, { supplemental } = {}) {
   if (!Array.isArray(fixtures) || fixtures.length === 0) {
     throw new Error("At least one fixture is required.");
   }
 
-  const typologies = sortById(
+  let typologies = sortById(
     collectRecords(fixtures, "typologies"),
     "typology_id",
   );
-  const facts = sortById(collectRecords(fixtures, "facts"), "fact_id");
-  const issues = sortById(collectRecords(fixtures, "issues"), "issue_id");
-  const events = sortEvents(collectRecords(fixtures, "events"));
+  let facts = sortById(collectRecords(fixtures, "facts"), "fact_id");
+  let issues = sortById(collectRecords(fixtures, "issues"), "issue_id");
+  let events = sortEvents(collectRecords(fixtures, "events"));
 
   assertUnique(typologies, "typology_id");
   assertUnique(facts, "fact_id");
   assertUnique(issues, "issue_id");
   assertUnique(events, "event_id");
+
+  if (supplemental) {
+    typologies = mergeSupplementalRecords(
+      typologies,
+      supplemental.typologies,
+      "typology_id",
+      F3_SUPPLEMENTAL_IDS.typologies
+    );
+    facts = mergeSupplementalRecords(
+      facts,
+      supplemental.facts,
+      "fact_id",
+      F3_SUPPLEMENTAL_IDS.facts
+    );
+    issues = mergeSupplementalRecords(
+      issues,
+      supplemental.issues,
+      "issue_id",
+      F3_SUPPLEMENTAL_IDS.issues
+    );
+    events = mergeSupplementalRecords(
+      events,
+      supplemental.events,
+      "event_id",
+      F3_SUPPLEMENTAL_IDS.events,
+      sortEvents
+    );
+  }
 
   return {
     typologies,

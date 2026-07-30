@@ -3,7 +3,7 @@
   "description": "Escenario público reproducible con un comparable canónico y dos observaciones visibles de cobertura.",
   "canonical_path": "/?sv=1&scope=radius&lat=-12.120166&lon=-77.024975&radius=500&typology=departamento&bedrooms=1&area=80&price=650000&delivery=2026#dashboard",
   "dataset_id": "dataset:viva-platform-demo-2026-07-28",
-  "contract_version": "2.1.0",
+  "contract_version": "2.2.0",
   "scenario_version": 1,
   "scenario": {
     "district_id": "150122",
