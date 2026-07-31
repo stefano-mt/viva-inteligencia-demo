@@ -2,7 +2,8 @@ export const SCENARIO_VERSION = 1;
 export const EARTH_RADIUS_METERS = 6_371_008.8;
 export const SUPPORTED_PUBLIC_CONTRACT_VERSIONS = Object.freeze([
   "2.1.0",
-  "2.2.0"
+  "2.2.0",
+  "2.3.0"
 ]);
 export const SCENARIO_QUERY_ORDER = Object.freeze([
   "sv",

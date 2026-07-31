@@ -277,3 +277,13 @@ Queda decidido que:
 10. cualquier cambio material a A1–A12, fuente, pairing, contrato, umbrales o `write_set` exige nueva revisión.
 
 La aprobación no equivale a PASS técnico, merge, despliegue o revisión legal. P4-13 permanece independiente y HUMAN-GATE-B será obligatoria si emite `PASS WITH RISKS`.
+
+## D-029 — Enmienda técnica P4-01 incorpora semántica benchmark al reader
+
+**Fecha:** 2026-07-31
+
+**Estado:** aceptada
+
+Stefano autorizó explícitamente la enmienda técnica de P4-01 con timestamp de sesión `2026-07-31T11:36:09.8204568-05:00`. La autorización añade `prototipo_ejecutable/scripts/data/validate.js` al `write_set` de P4-01 exclusivamente para ejecutar en el reader real las reglas semánticas ya aprobadas del benchmark 2.3.
+
+El reader debe rechazar referencias colgantes, pairing no demostrado, hechos incompatibles, atributos canónicos duplicados o ambiguos y ledgers que no cumplan la partición disjunta por indicador. La enmienda no autoriza modificar writer, build, dataset público, selección territorial, IDs, geometría ni otra semántica F2/F3. P4-03 conserva la responsabilidad posterior de materialización y P4-04 la regeneración del dataset y su fingerprint.

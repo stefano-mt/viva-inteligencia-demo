@@ -378,7 +378,8 @@ Aceptación explícita A1–A12 de `HUMAN-GATE-A-REQUEST.md`. Una aceptación pa
 - `prototipo_ejecutable/tests/data-benchmark-contract.mjs`;
 - `prototipo_ejecutable/tests/scenario-domain.mjs`;
 - `prototipo_ejecutable/tests/scenario-context.mjs`;
-- nuevo `prototipo_ejecutable/tests/contract-runtime-startup.mjs`.
+- nuevo `prototipo_ejecutable/tests/contract-runtime-startup.mjs`;
+- `prototipo_ejecutable/scripts/data/validate.js` — enmienda autorizada: únicamente validación semántica reader-side de `benchmark`; sin writer, build ni dataset público.
 
 **Criterios:** validador acepta 2.0–2.3; runtime arranca con 2.1/2.2/2.3; índice cerrado; referencias, metodología, pairing y atributos validados; 2.1/2.2 degradan solo F4; selección territorial e IDs no cambian.
 

@@ -150,6 +150,15 @@ function makePresentation({
 }
 
 const readyModel = makePresentation();
+for (const contractVersion of ["2.1.0", "2.2.0", "2.3.0"]) {
+  const compatibleData = structuredClone(data);
+  compatibleData.metadata.contract_version = contractVersion;
+  assert.deepEqual(
+    makePresentation({ dataOverride: compatibleData }),
+    readyModel,
+    `contract ${contractVersion} must not change the territorial presentation`
+  );
+}
 assert.equal(readyModel.scopeTitle, "Miraflores · Distrito completo");
 assert.equal(readyModel.observedCount, 90);
 assert.equal(readyModel.comparableCount, 85);

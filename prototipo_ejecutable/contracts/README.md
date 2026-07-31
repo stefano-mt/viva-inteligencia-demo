@@ -20,7 +20,26 @@ La revisión `2.1.0` añade tres secciones de Fase 2 sin modificar las coleccion
 
 Estas tres secciones son obligatorias cuando `metadata.contract_version` es `2.1.0` o `2.2.0`.
 
-La revisión `2.2.0` exige además `inspector`. El reader `2.2` admite documentos `2.0.0`, `2.1.0` y `2.2.0`; `inspector` solo es obligatorio para `2.2.0`.
+La revisión `2.2.0` exige además `inspector`. La revisión `2.3.0` conserva escenario e inspector y exige el índice `benchmark`. El reader de datos admite documentos `2.0.0`, `2.1.0`, `2.2.0` y `2.3.0`; el runtime territorial admite `2.1.0`, `2.2.0` y `2.3.0` sin cambiar selección, IDs ni geometría.
+
+## Índice de benchmark 2.3
+
+`benchmark.version` es `1` y contiene únicamente metodología, referencias y cobertura. No duplica valores del modelo autoritativo:
+
+- `methodology` congela corte, umbrales 3/5, cuantiles R-7, precio publicado `from`, denominador `total`, política `source_paired_only`, precedencia de exclusiones y etiqueta de certificación;
+- `fact_index[]` enlaza proyecto y observación con los hechos existentes de área, precio, precio/m², unidades reportadas, estacionamientos y atributos;
+- `attribute_catalog[]` normaliza categorías y aliases sin convertir faltantes en `false` ni crear una categoría canónica “Otros”;
+- `coverage.indicators` mantiene un ledger independiente por indicador con IDs de entrada, usados, faltantes y excluidos.
+
+Los estados de pairing son cerrados. `source_paired` exige una base documentada (`offer_id`, `typology_id` o `native_metric`), evidencia de pairing y un hecho de precio/m². `project_minima_pair_unresolved` identifica mínimos a nivel de proyecto cuya pareja de unidad no está probada; pertenece exclusivamente a la serie `orientative_noncomparable`. `conflicting` y `missing` permanecen excluidos.
+
+La validación semántica debe resolver cada referencia contra `model`, comprobar que cada hecho pertenece al proyecto/observación declarados y exigir por indicador la partición disjunta:
+
+```text
+input_project_ids = used_project_ids + missing_project_ids + excluded_projects[].project_id
+```
+
+No puede haber duplicados ni intersecciones entre esos conjuntos. Solo `source_paired` puede integrar el benchmark cuantitativo elegible. Un payload `2.1.0` o `2.2.0` sin `benchmark` sigue arrancando F2/F3 y degrada únicamente F4 a `contract_unavailable`; `2.0.0` conserva validación de datos, pero no promete arranque del runtime territorial.
 
 ## Índice del Evidence Inspector 2.2
 
@@ -174,7 +193,7 @@ JSON Schema valida forma y reglas locales, pero el validador de P1-06/P1-07 debe
 19. `required_fact_ids` y `primary_evidence_id` pertenecen a sus listas de caso y `coverage` coincide con el índice.
 20. Cada activo visual autorizado resuelve a un documento autorizado y conserva evidencia disponible con `fragment` no vacío.
 
-Hasta que P3-04 actualice el writer y regenere el dataset, `npm run verify` puede fallar por el fingerprint esperado del schema. P3-01 exige que sus pruebas dirigidas y `npm run check` permanezcan verdes sin modificar writer, build o dataset.
+Durante P4-01–P4-03 el dataset público permanece en `2.2.0`; P4-04 lo regenera como `2.3.0` y actualiza el fingerprint del schema. En esa ventana, la prueba de determinismo puede señalar el fingerprint pendiente aunque las pruebas dirigidas del contrato y el runtime permanezcan verdes. El writer, el build y el dataset no se modifican antes de sus tareas propietarias.
 
 ## Uso por roles posteriores
 
