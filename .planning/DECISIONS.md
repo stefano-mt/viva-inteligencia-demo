@@ -254,3 +254,26 @@ No existen gaps bloqueantes y `HUMAN-GATE-B` no aplica. Las notas de baja severi
 El alcance aprobado “17–20 documentos/evidencias” se materializó como 19 documentos y 19 evidencias emparejados uno a uno. P3-14 aceptó la interpretación por colección. Si el responsable pretendía un máximo combinado, ese alcance debe reabrirse antes de añadir nuevos registros; no se alteran los datos aprobados durante P3-15.
 
 P3-15 puede preparar el PR funcional. El merge continúa siendo humano. El `PASS` previo al PR no demuestra despliegue: P3-16 debe verificar Pages después del merge y P3-17 debe persistir el resultado en una rama y PR documental separados. Cualquier cambio posterior a P3-14 en código, datos, tests, activos o comportamiento exige repetir el checker sobre el nuevo SHA.
+
+## D-028 — HUMAN-GATE-A habilita Fase 4 bajo A1–A12
+
+**Fecha:** 2026-07-31
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Acepto A1–A12 y autorizo HUMAN-GATE-A de la Fase 4.” con timestamp de sesión `2026-07-31T11:11:10.4019829-05:00`. La aprobación acepta el plan `be5fd33` después de que el re-review independiente cerrara B1–B4 con `PASS WITH RISKS`.
+
+Queda decidido que:
+
+1. Nexo se usa solo como snapshot fijo de demo y continúa `pending_review` jurídicamente;
+2. la UI habla de referencia elegible, no certificación externa;
+3. precio publicado `desde`, área total, unidades reportadas y atributos anunciados conservan semánticas separadas;
+4. `unknown`, `restricted`, `excluded` e insuficiente no se convierten en ausencia;
+5. Pardo Coast permanece territorial y Tipo 7 no se rehabilita;
+6. los 371/69 cocientes de mínimos son `orientative_noncomparable`; solo `source_paired` puede entrar al benchmark elegible;
+7. HU-505 queda diferida;
+8. `scenario.js` solo puede ampliar su allowlist a 2.3 y debe demostrar arranque 2.1/2.2/2.3 sin alterar F2;
+9. P4-00D crea el lockfile y baseline browser antes de P4-01;
+10. cualquier cambio material a A1–A12, fuente, pairing, contrato, umbrales o `write_set` exige nueva revisión.
+
+La aprobación no equivale a PASS técnico, merge, despliegue o revisión legal. P4-13 permanece independiente y HUMAN-GATE-B será obligatoria si emite `PASS WITH RISKS`.

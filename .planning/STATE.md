@@ -165,13 +165,13 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Baseline: checks de sintaxis, arquitectura, escenario, comparabilidad, datos e inspector pasan; Playwright requiere instalar dependencias locales antes del gate de navegador.
 - Restricción principal: el snapshot conserva precio mínimo y área mínima por proyecto, pero no demuestra que pertenezcan a la misma unidad/tipología. Los 371/69 cocientes solo pueden ser un índice orientativo no comparable; el benchmark elegible actual tiene `n = 0`. Tampoco sostiene precio de cierre, tasación, área techada/libre, stock, absorción ni atributos verificados.
 - Reader-test P4-00B inicial: `FAIL` por compatibilidad runtime 2.3, pairing, denominadores/estados y `write_sets`; B1–B4 fueron remediados y el re-review independiente emitió `PASS WITH RISKS`.
-- Estado: planificación lista para `HUMAN-GATE-A`; implementación P4-01 continúa bloqueada hasta aceptación A1–A12 y persistencia P4-00C.
+- HUMAN-GATE-A: Stefano aceptó A1–A12 el `2026-07-31T11:11:10.4019829-05:00`; P4-00C persistido en `APPROVAL.md` y D-028.
+- Estado: P4-00D habilitado. Implementación P4-01 continúa bloqueada hasta crear el lockfile y obtener baseline browser reproducible sin regresiones.
 
 ## Próxima acción recomendada
 
-1. Obtener aceptación explícita A1–A12 de `HUMAN-GATE-A-REQUEST.md`.
-2. Persistir la aprobación mediante P4-00C.
-3. Ejecutar P4-00D (lockfile y baseline browser) antes de iniciar P4-01.
+1. Ejecutar P4-00D: lockfile, instalación reproducible y baseline browser de `e30973b`.
+2. Si P4-00D pasa, iniciar P4-01 desde el commit que contiene la aprobación.
 
 ## Regla para actualizar este archivo
 
