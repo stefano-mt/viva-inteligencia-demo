@@ -260,7 +260,362 @@ function noQuadrants(district) {
   `;
 }
 
-export function renderMarket() {
+const BENCHMARK_STATUS = {
+  ready: { label: "Listo", tone: "success" },
+  orientative: { label: "Orientativo", tone: "warning" },
+  orientative_noncomparable: {
+    label: "Orientación no comparable",
+    tone: "warning",
+  },
+  insufficient: { label: "Información insuficiente", tone: "warning" },
+  contract_unavailable: { label: "Contrato no disponible", tone: "neutral" },
+  error: { label: "Benchmark no disponible", tone: "danger" },
+};
+
+function benchmarkStatus(status) {
+  return BENCHMARK_STATUS[status] ?? BENCHMARK_STATUS.error;
+}
+
+function formatCutoff(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Fecha de corte no disponible";
+  return new Intl.DateTimeFormat("es-PE", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(date);
+}
+
+function scopeDescription(context, district) {
+  const scope = context?.scope ?? {};
+  const districtLabel = districtName(district);
+  if (scope.scopeMode === "quadrant" && scope.quadrantId) {
+    return `${districtLabel} · Cuadrante ${scope.quadrantId}`;
+  }
+  if (scope.scopeMode === "radius" && positiveNumber(scope.radiusMeters)) {
+    return `${districtLabel} · Radio de ${formatNumber(scope.radiusMeters)} m`;
+  }
+  return `${districtLabel} · Distrito completo`;
+}
+
+function formatPricePerM2(value) {
+  const price = positiveNumber(value);
+  return price ? `S/ ${formatNumber(price, 0)} / m²` : "No disponible";
+}
+
+function projectLabel(projectId, summaries) {
+  const summary = summaries.get(projectId);
+  if (!summary) return projectId;
+  return `${summary.name}${summary.agencyName ? ` · ${summary.agencyName}` : ""}`;
+}
+
+function projectList(projectIds, summaries, emptyCopy = "Ninguno") {
+  if (!projectIds?.length) return `<p>${escapeHtml(emptyCopy)}</p>`;
+  return `
+    <ul class="benchmark-id-list">
+      ${projectIds
+        .map(
+          (projectId) => `
+            <li>
+              <span>${escapeHtml(projectLabel(projectId, summaries))}</span>
+              <code>${escapeHtml(projectId)}</code>
+            </li>
+          `,
+        )
+        .join("")}
+    </ul>
+  `;
+}
+
+function renderBenchmarkUnavailable(context, district) {
+  const meta = benchmarkStatus(context?.status);
+  const contractUnavailable = context?.status === "contract_unavailable";
+  return `
+    <section class="benchmark-sheet benchmark-state-panel span-12" data-benchmark-status="${escapeAttr(context?.status ?? "error")}">
+      <header class="benchmark-sheet__header">
+        <div>
+          <span class="benchmark-kicker">Benchmark de microzona</span>
+          <h2>${escapeHtml(scopeDescription(context, district))}</h2>
+        </div>
+        <span class="status-badge ${meta.tone}">${escapeHtml(meta.label)}</span>
+      </header>
+      <div class="benchmark-state-copy">
+        <strong>${contractUnavailable ? "Este dataset conserva el análisis territorial, pero no incluye el contrato de benchmark." : "No se pudo construir una referencia de benchmark segura."}</strong>
+        <p>${contractUnavailable ? "Puedes seguir consultando ranking y cuadrantes. Actualiza a un dataset 2.3 para habilitar denominadores, composición y atributos." : "La vista falla cerrada para no mostrar cifras parciales. Revisa el contrato público y vuelve a cargar la demo."}</p>
+        ${context?.errorCodes?.length ? `<p class="benchmark-error-code">Código: ${escapeHtml(context.errorCodes.join(", "))}</p>` : ""}
+      </div>
+    </section>
+  `;
+}
+
+function renderEvidenceLine(context) {
+  const quantitative = context.quantitative.pricePerM2Total;
+  const qualitative = context.qualitative;
+  const steps = [
+    {
+      label: "Alcance",
+      value: context.scope.projectCount,
+      copy: "Proyectos comparables del escenario activo.",
+    },
+    {
+      label: "Pareja demostrada",
+      value: quantitative.n,
+      copy: "Precio publicado desde y área total vinculados por la fuente.",
+    },
+    {
+      label: "Orientación",
+      value: quantitative.orientative.n,
+      copy: "Cocientes de mínimos; no sostienen posicionamiento.",
+    },
+    {
+      label: "Atributos informados",
+      value: qualitative.coverage.usedProjectIds.length,
+      copy: "Proyectos con campo cualitativo informado.",
+    },
+  ];
+  return `
+    <ol class="benchmark-evidence-line" aria-label="Transformación del universo de benchmark">
+      ${steps
+        .map(
+          (step) => `
+            <li>
+              <span class="benchmark-evidence-line__node" aria-hidden="true"></span>
+              <div>
+                <span>${escapeHtml(step.label)}</span>
+                <strong>${formatNumber(step.value)}</strong>
+                <p>${escapeHtml(step.copy)}</p>
+              </div>
+            </li>
+          `,
+        )
+        .join("")}
+    </ol>
+  `;
+}
+
+function renderQuantitative(context) {
+  const quantitative = context.quantitative.pricePerM2Total;
+  const orientation = quantitative.orientative;
+  const eligibleReady = quantitative.status === "ready";
+  const eligibleOrientative = quantitative.status === "orientative";
+  const showNoncomparableOrientation =
+    !eligibleReady && !eligibleOrientative && orientation.n > 0;
+  const series = eligibleReady ? quantitative : orientation;
+  const title = eligibleReady
+    ? "Referencia elegible por m² de área total"
+    : eligibleOrientative
+      ? "Referencia elegible orientativa"
+      : showNoncomparableOrientation
+        ? "Índice orientativo de entrada"
+        : "Referencia elegible por m² de área total";
+  const caution = eligibleReady
+    ? "Parejas precio–área demostradas y elegibles según las reglas de la demo."
+    : eligibleOrientative
+      ? "La pareja precio–área está demostrada, pero una muestra de uno o dos proyectos no describe una distribución."
+      : showNoncomparableOrientation
+        ? "Cociente entre mínimos publicados. No demuestra una tipología y no sustenta una recomendación de precio."
+        : "No hay parejas precio–área demostradas suficientes para calcular una referencia.";
+  const coverage = quantitative.coverage;
+  return `
+    <section class="benchmark-section benchmark-quantitative" aria-labelledby="benchmark-quantitative-title">
+      <div class="benchmark-section__heading">
+        <div>
+          <span class="benchmark-section__index">02 · Referencia</span>
+          <h3 id="benchmark-quantitative-title">${escapeHtml(title)}</h3>
+          <p>${escapeHtml(caution)}</p>
+        </div>
+        <span class="status-badge ${eligibleReady ? "success" : "warning"}">
+          ${
+            eligibleReady
+              ? `${formatNumber(quantitative.n)} elegibles`
+              : eligibleOrientative
+                ? `${formatNumber(quantitative.n)} elegible${quantitative.n === 1 ? "" : "s"} · muestra corta`
+                : showNoncomparableOrientation
+                  ? `${formatNumber(orientation.n)} orientativos`
+                  : "Información insuficiente"
+          }
+        </span>
+      </div>
+      ${
+        eligibleReady
+          ? `
+            <div class="benchmark-quantile-strip" aria-label="Cuantiles visibles del ${eligibleReady ? "benchmark elegible" : "índice orientativo"}">
+              <div><span>P25</span><strong>${formatPricePerM2(series.p25)}</strong></div>
+              <div class="is-median"><span>Mediana</span><strong>${formatPricePerM2(series.median)}</strong></div>
+              <div><span>P75</span><strong>${formatPricePerM2(series.p75)}</strong></div>
+            </div>
+          `
+          : eligibleOrientative
+            ? `
+              <div class="benchmark-short-sample" role="status">
+                <span>Referencia observada · n = ${formatNumber(quantitative.n)}</span>
+                <strong>${formatPricePerM2(quantitative.median)}</strong>
+                <p>Valor orientativo; no se muestran P25/P75 como si existiera una distribución robusta.</p>
+              </div>
+            `
+            : showNoncomparableOrientation
+              ? `
+                <div class="benchmark-quantile-strip" aria-label="Cuantiles visibles del índice orientativo no comparable">
+                  <div><span>P25</span><strong>${formatPricePerM2(series.p25)}</strong></div>
+                  <div class="is-median"><span>Mediana</span><strong>${formatPricePerM2(series.median)}</strong></div>
+                  <div><span>P75</span><strong>${formatPricePerM2(series.p75)}</strong></div>
+                </div>
+              `
+          : `
+            <div class="benchmark-insufficient" role="status">
+              <strong>Información insuficiente</strong>
+              <p>No hay parejas precio–área probadas para calcular una referencia elegible.</p>
+            </div>
+          `
+      }
+      <dl class="benchmark-method-strip">
+        <div><dt>Tipo de precio</dt><dd>Precio publicado desde</dd></div>
+        <div><dt>Denominador</dt><dd>Área total</dd></div>
+        <div><dt>Método</dt><dd>Cuantiles R-7</dd></div>
+        <div><dt>Partición elegible</dt><dd>${formatNumber(coverage.inputProjectIds.length)} entrada = ${formatNumber(coverage.usedProjectIds.length)} usados + ${formatNumber(coverage.missingProjectIds.length)} faltantes + ${formatNumber(coverage.excludedProjects.length)} excluidos</dd></div>
+      </dl>
+    </section>
+  `;
+}
+
+function renderOfferComposition(context, summaries) {
+  const projects = context.projectSummaries ?? [];
+  const agencies = new Set(projects.map(({ agencyName }) => agencyName).filter(Boolean));
+  const reportedUnits = projects
+    .map(({ reportedUnits: cell }) => positiveNumber(cell?.normalizedValue))
+    .filter(Boolean);
+  const reportedUnitTotal = reportedUnits.reduce((total, value) => total + value, 0);
+  return `
+    <section class="benchmark-section benchmark-offer" aria-labelledby="benchmark-offer-title">
+      <div class="benchmark-section__heading">
+        <div>
+          <span class="benchmark-section__index">03 · Composición</span>
+          <h3 id="benchmark-offer-title">Oferta de la muestra</h3>
+          <p>Conteos del mismo universo territorial, sin convertir publicaciones en ventas o stock.</p>
+        </div>
+      </div>
+      <dl class="benchmark-ledger">
+        <div><dt>Proyectos comparables</dt><dd>${formatNumber(context.scope.projectCount)}</dd></div>
+        <div><dt>Inmobiliarias identificadas</dt><dd>${formatNumber(agencies.size)}</dd></div>
+        <div><dt>Unidades reportadas por la publicación</dt><dd>${reportedUnits.length ? `${formatNumber(reportedUnitTotal)} · ${formatNumber(reportedUnits.length)}/${formatNumber(context.scope.projectCount)} informados` : "No informado"}</dd></div>
+      </dl>
+      <details class="benchmark-disclosure">
+        <summary>Ver composición de la muestra</summary>
+        ${projectList(context.scope.projectIds, summaries)}
+      </details>
+    </section>
+  `;
+}
+
+function renderAttribute(attribute, summaries) {
+  const informed = attribute.informedProjectCount ?? 0;
+  const announced = attribute.announcedProjectCount ?? 0;
+  const missing = attribute.coverage?.missingProjectIds?.length ?? 0;
+  const excluded = attribute.coverage?.excludedProjects?.length ?? 0;
+  const percentage = Math.max(0, Math.min(100, attribute.prevalencePercent ?? 0));
+  const canShowPrevalence =
+    attribute.canDescribePattern === true && informed >= 5;
+  const originalLabels = [
+    ...new Set((attribute.originalValues ?? []).map(({ originalValue }) => originalValue)),
+  ];
+  return `
+    <article class="benchmark-attribute" data-attribute-id="${escapeAttr(attribute.attributeId)}">
+      <div class="benchmark-attribute__summary">
+        <div>
+          <strong>${escapeHtml(attribute.label)}</strong>
+          <span>Anunciado · ${formatNumber(announced)}/${formatNumber(informed)} informados</span>
+        </div>
+        ${
+          canShowPrevalence
+            ? `<strong>${formatNumber(percentage, 1)}%</strong>`
+            : '<span class="status-badge warning">Muestra insuficiente</span>'
+        }
+      </div>
+      ${
+        canShowPrevalence
+          ? `<div class="benchmark-prevalence" aria-label="${escapeAttr(`${attribute.label}: ${percentage}%`)}"><i style="width:${percentage}%"></i></div>`
+          : ""
+      }
+      <p>${formatNumber(missing)} no informados · ${formatNumber(excluded)} excluidos · ${formatNumber(attribute.documentedProjectCount ?? 0)} documentados</p>
+      ${canShowPrevalence ? "" : "<p>Menos de cinco proyectos informados: se muestran conteos, no prevalencia.</p>"}
+      <details>
+        <summary>Ver proyectos y texto original</summary>
+        ${originalLabels.length ? `<p><strong>Texto original:</strong> ${escapeHtml(originalLabels.join(" · "))}</p>` : "<p>Sin texto anunciado en la muestra.</p>"}
+        ${projectList(attribute.announcedProjectIds, summaries, "Ningún proyecto lo anuncia.")}
+      </details>
+    </article>
+  `;
+}
+
+function renderQualitative(context, summaries) {
+  const attributes = [...(context.qualitative.attributes ?? [])]
+    .filter((attribute) => (attribute.announcedProjectCount ?? 0) > 0)
+    .sort(
+      (left, right) =>
+        (right.prevalencePercent ?? 0) - (left.prevalencePercent ?? 0) ||
+        left.label.localeCompare(right.label, "es"),
+    );
+  const visible = attributes.slice(0, 6);
+  const remaining = attributes.slice(6);
+  return `
+    <section class="benchmark-section benchmark-qualitative" aria-labelledby="benchmark-qualitative-title">
+      <div class="benchmark-section__heading">
+        <div>
+          <span class="benchmark-section__index">04 · Atributos</span>
+          <h3 id="benchmark-qualitative-title">Atributos anunciados</h3>
+          <p>Prevalencia sobre proyectos con el campo informado. “No informado” nunca significa “No tiene”.</p>
+        </div>
+        <span class="status-badge ${context.qualitative.status === "ready" ? "success" : "warning"}">
+          ${formatNumber(context.qualitative.coverage.usedProjectIds.length)}/${formatNumber(context.scope.projectCount)} informados
+        </span>
+      </div>
+      <div class="benchmark-attribute-list">
+        ${visible.map((attribute) => renderAttribute(attribute, summaries)).join("")}
+      </div>
+      ${remaining.length ? `<details class="benchmark-disclosure benchmark-more-attributes"><summary>Ver ${formatNumber(remaining.length)} atributos anunciados adicionales</summary><div class="benchmark-attribute-list">${remaining.map((attribute) => renderAttribute(attribute, summaries)).join("")}</div></details>` : ""}
+      <div class="benchmark-data-gaps" aria-label="Coberturas que requieren más evidencia">
+        <div><strong>Acabados y materiales</strong><span>Información insuficiente en la muestra territorial.</span></div>
+        <div><strong>Estacionamientos</strong><span>Se muestran como “No informado” cuando la publicación no declara el dato.</span></div>
+      </div>
+    </section>
+  `;
+}
+
+function renderCompositionAndExclusions(context, summaries) {
+  const quantitative = context.quantitative.pricePerM2Total;
+  const coverage = quantitative.coverage;
+  return `
+    <details class="benchmark-disclosure benchmark-audit">
+      <summary>Composición, exclusiones y metodología</summary>
+      <div class="benchmark-audit__grid">
+        <section>
+          <h3>Usados por el benchmark elegible</h3>
+          ${projectList(coverage.usedProjectIds, summaries, "Ninguna pareja precio–área demostrada.")}
+        </section>
+        <section>
+          <h3>Faltantes</h3>
+          ${projectList(coverage.missingProjectIds, summaries)}
+        </section>
+        <section>
+          <h3>Excluidos</h3>
+          ${
+            coverage.excludedProjects.length
+              ? `<ul class="benchmark-id-list">${coverage.excludedProjects.map(({ projectId, reasons, inspectorPath }) => `<li><span>${escapeHtml(projectLabel(projectId, summaries))}<code>${escapeHtml(projectId)}</code></span><span><small>${escapeHtml((reasons ?? []).join(" · "))}</small>${inspectorPath ? `<a href="${escapeAttr(inspectorPath)}">Abrir inspector</a>` : ""}</span></li>`).join("")}</ul>`
+              : "<p>Ninguno.</p>"
+          }
+        </section>
+        <section>
+          <h3>Regla de lectura</h3>
+          <p>Solo <code>source_paired</code> entra al benchmark elegible. Los mínimos sin vínculo probado permanecen como orientación no comparable.</p>
+          <p>${escapeHtml(context.methodology.certification_label)} · corte ${escapeHtml(formatCutoff(context.methodology.cutoff_at))}.</p>
+        </section>
+      </div>
+    </details>
+  `;
+}
+
+function renderTerritorialContext() {
   const { ranking: districts, active: district } =
     resolveMarketDistricts({
       geography: state.data?.geography,
@@ -433,7 +788,7 @@ export function renderMarket() {
             <p>
               “Referencia publicada provisional” resume precios de lista PEN
               compatibles, con URL y fecha hasta el corte. No representa un
-              benchmark certificado ni precios reales de cierre.
+              benchmark elegible ni transacciones de cierre observadas.
             </p>
             <p>
               Solo la fila del cuadrante activo muestra comparables y
@@ -444,6 +799,97 @@ export function renderMarket() {
           </div>
         </details>
       </section>
+    </section>
+  `;
+}
+
+export function renderMarket() {
+  const { active: district } = resolveMarketDistricts({
+    geography: state.data?.geography,
+    districtId: state.scenario?.district_id,
+  });
+  if (!district) return renderTerritorialContext();
+
+  const benchmark = state.benchmarkContext;
+  const benchmarkAvailable =
+    benchmark && !["contract_unavailable", "error"].includes(benchmark.status);
+  const summaries = new Map(
+    (benchmark?.projectSummaries ?? []).map((project) => [
+      project.projectId,
+      project,
+    ]),
+  );
+  const quantitative = benchmark?.quantitative?.pricePerM2Total;
+  const statusMeta = benchmarkStatus(benchmark?.status);
+  const thesis = benchmarkAvailable
+    ? quantitative.n > 0
+      ? `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables; ${formatNumber(quantitative.n)} sostienen una referencia elegible por m² de área total.`
+      : quantitative.orientative.n > 0
+        ? `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables; ${formatNumber(quantitative.orientative.n)} permiten un índice orientativo de entrada, pero la pareja precio–área no está demostrada a nivel de unidad.`
+        : `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables, pero no dispone de parejas precio–área demostradas ni cocientes orientativos utilizables.`
+    : null;
+
+  return `
+    <section class="dashboard-grid market-reading benchmark-view" data-scenario-consumer="benchmark">
+      ${
+        benchmarkAvailable
+          ? `
+            <article class="benchmark-sheet span-12" data-benchmark-status="${escapeAttr(benchmark.status)}">
+              <header class="benchmark-sheet__header">
+                <div>
+                  <span class="benchmark-kicker">Benchmark de microzona</span>
+                  <h2>${escapeHtml(thesis)}</h2>
+                  <p>${escapeHtml(scopeDescription(benchmark, district))} · corte ${escapeHtml(formatCutoff(benchmark.methodology.cutoff_at))}</p>
+                </div>
+                <span class="status-badge ${statusMeta.tone}">${escapeHtml(statusMeta.label)}</span>
+              </header>
+
+              <section class="benchmark-section benchmark-scope" aria-labelledby="benchmark-scope-title">
+                <div class="benchmark-section__heading">
+                  <div>
+                    <span class="benchmark-section__index">01 · Alcance</span>
+                    <h3 id="benchmark-scope-title">Cómo se transforma esta muestra</h3>
+                    <p>Cada nodo conserva el mismo escenario y muestra qué información puede sostener.</p>
+                  </div>
+                  ${componentHelp(
+                    "Cómo leer la línea de evidencia",
+                    "El alcance territorial no cambia. Cada indicador usa su propia partición de usados, faltantes y excluidos; una orientación de mínimos no se convierte en benchmark elegible.",
+                  )}
+                </div>
+                ${renderEvidenceLine(benchmark)}
+              </section>
+
+              ${renderQuantitative(benchmark)}
+              ${renderOfferComposition(benchmark, summaries)}
+              ${renderQualitative(benchmark, summaries)}
+              ${renderCompositionAndExclusions(benchmark, summaries)}
+
+              <footer class="benchmark-sheet__footer">
+                <div>
+                  <strong>¿Qué cambia entre proyectos de esta misma muestra?</strong>
+                  <span>Contrasta precio, áreas, producto y evidencia por filas homogéneas.</span>
+                </div>
+                <button class="primary-button benchmark-primary-action" type="button" data-view="compare">
+                  Comparar proyectos de esta muestra
+                </button>
+              </footer>
+            </article>
+          `
+          : renderBenchmarkUnavailable(benchmark, district)
+      }
+
+      <details class="benchmark-territory span-12">
+        <summary>
+          <span>
+            <strong>Contexto territorial</strong>
+            Ranking de alta carga y cuadrantes analíticos del snapshot
+          </span>
+          <span>${formatNumber(district.polygon_valid_count)}/${formatNumber(district.observed_project_count)} con geografía válida</span>
+        </summary>
+        <div class="benchmark-territory__content">
+          ${renderTerritorialContext()}
+        </div>
+      </details>
     </section>
   `;
 }
