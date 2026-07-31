@@ -107,7 +107,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** demostrar profundidad multifuente y detectar comparaciones engañosas.
 
-**Estado:** implementación P3-01–P3-13 completada; checker P3-14 `PASS`; PR funcional #11 abierto como borrador mediante P3-15. Evidencia visual portable, revisión, merge y verificación post-merge pendientes.
+**Estado:** completada, fusionada, desplegada y verificada. PR funcional #11 y PR documental #12 fusionados; P3-16 `PASS` en Pages y P3-17 integrado en `main`.
 
 **Contrato implementado:** `2.2.0`, con índice `inspector` y registros autoritativos integrados en `model`; reader compatible con 2.0/2.1/2.2.
 
@@ -135,7 +135,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Resultado técnico:** CT-D/CT-G PASS; 10 expedientes, 15 activos autorizados, 8 rutas × 3 viewports, zoom 200% y lector comercial en 1:28.548. HUMAN-GATE-B no aplica.
 
-**Ship pendiente:** PR y merge humano → P3-16 Pages → P3-17 memoria post-merge.
+**Ship:** `deployed and verified`.
 
 ---
 
@@ -144,6 +144,8 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 **Historias:** 501–505; 504 Should, 505 Could.
 
 **Objetivo:** comparar por precio, áreas y atributos sin sobrecarga horizontal.
+
+**Estado:** planificación P4-00A/P4-00B completada en `feat/phase-4-benchmark-comparator`. El reader-test inicial emitió `FAIL`; B1–B4 fueron remediados y el re-review emitió `PASS WITH RISKS`. Implementación funcional bloqueada hasta `HUMAN-GATE-A` A1–A12, persistencia P4-00C y baseline P4-00D.
 
 ### Olas
 

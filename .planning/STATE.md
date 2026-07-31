@@ -1,14 +1,14 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-07-30
+**Actualizado:** 2026-07-31
 
 **Milestone:** demo vNext orientada a venta
 
 **Última fase completada:** Fase 3 — ficha, evidencia e inspector
 
-**Estado:** Fases 0, 1, 2 y 3 completadas. Fase 3 está técnicamente `deployed and verified` para el merge `cc51769fbc4c0be270fc48295b8a604db0382378`: P3-16 obtuvo `PASS` en GitHub Pages. Este cierre debe fusionarse mediante el PR documental de P3-17 para quedar vigente en `main`.
+**Estado:** Fases 0, 1, 2 y 3 completadas. Fase 3 está `deployed and verified`; su memoria P3-17 fue fusionada mediante el PR #12. Fase 4 inició planificación en una rama propia; no hay implementación funcional autorizada hasta completar reader-test independiente y `HUMAN-GATE-A`.
 
-**Rama documental activa:** `docs/phase-3-postmerge-report`.
+**Rama activa:** `feat/phase-4-benchmark-comparator`.
 
 ## Baseline vigente
 
@@ -89,6 +89,8 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Checker post-merge independiente: `/root/phase3_checker`.
 - CT-D/CT-G, activos permitidos, permisos, escritorio, móvil, zoom 200%, consola y red: PASS.
 - Informe post-merge: [phases/03-evidence-inspector/POSTMERGE_REPORT.md](phases/03-evidence-inspector/POSTMERGE_REPORT.md).
+- PR documental final: [#12](https://github.com/stefano-mt/viva-inteligencia-demo/pull/12), fusionado.
+- Merge documental final en `main`: `e30973baa963fd4caa408aaa802803beac91dddd`.
 
 ## Decisiones vigentes de datos
 
@@ -151,12 +153,25 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - GitHub Pages: desplegado y verificado mediante el run `30584187019`.
 - P3-16: `PASS`; contrato `2.2.0`, CT-D, CT-G, quince activos autorizados y permisos verificados en la URL pública.
 - P3-17: resultado persistido en `POSTMERGE_REPORT.md` y este estado mediante una rama/PR documental separados.
-- Estado de ship de Fase 3: **`deployed and verified`**, pendiente únicamente del merge humano de la memoria documental P3-17.
+- Estado de ship de Fase 3: **`deployed and verified`**; memoria P3-17 integrada en `main` mediante PR #12.
+
+## Fase 4 — planificación activa
+
+- Contexto: [phases/04-benchmark-comparator/CONTEXT.md](phases/04-benchmark-comparator/CONTEXT.md).
+- Evaluación de datos: [phases/04-benchmark-comparator/DATA-ASSESSMENT.md](phases/04-benchmark-comparator/DATA-ASSESSMENT.md).
+- UX/UI: [phases/04-benchmark-comparator/UI-SPEC.md](phases/04-benchmark-comparator/UI-SPEC.md).
+- Plan: [phases/04-benchmark-comparator/PLAN.md](phases/04-benchmark-comparator/PLAN.md).
+- Solicitud de aprobación: [phases/04-benchmark-comparator/HUMAN-GATE-A-REQUEST.md](phases/04-benchmark-comparator/HUMAN-GATE-A-REQUEST.md).
+- Baseline: checks de sintaxis, arquitectura, escenario, comparabilidad, datos e inspector pasan; Playwright requiere instalar dependencias locales antes del gate de navegador.
+- Restricción principal: el snapshot conserva precio mínimo y área mínima por proyecto, pero no demuestra que pertenezcan a la misma unidad/tipología. Los 371/69 cocientes solo pueden ser un índice orientativo no comparable; el benchmark elegible actual tiene `n = 0`. Tampoco sostiene precio de cierre, tasación, área techada/libre, stock, absorción ni atributos verificados.
+- Reader-test P4-00B inicial: `FAIL` por compatibilidad runtime 2.3, pairing, denominadores/estados y `write_sets`; B1–B4 fueron remediados y el re-review independiente emitió `PASS WITH RISKS`.
+- Estado: planificación lista para `HUMAN-GATE-A`; implementación P4-01 continúa bloqueada hasta aceptación A1–A12 y persistencia P4-00C.
 
 ## Próxima acción recomendada
 
-1. Revisar y fusionar por decisión humana el PR documental de P3-17.
-2. Iniciar Fase 4 únicamente mediante contexto, especificación, plan y gates propios.
+1. Obtener aceptación explícita A1–A12 de `HUMAN-GATE-A-REQUEST.md`.
+2. Persistir la aprobación mediante P4-00C.
+3. Ejecutar P4-00D (lockfile y baseline browser) antes de iniciar P4-01.
 
 ## Regla para actualizar este archivo
 
