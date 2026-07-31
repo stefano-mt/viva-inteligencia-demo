@@ -150,6 +150,29 @@ for (const exclusion of data.geography.exclusions) {
   assert.ok(geographyAssignmentIds.has(exclusion.project_id));
 }
 
+assert.equal(data.metadata.contract_version, "2.3.0");
+assert.equal(data.benchmark.fact_index.length, 397);
+const benchmarkProjectIds = new Set();
+for (const entry of data.benchmark.fact_index) {
+  assert.ok(projectIds.has(entry.project_id), entry.project_id);
+  assert.ok(observationIds.has(entry.observation_id), entry.observation_id);
+  assert.equal(benchmarkProjectIds.has(entry.project_id), false);
+  benchmarkProjectIds.add(entry.project_id);
+  for (const factId of [
+    entry.total_area_fact_id,
+    entry.published_price_fact_id,
+    entry.price_per_m2_fact_id,
+    entry.reported_unit_count_fact_id,
+    entry.parking_count_fact_id,
+    ...entry.attribute_fact_ids
+  ]) {
+    assert.ok(factId === null || factIds.has(factId), factId);
+  }
+  for (const evidenceId of entry.pairing_evidence_ids) {
+    assert.ok(evidenceIds.has(evidenceId), evidenceId);
+  }
+}
+
 console.log(
-  `Reference integration OK: ${model.projects.length} projects, ${unresolved} unresolved legacy aliases, ${data.geography.assignments.length} geography assignments.`
+  `Reference integration OK: ${model.projects.length} projects, ${unresolved} unresolved legacy aliases, ${data.geography.assignments.length} geography assignments and ${benchmarkProjectIds.size} benchmark entries.`
 );

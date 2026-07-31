@@ -34,14 +34,35 @@ const versionedCoveragePath = path.join(
   "coverage-report.json"
 );
 
-const first = await buildDemoData({ repositoryRoot, write: false });
-const second = await buildDemoData({ repositoryRoot, write: false });
+const first = await buildDemoData({
+  repositoryRoot,
+  includeBenchmark: true,
+  write: false
+});
+const second = await buildDemoData({
+  repositoryRoot,
+  includeBenchmark: true,
+  write: false
+});
 assert.equal(first.serialized, second.serialized);
 assert.equal(first.sha256, second.sha256);
 assert.equal(first.geoJsonSerialized, second.geoJsonSerialized);
 assert.equal(first.geoJsonSha256, second.geoJsonSha256);
 assert.equal(first.coverageReportSerialized, second.coverageReportSerialized);
 assert.equal(first.coverageReportSha256, second.coverageReportSha256);
+assert.equal(first.payload.metadata.contract_version, "2.3.0");
+assert.ok(
+  Buffer.byteLength(first.serialized, "utf8") < 10_000_000,
+  "the public JSON must remain below the approved 10 MB limit"
+);
+assert.equal(first.payload.benchmark.fact_index.length, 397);
+assert.equal(
+  first.coverageReport.phase_gaps.some(
+    ({ gap_id: gapId }) => gapId === "GAP-F4-BENCHMARK"
+  ),
+  false,
+  "the public 2.3 build must close GAP-F4-BENCHMARK"
+);
 assert.equal(
   canonicalizeLogicalEol(await fs.readFile(versionedOutputPath)),
   first.serialized,
@@ -81,14 +102,16 @@ const fingerprintByPath = new Map(
     fingerprint.sha256
   ])
 );
-const requiredInputPaths = await discoverRequiredInputPaths(repositoryRoot);
+const requiredInputPaths = await discoverRequiredInputPaths(repositoryRoot, {
+  includeBenchmark: true
+});
 assert.deepEqual(
   [...fingerprintByPath.keys()],
   requiredInputPaths,
   "every required input must be fingerprinted once"
 );
-assert.equal(requiredInputPaths.length, 48);
-assert.equal(fingerprintByPath.size, 48);
+assert.equal(requiredInputPaths.length, 50);
+assert.equal(fingerprintByPath.size, 50);
 for (const logicalPath of requiredInputPaths) {
   const content = await fs.readFile(
     path.join(repositoryRoot, ...logicalPath.split("/"))
@@ -127,6 +150,7 @@ try {
   const temporaryOutput = path.join(temporaryRoot, "build", "demo.json");
   const temporaryBuild = await buildDemoData({
     repositoryRoot: temporaryRoot,
+    includeBenchmark: true,
     outputPath: temporaryOutput
   });
   assert.equal(
@@ -162,6 +186,7 @@ try {
   await assert.rejects(
     buildDemoData({
       repositoryRoot: temporaryRoot,
+      includeBenchmark: true,
       outputPath: path.join(temporaryRoot, "build", "missing.json")
     }),
     /Required input is missing or unreadable: datos_relevantes\/demo-pilot\/events\.json/
@@ -179,6 +204,7 @@ try {
   await assert.rejects(
     buildDemoData({
       repositoryRoot: temporaryRoot,
+      includeBenchmark: true,
       outputPath: path.join(temporaryRoot, "build", "corrupt.json")
     }),
     /Invalid JSON in datos_relevantes\/demo-pilot\/issues\.json/
@@ -195,6 +221,7 @@ try {
   await fs.writeFile(eolPath, logicalEvents.replace(/\n/g, "\r\n"), "utf8");
   const crossPlatformBuild = await buildDemoData({
     repositoryRoot: temporaryRoot,
+    includeBenchmark: true,
     write: false
   });
   assert.equal(
@@ -222,6 +249,7 @@ try {
   await assert.rejects(
     buildDemoData({
       repositoryRoot: temporaryRoot,
+      includeBenchmark: true,
       write: false
     }),
     /raw binary hash mismatch|public asset hash mismatch/
@@ -231,6 +259,7 @@ try {
   await assert.rejects(
     buildDemoData({
       repositoryRoot: temporaryRoot,
+      includeBenchmark: true,
       outputPath: corruptPath
     }),
     /Output path cannot overwrite an input/
@@ -238,6 +267,7 @@ try {
   await assert.rejects(
     buildDemoData({
       repositoryRoot: temporaryRoot,
+      includeBenchmark: true,
       outputPath: webpPath
     }),
     /Output path cannot overwrite an input/
@@ -248,5 +278,5 @@ try {
 
 console.log(
   `Determinism OK: JSON ${first.sha256}, report ${first.coverageReportSha256}, ` +
-    `GeoJSON ${first.geoJsonSha256}, 48 sorted text/binary inputs.`
+    `GeoJSON ${first.geoJsonSha256}, 50 sorted text/binary inputs.`
 );

@@ -4,14 +4,14 @@
   "cutoff_at": "2026-07-28T01:24:28Z",
   "source_artifact": {
     "path": "prototipo_ejecutable/public/demo-data/viva-platform-demo.json",
-    "contract_version": "2.2.0",
-    "sha256": "9cf407c091fbb03b7d489e39079de57fd84af3fe16dc82b8ed559a7eda84646c",
-    "byte_length": 3656852
+    "contract_version": "2.3.0",
+    "sha256": "5d8a13b3e0af73d8dc8cee674f83cea541136b4c49bd444780bac3508f562041",
+    "byte_length": 7387136
   },
   "derivation": {
-    "authority": "$.model and $.inspector are authoritative; $.projects is the temporary legacy projection.",
-    "method": "All counts and distributions are recomputed offline from the deterministic 2.2 payload.",
-    "input_fingerprint_count": 48,
+    "authority": "$.model, $.inspector and $.benchmark when present are authoritative; $.projects is the temporary legacy projection.",
+    "method": "All counts and distributions are recomputed offline from the deterministic 2.3.0 payload.",
+    "input_fingerprint_count": 50,
     "counting_rules": [
       {
         "code": "MODEL_COLLECTION_COUNTS",
@@ -109,6 +109,41 @@
     "asset_byte_length": 211834,
     "reference": "$.inspector"
   },
+  "benchmark_coverage": {
+    "indexed_project_count": 397,
+    "pairing_status_distribution": {
+      "conflicting": 1,
+      "missing": 26,
+      "project_minima_pair_unresolved": 370
+    },
+    "indicator_partitions": {
+      "attributes_announced": {
+        "input": 397,
+        "used": 386,
+        "missing": 11,
+        "excluded": 0
+      },
+      "parking_reported": {
+        "input": 397,
+        "used": 16,
+        "missing": 381,
+        "excluded": 0
+      },
+      "price_per_m2_total": {
+        "input": 397,
+        "used": 0,
+        "missing": 26,
+        "excluded": 371
+      },
+      "units_reported": {
+        "input": 397,
+        "used": 397,
+        "missing": 0,
+        "excluded": 0
+      }
+    },
+    "reference": "$.benchmark"
+  },
   "source_observation_and_evidence_coverage": {
     "sources": {
       "count": 10,
@@ -182,13 +217,14 @@
       "reference": "$.model.sources"
     },
     "observations": {
-      "count": 30,
+      "count": 427,
       "entity_type_distribution": {
         "document": 1,
+        "project": 397,
         "typology": 29
       },
       "with_evidence_ids_count": 18,
-      "without_evidence_ids_count": 12,
+      "without_evidence_ids_count": 409,
       "extraction_method_distribution": {
         "controlled_absence": 2,
         "controlled_fixture": 9,
@@ -197,7 +233,8 @@
         "deterministic_derivation": 4,
         "user_provided_image_manual_transcription": 1,
         "user_provided_metadata_only": 1,
-        "user_provided_screenshot_transcription": 1
+        "user_provided_screenshot_transcription": 1,
+        "versioned_snapshot_materialization": 397
       },
       "reference": "$.model.observations"
     },
@@ -248,8 +285,8 @@
       "agencies": 184,
       "projects": 676,
       "typologies": 11,
-      "observations": 30,
-      "facts": 40,
+      "observations": 427,
+      "facts": 4021,
       "documents": 19,
       "evidence": 19,
       "issues": 10,
@@ -281,10 +318,11 @@
         "deterministic_derivation": 4,
         "user_provided_image_manual_transcription": 1,
         "user_provided_metadata_only": 1,
-        "user_provided_screenshot_transcription": 1
+        "user_provided_screenshot_transcription": 1,
+        "versioned_snapshot_materialization": 397
       },
       "with_evidence_ids_count": 18,
-      "without_evidence_ids_count": 12
+      "without_evidence_ids_count": 409
     },
     "documents": {
       "type_distribution": {
@@ -315,53 +353,54 @@
   },
   "analytical_quality_and_exclusions": {
     "facts": {
-      "count": 40,
+      "count": 4021,
       "quality_status_distribution": {
-        "certified": 10,
+        "certified": 3593,
         "illegible": 1,
         "inconsistent": 10,
         "insufficient": 2,
-        "reviewable": 17
+        "reviewable": 415
       },
       "value_kind_distribution": {
-        "derived": 11,
-        "observed": 28,
+        "derived": 381,
+        "observed": 3639,
         "simulated": 1
       },
       "benchmark_eligibility": {
-        "eligible": 10,
-        "excluded": 30
+        "eligible": 3593,
+        "excluded": 428
       },
       "eligible_by_quality_status": {
-        "certified": 10
+        "certified": 3593
       },
       "eligible_by_value_kind": {
         "derived": 1,
-        "observed": 9
+        "observed": 3592
       },
       "eligible_by_semantic_type": {
-        "area": 7,
-        "attribute": 1,
-        "price": 2
+        "area": 403,
+        "attribute": 2405,
+        "count": 413,
+        "price": 372
       },
       "excluded_by_quality_status": {
         "illegible": 1,
         "inconsistent": 10,
         "insufficient": 2,
-        "reviewable": 17
+        "reviewable": 415
       },
       "excluded_by_value_kind": {
-        "derived": 10,
-        "observed": 19,
+        "derived": 380,
+        "observed": 47,
         "simulated": 1
       },
       "excluded_by_semantic_type": {
-        "area": 5,
+        "area": 6,
         "attribute": 1,
         "count": 10,
         "percentage": 2,
-        "price": 8,
-        "price_per_m2": 2,
+        "price": 35,
+        "price_per_m2": 372,
         "text": 2
       }
     },
@@ -371,12 +410,13 @@
         "unknown": 37
       },
       "model_monetary_facts": {
-        "count": 12,
+        "count": 779,
         "currency_distribution": {
-          "PEN": 12
+          "PEN": 753,
+          "unknown": 26
         },
-        "eligible": 2,
-        "excluded": 10
+        "eligible": 372,
+        "excluded": 407
       }
     },
     "issues": {
@@ -511,25 +551,6 @@
     ]
   },
   "phase_gaps": [
-    {
-      "gap_id": "GAP-F4-BENCHMARK",
-      "target_phase": "F4",
-      "severity": "blocking_for_phase",
-      "current_evidence": {
-        "benchmark_eligible_fact_count": 10,
-        "benchmark_eligible_price_fact_count": 2,
-        "benchmark_eligible_price_per_m2_fact_count": 0,
-        "price_per_m2_fact_count": 2,
-        "legacy_unknown_currency_project_count": 37
-      },
-      "required_outcome": "Materialize market price and compatible area facts for the selected geography, grouped by currency, price type and denominator.",
-      "references": [
-        "$.model.facts",
-        "$.projects[*].currency",
-        "fact:ct-a-price-per-built-m2",
-        "fact:ct-a-price-per-total-m2"
-      ]
-    },
     {
       "gap_id": "GAP-F5-HISTORY-ASSISTANT",
       "target_phase": "F5",

@@ -46,6 +46,11 @@ const evidenceManifest = JSON.parse(
 
 assert.deepEqual(validatePrivacy(data), [], "public root must be privacy-clean");
 assert.deepEqual(
+  validatePrivacy(data.benchmark),
+  [],
+  "public benchmark must be privacy-clean"
+);
+assert.deepEqual(
   validatePrivacy(geography),
   [],
   "public GeoJSON must be privacy-clean"
@@ -60,7 +65,7 @@ assert.deepEqual(
   [],
   "authorized manifest metadata must be privacy-clean"
 );
-assert.equal(data.metadata.contract_version, "2.2.0");
+assert.equal(data.metadata.contract_version, "2.3.0");
 assert.doesNotMatch(
   JSON.stringify(geography),
   /[A-Za-z]:\\\\|\/Users\/|\/home\/|\"email\"|\"phone\"|\"whatsapp\"|\"contact\"/i
@@ -97,6 +102,17 @@ for (const evidence of data.model.evidence) {
     evidence.availability !== "available"
   ) {
     assert.equal(evidence.fragment, null);
+  }
+}
+
+const evidenceById = new Map(
+  data.model.evidence.map((evidence) => [evidence.evidence_id, evidence])
+);
+for (const entry of data.benchmark.fact_index) {
+  for (const evidenceId of entry.pairing_evidence_ids) {
+    const evidence = evidenceById.get(evidenceId);
+    assert.equal(evidence?.publish_permission, "authorized");
+    assert.equal(evidence?.availability, "available");
   }
 }
 
@@ -145,5 +161,5 @@ for (const [value, expectedCode] of [
 }
 
 console.log(
-  "Privacy integration OK: payload/report/manifest, 15 authorized binaries, CT-G denylist and negatives pass."
+  "Privacy integration OK: payload/benchmark/report/manifest, 15 authorized binaries, CT-G denylist and negatives pass."
 );

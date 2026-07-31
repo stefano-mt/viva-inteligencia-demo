@@ -12,10 +12,37 @@ const data = await readJson(
   "prototipo_ejecutable/public/demo-data/viva-platform-demo.json"
 );
 
+let baseFactIds = new Set();
 for (const collection of ["typologies", "facts", "issues", "events"]) {
+  const source = await readJson(
+    `datos_relevantes/demo-pilot/${collection}.json`
+  );
+  if (collection === "facts") {
+    const sourceIds = new Set(source.map((record) => record.fact_id));
+    baseFactIds = sourceIds;
+    const retainedSourceRecords = data.model.facts.filter((record) =>
+      sourceIds.has(record.fact_id)
+    );
+    const benchmarkRecords = data.model.facts.filter(
+      (record) => !sourceIds.has(record.fact_id)
+    );
+    assert.deepEqual(
+      retainedSourceRecords,
+      source,
+      "facts must preserve the complete P1-05 catalog"
+    );
+    assert.equal(benchmarkRecords.length, 3981);
+    assert.ok(
+      benchmarkRecords.every((record) =>
+        record.fact_id.startsWith("fact:benchmark-nexo-")
+      ),
+      "every fact added after P1-05 must belong to the F4 benchmark namespace"
+    );
+    continue;
+  }
   assert.deepEqual(
     data.model[collection],
-    await readJson(`datos_relevantes/demo-pilot/${collection}.json`),
+    source,
     `${collection} must remain the P1-05 catalog`
   );
 }
@@ -56,6 +83,7 @@ assert.equal(
 for (const aggregate of data.executive.certified_aggregates) {
   const members = data.model.facts.filter(
     (fact) =>
+      baseFactIds.has(fact.fact_id) &&
       fact.benchmark_eligible === true &&
       fact.quality_status === "certified" &&
       typeof fact.normalized_value === "number" &&
@@ -93,5 +121,5 @@ assert.equal(event.percentage, 5);
 assert.equal(event.cause, null);
 
 console.log(
-  `Measures integration OK: ${data.model.facts.length} facts, ${data.model.issues.length} issues, ${data.model.events.length} events.`
+  `Measures integration OK: 40 preserved + 3981 benchmark facts, ${data.model.issues.length} issues, ${data.model.events.length} events.`
 );

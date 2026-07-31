@@ -19,6 +19,30 @@ for (const collection of [
   "evidence"
 ]) {
   const source = await readJson(`datos_relevantes/demo-pilot/${collection}.json`);
+  if (collection === "observations") {
+    const sourceIds = new Set(
+      source.map((record) => record.observation_id)
+    );
+    const retainedSourceRecords = data.model.observations.filter((record) =>
+      sourceIds.has(record.observation_id)
+    );
+    const benchmarkRecords = data.model.observations.filter(
+      (record) => !sourceIds.has(record.observation_id)
+    );
+    assert.deepEqual(
+      retainedSourceRecords,
+      source,
+      "observations must preserve the complete P1-04 catalog"
+    );
+    assert.equal(benchmarkRecords.length, 397);
+    assert.ok(
+      benchmarkRecords.every((record) =>
+        record.observation_id.startsWith("observation:benchmark-nexo-")
+      ),
+      "every observation added after P1-04 must belong to the F4 benchmark namespace"
+    );
+    continue;
+  }
   assert.deepEqual(
     data.model[collection],
     source,
@@ -79,5 +103,5 @@ for (const documentId of [
 }
 
 console.log(
-  `Evidence integration OK: ${data.model.sources.length} sources, ${data.model.observations.length} observations, ${data.model.evidence.length} evidence records.`
+  `Evidence integration OK: ${data.model.sources.length} sources, 30 preserved + 397 benchmark observations, ${data.model.evidence.length} evidence records.`
 );
