@@ -1890,6 +1890,79 @@ export function validateBenchmarkSemantics(
     });
   });
 
+  const referencedFactIds = new Set();
+  const factIdentityOwners = new Map();
+  factIndex.forEach((entry, entryIndex) => {
+    if (!entry || typeof entry !== "object") return;
+    const entryPath = `${path}.fact_index[${entryIndex}]`;
+    const scalarFactIds = [
+      entry.total_area_fact_id,
+      entry.published_price_fact_id,
+      entry.price_per_m2_fact_id,
+      entry.reported_unit_count_fact_id,
+      entry.parking_count_fact_id
+    ];
+    const attributeFactIds = Array.isArray(entry.attribute_fact_ids)
+      ? entry.attribute_fact_ids
+      : [];
+    attributeFactIds.forEach((factId, attributeIndex) => {
+      const fact = facts.get(factId);
+      const factPath = `${entryPath}.attribute_fact_ids[${attributeIndex}]`;
+      if (!fact) return;
+      if (fact.semantic_type !== "attribute") {
+        push(
+          errors,
+          "BENCHMARK_ATTRIBUTE_FACT_SEMANTIC",
+          factPath,
+          `${factId} is not an attribute fact`
+        );
+      }
+      if (!attributeIds.has(fact.normalized_value)) {
+        push(
+          errors,
+          "BENCHMARK_ATTRIBUTE_FACT_CATALOG",
+          factPath,
+          `${factId} does not resolve to a catalog attribute`
+        );
+      }
+    });
+
+    for (const factId of [...scalarFactIds, ...attributeFactIds].filter(Boolean)) {
+      if (referencedFactIds.has(factId)) continue;
+      referencedFactIds.add(factId);
+      const fact = facts.get(factId);
+      if (!fact) continue;
+      if (fact.value_kind === "observed" && fact.original_value === null) {
+        push(
+          errors,
+          "BENCHMARK_FACT_ORIGINAL_MISSING",
+          `${entryPath}.project_id`,
+          `${factId} must preserve its observed original value`
+        );
+      }
+      const observation = observations.get(fact.observation_id);
+      if (!observation) continue;
+      const projectId = benchmarkProjectForEntity(fact.entity_id, typologies);
+      const identity = [
+        projectId,
+        fact.field_name,
+        observation.source_id,
+        observation.captured_at
+      ].join("|");
+      const owner = factIdentityOwners.get(identity);
+      if (owner && owner !== factId) {
+        push(
+          errors,
+          "BENCHMARK_FACT_IDENTITY_DUPLICATE",
+          `${entryPath}.project_id`,
+          `${factId} duplicates ${owner} for ${identity}`
+        );
+      } else {
+        factIdentityOwners.set(identity, factId);
+      }
+    }
+  });
+
   const indicators = benchmark.coverage?.indicators;
   if (!indicators || typeof indicators !== "object" || Array.isArray(indicators)) {
     return stableErrors(errors);
