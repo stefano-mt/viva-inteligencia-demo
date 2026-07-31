@@ -1,0 +1,163 @@
+{
+  "case_id": "CT-P-benchmark",
+  "classification": "controlled",
+  "description": "Pairing, deduplicación, conflicto, restricted, faltantes y umbrales se resuelven sin promover mínimos de proyecto.",
+  "policy_version": "benchmark-policy-v1",
+  "input": {
+    "records": [
+      {
+        "record_id": "record:ct-p-source-paired-a",
+        "project_id": "project:ct-p-source-paired",
+        "observation_id": "observation:ct-p-source-paired-a",
+        "offer_id": "offer:ct-p-101",
+        "published_price": 450000,
+        "currency": "PEN",
+        "total_area": 75,
+        "area_type": "total",
+        "price_per_m2": 6000,
+        "pairing_status": "source_paired",
+        "pairing_basis": "offer_id",
+        "pairing_evidence_ids": ["evidence:ct-p-offer-101"],
+        "publish_permission": "authorized"
+      },
+      {
+        "record_id": "record:ct-p-source-paired-duplicate",
+        "project_id": "project:ct-p-source-paired",
+        "observation_id": "observation:ct-p-source-paired-duplicate",
+        "offer_id": "offer:ct-p-101",
+        "published_price": 450000,
+        "currency": "PEN",
+        "total_area": 75,
+        "area_type": "total",
+        "price_per_m2": 6000,
+        "pairing_status": "source_paired",
+        "pairing_basis": "offer_id",
+        "pairing_evidence_ids": ["evidence:ct-p-offer-101-duplicate"],
+        "publish_permission": "authorized"
+      },
+      {
+        "record_id": "record:ct-p-project-minima",
+        "project_id": "project:ct-p-unresolved",
+        "observation_id": "observation:ct-p-project-minima",
+        "offer_id": null,
+        "published_price": 480000,
+        "currency": "PEN",
+        "total_area": 80,
+        "area_type": "total",
+        "price_per_m2": 6000,
+        "pairing_status": "project_minima_pair_unresolved",
+        "pairing_basis": "project_minima",
+        "pairing_evidence_ids": [],
+        "publish_permission": "authorized"
+      },
+      {
+        "record_id": "record:ct-p-conflict-a",
+        "project_id": "project:ct-p-conflict",
+        "observation_id": "observation:ct-p-conflict-a",
+        "offer_id": "offer:ct-p-202",
+        "published_price": 500000,
+        "currency": "PEN",
+        "total_area": 80,
+        "area_type": "total",
+        "price_per_m2": 6250,
+        "pairing_status": "source_paired",
+        "pairing_basis": "offer_id",
+        "pairing_evidence_ids": ["evidence:ct-p-conflict-a"],
+        "publish_permission": "authorized"
+      },
+      {
+        "record_id": "record:ct-p-conflict-b",
+        "project_id": "project:ct-p-conflict",
+        "observation_id": "observation:ct-p-conflict-b",
+        "offer_id": "offer:ct-p-202",
+        "published_price": 520000,
+        "currency": "PEN",
+        "total_area": 80,
+        "area_type": "total",
+        "price_per_m2": 6500,
+        "pairing_status": "source_paired",
+        "pairing_basis": "offer_id",
+        "pairing_evidence_ids": ["evidence:ct-p-conflict-b"],
+        "publish_permission": "authorized"
+      },
+      {
+        "record_id": "record:ct-p-restricted",
+        "project_id": "project:ct-p-restricted",
+        "observation_id": "observation:ct-p-restricted",
+        "offer_id": "offer:ct-p-303",
+        "published_price": 540000,
+        "currency": "PEN",
+        "total_area": 90,
+        "area_type": "total",
+        "price_per_m2": 6000,
+        "pairing_status": "source_paired",
+        "pairing_basis": "offer_id",
+        "pairing_evidence_ids": ["evidence:ct-p-restricted"],
+        "publish_permission": "restricted"
+      },
+      {
+        "record_id": "record:ct-p-missing-price",
+        "project_id": "project:ct-p-missing",
+        "observation_id": "observation:ct-p-missing-price",
+        "offer_id": null,
+        "published_price": null,
+        "currency": "PEN",
+        "total_area": 80,
+        "area_type": "total",
+        "price_per_m2": null,
+        "pairing_status": "missing",
+        "pairing_basis": "none",
+        "pairing_evidence_ids": [],
+        "publish_permission": "authorized"
+      }
+    ],
+    "sample_size_cases": [
+      {"n": 0, "quantitative_state": "insufficient", "qualitative_state": "insufficient"},
+      {"n": 1, "quantitative_state": "orientative", "qualitative_state": "orientative"},
+      {"n": 2, "quantitative_state": "orientative", "qualitative_state": "orientative"},
+      {"n": 3, "quantitative_state": "ready", "qualitative_state": "orientative"},
+      {"n": 4, "quantitative_state": "ready", "qualitative_state": "orientative"},
+      {"n": 5, "quantitative_state": "ready", "qualitative_state": "ready"}
+    ]
+  },
+  "expected": {
+    "eligible_quantitative_state": "orientative",
+    "eligible_n": 1,
+    "eligible_values": [6000],
+    "orientative_series_state": "orientative_noncomparable",
+    "orientative_series_n": 1,
+    "orientative_values": [6000],
+    "deduplicated_project_ids": ["project:ct-p-source-paired"],
+    "deduplicated_provenance_observation_ids": [
+      "observation:ct-p-source-paired-a",
+      "observation:ct-p-source-paired-duplicate"
+    ],
+    "conflicting_project_ids": ["project:ct-p-conflict"],
+    "restricted_project_ids": ["project:ct-p-restricted"],
+    "coverage": {
+      "input_project_ids": [
+        "project:ct-p-conflict",
+        "project:ct-p-missing",
+        "project:ct-p-restricted",
+        "project:ct-p-source-paired",
+        "project:ct-p-unresolved"
+      ],
+      "used_project_ids": ["project:ct-p-source-paired"],
+      "missing_project_ids": ["project:ct-p-missing"],
+      "excluded_projects": [
+        {
+          "project_id": "project:ct-p-conflict",
+          "reasons": ["conflicting_observations"]
+        },
+        {
+          "project_id": "project:ct-p-restricted",
+          "reasons": ["restricted"]
+        },
+        {
+          "project_id": "project:ct-p-unresolved",
+          "reasons": ["price_area_link_unresolved"]
+        }
+      ]
+    }
+  }
+}

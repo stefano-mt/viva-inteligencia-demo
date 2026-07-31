@@ -1,0 +1,74 @@
+{
+  "case_id": "CT-A-benchmark",
+  "classification": "controlled",
+  "description": "Built y total permanecen separados; el precio simulado no se convierte en mercado.",
+  "policy_version": "benchmark-policy-v1",
+  "input": {
+    "project_id": "project:ct-a-controlled",
+    "facts": [
+      {
+        "fact_id": "fact:ct-a-built-area",
+        "semantic_type": "area",
+        "area_type": "built",
+        "normalized_value": 98,
+        "unit": "m2",
+        "value_kind": "observed",
+        "benchmark_eligible": true
+      },
+      {
+        "fact_id": "fact:ct-a-total-area",
+        "semantic_type": "area",
+        "area_type": "total",
+        "normalized_value": 206,
+        "unit": "m2",
+        "value_kind": "observed",
+        "benchmark_eligible": true
+      },
+      {
+        "fact_id": "fact:ct-a-scenario-price",
+        "semantic_type": "price",
+        "price_type": "scenario",
+        "normalized_value": 980000,
+        "currency": "PEN",
+        "value_kind": "simulated",
+        "benchmark_eligible": false
+      },
+      {
+        "fact_id": "fact:ct-a-price-per-built-m2",
+        "semantic_type": "price_per_m2",
+        "denominator_area_type": "built",
+        "normalized_value": 10000,
+        "unit": "PEN/m2",
+        "value_kind": "derived",
+        "benchmark_eligible": false
+      },
+      {
+        "fact_id": "fact:ct-a-price-per-total-m2",
+        "semantic_type": "price_per_m2",
+        "denominator_area_type": "total",
+        "normalized_value": 4757.28,
+        "unit": "PEN/m2",
+        "value_kind": "derived",
+        "benchmark_eligible": false
+      }
+    ]
+  },
+  "expected": {
+    "market_denominator_area_types": ["total"],
+    "preserved_area_types": ["built", "total"],
+    "selected_market_price_fact_id": null,
+    "built_or_free_market_fact_created": false,
+    "quantitative_state": "insufficient",
+    "coverage": {
+      "input_project_ids": ["project:ct-a-controlled"],
+      "used_project_ids": [],
+      "missing_project_ids": [],
+      "excluded_projects": [
+        {
+          "project_id": "project:ct-a-controlled",
+          "reasons": ["blocking_issue"]
+        }
+      ]
+    }
+  }
+}

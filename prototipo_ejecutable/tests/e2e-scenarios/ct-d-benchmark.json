@@ -1,0 +1,53 @@
+{
+  "case_id": "CT-D-benchmark",
+  "classification": "controlled",
+  "description": "Cuarzo conserva evidencia autorizada, unknown no se vuelve false y restricted no entra al denominador.",
+  "policy_version": "benchmark-policy-v1",
+  "input": {
+    "project_id": "project:ct-d-controlled",
+    "attributes": [
+      {
+        "attribute_id": "attribute:countertop-quartz",
+        "original_value": "cuarzo",
+        "normalized_value": "cuarzo",
+        "state": "evidence_backed",
+        "fact_id": "fact:ct-d-countertop-material",
+        "evidence_id": "evidence:ct-d-countertop-fragment",
+        "publish_permission": "authorized"
+      },
+      {
+        "attribute_id": "attribute:air-conditioning",
+        "original_value": null,
+        "normalized_value": "unknown",
+        "state": "unknown",
+        "fact_id": "fact:ct-d-air-conditioning",
+        "evidence_id": null,
+        "publish_permission": null
+      },
+      {
+        "attribute_id": "attribute:restricted-example",
+        "original_value": null,
+        "normalized_value": null,
+        "state": "restricted",
+        "fact_id": null,
+        "evidence_id": "evidence:ct-d-restricted-metadata",
+        "publish_permission": "restricted"
+      }
+    ]
+  },
+  "expected": {
+    "evidence_open_target": "evidence:ct-d-countertop-fragment",
+    "include_controlled_example_in_market_prevalence": false,
+    "countertop_state": "orientative",
+    "countertop_informed_project_count": 1,
+    "air_conditioning_state": "insufficient",
+    "air_conditioning_absence_claim": false,
+    "restricted_in_denominator": false,
+    "coverage": {
+      "input_project_ids": ["project:ct-d-controlled"],
+      "used_project_ids": ["project:ct-d-controlled"],
+      "missing_project_ids": [],
+      "excluded_projects": []
+    }
+  }
+}
