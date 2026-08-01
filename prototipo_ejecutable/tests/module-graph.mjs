@@ -14,11 +14,15 @@ import {
   isScenarioDisplayProject,
 } from "../public/js/domain.js";
 import {
+  COMPARISON_EVENTS,
   applyScenarioProduct,
   bindEvents,
+  focusComparisonRow,
   resetScenario,
   selectInspectorCase,
   selectScenarioProject,
+  setComparisonProject,
+  setComparisonTarget,
   setScenarioScope,
 } from "../public/js/controller.js";
 import { sectionGuides, views } from "../public/js/config.js";
@@ -35,6 +39,7 @@ const projectDir = path.resolve(
 );
 const entry = path.join(projectDir, "public", "app.js");
 const expectedModules = [
+  "benchmark.js",
   "comparability.js",
   "config.js",
   "controller.js",
@@ -106,7 +111,31 @@ assert.deepEqual(views[2], {
   hint: "Fuentes, tipologías y calidad",
   group: "Análisis",
 });
+assert.deepEqual(views[3], {
+  id: "market",
+  label: "Benchmark de microzona",
+  hint: "Muestra, atributos y exclusiones",
+  group: "Análisis",
+});
+assert.deepEqual(views[4], {
+  id: "compare",
+  label: "Comparador comercial",
+  hint: "Diferencias y siguiente acción",
+  group: "Análisis",
+});
 assert.equal(sectionGuides.inspector.steps.length, 3);
+assert.equal(sectionGuides.market.steps.length, 3);
+assert.equal(sectionGuides.compare.steps.length, 3);
+assert.match(sectionGuides.market.outcome, /limitaciones explícitas/u);
+assert.match(sectionGuides.compare.outcome, /siguiente acción/u);
+assert.deepEqual(COMPARISON_EVENTS, {
+  selection: "viva:comparison-selection",
+  target: "viva:comparison-target",
+  rowFocus: "viva:comparison-row-focus",
+});
+assert.equal(typeof setComparisonProject, "function");
+assert.equal(typeof setComparisonTarget, "function");
+assert.equal(typeof focusComparisonRow, "function");
 assert.match(viewIcon("inspector"), /<svg/);
 
 assert.deepEqual(parseHashRoute("#inspector"), {
@@ -531,15 +560,17 @@ assert.doesNotMatch(appSource, /\bdispatchScenario\b/);
 assert.match(appSource, /inspector:\s*renderInspector/);
 assert.match(appSource, /selectInspectorCase\(requested,\s*\{\s*render:\s*false\s*\}\)/);
 assert.match(indexSource, /renderInspector/);
-const inspectorStyleOrder = [
+const featureStyleOrder = [
   "./styles/50-views.css",
   "./styles/55-inspector.css",
+  "./styles/56-benchmark.css",
+  "./styles/57-comparison.css",
   "./styles/60-states.css",
 ].map((specifier) => stylesManifestSource.indexOf(specifier));
-assert.ok(inspectorStyleOrder.every((index) => index >= 0));
+assert.ok(featureStyleOrder.every((index) => index >= 0));
 assert.deepEqual(
-  inspectorStyleOrder,
-  [...inspectorStyleOrder].sort((left, right) => left - right),
+  featureStyleOrder,
+  [...featureStyleOrder].sort((left, right) => left - right),
 );
 for (const eventName of [
   "viva:scenario-territory",
@@ -549,6 +580,19 @@ for (const eventName of [
 ]) {
   assert.ok(controllerSource.includes(eventName));
 }
+for (const eventName of Object.values(COMPARISON_EVENTS)) {
+  assert.ok(controllerSource.includes(eventName));
+}
+for (const hook of [
+  "data-compare-toggle",
+  "data-compare-remove",
+  "data-compare-target-toggle",
+  "data-comparison-row-target",
+]) {
+  assert.ok(controllerSource.includes(hook));
+}
+assert.doesNotMatch(controllerSource, /from\s+["']\.\/views\//u);
+assert.doesNotMatch(controllerSource, /\bbuildComparisonModel\s*\(/u);
 for (const hook of [
   "data-scenario-scope",
   "data-scenario-quadrant",
