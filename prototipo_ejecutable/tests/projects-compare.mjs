@@ -11,10 +11,11 @@ import {
   renderProjectDetail,
   renderProjects,
 } from "../public/js/views/projects.js";
+import { renderCompare } from "../public/js/views/compare.js";
 import {
-  buildCompareModel,
-  renderCompare,
-} from "../public/js/views/compare.js";
+  buildBenchmarkContext,
+  buildComparisonModel,
+} from "../public/js/benchmark.js";
 
 const data = JSON.parse(
   await fs.readFile(
@@ -28,7 +29,7 @@ const data = JSON.parse(
 const ctC = JSON.parse(
   await fs.readFile(
     new URL(
-      "../../datos_relevantes/demo-pilot/fixtures/ct-c.json",
+      "./e2e-scenarios/ct-c-benchmark.json",
       import.meta.url,
     ),
     "utf8",
@@ -38,6 +39,7 @@ const ctC = JSON.parse(
 initializeScenarioData(data, { boundaryArtifactStatus: "valid" });
 
 const baselineContext = state.scenarioContext;
+const baselineBenchmark = structuredClone(state.benchmarkContext);
 const baselineScenario = structuredClone(state.scenario);
 const baselineContextSnapshot = structuredClone(baselineContext);
 const baselineRows = buildComparableRows({
@@ -224,51 +226,50 @@ assert.deepEqual(state.scenario, baselineScenario);
 assert.deepEqual(state.scenarioContext, baselineContextSnapshot);
 
 const beyondTop60 = baselineRows[70];
-const beyondModel = buildCompareModel({
-  projects: data.projects,
-  scenarioContext: baselineContext,
-  query: beyondTop60.projectId,
-  selectedProjectIds: [],
-});
-assert.equal(beyondModel.comparableCount, 85);
-assert.deepEqual(
-  beyondModel.candidates.map((row) => row.projectId),
-  [beyondTop60.projectId],
+state.benchmarkContext = baselineBenchmark;
+state.compareQuery = beyondTop60.projectId;
+state.compareProjectIds = [];
+const beyondMarkup = renderCompare();
+assert.equal((beyondMarkup.match(/data-compare-toggle/gu) ?? []).length, 1);
+assert.match(
+  beyondMarkup,
+  new RegExp(`value="${beyondTop60.projectId}"`),
+  "La búsqueda profunda debe encontrar candidatos más allá del primer bloque visible",
 );
 
 const selectedInput = [
-  baselineRows[0].legacyId,
+  baselineRows[0].projectId,
   baselineRows[1].projectId,
-  baselineRows[2].legacyId,
+  baselineRows[2].projectId,
   baselineRows[3].projectId,
   "project:nexo-not-in-context",
   baselineRows[0].projectId,
 ];
-const compareModel = buildCompareModel({
-  projects: data.projects,
-  scenarioContext: baselineContext,
+const compareModel = buildComparisonModel({
+  benchmarkContext: baselineBenchmark,
   selectedProjectIds: selectedInput,
-  maxSelected: 99,
+  includeTargetScenario: false,
 });
 assert.equal(compareModel.selected.length, 3);
-assert.equal(compareModel.maxSelected, 3);
 assert.ok(
-  compareModel.selectedIds.every((projectId) =>
+  compareModel.selected.map(({ projectId }) => projectId).every((projectId) =>
     projectId.startsWith("project:nexo-"),
   ),
 );
-assert.equal(compareModel.isAtMaximum, true);
 assert.equal(
-  compareModel.selectedIdSet.has(baselineRows[3].projectId),
+  compareModel.selected.some(
+    ({ projectId }) => projectId === baselineRows[3].projectId,
+  ),
   false,
 );
 
-state.compareProjectIds = compareModel.selected.map(
-  (row) => row.legacyId,
-);
+state.compareProjectIds = compareModel.selected.map(({ projectId }) => projectId);
 state.compareQuery = "";
 const compareMarkup = renderCompare();
-assert.deepEqual(state.compareProjectIds, compareModel.selectedIds);
+assert.deepEqual(
+  state.compareProjectIds,
+  compareModel.selected.map(({ projectId }) => projectId),
+);
 assert.match(
   compareMarkup,
   /data-scenario-consumer="compare"/,
@@ -285,26 +286,27 @@ assert.equal(
 assert.match(
   compareMarkup,
   new RegExp(
-    `data-canonical-project-id="${baselineRows[3].projectId}"\\s+disabled`,
+    `value="${baselineRows[3].projectId}"[\\s\\S]*?disabled`,
   ),
 );
-assert.match(compareMarkup, /Matriz de comparación/);
-assert.match(compareMarkup, /<th scope="row">/);
+assert.match(compareMarkup, /Matriz agrupada/);
+assert.match(compareMarkup, /role="rowheader"/);
 for (const row of baselineRows) {
   assert.match(
     compareMarkup,
-    new RegExp(
-      `data-canonical-project-id="${row.projectId}"`,
-    ),
+    new RegExp(`value="${row.projectId}"`),
   );
 }
 assert.doesNotMatch(
   compareMarkup,
-  /data-canonical-project-id="(?:observed:|[0-9]+")/,
+  /data-compare-toggle[\s\S]*?value="(?:observed:|[0-9]+")/,
 );
-assert.match(compareMarkup, /Score de comparabilidad/);
-assert.match(compareMarkup, /Cobertura de evidencia/);
-assert.match(compareMarkup, /Precio publicado provisional/);
+assert.equal(
+  (compareMarkup.match(/data-comparison-group=/g) ?? []).length,
+  9,
+);
+assert.match(compareMarkup, /Diferencias prioritarias/);
+assert.match(compareMarkup, /Precio publicado desde/);
 assert.doesNotMatch(compareMarkup, /NaN|Infinity|undefined/);
 
 const ineligiblePriceRow = baselineRows.find(
@@ -362,16 +364,15 @@ assert.equal(
   }).rows.length,
   0,
 );
-assert.equal(
-  buildCompareModel({
-    projects: data.projects,
-    scenarioContext: emptyContext,
-  }).candidates.length,
-  0,
-);
+const emptyBenchmark = buildBenchmarkContext({
+  data,
+  scenarioContext: emptyContext,
+});
+assert.equal(emptyBenchmark.projectSummaries.length, 0);
 
 const originalContext = state.scenarioContext;
 state.scenarioContext = emptyContext;
+state.benchmarkContext = emptyBenchmark;
 state.selectedProjectId = null;
 state.projectFilters = {
   district: "Otro distrito",
@@ -395,12 +396,13 @@ assert.match(
   /Sin comparables para estos filtros locales/,
 );
 assert.match(emptyProjectsMarkup, /no se amplió ni cambió de distrito/);
-assert.match(emptyCompareMarkup, /Sin candidatos para esta búsqueda/);
+assert.match(emptyCompareMarkup, /Selecciona dos proyectos para comenzar/);
 assert.doesNotMatch(
   `${emptyProjectsMarkup}${emptyCompareMarkup}`,
   /NaN|Infinity|undefined/,
 );
 state.scenarioContext = originalContext;
+state.benchmarkContext = baselineBenchmark;
 
 state.projectFilters = {
   phase: "Todos",
@@ -427,8 +429,7 @@ assert.doesNotMatch(
   /data-canonical-project-id="(?:observed:|[0-9]+")/,
 );
 
-const ctCProjectId =
-  ctC.expected.result.comparable_project_ids[0];
+const ctCProjectId = ctC.input.comparable_project_ids[0];
 const ctCProject = {
   id: "ct-c-inside",
   project_id: ctCProjectId,
@@ -445,10 +446,8 @@ const ctCProject = {
 };
 const ctCContext = {
   scope_text: "Miraflores · Radio 500 m",
-  comparable_project_ids:
-    ctC.expected.result.comparable_project_ids,
-  price_reference_project_ids:
-    ctC.expected.result.price_reference_project_ids,
+  comparable_project_ids: ctC.input.comparable_project_ids,
+  price_reference_project_ids: ctC.input.comparable_project_ids,
   comparable_scores: [
     {
       project_id: ctCProjectId,
@@ -467,21 +466,32 @@ assert.deepEqual(
   }).rows.map((row) => row.projectId),
   [ctCProjectId],
 );
-assert.deepEqual(
-  buildCompareModel({
+const ctCBenchmark = buildBenchmarkContext({
+  data: {
+    ...data,
     projects: [ctCProject],
-    scenarioContext: ctCContext,
-  }).candidates.map((row) => row.projectId),
-  ctC.expected.result.consumer_project_ids.comparator,
+  },
+  scenarioContext: ctCContext,
+});
+assert.deepEqual(
+  ctCBenchmark.projectSummaries.map(({ projectId }) => projectId),
+  ctC.expected.consumer_project_ids.compare,
 );
-const resetCompareModel = buildCompareModel({
-  projects: data.projects,
-  scenarioContext: baselineContext,
-  query: "",
+const ctCComparison = buildComparisonModel({
+  benchmarkContext: ctCBenchmark,
+  selectedProjectIds: [ctCProjectId],
+});
+assert.deepEqual(
+  ctCComparison.selected.map(({ projectId }) => projectId),
+  ctC.expected.consumer_project_ids.compare,
+);
+assert.equal(ctCComparison.status, "insufficient");
+const resetCompareModel = buildComparisonModel({
+  benchmarkContext: baselineBenchmark,
   selectedProjectIds: [],
 });
-assert.equal(resetCompareModel.candidates.length, 85);
-assert.deepEqual(resetCompareModel.selectedIds, []);
+assert.equal(baselineBenchmark.projectSummaries.length, 85);
+assert.deepEqual(resetCompareModel.selected, []);
 
 const maliciousData = structuredClone(data.projects);
 const maliciousCanonicalId = baselineRows[0].projectId;
@@ -509,6 +519,13 @@ state.data = {
   projects: maliciousData,
 };
 state.scenarioContext = maliciousContext;
+const maliciousBenchmark = structuredClone(baselineBenchmark);
+const maliciousSummary = maliciousBenchmark.projectSummaries.find(
+  ({ projectId }) => projectId === maliciousCanonicalId,
+);
+assert.ok(maliciousSummary);
+maliciousSummary.name = maliciousProject.project_name;
+state.benchmarkContext = maliciousBenchmark;
 state.projectFilters = {
   phase: "Todos",
   query: "",
