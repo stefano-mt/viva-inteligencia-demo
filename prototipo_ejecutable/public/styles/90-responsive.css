@@ -836,3 +836,382 @@
     grid-row: 1;
   }
 }
+
+/*
+ * P4-12: Benchmark y Comparador se leen como una cédula técnica.
+ * El contexto territorial se compacta sin retirar controles ni evidencia.
+ */
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar {
+  min-height: 0;
+  grid-template-columns:
+    minmax(170px, 0.58fr)
+    minmax(430px, 1.7fr)
+    minmax(210px, 0.72fr);
+  gap: 8px 14px;
+  padding: 9px 16px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__heading {
+  min-height: 44px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__heading .eyebrow {
+  font-size: 13px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__heading h1 {
+  font-size: 22px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__heading .view-context {
+  font-size: 13px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__controls {
+  grid-column: auto;
+  grid-row: auto;
+  grid-template-columns: minmax(150px, 0.58fr) minmax(270px, 1.42fr);
+  gap: 6px 9px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-dependent-note,
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-scope > p,
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-dependent > p,
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__meta span:nth-child(n + 2),
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-status small {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) :is(.scenario-scope, .scenario-dependent) legend {
+  margin-bottom: 4px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-segment,
+.workspace:has(:is(.benchmark-view, .comparison-shell)) :is(.scenario-primary-action, .scenario-reset) {
+  min-height: 44px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__actions {
+  grid-column: auto;
+  grid-row: auto;
+  gap: 6px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__buttons {
+  grid-template-columns: minmax(118px, 1fr) auto;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__meta {
+  grid-template-columns: 1fr;
+  gap: 1px;
+  font-size: 13px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary {
+  display: grid;
+  grid-template-columns:
+    minmax(165px, 0.72fr)
+    minmax(0, 1.55fr)
+    minmax(230px, 0.86fr);
+  gap: 8px 14px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 13px 16px 11px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__heading {
+  display: grid;
+  gap: 5px;
+  align-content: center;
+  padding: 0;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__heading h2 {
+  font-size: clamp(19px, 1.7vw, 24px);
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__eligibility {
+  font-size: 13px;
+  text-align: left;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__metrics {
+  align-self: stretch;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__metrics > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  align-content: center;
+  padding: 8px 10px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__metrics dt {
+  margin-bottom: 2px;
+  font-size: 13px;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__metrics dd {
+  font-size: 16px;
+  overflow-wrap: normal;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__metrics dd small {
+  display: block;
+  margin: 2px 0 0;
+  font-size: 13px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__statuses {
+  grid-template-columns: 1fr;
+  gap: 4px;
+  padding-top: 0;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-status {
+  min-height: 30px;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 7px;
+  border-radius: 7px;
+  padding: 4px 7px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-status__mark {
+  width: 22px;
+  height: 22px;
+  border-width: 1px;
+  font-size: 13px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-status strong {
+  font-size: 13px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-share {
+  grid-column: 1;
+  grid-row: 2;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-share summary {
+  min-height: 44px;
+  font-size: 13px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .section-guide {
+  margin-bottom: 10px;
+}
+
+.workspace:has(:is(.benchmark-view, .comparison-shell)) .section-guide summary {
+  min-height: 46px;
+  padding-block: 4px;
+}
+
+@media (min-width: 901px) {
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__heading {
+    min-height: 76px;
+    padding-bottom: 20px;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__meta {
+    position: absolute;
+    bottom: 5px;
+    left: 16px;
+    z-index: 1;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__heading {
+    padding-bottom: 30px;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-share {
+    position: absolute;
+    bottom: 9px;
+    left: 16px;
+    width: max-content;
+    max-width: calc(33% - 16px);
+    border-top: 0;
+  }
+}
+
+@media (min-width: 1050px) and (max-width: 1320px) {
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar {
+    grid-template-columns:
+      minmax(190px, 0.56fr)
+      minmax(530px, 1.7fr)
+      minmax(200px, 0.58fr);
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__controls {
+    grid-template-columns:
+      minmax(100px, 0.48fr)
+      minmax(185px, 0.82fr)
+      minmax(210px, 1fr);
+    align-items: end;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-dependent {
+    grid-column: auto;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__heading .view-context {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 900px) {
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 10px 14px;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__heading {
+    min-height: 44px;
+    padding-bottom: 0;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) :is(.scenario-bar__controls, .scenario-bar__actions) {
+    grid-column: 1;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__controls {
+    grid-template-columns: minmax(150px, 0.55fr) minmax(280px, 1.45fr);
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__actions {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary {
+    grid-template-columns: minmax(165px, 0.7fr) minmax(0, 1.3fr);
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__statuses {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-share {
+    position: static;
+    grid-column: 1 / -1;
+    grid-row: auto;
+    width: auto;
+    max-width: none;
+    border-top: 1px dashed var(--teal-line);
+  }
+}
+
+@media (max-width: 760px) {
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) :is(.scenario-bar__controls, .scenario-bar__actions) {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__meta {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip-path: none;
+    white-space: normal;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar__buttons {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-bar .menu-toggle {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) :is(.scenario-summary__heading, .scenario-summary__statuses, .scenario-share) {
+    grid-column: 1;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__heading {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__metrics > div {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__metrics > div:nth-child(even) {
+    border-left: 1px solid var(--line);
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__statuses {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .content {
+    padding-top: 12px;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary {
+    padding: 12px;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__heading {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .scenario-summary__metrics > div {
+    padding: 8px;
+  }
+
+  .workspace:has(:is(.benchmark-view, .comparison-shell)) .section-guide summary {
+    min-height: 52px;
+    padding: 8px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace:has(:is(.benchmark-view, .comparison-shell))
+    :is(button, summary, a, .benchmark-evidence-line, .comparison-project-head) {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}

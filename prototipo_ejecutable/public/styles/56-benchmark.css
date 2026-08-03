@@ -289,8 +289,9 @@
 .benchmark-attribute summary:focus-visible,
 .benchmark-territory > summary:focus-visible,
 .benchmark-primary-action:focus-visible {
-  outline: 3px solid #202022;
-  outline-offset: 3px;
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px #202022;
 }
 
 .benchmark-id-list {
@@ -317,6 +318,8 @@
 .benchmark-id-list small {
   color: var(--muted);
   font-size: 13px;
+  overflow-wrap: anywhere;
+  white-space: normal;
 }
 
 .benchmark-id-list li > span {

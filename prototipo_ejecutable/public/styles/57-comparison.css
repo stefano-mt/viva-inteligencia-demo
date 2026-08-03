@@ -14,8 +14,9 @@
 }
 
 .comparison-shell :is(button, summary, a, input):focus-visible {
-  outline: 3px solid #f2b544;
-  outline-offset: 3px;
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--comparison-ink);
 }
 
 .comparison-hero {
@@ -130,12 +131,13 @@
 }
 
 .comparison-chip strong {
-  max-width: 220px;
-  overflow: hidden;
+  max-width: min(260px, 100%);
+  overflow: visible;
   color: var(--comparison-ink);
   font-size: 14px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+  white-space: normal;
 }
 
 .comparison-chip small {
@@ -489,7 +491,7 @@
 .comparison-project-head {
   position: sticky;
   z-index: 12;
-  top: 0;
+  top: 116px;
   display: grid;
   grid-template-columns: minmax(190px, 0.75fr) minmax(0, 3fr);
   gap: 1px;
@@ -599,8 +601,8 @@
   grid-template-columns: minmax(190px, 0.75fr) minmax(0, 3fr);
   gap: 1px;
   border-top: 1px solid var(--comparison-line);
+  scroll-margin-top: 202px;
   background: var(--comparison-line);
-  scroll-margin-top: 84px;
 }
 
 .comparison-metric-row:first-child {
@@ -835,7 +837,7 @@
   overflow-wrap: anywhere;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1320px) {
   .comparison-conclusion {
     grid-template-columns: 1fr;
   }
@@ -844,6 +846,13 @@
     grid-template-columns: 1fr;
   }
 
+  .comparison-project-head {
+    position: relative;
+    top: auto;
+  }
+}
+
+@media (max-width: 1000px) {
   .comparison-priority-index {
     display: grid;
     grid-template-columns: 1fr;
@@ -918,6 +927,7 @@
 
   .comparison-metric-row {
     display: block;
+    scroll-margin-top: 24px;
   }
 
   .comparison-metric-row__label {
