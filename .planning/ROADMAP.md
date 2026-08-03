@@ -107,7 +107,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** demostrar profundidad multifuente y detectar comparaciones engañosas.
 
-**Estado:** implementación P3-01–P3-13 completada; checker P3-14 `PASS`; PR funcional #11 abierto como borrador mediante P3-15. Evidencia visual portable, revisión, merge y verificación post-merge pendientes.
+**Estado:** completada, fusionada, desplegada y verificada. PR funcional #11 y PR documental #12 fusionados; P3-16 `PASS` en Pages y P3-17 integrado en `main`.
 
 **Contrato implementado:** `2.2.0`, con índice `inspector` y registros autoritativos integrados en `model`; reader compatible con 2.0/2.1/2.2.
 
@@ -135,7 +135,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Resultado técnico:** CT-D/CT-G PASS; 10 expedientes, 15 activos autorizados, 8 rutas × 3 viewports, zoom 200% y lector comercial en 1:28.548. HUMAN-GATE-B no aplica.
 
-**Ship pendiente:** PR y merge humano → P3-16 Pages → P3-17 memoria post-merge.
+**Ship:** `deployed and verified`.
 
 ---
 
@@ -145,6 +145,10 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** comparar por precio, áreas y atributos sin sobrecarga horizontal.
 
+**Estado:** cierre técnico completado en `feat/phase-4-benchmark-comparator`. P4-13A cerró G1 y la repetición independiente P4-13 emitió `PASS` sobre `be05fdc`; no se requiere HUMAN-GATE-B. P4-14 quedó versionada y el PR funcional #13 está abierto como borrador. Evidencia portable, revisión, merge, P4-15 y P4-16 permanecen pendientes; la fase aún no está desplegada.
+
+**Contrato implementado:** `2.3.0`, con índice autoritativo `benchmark`; reader compatible con 2.0–2.3 y runtime territorial probado con 2.1/2.2/2.3.
+
 ### Olas
 
 1. Agregados certificados por microzona.
@@ -152,6 +156,10 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 3. Conclusión explicable y exportación opcional.
 
 **Gate de salida:** benchmark excluye inconsistencias, muestra denominadores/fuentes y permite entender diferencias sin depender del hover.
+
+**Resultado técnico:** HU-DEMO-501–504 PASS; HU-DEMO-505 diferida. Miraflores distingue 69 publicaciones raw, 68 cocientes orientativos y 0 parejas elegibles; CT-A/B/C/D/G/I/P PASS; 8 rutas × 3 viewports, zoom 200%, privacidad, determinismo y recorrido UI-only PASS.
+
+**Ship:** cierre técnico completo; PR funcional, merge humano, Pages y persistencia post-merge pendientes.
 
 ---
 

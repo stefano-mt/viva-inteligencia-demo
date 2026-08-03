@@ -32,18 +32,23 @@ const ctI = await readJson(
 const environment = createScenarioEnvironment(data);
 const defaults = environment.defaults;
 
-assert.equal(data.metadata.contract_version, "2.2.0");
-assert.deepEqual(SUPPORTED_PUBLIC_CONTRACT_VERSIONS, ["2.1.0", "2.2.0"]);
-const legacyData = structuredClone(data);
-legacyData.metadata.contract_version = "2.1.0";
-assert.deepEqual(
-  createScenarioEnvironment(legacyData),
-  environment,
-  "equivalent 2.1 and 2.2 payloads must expose identical F2 capabilities"
-);
+assert.equal(data.metadata.contract_version, "2.3.0");
+assert.deepEqual(SUPPORTED_PUBLIC_CONTRACT_VERSIONS, [
+  "2.1.0",
+  "2.2.0",
+  "2.3.0"
+]);
+for (const contractVersion of ["2.1.0", "2.2.0"]) {
+  const compatibleData = structuredClone(data);
+  compatibleData.metadata.contract_version = contractVersion;
+  assert.deepEqual(
+    createScenarioEnvironment(compatibleData),
+    environment,
+    `equivalent ${contractVersion} payloads must expose identical F2 capabilities`
+  );
+}
 for (const contractVersion of [
   "2.0.0",
-  "2.3.0",
   "3.0.0",
   "2.2",
   "future",

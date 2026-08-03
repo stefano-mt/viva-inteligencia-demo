@@ -12,7 +12,11 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     for (const route of routes) {
       await openRoute(page, baseUrl, route.id);
       assert.equal(await page.locator("main").count(), 1, `Debe existir un único main en #${route.id}`);
-      assert.equal(await page.locator("nav[aria-label]").count(), 1, `Falta navegación etiquetada en #${route.id}`);
+      assert.equal(
+        await page.locator('.sidebar nav[aria-label="Módulos principales"]').count(),
+        1,
+        `Falta navegación principal etiquetada en #${route.id}`,
+      );
 
       const unnamedControls = await page.locator("button, input, select, textarea, summary, a[href]").evaluateAll((controls) =>
         controls
@@ -59,6 +63,30 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
         );
         assert.equal(await page.locator("#scenario-view-geographic").count(), 1, "El control geográfico debe tener ID estable único");
         assert.equal(await page.locator("#scenario-view-positioning").count(), 1, "El control de posicionamiento debe tener ID estable único");
+      }
+      if (route.id === "market") {
+        assert.match(
+          await page.locator(".benchmark-sheet__header .status-badge").textContent(),
+          /Orientación no comparable|Referencia elegible|Información insuficiente/u,
+          "Benchmark debe nombrar el estado de muestra sin depender solo del color",
+        );
+        assert.equal(
+          await page.locator(".benchmark-primary-action").getAttribute("data-view"),
+          "compare",
+          "El CTA principal del benchmark debe tener destino accesible estable",
+        );
+      }
+      if (route.id === "compare") {
+        assert.equal(
+          await page.locator("details.comparison-selector > summary").count(),
+          1,
+          "El selector del comparador debe usar un disclosure operable por teclado",
+        );
+        assert.equal(
+          await page.locator("#scenario-live[aria-live=polite][aria-atomic=true]").count(),
+          1,
+          "El comparador debe compartir la región live central del escenario",
+        );
       }
     }
 

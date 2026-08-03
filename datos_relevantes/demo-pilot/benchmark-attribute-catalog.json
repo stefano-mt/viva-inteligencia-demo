@@ -1,0 +1,236 @@
+{
+  "catalog_version": "benchmark-attributes-v1",
+  "source_field": "amenities",
+  "normalization": {
+    "mode": "explicit_alias_only",
+    "trim": true,
+    "unicode_normalization": "NFC",
+    "case_insensitive": true,
+    "fuzzy_matching": false,
+    "unknown_token_state": "unknown"
+  },
+  "attributes": [
+    {
+      "attribute_id": "attribute:lobby",
+      "category": "access_reception",
+      "normalized_label": "Lobby",
+      "aliases": ["Lobby"]
+    },
+    {
+      "attribute_id": "attribute:direct-elevator",
+      "category": "access_reception",
+      "normalized_label": "Ascensor directo",
+      "aliases": ["Ascensor directo"]
+    },
+    {
+      "attribute_id": "attribute:video-surveillance",
+      "category": "access_reception",
+      "normalized_label": "Videovigilancia",
+      "aliases": ["Video vigilancia", "Videovigilancia"]
+    },
+    {
+      "attribute_id": "attribute:gym",
+      "category": "wellbeing_sport",
+      "normalized_label": "Gimnasio",
+      "aliases": ["Gimnasio"]
+    },
+    {
+      "attribute_id": "attribute:pool",
+      "category": "wellbeing_sport",
+      "normalized_label": "Piscina",
+      "aliases": ["Piscina"]
+    },
+    {
+      "attribute_id": "attribute:sauna",
+      "category": "wellbeing_sport",
+      "normalized_label": "Sauna",
+      "aliases": ["Sauna"]
+    },
+    {
+      "attribute_id": "attribute:running-track",
+      "category": "wellbeing_sport",
+      "normalized_label": "Pista para correr",
+      "aliases": ["Pista para trotarcorrer", "Pista para correr"]
+    },
+    {
+      "attribute_id": "attribute:soccer-field",
+      "category": "wellbeing_sport",
+      "normalized_label": "Cancha de fulbito",
+      "aliases": ["Cancha de Fulbito", "Cancha de Futsal"]
+    },
+    {
+      "attribute_id": "attribute:tennis-court",
+      "category": "wellbeing_sport",
+      "normalized_label": "Cancha de tenis",
+      "aliases": ["Cancha de Tenis"]
+    },
+    {
+      "attribute_id": "attribute:fronton-court",
+      "category": "wellbeing_sport",
+      "normalized_label": "Cancha de frontón",
+      "aliases": ["Cancha de Frontón"]
+    },
+    {
+      "attribute_id": "attribute:squash-court",
+      "category": "wellbeing_sport",
+      "normalized_label": "Cancha de squash",
+      "aliases": ["Cancha de Squash"]
+    },
+    {
+      "attribute_id": "attribute:boardroom",
+      "category": "meetings_work",
+      "normalized_label": "Directorio",
+      "aliases": ["Directorio"]
+    },
+    {
+      "attribute_id": "attribute:meeting-rooms",
+      "category": "meetings_work",
+      "normalized_label": "Salas de reuniones",
+      "aliases": ["Salas de Reuniones"]
+    },
+    {
+      "attribute_id": "attribute:internet-room",
+      "category": "meetings_work",
+      "normalized_label": "Sala de internet",
+      "aliases": ["Sala de Internet"]
+    },
+    {
+      "attribute_id": "attribute:multipurpose-room",
+      "category": "meetings_work",
+      "normalized_label": "Sala de usos múltiples",
+      "aliases": ["Sala de usos Múltiples", "Sala de usos múltiples"]
+    },
+    {
+      "attribute_id": "attribute:children-room",
+      "category": "family_recreation",
+      "normalized_label": "Sala de niños",
+      "aliases": ["Sala de Niños"]
+    },
+    {
+      "attribute_id": "attribute:children-play-area",
+      "category": "family_recreation",
+      "normalized_label": "Área de juegos para niños",
+      "aliases": ["Área de juegos para niños", "Área de juegos"]
+    },
+    {
+      "attribute_id": "attribute:children-garden",
+      "category": "family_recreation",
+      "normalized_label": "Jardín de niños",
+      "aliases": ["Jardin de niños", "Jardín de niños"]
+    },
+    {
+      "attribute_id": "attribute:cinema-room",
+      "category": "family_recreation",
+      "normalized_label": "Sala de cine",
+      "aliases": ["Sala de cine"]
+    },
+    {
+      "attribute_id": "attribute:karaoke-room",
+      "category": "family_recreation",
+      "normalized_label": "Karaoke",
+      "aliases": ["Karaoke"]
+    },
+    {
+      "attribute_id": "attribute:bar-lounge",
+      "category": "gastronomy_social",
+      "normalized_label": "Sala bar",
+      "aliases": ["Sala Bar"]
+    },
+    {
+      "attribute_id": "attribute:gourmet-lounge",
+      "category": "gastronomy_social",
+      "normalized_label": "Salón gourmet",
+      "aliases": ["Salon Gourmet", "Salón gourmet"]
+    },
+    {
+      "attribute_id": "attribute:barbecue-area",
+      "category": "gastronomy_social",
+      "normalized_label": "Zona de parrillas",
+      "aliases": ["Zona de Parrillas"]
+    },
+    {
+      "attribute_id": "attribute:cafeteria",
+      "category": "gastronomy_social",
+      "normalized_label": "Cafetería",
+      "aliases": ["Cafetería"]
+    },
+    {
+      "attribute_id": "attribute:restaurant",
+      "category": "gastronomy_social",
+      "normalized_label": "Restaurante",
+      "aliases": ["Restaurante"]
+    },
+    {
+      "attribute_id": "attribute:clubhouse",
+      "category": "gastronomy_social",
+      "normalized_label": "Club house",
+      "aliases": ["Club House"]
+    },
+    {
+      "attribute_id": "attribute:terrace",
+      "category": "exterior_green",
+      "normalized_label": "Terraza",
+      "aliases": ["Terraza"]
+    },
+    {
+      "attribute_id": "attribute:green-areas",
+      "category": "exterior_green",
+      "normalized_label": "Áreas verdes",
+      "aliases": ["Areas verdes", "Áreas verdes"]
+    },
+    {
+      "attribute_id": "attribute:interior-garden",
+      "category": "exterior_green",
+      "normalized_label": "Jardín interior",
+      "aliases": ["Jardin interior", "Jardín interior"]
+    },
+    {
+      "attribute_id": "attribute:private-park",
+      "category": "exterior_green",
+      "normalized_label": "Parque privado",
+      "aliases": ["Parque privado"]
+    },
+    {
+      "attribute_id": "attribute:panoramic-rooftop",
+      "category": "exterior_green",
+      "normalized_label": "Techo panorámico",
+      "aliases": ["Techo Panorámico"]
+    },
+    {
+      "attribute_id": "attribute:green-roofs",
+      "category": "exterior_green",
+      "normalized_label": "Techos ecológicos",
+      "aliases": ["Techos Ecológicos"]
+    },
+    {
+      "attribute_id": "attribute:pedestrian-boulevard",
+      "category": "exterior_green",
+      "normalized_label": "Boulevard peatonal",
+      "aliases": ["Boulevard peatonal"]
+    },
+    {
+      "attribute_id": "attribute:laundry-area",
+      "category": "common_services",
+      "normalized_label": "Zona de lavandería",
+      "aliases": ["Zona de Lavandería"]
+    },
+    {
+      "attribute_id": "attribute:minimarket",
+      "category": "common_services",
+      "normalized_label": "Minimarket",
+      "aliases": ["Minimarket"]
+    },
+    {
+      "attribute_id": "attribute:service-room",
+      "category": "common_services",
+      "normalized_label": "Cuarto de servicio",
+      "aliases": ["Cuarto servicio", "Cuarto de servicio"]
+    },
+    {
+      "attribute_id": "attribute:parking",
+      "category": "mobility_parking",
+      "normalized_label": "Estacionamientos",
+      "aliases": ["Estacionamientos"]
+    }
+  ]
+}

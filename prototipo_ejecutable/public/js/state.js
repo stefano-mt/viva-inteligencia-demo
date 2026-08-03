@@ -10,6 +10,7 @@ import {
   roundHalfAwayFromZero,
 } from "./comparability.js";
 import { buildEvidenceDossier } from "./evidence-inspector.js";
+import { buildBenchmarkContext } from "./benchmark.js";
 
 let dataValue = null;
 let scenarioEnvironment = null;
@@ -66,6 +67,7 @@ export const state = {
   geographyArtifact: { ...EMPTY_GEOGRAPHY_ARTIFACT },
   scenarioContext: null,
   scenarioContextRevision: 0,
+  benchmarkContext: null,
   get selectedDistrict() {
     return districtNameForId(state.scenario?.district_id);
   },
@@ -91,6 +93,7 @@ export const state = {
   projectLimit: 18,
   selectedProjectId: null,
   compareProjectIds: [],
+  compareIncludeTarget: false,
   compareQuery: "",
   assistantInput: "",
   assistantResponse: null,
@@ -119,6 +122,8 @@ export function initializeScenarioData(data, options = {}) {
   state.geographyArtifact = initialArtifact;
   state.scenarioContext = null;
   state.scenarioContextRevision = 0;
+  state.benchmarkContext = null;
+  state.compareIncludeTarget = false;
 
   if (!dataValue) {
     scenarioEnvironment = null;
@@ -445,6 +450,7 @@ export function updateBoundaryArtifact(artifact, options = {}) {
 export function recomputeScenarioContext() {
   if (!dataValue || !scenarioEnvironment || !state.scenario) {
     state.scenarioContext = null;
+    state.benchmarkContext = null;
     return null;
   }
 
@@ -539,6 +545,14 @@ export function recomputeScenarioContext() {
     price_status: comparabilityContext.price_status,
     evidence_coverage_pct:
       comparabilityContext.evidence_coverage_pct,
+  };
+  state.benchmarkContext = {
+    ...buildBenchmarkContext({
+      data: dataValue,
+      scenarioContext: benchmarkScenarioProjection(state.scenarioContext),
+      targetScenario: benchmarkTargetScenario(),
+    }),
+    revision,
   };
   normalizeScenarioSelections();
   return state.scenarioContext;
@@ -742,20 +756,59 @@ function normalizeScenarioSelections() {
       legacyIdFromObserved(selectedObservedId) ?? state.selectedProjectId;
   }
 
-  const existingComparableIds = state.compareProjectIds
-    .map(canonicalIdFromLegacy)
-    .filter(
-      (projectId) =>
-        projectId && context.comparable_project_ids.includes(projectId),
-    )
-    .map(legacyIdFromCanonical)
-    .filter(Boolean);
+  const requestedCompareCount = state.compareProjectIds.length;
+  const existingComparableIds = [
+    ...new Set(
+      state.compareProjectIds
+        .map(canonicalIdFromLegacy)
+        .filter(
+          (projectId) =>
+            projectId && context.comparable_project_ids.includes(projectId),
+        )
+        .map(legacyIdFromCanonical)
+        .filter(Boolean),
+    ),
+  ].slice(0, 3);
   const rankedComparableIds = context.comparable_project_ids
     .map(legacyIdFromCanonical)
     .filter(Boolean);
-  state.compareProjectIds = [
-    ...new Set([...existingComparableIds, ...rankedComparableIds]),
-  ].slice(0, 3);
+  const minimumCompareCount = requestedCompareCount === 0 ? 3 : 2;
+  state.compareProjectIds = [...existingComparableIds];
+  for (const projectId of rankedComparableIds) {
+    if (state.compareProjectIds.length >= minimumCompareCount) break;
+    if (!state.compareProjectIds.includes(projectId)) {
+      state.compareProjectIds.push(projectId);
+    }
+  }
+  if (!state.benchmarkContext?.targetScenario) {
+    state.compareIncludeTarget = false;
+  }
+}
+
+function benchmarkScenarioProjection(context) {
+  return {
+    comparable_project_ids: [...context.comparable_project_ids],
+    district_id: context.scope?.district_id ?? state.scenario?.district_id ?? null,
+    scope_mode: context.scope?.scope_mode ?? state.scenario?.scope_mode ?? null,
+    quadrant_id: context.scope?.quadrant_id ?? state.scenario?.quadrant_id ?? null,
+    radius_meters:
+      context.scope?.radius_meters ?? state.scenario?.radius_meters ?? null,
+  };
+}
+
+function benchmarkTargetScenario() {
+  const targetPrice = state.scenario?.target_price_pen;
+  const targetArea = state.scenario?.target_area_m2;
+  if (targetPrice == null && targetArea == null) return null;
+  return {
+    target_price_pen: targetPrice,
+    target_area_m2: targetArea,
+    district: districtNameForId(state.scenario.district_id),
+    delivery_status:
+      state.scenario.delivery_year === "all"
+        ? null
+        : String(state.scenario.delivery_year),
+  };
 }
 
 function canonicalIdFromLegacy(value) {

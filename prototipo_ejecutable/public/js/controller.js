@@ -96,6 +96,7 @@ const {
   loadingTemplate,
   errorTemplate,
   chip,
+  canonicalProjectId,
   findProjectById,
   getScenarioDisplayProjects,
   isComparableProject,
@@ -121,6 +122,12 @@ export const INSPECTOR_EVENTS = Object.freeze({
   evidenceClose: "viva:inspector-evidence-close",
 });
 
+export const COMPARISON_EVENTS = Object.freeze({
+  selection: "viva:comparison-selection",
+  target: "viva:comparison-target",
+  rowFocus: "viva:comparison-row-focus",
+});
+
 export const INSPECTOR_PRESET_CASE_IDS = Object.freeze({
   inconsistent: "case:f3-ct-g-pardo",
   certified: "case:f3-ct-d-finishes",
@@ -135,6 +142,7 @@ let scenarioDocumentEventsBound = false;
 let scenarioHistoryEventsBound = false;
 let scenarioHistorySearch = null;
 let inspectorDocumentEventsBound = false;
+let comparisonDocumentEventsBound = false;
 let inspectorRestoreFocusId = null;
 const inspectorBoundElements = new WeakSet();
 const inspectorDialogBoundElements = new WeakSet();
@@ -142,6 +150,7 @@ const inspectorDialogBoundElements = new WeakSet();
 export function bindEvents(render) {
   renderApp = render;
   bindInspectorDocumentEvents();
+  bindComparisonDocumentEvents();
   if (initializeScenarioFromLocation()) return;
   bindScenarioHistoryEvents();
   bindScenarioDocumentEvents();
@@ -279,31 +288,7 @@ export function bindEvents(render) {
     });
   });
 
-  document.querySelectorAll("[data-compare-toggle]").forEach((checkbox) => {
-    checkbox.addEventListener("change", (event) => {
-      const id = event.target.value;
-      if (!isComparableProject(id)) {
-        event.target.checked = false;
-        return;
-      }
-      if (event.target.checked) {
-        if (state.compareProjectIds.length >= 3) {
-          event.target.checked = false;
-          return;
-        }
-        state.compareProjectIds = unique([...state.compareProjectIds, id]);
-      } else {
-        state.compareProjectIds = state.compareProjectIds.filter((item) => item !== id);
-      }
-      render();
-    });
-  });
-
-  document.getElementById("compare-query")?.addEventListener("input", (event) => {
-    state.compareQuery = event.target.value;
-    rememberFocus(event.target);
-    render();
-  });
+  bindComparisonElementEvents();
 
   document.getElementById("assistant-form")?.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -523,6 +508,295 @@ export function seedSelectionsForScenario() {
 
 export function seedSelectionsForDistrict() {
   return seedSelectionsForScenario();
+}
+
+function comparisonProjectIds() {
+  return unique(
+    state.compareProjectIds
+      .map(canonicalProjectId)
+      .filter((projectId) => projectId && isComparableProject(projectId)),
+  ).slice(0, 3);
+}
+
+function comparisonProjectName(projectId) {
+  return (
+    state.benchmarkContext?.projectSummaries?.find(
+      (summary) => summary.projectId === projectId,
+    )?.name ?? projectId
+  );
+}
+
+function comparisonTransition({ changed, reasonCode, announcement }) {
+  return {
+    changed: Boolean(changed),
+    reasonCode,
+    announcement,
+    selectedProjectIds: comparisonProjectIds(),
+    includeTargetScenario: Boolean(state.compareIncludeTarget),
+  };
+}
+
+function applyComparisonEffects(transition, options = {}) {
+  if (options.render !== false && transition.changed) renderApp?.();
+  if (options.render !== false) {
+    announceWithoutRender(transition.announcement);
+    applyComparisonFocus(options);
+  }
+  return transition;
+}
+
+export function setComparisonProject(
+  projectId,
+  selected,
+  options = {},
+) {
+  const canonicalId = canonicalProjectId(projectId);
+  const currentIds = comparisonProjectIds();
+  if (!canonicalId || !isComparableProject(canonicalId)) {
+    return applyComparisonEffects(
+      comparisonTransition({
+        changed: false,
+        reasonCode: "outside_scenario",
+        announcement:
+          "Ese proyecto no pertenece al escenario activo y no se añadió a la comparación.",
+      }),
+      options,
+    );
+  }
+
+  const alreadySelected = currentIds.includes(canonicalId);
+  if (selected && !alreadySelected && currentIds.length >= 3) {
+    return applyComparisonEffects(
+      comparisonTransition({
+        changed: false,
+        reasonCode: "maximum_reached",
+        announcement:
+          "La comparación admite hasta tres proyectos de mercado. Quita uno antes de añadir otro.",
+      }),
+      options,
+    );
+  }
+
+  const nextIds = selected
+    ? unique([...currentIds, canonicalId]).slice(0, 3)
+    : currentIds.filter((id) => id !== canonicalId);
+  const changed =
+    nextIds.length !== currentIds.length ||
+    nextIds.some((id, index) => id !== currentIds[index]);
+  if (changed) state.compareProjectIds = nextIds;
+  const projectName = comparisonProjectName(canonicalId);
+  const announcement = changed
+    ? `${projectName} ${selected ? "se añadió a" : "se quitó de"} la comparación. ${nextIds.length} de 3 proyectos seleccionados.`
+    : `${projectName} ya estaba ${selected ? "incluido en" : "fuera de"} la comparación.`;
+
+  return applyComparisonEffects(
+    comparisonTransition({
+      changed,
+      reasonCode: changed
+        ? selected
+          ? "project_added"
+          : "project_removed"
+        : "unchanged",
+      announcement,
+    }),
+    options,
+  );
+}
+
+export function setComparisonTarget(included, options = {}) {
+  const targetAvailable = Boolean(state.benchmarkContext?.targetScenario);
+  if (!targetAvailable) {
+    state.compareIncludeTarget = false;
+    return applyComparisonEffects(
+      comparisonTransition({
+        changed: false,
+        reasonCode: "target_unavailable",
+        announcement:
+          "Configura precio y área del escenario antes de incluir la columna Viva.",
+      }),
+      options,
+    );
+  }
+
+  const nextIncluded =
+    typeof included === "boolean"
+      ? included
+      : !state.compareIncludeTarget;
+  const changed = nextIncluded !== state.compareIncludeTarget;
+  if (changed) state.compareIncludeTarget = nextIncluded;
+  return applyComparisonEffects(
+    comparisonTransition({
+      changed,
+      reasonCode: changed
+        ? nextIncluded
+          ? "target_added"
+          : "target_removed"
+        : "unchanged",
+      announcement: changed
+        ? `Escenario Viva ${nextIncluded ? "incluido en" : "retirado de"} la comparación como columna simulada.`
+        : `El escenario Viva ya estaba ${nextIncluded ? "incluido" : "fuera de la comparación"}.`,
+    }),
+    options,
+  );
+}
+
+export function focusComparisonRow(rowId, options = {}) {
+  const targetId = typeof rowId === "string" ? rowId : "";
+  const row = Array.from(
+    globalThis.document?.querySelectorAll?.("[data-comparison-row]") ?? [],
+  ).find((element) => element.dataset?.comparisonRow === targetId);
+  if (!row) {
+    if (options.announce !== false) {
+      announceWithoutRender(
+        "No se encontró el criterio solicitado en la comparación activa.",
+      );
+    }
+    return false;
+  }
+  const group = row.closest?.("details.comparison-group");
+  if (group) group.open = true;
+  row.scrollIntoView?.({ block: "start" });
+  row.focus?.({ preventScroll: true });
+  if (options.announce !== false) {
+    const label =
+      row.querySelector?.(".comparison-metric-row__label span")?.textContent?.trim() ||
+      "criterio seleccionado";
+    announceWithoutRender(`Criterio ${label}. Revisa sus valores y evidencia.`);
+  }
+  return true;
+}
+
+function bindComparisonElementEvents() {
+  document.querySelectorAll("[data-compare-toggle]").forEach((checkbox) => {
+    checkbox.addEventListener("change", (event) => {
+      dispatchComparisonEvent(COMPARISON_EVENTS.selection, {
+        projectId: event.target.value,
+        selected: event.target.checked,
+        focusIntent: "project",
+        focusProjectId: event.target.value,
+        keepSelectorOpen: true,
+      });
+    });
+  });
+  document.querySelectorAll("[data-compare-remove]").forEach((button) => {
+    button.addEventListener("click", () => {
+      dispatchComparisonEvent(COMPARISON_EVENTS.selection, {
+        projectId: button.dataset.compareRemove,
+        selected: false,
+        focusIntent: "selector",
+      });
+    });
+  });
+  document.querySelectorAll("[data-compare-target-toggle]").forEach((button) => {
+    button.addEventListener("click", () => {
+      dispatchComparisonEvent(COMPARISON_EVENTS.target, {
+        included: !state.compareIncludeTarget,
+        focusIntent: "target",
+      });
+    });
+  });
+  document.querySelectorAll("[data-comparison-row-target]").forEach((button) => {
+    button.addEventListener("click", () => {
+      dispatchComparisonEvent(COMPARISON_EVENTS.rowFocus, {
+        rowId: button.dataset.comparisonRowTarget,
+      });
+    });
+  });
+
+  const selector = document.querySelector("details.comparison-selector");
+  selector?.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || !selector.open) return;
+    event.preventDefault();
+    selector.open = false;
+    selector.querySelector(":scope > summary")?.focus();
+    announceWithoutRender("Selector de proyectos cerrado.");
+  });
+
+  document.getElementById("compare-query")?.addEventListener("input", (event) => {
+    const input = event.target;
+    const selection = {
+      start: input.selectionStart,
+      end: input.selectionEnd,
+    };
+    state.compareQuery = input.value;
+    renderApp?.();
+    applyComparisonFocus({
+      focusIntent: "query",
+      keepSelectorOpen: true,
+      selection,
+    });
+    const query = normalizeSearch(state.compareQuery).trim();
+    const candidateCount = (state.benchmarkContext?.projectSummaries ?? []).filter(
+      (summary) =>
+        !query ||
+        [
+          summary.projectId,
+          summary.name,
+          summary.agencyName,
+          summary.district,
+        ]
+          .map(normalizeSearch)
+          .join(" ")
+          .includes(query),
+    ).length;
+    announceWithoutRender(
+      `${candidateCount} ${candidateCount === 1 ? "proyecto coincide" : "proyectos coinciden"} con la búsqueda.`,
+    );
+  });
+}
+
+function bindComparisonDocumentEvents() {
+  if (comparisonDocumentEventsBound || typeof document === "undefined") return;
+  comparisonDocumentEventsBound = true;
+  document.addEventListener(COMPARISON_EVENTS.selection, (event) => {
+    const detail = event.detail ?? {};
+    setComparisonProject(detail.projectId, Boolean(detail.selected), detail);
+  });
+  document.addEventListener(COMPARISON_EVENTS.target, (event) => {
+    const detail = event.detail ?? {};
+    setComparisonTarget(detail.included, detail);
+  });
+  document.addEventListener(COMPARISON_EVENTS.rowFocus, (event) => {
+    focusComparisonRow(event.detail?.rowId);
+  });
+}
+
+function dispatchComparisonEvent(type, detail) {
+  document.dispatchEvent(new CustomEvent(type, { detail }));
+}
+
+function applyComparisonFocus({
+  focusIntent = null,
+  focusProjectId = null,
+  keepSelectorOpen = false,
+  selection = null,
+} = {}) {
+  if (typeof document === "undefined") return false;
+  const selector = document.querySelector("details.comparison-selector");
+  if (selector && keepSelectorOpen) selector.open = true;
+
+  let target = null;
+  if (focusIntent === "project") {
+    const canonicalId = canonicalProjectId(focusProjectId);
+    target = Array.from(
+      document.querySelectorAll("[data-compare-toggle]"),
+    ).find((control) => canonicalProjectId(control.value) === canonicalId);
+  } else if (focusIntent === "target") {
+    target = document.querySelector(".comparison-target-action");
+  } else if (focusIntent === "selector") {
+    target = selector?.querySelector(":scope > summary") ?? null;
+  } else if (focusIntent === "query") {
+    target = document.getElementById("compare-query");
+  }
+  target?.focus?.();
+  if (target && selection) {
+    try {
+      target.setSelectionRange(selection.start, selection.end);
+    } catch {
+      // Only text controls support selection ranges.
+    }
+  }
+  return Boolean(target);
 }
 
 function runInspectorAction(action, options = {}) {

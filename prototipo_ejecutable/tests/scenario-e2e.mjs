@@ -9,6 +9,16 @@ const descriptor = JSON.parse(
 const emptyRadiusPath =
   "/?sv=1&scope=radius&lat=-12.000000&lon=-77.000000&radius=500#dashboard";
 const interactionTimeout = 5_000;
+const routeTitles = Object.freeze({
+  dashboard: "Radar comercial",
+  projects: "Proyectos comparables",
+  inspector: "Inspector de evidencia",
+  market: "Benchmark de microzona",
+  compare: "Comparador comercial",
+  trust: "Checklist comercial",
+  assistant: "Asistente de estrategia",
+  activity: "Señales del mercado",
+});
 
 function pathForRoute(pathname, routeId) {
   const url = new URL(pathname, "http://scenario.test");
@@ -38,6 +48,26 @@ async function assertCanonicalIds(page, consumer, expected) {
     await uniqueAttributeValues(root.locator("[data-canonical-project-id]"), "data-canonical-project-id"),
     sorted(expected),
     `${consumer} debe consumir únicamente IDs canónicos del escenario`,
+  );
+}
+
+async function compareCandidateIds(page) {
+  return uniqueAttributeValues(
+    page.locator('[data-scenario-consumer="compare"] [data-compare-toggle]'),
+    "value",
+  );
+}
+
+async function assertCompareCanonicalIds(page, expected) {
+  assert.equal(
+    await page.locator('[data-scenario-consumer="compare"]').count(),
+    1,
+    "Debe existir el consumidor compare",
+  );
+  assert.deepEqual(
+    await compareCandidateIds(page),
+    sorted(expected),
+    "compare debe limitar su selector al universo canónico del escenario",
   );
 }
 
@@ -110,7 +140,11 @@ function assertClean(problems, externalRequests, label) {
 }
 
 async function assertRoute(page, route) {
-  assert.equal(await page.locator("h1").first().textContent(), route.title, `Título incorrecto en #${route.id}`);
+  assert.equal(
+    await page.locator("h1").first().textContent(),
+    routeTitles[route.id],
+    `Título incorrecto en #${route.id}`,
+  );
   assert.equal(
     await page.locator(`[data-view="${route.id}"][aria-current="page"]`).count(),
     1,
@@ -159,7 +193,16 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     return (await response.json()).metadata;
   });
   assert.equal(publicMetadata.dataset_id, descriptor.dataset_id, "Dataset CT-C inesperado");
-  assert.equal(publicMetadata.contract_version, descriptor.contract_version, "Contrato CT-C inesperado");
+  assert.equal(
+    publicMetadata.contract_version,
+    "2.3.0",
+    "P4 debe conservar el contrato público 2.3 durante CT-C",
+  );
+  assert.equal(
+    descriptor.contract_version,
+    "2.2.0",
+    "El descriptor CT-C conserva la versión de origen para probar compatibilidad histórica",
+  );
 
   const mapIds = await uniqueAttributeValues(page.locator("[data-geo-point-id]"), "data-geo-point-id");
   const selectIds = sorted(await page.locator("#geo-project-select option").evaluateAll((options) => options.map((option) => option.value)));
@@ -278,13 +321,14 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 
   for (const [routeId, consumer] of [
     ["projects", "catalog"],
-    ["compare", "compare"],
     ["trust", "checklist"],
     ["assistant", "assistant"],
   ]) {
     await openPath(page, baseUrl, pathForRoute(descriptor.canonical_path, routeId));
     await assertCanonicalIds(page, consumer, descriptor.expected.consumer_project_ids[consumer]);
   }
+  await openPath(page, baseUrl, pathForRoute(descriptor.canonical_path, "compare"));
+  await assertCompareCanonicalIds(page, descriptor.expected.consumer_project_ids.compare);
 
   await openPath(page, baseUrl, descriptor.canonical_path);
   await page.locator("#reset-scenario").click();
@@ -294,10 +338,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.locator("#geo-project-select option").count(), 90, "CT-I debe ofrecer 90 observaciones por teclado");
 
   await openPath(page, baseUrl, "/#compare");
-  const baselineCompareIds = await uniqueAttributeValues(
-    page.locator('[data-scenario-consumer="compare"] [data-canonical-project-id]'),
-    "data-canonical-project-id",
-  );
+  const baselineCompareIds = await compareCandidateIds(page);
   assert.equal(baselineCompareIds.length, 85, "CT-I debe contener 85 IDs canónicos comparables");
   assert.ok(
     baselineCompareIds.includes("project:nexo-2951"),
@@ -334,10 +375,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 
   await page.locator('[data-view="compare"]').first().click();
   await waitForActiveRoute(page, "compare");
-  const quadrantCompareIds = await uniqueAttributeValues(
-    page.locator('[data-scenario-consumer="compare"] [data-canonical-project-id]'),
-    "data-canonical-project-id",
-  );
+  const quadrantCompareIds = await compareCandidateIds(page);
   assert.ok(quadrantCompareIds.length > 0, "El cuadrante NW debe tener comparables");
   assert.ok(quadrantCompareIds.every((id) => baselineCompareIds.includes(id)), "El cuadrante no debe ampliar el universo distrital");
 
@@ -376,12 +414,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   await page.locator('[data-view="compare"]').first().click();
   await waitForActiveRoute(page, "compare");
   assert.equal(
-    (
-      await uniqueAttributeValues(
-        page.locator('[data-scenario-consumer="compare"] [data-canonical-project-id]'),
-        "data-canonical-project-id",
-      )
-    ).length,
+    (await compareCandidateIds(page)).length,
     85,
     "Reset posterior al cuadrante debe volver a 85 comparables",
   );
@@ -395,7 +428,6 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 
   for (const [routeId, consumer] of [
     ["projects", "catalog"],
-    ["compare", "compare"],
     ["trust", "checklist"],
     ["assistant", "assistant"],
   ]) {
@@ -403,6 +435,13 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     await assertCanonicalIds(page, consumer, []);
     assert.match(await page.locator("#main-content").innerText(), /sin comparables|sin candidatos|no hay comparables|sin referencias/i, `#${routeId} debe explicar el estado cero`);
   }
+  await openPath(page, baseUrl, pathForRoute(emptyRadiusPath, "compare"));
+  await assertCompareCanonicalIds(page, []);
+  assert.match(
+    await page.locator("#main-content").innerText(),
+    /sin comparables|sin candidatos|no hay comparables|sin referencias|selecciona dos proyectos/i,
+    "#compare debe explicar el estado cero",
+  );
 
   assertClean(problems, externalRequests, "E2E desktop CT-C/CT-I/zero");
   await desktop.close();

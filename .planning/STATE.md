@@ -1,14 +1,14 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-07-30
+**Actualizado:** 2026-08-03
 
 **Milestone:** demo vNext orientada a venta
 
-**Última fase completada:** Fase 3 — ficha, evidencia e inspector
+**Última fase con ship completo:** Fase 3 — ficha, evidencia e inspector
 
-**Estado:** Fases 0, 1, 2 y 3 completadas. Fase 3 está técnicamente `deployed and verified` para el merge `cc51769fbc4c0be270fc48295b8a604db0382378`: P3-16 obtuvo `PASS` en GitHub Pages. Este cierre debe fusionarse mediante el PR documental de P3-17 para quedar vigente en `main`.
+**Estado:** Fases 0–3 están `deployed and verified`. Fase 4 completó implementación, corrección P4-13A, verificación independiente con `PASS` y memoria P4-14. El PR funcional #13 está abierto como borrador; faltan evidencia portable, revisión y merge humano. El despliegue de Fase 4 aún no está demostrado.
 
-**Rama documental activa:** `docs/phase-3-postmerge-report`.
+**Rama activa:** `feat/phase-4-benchmark-comparator`.
 
 ## Baseline vigente
 
@@ -42,7 +42,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Catálogos v2: 8 fuentes, 17 observaciones, 26 hechos, 4 documentos, 4 evidencias, 5 issues y 3 eventos.
 - GeoJSON público y fuente: 46,650 bytes; SHA-256 `ef75b5deb43f2ed94cc9661c3f1926e94608e0b2e4a41c8ce9197dbea71b16c0`.
 - Geografía: 433 asignaciones; 422 dentro/sobre polígono y 11 `outside_district_polygon`.
-- Miraflores CT-I: 90 observados, 85 comparables, 5 no reconciliados, 69 referencias de precio y cuadrantes 40/5/5/40.
+- Miraflores CT-I: 90 observados, 85 comparables, 5 no reconciliados, 69 publicaciones raw con precio y área total declarados —sin pairing demostrado— y cuadrantes 40/5/5/40.
 - Graphify F2 `--code-only --no-cluster`: 2,066 nodos y 4,104 relaciones; no reveló un hub nuevo injustificado.
 
 ## Verificación vigente
@@ -89,6 +89,8 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Checker post-merge independiente: `/root/phase3_checker`.
 - CT-D/CT-G, activos permitidos, permisos, escritorio, móvil, zoom 200%, consola y red: PASS.
 - Informe post-merge: [phases/03-evidence-inspector/POSTMERGE_REPORT.md](phases/03-evidence-inspector/POSTMERGE_REPORT.md).
+- PR documental final: [#12](https://github.com/stefano-mt/viva-inteligencia-demo/pull/12), fusionado.
+- Merge documental final en `main`: `e30973baa963fd4caa408aaa802803beac91dddd`.
 
 ## Decisiones vigentes de datos
 
@@ -97,7 +99,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Los cuadrantes son analíticos, derivados por medianas, y nunca oficiales.
 - OSM se usa como snapshot referencial ODbL separado; RENLIM permanece como referencia jurídica.
 - Los 11 puntos fuera de polígono permanecen visibles como exclusiones; no se reasignan.
-- El escenario Viva y su precio son simulados; las referencias competitivas son precios de lista publicados, no precios de cierre.
+- El escenario Viva y su precio son simulados; los precios competitivos raw son precios publicados `desde`, no referencias elegibles ni precios de cierre mientras no exista pairing demostrado.
 - Los tiers `deep` demuestran profundidad estructurada; no prometen dossiers visuales públicos.
 - Los aliases ambiguos permanecen `manual_review`; no se resuelven por intuición.
 - La moneda ambigua `$` permanece `unknown`; no se infiere USD.
@@ -151,12 +153,39 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - GitHub Pages: desplegado y verificado mediante el run `30584187019`.
 - P3-16: `PASS`; contrato `2.2.0`, CT-D, CT-G, quince activos autorizados y permisos verificados en la URL pública.
 - P3-17: resultado persistido en `POSTMERGE_REPORT.md` y este estado mediante una rama/PR documental separados.
-- Estado de ship de Fase 3: **`deployed and verified`**, pendiente únicamente del merge humano de la memoria documental P3-17.
+- Estado de ship de Fase 3: **`deployed and verified`**; memoria P3-17 integrada en `main` mediante PR #12.
+
+## Fase 4 — cierre técnico vigente
+
+- Contexto: [phases/04-benchmark-comparator/CONTEXT.md](phases/04-benchmark-comparator/CONTEXT.md).
+- Evaluación de datos: [phases/04-benchmark-comparator/DATA-ASSESSMENT.md](phases/04-benchmark-comparator/DATA-ASSESSMENT.md).
+- UX/UI: [phases/04-benchmark-comparator/UI-SPEC.md](phases/04-benchmark-comparator/UI-SPEC.md).
+- Plan: [phases/04-benchmark-comparator/PLAN.md](phases/04-benchmark-comparator/PLAN.md).
+- Solicitud de aprobación: [phases/04-benchmark-comparator/HUMAN-GATE-A-REQUEST.md](phases/04-benchmark-comparator/HUMAN-GATE-A-REQUEST.md).
+- Aprobación: [phases/04-benchmark-comparator/APPROVAL.md](phases/04-benchmark-comparator/APPROVAL.md), A1–A12 aceptadas el `2026-07-31T11:11:10.4019829-05:00`.
+- Implementación P4-01–P4-12: completada; P4-10/HU-505 diferida por A10.
+- Contrato público: `2.3.0`; reader compatible con 2.0–2.3 y runtime territorial probado con 2.1/2.2/2.3.
+- Dataset: 7,387,136 bytes; SHA-256 `5d8a13b3e0af73d8dc8cee674f83cea541136b4c49bd444780bac3508f562041`; 50 fingerprints ordenados.
+- Modelo: 676 proyectos, 184 agencias, 427 observaciones, 4,021 hechos, 19 documentos, 19 evidencias, 10 issues y 3 eventos.
+- Benchmark: 397 entradas y 37 atributos; partición precio/m² `397 = 0 usadas + 26 faltantes + 371 excluidas`.
+- Miraflores: 90 observados, 85 comparables, 5 por revisar, 69 publicaciones raw, 68 cocientes orientativos, 82 registros cualitativos y 0 parejas elegibles.
+- P4-13 inicial: `FAIL` por G1; informe histórico versionado en `7e5f703`.
+- Corrección P4-13A: `be05fdc456e3ab85da01df26b4cd22daa426dac6`.
+- Checker independiente: `/root/phase4_gate_checker`; repetición P4-13 `PASS`.
+- Informe vigente: [phases/04-benchmark-comparator/VERIFICATION_REPORT.md](phases/04-benchmark-comparator/VERIFICATION_REPORT.md), versionado en `6038749`.
+- Resumen: [phases/04-benchmark-comparator/SUMMARY.md](phases/04-benchmark-comparator/SUMMARY.md).
+- Handoff: [phases/04-benchmark-comparator/HANDOFF.md](phases/04-benchmark-comparator/HANDOFF.md).
+- PR funcional: [#13](https://github.com/stefano-mt/viva-inteligencia-demo/pull/13), `OPEN / DRAFT / MERGEABLE / CLEAN` al abrirse.
+- Smoke y accesibilidad: 8 rutas × 3 viewports; responsive específico y reflow 200%: PASS.
+- Graphify F4: 3,034 nodos y 5,743 relaciones; sin blocker arquitectónico.
+- HUMAN-GATE-B: no requerido porque el veredicto final es `PASS`.
+- Estado de ship: cierre técnico completo; PR, merge humano, P4-15 y P4-16 pendientes. No declarar Fase 4 desplegada todavía.
 
 ## Próxima acción recomendada
 
-1. Revisar y fusionar por decisión humana el PR documental de P3-17.
-2. Iniciar Fase 4 únicamente mediante contexto, especificación, plan y gates propios.
+1. Adjuntar evidencia visual portable al PR #13 y completar revisión humana.
+2. Fusionar solo por acción humana cuando GitHub muestre base y checks actualizados.
+3. Después del merge, ejecutar P4-15 read-only y persistir el resultado mediante P4-16 en una rama/PR documental separados.
 
 ## Regla para actualizar este archivo
 

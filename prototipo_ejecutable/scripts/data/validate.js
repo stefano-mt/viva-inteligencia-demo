@@ -1602,6 +1602,483 @@ export function validateInspectorSemantics(
   return stableErrors(errors);
 }
 
+function benchmarkProjectForEntity(entityId, typologies) {
+  if (typeof entityId !== "string") return undefined;
+  if (entityId.startsWith("project:")) return entityId;
+  return typologies.get(entityId)?.project_id;
+}
+
+export function validateBenchmarkSemantics(
+  benchmark,
+  model,
+  path = "$.benchmark"
+) {
+  const errors = [];
+  if (!benchmark || !model || typeof benchmark !== "object") return errors;
+  const factIndex = Array.isArray(benchmark.fact_index)
+    ? benchmark.fact_index
+    : [];
+  const attributeCatalog = Array.isArray(benchmark.attribute_catalog)
+    ? benchmark.attribute_catalog
+    : [];
+  const projects = mapBy(collection(model, "projects"), "project_id");
+  const typologies = mapBy(collection(model, "typologies"), "typology_id");
+  const observations = mapBy(
+    collection(model, "observations"),
+    "observation_id"
+  );
+  const facts = mapBy(collection(model, "facts"), "fact_id");
+  const evidence = mapBy(collection(model, "evidence"), "evidence_id");
+  const indexedProjects = new Set();
+  const sourcePairedProjects = new Set();
+
+  factIndex.forEach((entry, index) => {
+    if (!entry || typeof entry !== "object") return;
+    const entryPath = `${path}.fact_index[${index}]`;
+    if (indexedProjects.has(entry.project_id)) {
+      push(
+        errors,
+        "BENCHMARK_DUPLICATE_PROJECT_INDEX",
+        `${entryPath}.project_id`,
+        `Duplicate benchmark project ${entry.project_id}`
+      );
+    }
+    indexedProjects.add(entry.project_id);
+    if (!projects.has(entry.project_id)) {
+      push(
+        errors,
+        "BENCHMARK_PROJECT_REFERENCE",
+        `${entryPath}.project_id`,
+        `Missing ${entry.project_id}`
+      );
+    }
+
+    const observation = observations.get(entry.observation_id);
+    if (!observation) {
+      push(
+        errors,
+        "BENCHMARK_OBSERVATION_REFERENCE",
+        `${entryPath}.observation_id`,
+        `Missing ${entry.observation_id}`
+      );
+    } else if (
+      benchmarkProjectForEntity(observation.entity_id, typologies) !==
+      entry.project_id
+    ) {
+      push(
+        errors,
+        "BENCHMARK_OBSERVATION_PROJECT",
+        `${entryPath}.observation_id`,
+        `${entry.observation_id} belongs to another project`
+      );
+    }
+
+    const factFields = [
+      "total_area_fact_id",
+      "published_price_fact_id",
+      "price_per_m2_fact_id",
+      "reported_unit_count_fact_id",
+      "parking_count_fact_id"
+    ];
+    const factReferences = [
+      ...factFields.map((field) => [field, entry[field]]),
+      ...(Array.isArray(entry.attribute_fact_ids)
+        ? entry.attribute_fact_ids.map((factId, factIndexPosition) => [
+            `attribute_fact_ids[${factIndexPosition}]`,
+            factId
+          ])
+        : [])
+    ].filter(([, factId]) => factId !== null && factId !== undefined);
+    for (const [field, factId] of factReferences) {
+      const fact = facts.get(factId);
+      if (!fact) {
+        push(
+          errors,
+          "BENCHMARK_FACT_REFERENCE",
+          `${entryPath}.${field}`,
+          `Missing ${factId}`
+        );
+      } else if (
+        benchmarkProjectForEntity(fact.entity_id, typologies) !==
+        entry.project_id
+      ) {
+        push(
+          errors,
+          "BENCHMARK_FACT_PROJECT",
+          `${entryPath}.${field}`,
+          `${factId} belongs to another project`
+        );
+      }
+    }
+
+    const pairingEvidenceIds = Array.isArray(entry.pairing_evidence_ids)
+      ? entry.pairing_evidence_ids
+      : [];
+    pairingEvidenceIds.forEach((evidenceId, evidenceIndex) => {
+      const evidenceEntry = evidence.get(evidenceId);
+      const evidencePath = `${entryPath}.pairing_evidence_ids[${evidenceIndex}]`;
+      if (!evidenceEntry) {
+        push(
+          errors,
+          "BENCHMARK_PAIRING_EVIDENCE_REFERENCE",
+          evidencePath,
+          `Missing ${evidenceId}`
+        );
+        return;
+      }
+      const evidenceObservation = observations.get(
+        evidenceEntry.observation_id
+      );
+      if (
+        evidenceObservation &&
+        benchmarkProjectForEntity(evidenceObservation.entity_id, typologies) !==
+          entry.project_id
+      ) {
+        push(
+          errors,
+          "BENCHMARK_PAIRING_EVIDENCE_PROJECT",
+          evidencePath,
+          `${evidenceId} belongs to another project`
+        );
+      }
+      if (
+        entry.pairing_status === "source_paired" &&
+        (evidenceEntry.availability !== "available" ||
+          evidenceEntry.publish_permission !== "authorized")
+      ) {
+        push(
+          errors,
+          "BENCHMARK_SOURCE_PAIRED_EVIDENCE_PERMISSION",
+          evidencePath,
+          `${evidenceId} is not public and available`
+        );
+      }
+    });
+
+    const pricePerM2 = facts.get(entry.price_per_m2_fact_id);
+    const publishedPrice = facts.get(entry.published_price_fact_id);
+    const totalArea = facts.get(entry.total_area_fact_id);
+    if (entry.pairing_status === "source_paired") {
+      sourcePairedProjects.add(entry.project_id);
+      if (pairingEvidenceIds.length === 0) {
+        push(
+          errors,
+          "BENCHMARK_SOURCE_PAIRED_EVIDENCE",
+          `${entryPath}.pairing_evidence_ids`,
+          "source_paired requires pairing evidence"
+        );
+      }
+      if (
+        !["offer_id", "typology_id", "native_metric"].includes(
+          entry.pairing_basis
+        )
+      ) {
+        push(
+          errors,
+          "BENCHMARK_SOURCE_PAIRED_BASIS",
+          `${entryPath}.pairing_basis`,
+          "source_paired requires an offer, typology or native metric basis"
+        );
+      }
+      if (
+        !pricePerM2?.benchmark_eligible ||
+        pricePerM2?.semantic_type !== "price_per_m2" ||
+        pricePerM2?.denominator_area_type !== "total" ||
+        pricePerM2?.currency !== "PEN" ||
+        pricePerM2?.unit !== "PEN/m2" ||
+        !pricePerM2?.derivation?.input_fact_ids?.includes(
+          entry.published_price_fact_id
+        ) ||
+        !pricePerM2?.derivation?.input_fact_ids?.includes(
+          entry.total_area_fact_id
+        )
+      ) {
+        push(
+          errors,
+          "BENCHMARK_SOURCE_PAIRED_PRICE_PER_M2",
+          `${entryPath}.price_per_m2_fact_id`,
+          "source_paired requires an eligible PEN/total-m2 derivation from the declared facts"
+        );
+      }
+      if (
+        !publishedPrice?.benchmark_eligible ||
+        publishedPrice?.semantic_type !== "price" ||
+        publishedPrice?.price_type !== "from" ||
+        publishedPrice?.currency !== "PEN"
+      ) {
+        push(
+          errors,
+          "BENCHMARK_SOURCE_PAIRED_PRICE",
+          `${entryPath}.published_price_fact_id`,
+          "source_paired requires an eligible published from-price in PEN"
+        );
+      }
+      if (
+        !totalArea?.benchmark_eligible ||
+        totalArea?.semantic_type !== "area" ||
+        totalArea?.area_type !== "total" ||
+        totalArea?.unit !== "m2"
+      ) {
+        push(
+          errors,
+          "BENCHMARK_SOURCE_PAIRED_TOTAL_AREA",
+          `${entryPath}.total_area_fact_id`,
+          "source_paired requires an eligible total-area fact in m2"
+        );
+      }
+    } else if (pricePerM2?.benchmark_eligible === true) {
+      push(
+        errors,
+        "BENCHMARK_UNPAIRED_ELIGIBLE",
+        `${entryPath}.price_per_m2_fact_id`,
+        `${entry.pairing_status} cannot reference an eligible price-per-m2 fact`
+      );
+    }
+  });
+
+  const attributeIds = new Set();
+  const normalizedLabels = new Set();
+  const normalizedTerms = new Map();
+  attributeCatalog.forEach((attribute, index) => {
+    if (!attribute || typeof attribute !== "object") return;
+    const attributePath = `${path}.attribute_catalog[${index}]`;
+    if (attributeIds.has(attribute.attribute_id)) {
+      push(
+        errors,
+        "BENCHMARK_ATTRIBUTE_DUPLICATE_ID",
+        `${attributePath}.attribute_id`,
+        `Duplicate ${attribute.attribute_id}`
+      );
+    }
+    attributeIds.add(attribute.attribute_id);
+    const label = String(attribute.normalized_label ?? "")
+      .trim()
+      .toLocaleLowerCase("es");
+    if (normalizedLabels.has(label)) {
+      push(
+        errors,
+        "BENCHMARK_ATTRIBUTE_DUPLICATE_LABEL",
+        `${attributePath}.normalized_label`,
+        `Duplicate normalized label ${attribute.normalized_label}`
+      );
+    }
+    normalizedLabels.add(label);
+    const terms = [attribute.normalized_label, ...(attribute.aliases ?? [])];
+    terms.forEach((term, termIndex) => {
+      const normalized = String(term ?? "").trim().toLocaleLowerCase("es");
+      if (normalized === "otros") {
+        push(
+          errors,
+          "BENCHMARK_ATTRIBUTE_OTHERS",
+          termIndex === 0
+            ? `${attributePath}.normalized_label`
+            : `${attributePath}.aliases[${termIndex - 1}]`,
+          "Otros cannot be a canonical label or alias"
+        );
+      }
+      const owner = normalizedTerms.get(normalized);
+      if (owner && owner !== attribute.attribute_id) {
+        push(
+          errors,
+          "BENCHMARK_ATTRIBUTE_ALIAS_COLLISION",
+          `${attributePath}.aliases`,
+          `${term} is already assigned to ${owner}`
+        );
+      } else if (normalized) {
+        normalizedTerms.set(normalized, attribute.attribute_id);
+      }
+    });
+  });
+
+  const referencedFactIds = new Set();
+  const factIdentityOwners = new Map();
+  factIndex.forEach((entry, entryIndex) => {
+    if (!entry || typeof entry !== "object") return;
+    const entryPath = `${path}.fact_index[${entryIndex}]`;
+    const scalarFactIds = [
+      entry.total_area_fact_id,
+      entry.published_price_fact_id,
+      entry.price_per_m2_fact_id,
+      entry.reported_unit_count_fact_id,
+      entry.parking_count_fact_id
+    ];
+    const attributeFactIds = Array.isArray(entry.attribute_fact_ids)
+      ? entry.attribute_fact_ids
+      : [];
+    attributeFactIds.forEach((factId, attributeIndex) => {
+      const fact = facts.get(factId);
+      const factPath = `${entryPath}.attribute_fact_ids[${attributeIndex}]`;
+      if (!fact) return;
+      if (fact.semantic_type !== "attribute") {
+        push(
+          errors,
+          "BENCHMARK_ATTRIBUTE_FACT_SEMANTIC",
+          factPath,
+          `${factId} is not an attribute fact`
+        );
+      }
+      if (!attributeIds.has(fact.normalized_value)) {
+        push(
+          errors,
+          "BENCHMARK_ATTRIBUTE_FACT_CATALOG",
+          factPath,
+          `${factId} does not resolve to a catalog attribute`
+        );
+      }
+    });
+
+    for (const factId of [...scalarFactIds, ...attributeFactIds].filter(Boolean)) {
+      if (referencedFactIds.has(factId)) continue;
+      referencedFactIds.add(factId);
+      const fact = facts.get(factId);
+      if (!fact) continue;
+      if (fact.value_kind === "observed" && fact.original_value === null) {
+        push(
+          errors,
+          "BENCHMARK_FACT_ORIGINAL_MISSING",
+          `${entryPath}.project_id`,
+          `${factId} must preserve its observed original value`
+        );
+      }
+      const observation = observations.get(fact.observation_id);
+      if (!observation) continue;
+      const projectId = benchmarkProjectForEntity(fact.entity_id, typologies);
+      const identity = [
+        projectId,
+        fact.field_name,
+        observation.source_id,
+        observation.captured_at
+      ].join("|");
+      const owner = factIdentityOwners.get(identity);
+      if (owner && owner !== factId) {
+        push(
+          errors,
+          "BENCHMARK_FACT_IDENTITY_DUPLICATE",
+          `${entryPath}.project_id`,
+          `${factId} duplicates ${owner} for ${identity}`
+        );
+      } else {
+        factIdentityOwners.set(identity, factId);
+      }
+    }
+  });
+
+  const indicators = benchmark.coverage?.indicators;
+  if (!indicators || typeof indicators !== "object" || Array.isArray(indicators)) {
+    return stableErrors(errors);
+  }
+  const indicatorEntries = Object.entries(indicators);
+  if (indicatorEntries.length === 0) {
+    push(
+      errors,
+      "BENCHMARK_INDICATORS_EMPTY",
+      `${path}.coverage.indicators`,
+      "At least one benchmark indicator is required"
+    );
+  }
+  const reasonOrder = new Map(
+    (benchmark.methodology?.exclusion_reason_precedence ?? []).map(
+      (reason, index) => [reason, index]
+    )
+  );
+  indicatorEntries.forEach(([indicatorId, coverage]) => {
+    const indicatorPath = `${path}.coverage.indicators.${indicatorId}`;
+    if (!/^[a-z][a-z0-9_]*$/.test(indicatorId)) {
+      push(
+        errors,
+        "BENCHMARK_INDICATOR_ID",
+        indicatorPath,
+        `Invalid indicator ID ${indicatorId}`
+      );
+    }
+    if (!coverage || typeof coverage !== "object") return;
+    const inputIds = Array.isArray(coverage.input_project_ids)
+      ? coverage.input_project_ids
+      : [];
+    const usedIds = Array.isArray(coverage.used_project_ids)
+      ? coverage.used_project_ids
+      : [];
+    const missingIds = Array.isArray(coverage.missing_project_ids)
+      ? coverage.missing_project_ids
+      : [];
+    const excludedProjects = Array.isArray(coverage.excluded_projects)
+      ? coverage.excluded_projects
+      : [];
+    const excludedIds = excludedProjects.map((entry) => entry?.project_id);
+    if (new Set(excludedIds).size !== excludedIds.length) {
+      push(
+        errors,
+        "BENCHMARK_COVERAGE_DUPLICATE_EXCLUDED",
+        `${indicatorPath}.excluded_projects`,
+        "A project can be excluded only once per indicator"
+      );
+    }
+    const outputIds = [...usedIds, ...missingIds, ...excludedIds];
+    if (new Set(outputIds).size !== outputIds.length) {
+      push(
+        errors,
+        "BENCHMARK_COVERAGE_OVERLAP",
+        indicatorPath,
+        "Used, missing and excluded projects must be disjoint"
+      );
+    }
+    const inputSet = new Set(inputIds);
+    const outputSet = new Set(outputIds);
+    if (
+      inputSet.size !== outputSet.size ||
+      [...inputSet].some((projectId) => !outputSet.has(projectId))
+    ) {
+      push(
+        errors,
+        "BENCHMARK_COVERAGE_PARTITION",
+        indicatorPath,
+        "Input projects must equal used plus missing plus excluded projects"
+      );
+    }
+    [...inputSet].forEach((projectId) => {
+      if (!projects.has(projectId)) {
+        push(
+          errors,
+          "BENCHMARK_COVERAGE_PROJECT_REFERENCE",
+          `${indicatorPath}.input_project_ids`,
+          `Missing ${projectId}`
+        );
+      }
+    });
+    excludedProjects.forEach((excluded, excludedIndex) => {
+      if (!excluded || !Array.isArray(excluded.reasons)) return;
+      const positions = excluded.reasons.map((reason) =>
+        reasonOrder.has(reason) ? reasonOrder.get(reason) : Number.MAX_SAFE_INTEGER
+      );
+      if (
+        positions.some(
+          (position, reasonIndex) =>
+            reasonIndex > 0 && position < positions[reasonIndex - 1]
+        )
+      ) {
+        push(
+          errors,
+          "BENCHMARK_COVERAGE_REASON_ORDER",
+          `${indicatorPath}.excluded_projects[${excludedIndex}].reasons`,
+          "Exclusion reasons must follow methodology precedence"
+        );
+      }
+    });
+    if (
+      indicatorId === "price_per_m2_total" &&
+      usedIds.some((projectId) => !sourcePairedProjects.has(projectId))
+    ) {
+      push(
+        errors,
+        "BENCHMARK_COVERAGE_UNPAIRED_USED",
+        `${indicatorPath}.used_project_ids`,
+        "Only source_paired projects may be used for eligible price per m2"
+      );
+    }
+  });
+  return stableErrors(errors);
+}
+
 export function validateRootDocument(
   document,
   { schema = loadContractSchema(), assetExists } = {}
@@ -1620,6 +2097,9 @@ export function validateRootDocument(
   }
   if (document?.inspector && document?.model) {
     errors.push(...validateInspectorSemantics(document.inspector, document.model));
+  }
+  if (document?.benchmark && document?.model) {
+    errors.push(...validateBenchmarkSemantics(document.benchmark, document.model));
   }
   validateRootSemantics(document, errors);
   errors.push(...validatePrivacy(document));

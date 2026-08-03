@@ -508,6 +508,73 @@ for (const [mutation, expectedError] of [
   );
 }
 
+const payload23 = structuredClone(payload22);
+payload23.metadata.contract_version = "2.3.0";
+payload23.benchmark = {
+  version: 1,
+  methodology: {
+    cutoff_at: "2026-07-30T00:00:00-05:00",
+    minimum_quantitative_sample: 3,
+    minimum_qualitative_informed_sample: 5,
+    quantile_method: "R7",
+    price_type_policy: "from",
+    allowed_area_denominators: ["total"],
+    pairing_policy: "source_paired_only",
+    exclusion_reason_precedence: [
+      "restricted",
+      "blocking_issue",
+      "conflicting_observations",
+      "price_area_link_unresolved",
+      "currency",
+      "area_denominator",
+      "cutoff",
+      "missing"
+    ],
+    certification_label: "Elegible según las reglas de la demo"
+  },
+  fact_index: [],
+  attribute_catalog: [],
+  coverage: {
+    indicators: {
+      price_per_m2_total: {
+        input_project_ids: [],
+        used_project_ids: [],
+        missing_project_ids: [],
+        excluded_projects: []
+      }
+    }
+  }
+};
+assert.deepEqual(
+  validateRootDocument(payload23, {
+    schema,
+    assetExists: compatibilityAssetExists
+  }),
+  [],
+  "reader 2.3 must accept a complete 2.3 payload"
+);
+
+const missingBenchmark = structuredClone(payload23);
+delete missingBenchmark.benchmark;
+assert.ok(
+  validateRootDocument(missingBenchmark, {
+    schema,
+    assetExists: compatibilityAssetExists
+  }).some((error) => error.code === "SCHEMA_REQUIRED"),
+  "2.3 payload must require benchmark"
+);
+
+const legacy22WithoutBenchmark = structuredClone(payload22);
+delete legacy22WithoutBenchmark.benchmark;
+assert.deepEqual(
+  validateRootDocument(legacy22WithoutBenchmark, {
+    schema,
+    assetExists: compatibilityAssetExists
+  }),
+  [],
+  "2.2 must remain valid without benchmark"
+);
+
 const missingGeography = structuredClone(payload21);
 delete missingGeography.geography;
 assert.ok(
@@ -545,5 +612,5 @@ assert.ok(
 );
 
 console.log(
-  "Contract compatibility OK: reader 2.2 accepts 2.0, 2.1 and 2.2; inspector references and visual evidence remain closed."
+  "Contract compatibility OK: reader 2.3 accepts 2.0–2.3; inspector and benchmark revisions remain gated."
 );

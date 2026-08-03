@@ -150,6 +150,15 @@ function makePresentation({
 }
 
 const readyModel = makePresentation();
+for (const contractVersion of ["2.1.0", "2.2.0", "2.3.0"]) {
+  const compatibleData = structuredClone(data);
+  compatibleData.metadata.contract_version = contractVersion;
+  assert.deepEqual(
+    makePresentation({ dataOverride: compatibleData }),
+    readyModel,
+    `contract ${contractVersion} must not change the territorial presentation`
+  );
+}
 assert.equal(readyModel.scopeTitle, "Miraflores · Distrito completo");
 assert.equal(readyModel.observedCount, 90);
 assert.equal(readyModel.comparableCount, 85);
@@ -158,7 +167,13 @@ assert.ok(readyModel.agencyCount > 0);
 assert.equal(readyModel.cutoffLabel, "Corte 28 jul. 2026");
 assert.equal(readyModel.statuses.geography.label, "Cobertura territorial completa");
 assert.equal(readyModel.statuses.comparability.label, "Comparabilidad lista");
-assert.equal(readyModel.statuses.price.label, "Referencia de precio lista");
+assert.equal(readyModel.statuses.price.label, "Referencia de precio no demostrada");
+assert.equal(readyModel.statuses.price.tone, "partial");
+assert.equal(readyModel.statuses.price.symbol, "!");
+assert.match(
+  readyModel.statuses.price.detail,
+  /12 publicaciones declaran precio y área total; no prueban que ambos valores pertenezcan a la misma oferta/u,
+);
 
 const readyBar = renderScenarioBar(readyModel);
 const readySummary = renderScenarioSummary(readyModel);
@@ -192,7 +207,7 @@ for (const expected of [
   "5 fuera o por revisar",
   "Cobertura territorial completa",
   "Comparabilidad lista",
-  "Referencia de precio lista",
+  "Referencia de precio no demostrada",
   'id="scenario-canonical-url"',
   readyModel.canonicalUrl.replaceAll("&", "&amp;"),
   'id="scenario-live"',
@@ -205,6 +220,10 @@ for (const expected of [
   );
 }
 assert.doesNotMatch(readySummary, /kpi-card/);
+assert.doesNotMatch(
+  readySummary,
+  /Referencia de precio lista|precios publicados compatibles/iu,
+);
 assert.match(readySummary, /<dl class="scenario-summary__metrics">/);
 
 const openNavBar = renderScenarioBar(
@@ -305,7 +324,15 @@ assert.match(
   partialSummary,
   /Comparabilidad orientativa · 42.5% evidencia/,
 );
-assert.match(partialSummary, /Referencia de precio insuficiente/);
+assert.match(partialSummary, /Referencia de precio no demostrada/);
+assert.match(
+  partialSummary,
+  /2 publicaciones declaran precio y área total; ninguna pareja está demostrada a nivel de oferta/u,
+);
+assert.doesNotMatch(
+  partialSummary,
+  /Referencia de precio lista|precios publicados compatibles/iu,
+);
 
 for (const artifactStatus of [
   "missing",

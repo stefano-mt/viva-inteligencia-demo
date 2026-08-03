@@ -7,6 +7,10 @@ import {
   parseCsv,
   validateAgencyArtifacts
 } from "./data/agencies.js";
+import {
+  blockingBenchmarkProjectIds,
+  materializeMarketBenchmark
+} from "./data/benchmark.js";
 import { buildEvidenceBundle } from "./data/evidence.js";
 import { buildGeographyModel } from "./data/geography.js";
 import { materializeMeasureRecords } from "./data/measures.js";
@@ -82,11 +86,21 @@ const PATHS = Object.freeze({
   fixtureE: "datos_relevantes/demo-pilot/fixtures/ct-e.json",
   fixtureG: "datos_relevantes/demo-pilot/fixtures/ct-g.json",
   fixtureH: "datos_relevantes/demo-pilot/fixtures/ct-h.json",
-  fixtureI: "datos_relevantes/demo-pilot/fixtures/ct-i.json"
+  fixtureI: "datos_relevantes/demo-pilot/fixtures/ct-i.json",
+  benchmarkPolicy: "datos_relevantes/demo-pilot/benchmark-policy.json",
+  benchmarkAttributes:
+    "datos_relevantes/demo-pilot/benchmark-attribute-catalog.json"
 });
 
+const BENCHMARK_INPUT_PATHS = Object.freeze([
+  PATHS.benchmarkAttributes,
+  PATHS.benchmarkPolicy
+]);
+
 export const REQUIRED_INPUT_PATHS = Object.freeze(
-  [...new Set(Object.values(PATHS))].sort(compareText)
+  [...new Set(Object.values(PATHS))]
+    .filter((logicalPath) => !BENCHMARK_INPUT_PATHS.includes(logicalPath))
+    .sort(compareText)
 );
 
 const FIXTURE_KEYS = Object.freeze([
@@ -296,9 +310,15 @@ async function readLogicalPaths(repositoryRoot, logicalPaths, buffers) {
   }
 }
 
-async function readRequiredInputs(repositoryRoot) {
+async function readRequiredInputs(
+  repositoryRoot,
+  { includeBenchmark = false } = {}
+) {
   const buffers = new Map();
   await readLogicalPaths(repositoryRoot, REQUIRED_INPUT_PATHS, buffers);
+  if (includeBenchmark) {
+    await readLogicalPaths(repositoryRoot, BENCHMARK_INPUT_PATHS, buffers);
+  }
   const manifest = parseRequiredJson(
     buffers,
     PATHS.evidenceManifest,
@@ -313,11 +333,14 @@ async function readRequiredInputs(repositoryRoot) {
 }
 
 export async function discoverRequiredInputPaths(
-  repositoryRoot = DEFAULT_REPOSITORY_ROOT
+  repositoryRoot = DEFAULT_REPOSITORY_ROOT,
+  { includeBenchmark = false } = {}
 ) {
-  return [...(await readRequiredInputs(path.resolve(repositoryRoot))).keys()].sort(
-    compareText
-  );
+  return [
+    ...(await readRequiredInputs(path.resolve(repositoryRoot), {
+      includeBenchmark
+    })).keys()
+  ].sort(compareText);
 }
 
 function inputText(inputs, logicalPath) {
@@ -1070,10 +1093,11 @@ function throwValidationErrors(label, errors) {
 }
 
 async function buildDemoBundle({
-  repositoryRoot = DEFAULT_REPOSITORY_ROOT
+  repositoryRoot = DEFAULT_REPOSITORY_ROOT,
+  includeBenchmark = false
 } = {}) {
   const root = path.resolve(repositoryRoot);
-  const inputs = await readRequiredInputs(root);
+  const inputs = await readRequiredInputs(root, { includeBenchmark });
   const sourceManifest = parseRequiredJson(
     inputs,
     PATHS.geographyManifest,
@@ -1217,7 +1241,7 @@ async function buildDemoBundle({
     fixtures
   });
 
-  const model = {
+  const baseModel = {
     sources: evidenceBundle.sources,
     agencies,
     agencyAliases,
@@ -1232,12 +1256,72 @@ async function buildDemoBundle({
   };
   const geography = buildGeographyModel({
     observedProjects: legacyProjects,
-    authoritativeProjects: model.projects,
+    authoritativeProjects: baseModel.projects,
     boundaryFeatureCollection,
     sourceManifest,
     boundaryArtifactPath: "demo-data/district-boundaries.geojson",
     boundaryArtifactSha256: geoJsonSha256
   });
+  const geographyProjectIds = new Set(
+    geography.assignments
+      .filter(
+        (assignment) =>
+          assignment.polygon_valid &&
+          assignment.authoritative_project_id !== null
+      )
+      .map((assignment) => assignment.authoritative_project_id)
+  );
+  let benchmark = null;
+  let model = baseModel;
+  if (includeBenchmark) {
+    const benchmarkPolicy = parseRequiredJson(
+      inputs,
+      PATHS.benchmarkPolicy,
+      "object"
+    );
+    const benchmarkCatalog = parseRequiredJson(
+      inputs,
+      PATHS.benchmarkAttributes,
+      "object"
+    );
+    if (
+      benchmarkPolicy.source.snapshot_path !== PATHS.nexo ||
+      benchmarkPolicy.source.snapshot_sha256 !==
+        logicalInputSha256(inputs.get(PATHS.nexo)) ||
+      benchmarkPolicy.source.cutoff_at !== CUTOFF_AT
+    ) {
+      throw new Error(
+        "Benchmark policy does not match the fixed Nexo snapshot and build cutoff"
+      );
+    }
+    const materialized = materializeMarketBenchmark({
+      rows: nexoRows,
+      projects: authoritative.projects.filter(({ project_id: projectId }) =>
+        geographyProjectIds.has(projectId)
+      ),
+      policy: benchmarkPolicy,
+      catalog: benchmarkCatalog,
+      blockingProjectIds: blockingBenchmarkProjectIds(baseModel)
+    });
+    if (materialized.diagnostics.unknown_attribute_tokens.length > 0) {
+      throw new Error(
+        `Unmapped benchmark attributes: ${materialized.diagnostics.unknown_attribute_tokens.join(
+          ", "
+        )}`
+      );
+    }
+    model = {
+      ...baseModel,
+      observations: [
+        ...baseModel.observations,
+        ...materialized.observations
+      ].sort(compareById("observation_id")),
+      facts: [...baseModel.facts, ...materialized.facts].sort(
+        compareById("fact_id")
+      )
+    };
+    benchmark = materialized.benchmark;
+  }
   const miraflores = geography.districts.find(
     (district) => district.district_id === "150122"
   );
@@ -1272,7 +1356,7 @@ async function buildDemoBundle({
 
   const payload = {
     metadata: {
-      contract_version: "2.2.0",
+      contract_version: includeBenchmark ? "2.3.0" : "2.2.0",
       dataset_id: DATASET_ID,
       generated_at: GENERATED_AT,
       cutoff_at: CUTOFF_AT,
@@ -1349,6 +1433,7 @@ async function buildDemoBundle({
       ),
       coverage: structuredClone(inspectorCases.coverage)
     },
+    ...(benchmark ? { benchmark } : {}),
     projects: legacyProjects,
     executive: buildExecutive(legacyProjects, certifiedAggregates),
     rankings: {
@@ -1450,9 +1535,9 @@ export function buildCoverageReport(
     },
     derivation: {
       authority:
-        "$.model and $.inspector are authoritative; $.projects is the temporary legacy projection.",
+        "$.model, $.inspector and $.benchmark when present are authoritative; $.projects is the temporary legacy projection.",
       method:
-        "All counts and distributions are recomputed offline from the deterministic 2.2 payload.",
+        `All counts and distributions are recomputed offline from the deterministic ${payload.metadata.contract_version} payload.`,
       input_fingerprint_count: payload.metadata.input_fingerprints.length,
       counting_rules: [
         {
@@ -1548,6 +1633,31 @@ export function buildCoverageReport(
       ),
       reference: "$.inspector"
     },
+    ...(payload.benchmark
+      ? {
+          benchmark_coverage: {
+            indexed_project_count: payload.benchmark.fact_index.length,
+            pairing_status_distribution: countByValue(
+              payload.benchmark.fact_index,
+              "pairing_status"
+            ),
+            indicator_partitions: Object.fromEntries(
+              Object.entries(payload.benchmark.coverage.indicators)
+                .sort(([left], [right]) => compareText(left, right))
+                .map(([indicatorId, coverage]) => [
+                  indicatorId,
+                  {
+                    input: coverage.input_project_ids.length,
+                    used: coverage.used_project_ids.length,
+                    missing: coverage.missing_project_ids.length,
+                    excluded: coverage.excluded_projects.length
+                  }
+                ])
+            ),
+            reference: "$.benchmark"
+          }
+        }
+      : {}),
     source_observation_and_evidence_coverage: {
       sources: {
         count: payload.model.sources.length,
@@ -1899,34 +2009,36 @@ export function buildCoverageReport(
       ]
     },
     phase_gaps: [
-      {
-        gap_id: "GAP-F4-BENCHMARK",
-        target_phase: "F4",
-        severity: "blocking_for_phase",
-        current_evidence: {
-          benchmark_eligible_fact_count: eligibleFacts.length,
-          benchmark_eligible_price_fact_count: eligibleFacts.filter(
-            (fact) => fact.semantic_type === "price"
-          ).length,
-          benchmark_eligible_price_per_m2_fact_count: eligibleFacts.filter(
-            (fact) => fact.semantic_type === "price_per_m2"
-          ).length,
-          price_per_m2_fact_count: facts.filter(
-            (fact) => fact.semantic_type === "price_per_m2"
-          ).length,
-          legacy_unknown_currency_project_count: payload.projects.filter(
-            (project) => project.currency === "unknown"
-          ).length
-        },
-        required_outcome:
-          "Materialize market price and compatible area facts for the selected geography, grouped by currency, price type and denominator.",
-        references: [
-          "$.model.facts",
-          "$.projects[*].currency",
-          "fact:ct-a-price-per-built-m2",
-          "fact:ct-a-price-per-total-m2"
-        ]
-      },
+      ...(payload.benchmark
+        ? []
+        : [{
+            gap_id: "GAP-F4-BENCHMARK",
+            target_phase: "F4",
+            severity: "blocking_for_phase",
+            current_evidence: {
+              benchmark_eligible_fact_count: eligibleFacts.length,
+              benchmark_eligible_price_fact_count: eligibleFacts.filter(
+                (fact) => fact.semantic_type === "price"
+              ).length,
+              benchmark_eligible_price_per_m2_fact_count: eligibleFacts.filter(
+                (fact) => fact.semantic_type === "price_per_m2"
+              ).length,
+              price_per_m2_fact_count: facts.filter(
+                (fact) => fact.semantic_type === "price_per_m2"
+              ).length,
+              legacy_unknown_currency_project_count: payload.projects.filter(
+                (project) => project.currency === "unknown"
+              ).length
+            },
+            required_outcome:
+              "Materialize market price and compatible area facts for the selected geography, grouped by currency, price type and denominator.",
+            references: [
+              "$.model.facts",
+              "$.projects[*].currency",
+              "fact:ct-a-price-per-built-m2",
+              "fact:ct-a-price-per-total-m2"
+            ]
+          }]),
       {
         gap_id: "GAP-F5-HISTORY-ASSISTANT",
         target_phase: "F5",
@@ -1990,6 +2102,7 @@ export async function buildDemoData({
   outputPath = undefined,
   geoJsonOutputPath = undefined,
   coverageReportOutputPath = undefined,
+  includeBenchmark = false,
   write = true
 } = {}) {
   const root = path.resolve(repositoryRoot);
@@ -2028,7 +2141,10 @@ export async function buildDemoData({
     geoJsonSha256,
     geoJsonBytes,
     inputPaths
-  } = await buildDemoBundle({ repositoryRoot: root });
+  } = await buildDemoBundle({
+    repositoryRoot: root,
+    includeBenchmark
+  });
   assertOutputDoesNotOverwriteInput(root, target, inputPaths);
   assertOutputDoesNotOverwriteInput(root, geographyTarget, inputPaths);
   assertOutputDoesNotOverwriteInput(root, coverageTarget, inputPaths);
@@ -2064,7 +2180,7 @@ export async function buildDemoData({
 }
 
 async function main() {
-  const result = await buildDemoData();
+  const result = await buildDemoData({ includeBenchmark: true });
   console.log(
     `Demo data written: ${path.relative(
       path.join(DEFAULT_REPOSITORY_ROOT, "prototipo_ejecutable"),

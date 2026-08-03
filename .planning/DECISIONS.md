@@ -254,3 +254,73 @@ No existen gaps bloqueantes y `HUMAN-GATE-B` no aplica. Las notas de baja severi
 El alcance aprobado “17–20 documentos/evidencias” se materializó como 19 documentos y 19 evidencias emparejados uno a uno. P3-14 aceptó la interpretación por colección. Si el responsable pretendía un máximo combinado, ese alcance debe reabrirse antes de añadir nuevos registros; no se alteran los datos aprobados durante P3-15.
 
 P3-15 puede preparar el PR funcional. El merge continúa siendo humano. El `PASS` previo al PR no demuestra despliegue: P3-16 debe verificar Pages después del merge y P3-17 debe persistir el resultado en una rama y PR documental separados. Cualquier cambio posterior a P3-14 en código, datos, tests, activos o comportamiento exige repetir el checker sobre el nuevo SHA.
+
+## D-028 — HUMAN-GATE-A habilita Fase 4 bajo A1–A12
+
+**Fecha:** 2026-07-31
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Acepto A1–A12 y autorizo HUMAN-GATE-A de la Fase 4.” con timestamp de sesión `2026-07-31T11:11:10.4019829-05:00`. La aprobación acepta el plan `be5fd33` después de que el re-review independiente cerrara B1–B4 con `PASS WITH RISKS`.
+
+Queda decidido que:
+
+1. Nexo se usa solo como snapshot fijo de demo y continúa `pending_review` jurídicamente;
+2. la UI habla de referencia elegible, no certificación externa;
+3. precio publicado `desde`, área total, unidades reportadas y atributos anunciados conservan semánticas separadas;
+4. `unknown`, `restricted`, `excluded` e insuficiente no se convierten en ausencia;
+5. Pardo Coast permanece territorial y Tipo 7 no se rehabilita;
+6. los 371/69 cocientes de mínimos son `orientative_noncomparable`; solo `source_paired` puede entrar al benchmark elegible;
+7. HU-505 queda diferida;
+8. `scenario.js` solo puede ampliar su allowlist a 2.3 y debe demostrar arranque 2.1/2.2/2.3 sin alterar F2;
+9. P4-00D crea el lockfile y baseline browser antes de P4-01;
+10. cualquier cambio material a A1–A12, fuente, pairing, contrato, umbrales o `write_set` exige nueva revisión.
+
+La aprobación no equivale a PASS técnico, merge, despliegue o revisión legal. P4-13 permanece independiente y HUMAN-GATE-B será obligatoria si emite `PASS WITH RISKS`.
+
+## D-029 — Enmienda técnica P4-01 incorpora semántica benchmark al reader
+
+**Fecha:** 2026-07-31
+
+**Estado:** aceptada
+
+Stefano autorizó explícitamente la enmienda técnica de P4-01 con timestamp de sesión `2026-07-31T11:36:09.8204568-05:00`. La autorización añade `prototipo_ejecutable/scripts/data/validate.js` al `write_set` de P4-01 exclusivamente para ejecutar en el reader real las reglas semánticas ya aprobadas del benchmark 2.3.
+
+El reader debe rechazar referencias colgantes, pairing no demostrado, hechos incompatibles, atributos canónicos duplicados o ambiguos y ledgers que no cumplan la partición disjunta por indicador. La enmienda no autoriza modificar writer, build, dataset público, selección territorial, IDs, geometría ni otra semántica F2/F3. P4-03 conserva la responsabilidad posterior de materialización y P4-04 la regeneración del dataset y su fingerprint.
+
+## D-030 — Enmiendas P4-04 preservan regresiones y catálogos extensibles
+
+**Fecha:** 2026-07-31
+
+**Estado:** aceptada
+
+Stefano autorizó explícitamente dos ampliaciones acotadas del `write_set` de P4-04:
+
+1. actualizar tres regresiones legacy al contrato público 2.3 y a 50 fingerprints;
+2. adaptar dos pruebas de integración F1 a catálogos públicos extensibles, preservando sin cambios sus registros originales.
+
+La autoridad se limita a pruebas y compatibilidad con el contrato materializado. No autoriza cambiar semántica, registros originales F1, runtime, fuentes, pairing, selección territorial ni claims. El checker P4-13 confirmó que las cinco regresiones pasan y que el dataset conserva contrato, referencias, privacidad y determinismo.
+
+## D-031 — Enmienda P4-11 integra la regresión y los E2E vigentes
+
+**Fecha:** 2026-07-31
+
+**Estado:** aceptada
+
+Stefano autorizó explícitamente migrar `prototipo_ejecutable/tests/projects-compare.mjs` al modelo vigente e integrar `benchmark-e2e.mjs` y `comparison-e2e.mjs` en `package.json`.
+
+La enmienda se limita a tests y composición del gate. No permite modificar runtime, datos o estilos. El checker P4-13 confirmó que búsqueda profunda, universo canónico, máximo tres, estados vacíos, escaping, E2E F4, smoke y accesibilidad pasan.
+
+## D-032 — P4-13A cierra G1 y habilita P4-14 sin HUMAN-GATE-B
+
+**Fecha:** 2026-08-03
+
+**Estado:** aceptada
+
+La primera ejecución P4-13 emitió `FAIL` porque el resumen territorial afirmaba `Referencia de precio lista` antes de mostrar 0 parejas elegibles. Stefano autorizó la enmienda correctiva P4-13A con el `write_set` exacto registrado en `AMENDMENT-P4-13A.md`.
+
+La corrección reemplaza esa afirmación por `Referencia de precio no demostrada` y explica que las 69 publicaciones raw no prueban una pareja precio–área de la misma oferta. No cambia motor, estado, contrato, dataset, pairing, CT-G, estilos o configuración; F4 conserva 68 cocientes orientativos y 0 elegibles.
+
+El checker independiente `/root/phase4_gate_checker` repitió P4-13 sobre `be05fdc456e3ab85da01df26b4cd22daa426dac6` y emitió `PASS`. Verificó HU-DEMO-501–504, CT-A/B/C/D/G/I/P, contrato 2.3, privacidad, determinismo, responsive, accesibilidad, regresiones, Graphify y recorrido comercial. No existen gaps bloqueantes y `HUMAN-GATE-B` no aplica.
+
+P4-14 puede preparar el PR funcional. El merge continúa siendo humano. El `PASS` no demuestra despliegue: P4-15 debe verificar Pages read-only después del merge y P4-16 debe persistir ese resultado en una rama y PR documental separados. Cualquier cambio posterior a P4-13 en código, datos, tests, estilos, activos o comportamiento exige repetir el checker.

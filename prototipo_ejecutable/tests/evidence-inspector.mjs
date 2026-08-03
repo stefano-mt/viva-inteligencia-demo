@@ -64,7 +64,7 @@ assert.deepEqual(INSPECTOR_ROW_ORDER, [
   "bathrooms",
   "other",
 ]);
-assert.equal(payload.metadata.contract_version, "2.2.0");
+assert.equal(payload.metadata.contract_version, "2.3.0");
 assert.deepEqual(Object.keys(expectedCases).sort(), [...caseById.keys()].sort());
 
 const dossiers = new Map();

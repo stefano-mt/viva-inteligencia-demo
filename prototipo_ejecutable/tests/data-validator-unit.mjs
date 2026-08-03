@@ -10,6 +10,7 @@ import {
   validateFixture,
   validatePartialModel,
   validatePrivacy,
+  validateBenchmarkSemantics,
   validateInspectorSemantics,
   validateRootDocument,
   validateSchemaShape
@@ -1095,7 +1096,59 @@ expectInspectorMutation((candidate) => {
   }
 }, "INSPECTOR_ASSET_ORPHAN");
 
+const benchmarkBuilt = await buildDemoData({
+  repositoryRoot: REPOSITORY_ROOT,
+  includeBenchmark: true,
+  write: false
+});
+assert.deepEqual(
+  validateBenchmarkSemantics(
+    benchmarkBuilt.payload.benchmark,
+    benchmarkBuilt.payload.model
+  ),
+  []
+);
+const benchmarkEntry = benchmarkBuilt.payload.benchmark.fact_index.find(
+  ({ attribute_fact_ids: factIds }) => factIds.length > 0
+);
+const benchmarkAttributeFactId = benchmarkEntry.attribute_fact_ids[0];
+const expectBenchmarkMutation = (mutate, code) => {
+  const candidate = clone(benchmarkBuilt.payload);
+  mutate(candidate);
+  expectCode(
+    validateBenchmarkSemantics(candidate.benchmark, candidate.model),
+    code
+  );
+};
+expectBenchmarkMutation((candidate) => {
+  candidate.model.facts.find(
+    ({ fact_id: factId }) => factId === benchmarkAttributeFactId
+  ).normalized_value = "attribute:not-in-catalog";
+}, "BENCHMARK_ATTRIBUTE_FACT_CATALOG");
+expectBenchmarkMutation((candidate) => {
+  candidate.model.facts.find(
+    ({ fact_id: factId }) => factId === benchmarkAttributeFactId
+  ).semantic_type = "text";
+}, "BENCHMARK_ATTRIBUTE_FACT_SEMANTIC");
+expectBenchmarkMutation((candidate) => {
+  candidate.model.facts.find(
+    ({ fact_id: factId }) => factId === benchmarkAttributeFactId
+  ).original_value = null;
+}, "BENCHMARK_FACT_ORIGINAL_MISSING");
+expectBenchmarkMutation((candidate) => {
+  const entry = candidate.benchmark.fact_index.find(
+    ({ project_id: projectId }) => projectId === benchmarkEntry.project_id
+  );
+  const original = candidate.model.facts.find(
+    ({ fact_id: factId }) => factId === benchmarkAttributeFactId
+  );
+  const duplicate = clone(original);
+  duplicate.fact_id = "fact:benchmark-identity-duplicate";
+  candidate.model.facts.push(duplicate);
+  entry.attribute_fact_ids.push(duplicate.fact_id);
+}, "BENCHMARK_FACT_IDENTITY_DUPLICATE");
+
 console.log(
   "Data validator unit OK: schema keywords, partial/root/fixture modes, references, " +
-    "tiers, eligibility, currencies, denominators, permissions, inspector, events and privacy verified."
+    "tiers, eligibility, currencies, denominators, permissions, inspector, benchmark, events and privacy verified."
 );

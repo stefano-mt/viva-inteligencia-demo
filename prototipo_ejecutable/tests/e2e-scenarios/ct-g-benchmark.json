@@ -1,0 +1,48 @@
+{
+  "case_id": "CT-G-benchmark",
+  "classification": "observed",
+  "description": "Pardo Coast permanece territorial, pero Tipo 7 y el precio sin vínculo tipológico quedan excluidos.",
+  "policy_version": "benchmark-policy-v1",
+  "input": {
+    "project_id": "project:nexo-2951",
+    "typology_id": "typology:pardo-coast-tipo-7",
+    "territorially_visible": true,
+    "project_comparable": true,
+    "typology_benchmark_eligible": false,
+    "card_area": {
+      "fact_id": "fact:pardo-coast-card-area",
+      "original_value": "104.15 m2",
+      "normalized_value": 104.15,
+      "area_type": "unknown"
+    },
+    "plan_area": {
+      "fact_id": "fact:pardo-coast-plan-area",
+      "original_value": "Área Total 53.37 m2",
+      "normalized_value": 53.37,
+      "area_type": "total"
+    },
+    "blocked_fact_count": 8,
+    "pairing_status": "conflicting",
+    "inspector_path": "#inspector/case/f3-ct-g-pardo"
+  },
+  "expected": {
+    "territorially_visible": true,
+    "selected_area_fact_id": null,
+    "selected_area_value": null,
+    "used_by_price_benchmark": false,
+    "exclusion_detail_code": "typology_link_unresolved",
+    "exclusion_detail_source": "blocking_issue",
+    "inspector_path": "#inspector/case/f3-ct-g-pardo",
+    "coverage": {
+      "input_project_ids": ["project:nexo-2951"],
+      "used_project_ids": [],
+      "missing_project_ids": [],
+      "excluded_projects": [
+        {
+          "project_id": "project:nexo-2951",
+          "reasons": ["blocking_issue"]
+        }
+      ]
+    }
+  }
+}

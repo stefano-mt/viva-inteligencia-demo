@@ -1,0 +1,43 @@
+{
+  "case_id": "CT-B-benchmark",
+  "classification": "controlled",
+  "description": "Dos precios incompatibles se conservan y el benchmark no elige una verdad.",
+  "policy_version": "benchmark-policy-v1",
+  "input": {
+    "project_id": "project:ct-b-controlled",
+    "observations": [
+      {
+        "observation_id": "observation:ct-b-source-a",
+        "fact_id": "fact:ct-b-price-a",
+        "normalized_value": 600000,
+        "currency": "PEN",
+        "price_type": "list"
+      },
+      {
+        "observation_id": "observation:ct-b-source-b",
+        "fact_id": "fact:ct-b-price-b",
+        "normalized_value": 625000,
+        "currency": "PEN",
+        "price_type": "list"
+      }
+    ],
+    "pairing_status": "conflicting"
+  },
+  "expected": {
+    "preserved_price_fact_ids": ["fact:ct-b-price-a", "fact:ct-b-price-b"],
+    "selected_price_fact_id": null,
+    "selected_price_value": null,
+    "quantitative_state": "insufficient",
+    "coverage": {
+      "input_project_ids": ["project:ct-b-controlled"],
+      "used_project_ids": [],
+      "missing_project_ids": [],
+      "excluded_projects": [
+        {
+          "project_id": "project:ct-b-controlled",
+          "reasons": ["conflicting_observations"]
+        }
+      ]
+    }
+  }
+}

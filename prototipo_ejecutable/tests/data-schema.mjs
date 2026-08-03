@@ -567,6 +567,77 @@ assert.deepEqual(
   "input fingerprints must be ordered"
 );
 
+const benchmarkMethodologyShape = {
+  cutoff_at: "2026-07-30T00:00:00-05:00",
+  minimum_quantitative_sample: 3,
+  minimum_qualitative_informed_sample: 5,
+  quantile_method: "R7",
+  price_type_policy: "from",
+  allowed_area_denominators: ["total"],
+  pairing_policy: "source_paired_only",
+  exclusion_reason_precedence: [
+    "restricted",
+    "blocking_issue",
+    "conflicting_observations",
+    "price_area_link_unresolved",
+    "currency",
+    "area_denominator",
+    "cutoff",
+    "missing"
+  ],
+  certification_label: "Elegible según las reglas de la demo"
+};
+assert.deepEqual(
+  validateSchemaShape(benchmarkMethodologyShape, "benchmarkMethodology", {
+    rootSchema: schema,
+    path: "$.benchmark.methodology"
+  }),
+  [],
+  "Benchmark methodology must freeze approved thresholds and semantics"
+);
+assert.ok(
+  validateSchemaShape(
+    { ...benchmarkMethodologyShape, quantile_method: "nearest-rank" },
+    "benchmarkMethodology",
+    { rootSchema: schema, path: "$.benchmark.methodology" }
+  ).some((error) => error.code === "SCHEMA_CONST"),
+  "Benchmark quantiles must remain R7"
+);
+
+const benchmarkFactIndexShape = {
+  project_id: "project:ct-a-controlled",
+  observation_id: "observation:ct-a-inputs",
+  total_area_fact_id: "fact:ct-a-total-area",
+  published_price_fact_id: "fact:ct-a-scenario-price",
+  price_per_m2_fact_id: "fact:ct-a-price-per-total-m2",
+  pairing_status: "project_minima_pair_unresolved",
+  pairing_basis: "project_minima",
+  pairing_evidence_ids: [],
+  reported_unit_count_fact_id: null,
+  parking_count_fact_id: null,
+  attribute_fact_ids: []
+};
+assert.deepEqual(
+  validateSchemaShape(benchmarkFactIndexShape, "benchmarkFactIndex", {
+    rootSchema: schema,
+    path: "$.benchmark.fact_index[0]"
+  }),
+  [],
+  "unresolved project minima must have an explicit non-eligible pairing state"
+);
+assert.ok(
+  validateSchemaShape(
+    {
+      ...benchmarkFactIndexShape,
+      pairing_status: "source_paired",
+      pairing_basis: "project_minima"
+    },
+    "benchmarkFactIndex",
+    { rootSchema: schema, path: "$.benchmark.fact_index[0]" }
+  ).length > 0,
+  "source_paired must reject project-minima basis without pairing evidence"
+);
+
 console.log(
-  "Schema integration OK: root v2.0, CT-A/B/D/E/G/H and frozen CT-C/CT-I 2.1 contracts validated."
+  "Schema integration OK: root v2.0, CT-A/B/D/E/G/H, frozen CT-C/CT-I 2.1 and benchmark 2.3 shapes validated."
 );

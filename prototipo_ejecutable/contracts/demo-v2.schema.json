@@ -43,6 +43,9 @@
     "inspector": {
       "$ref": "#/$defs/inspector"
     },
+    "benchmark": {
+      "$ref": "#/$defs/benchmark"
+    },
     "projects": {
       "type": "array",
       "minItems": 1,
@@ -90,7 +93,8 @@
               "contract_version": {
                 "enum": [
                   "2.1.0",
-                  "2.2.0"
+                  "2.2.0",
+                  "2.3.0"
                 ]
               }
             }
@@ -111,7 +115,10 @@
           "metadata": {
             "properties": {
               "contract_version": {
-                "const": "2.2.0"
+                "enum": [
+                  "2.2.0",
+                  "2.3.0"
+                ]
               }
             }
           }
@@ -120,6 +127,24 @@
       "then": {
         "required": [
           "inspector"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "contract_version": {
+                "const": "2.3.0"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "benchmark"
         ]
       }
     }
@@ -142,6 +167,16 @@
     "namespacedId": {
       "type": "string",
       "pattern": "^[a-z][a-z0-9_-]*:[a-z0-9][a-z0-9._-]*$"
+    },
+    "nullableNamespacedId": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/namespacedId"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "dateTime": {
       "type": "string",
@@ -256,7 +291,8 @@
           "enum": [
             "2.0.0",
             "2.1.0",
-            "2.2.0"
+            "2.2.0",
+            "2.3.0"
           ]
         },
         "dataset_id": {
@@ -3128,6 +3164,319 @@
           "uniqueItems": true,
           "items": {
             "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      }
+    },
+    "benchmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "methodology",
+        "fact_index",
+        "attribute_catalog",
+        "coverage"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "methodology": {
+          "$ref": "#/$defs/benchmarkMethodology"
+        },
+        "fact_index": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/benchmarkFactIndex"
+          }
+        },
+        "attribute_catalog": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/benchmarkAttribute"
+          }
+        },
+        "coverage": {
+          "$ref": "#/$defs/benchmarkCoverage"
+        }
+      }
+    },
+    "benchmarkMethodology": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cutoff_at",
+        "minimum_quantitative_sample",
+        "minimum_qualitative_informed_sample",
+        "quantile_method",
+        "price_type_policy",
+        "allowed_area_denominators",
+        "pairing_policy",
+        "exclusion_reason_precedence",
+        "certification_label"
+      ],
+      "properties": {
+        "cutoff_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "minimum_quantitative_sample": {
+          "const": 3
+        },
+        "minimum_qualitative_informed_sample": {
+          "const": 5
+        },
+        "quantile_method": {
+          "const": "R7"
+        },
+        "price_type_policy": {
+          "const": "from"
+        },
+        "allowed_area_denominators": {
+          "const": [
+            "total"
+          ]
+        },
+        "pairing_policy": {
+          "const": "source_paired_only"
+        },
+        "exclusion_reason_precedence": {
+          "const": [
+            "restricted",
+            "blocking_issue",
+            "conflicting_observations",
+            "price_area_link_unresolved",
+            "currency",
+            "area_denominator",
+            "cutoff",
+            "missing"
+          ]
+        },
+        "certification_label": {
+          "const": "Elegible según las reglas de la demo"
+        }
+      }
+    },
+    "benchmarkPairingStatus": {
+      "enum": [
+        "source_paired",
+        "project_minima_pair_unresolved",
+        "conflicting",
+        "missing"
+      ]
+    },
+    "benchmarkFactIndex": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project_id",
+        "observation_id",
+        "total_area_fact_id",
+        "published_price_fact_id",
+        "price_per_m2_fact_id",
+        "pairing_status",
+        "pairing_basis",
+        "pairing_evidence_ids",
+        "reported_unit_count_fact_id",
+        "parking_count_fact_id",
+        "attribute_fact_ids"
+      ],
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "observation_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "total_area_fact_id": {
+          "$ref": "#/$defs/nullableNamespacedId"
+        },
+        "published_price_fact_id": {
+          "$ref": "#/$defs/nullableNamespacedId"
+        },
+        "price_per_m2_fact_id": {
+          "$ref": "#/$defs/nullableNamespacedId"
+        },
+        "pairing_status": {
+          "$ref": "#/$defs/benchmarkPairingStatus"
+        },
+        "pairing_basis": {
+          "enum": [
+            "offer_id",
+            "typology_id",
+            "native_metric",
+            "project_minima",
+            "none"
+          ]
+        },
+        "pairing_evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        },
+        "reported_unit_count_fact_id": {
+          "$ref": "#/$defs/nullableNamespacedId"
+        },
+        "parking_count_fact_id": {
+          "$ref": "#/$defs/nullableNamespacedId"
+        },
+        "attribute_fact_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "pairing_status": {
+                "const": "source_paired"
+              }
+            },
+            "required": [
+              "pairing_status"
+            ]
+          },
+          "then": {
+            "properties": {
+              "price_per_m2_fact_id": {
+                "$ref": "#/$defs/namespacedId"
+              },
+              "pairing_basis": {
+                "enum": [
+                  "offer_id",
+                  "typology_id",
+                  "native_metric"
+                ]
+              },
+              "pairing_evidence_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "benchmarkAttribute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "attribute_id",
+        "category",
+        "normalized_label",
+        "aliases"
+      ],
+      "properties": {
+        "attribute_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "category": {
+          "enum": [
+            "access_reception",
+            "wellbeing_sport",
+            "meetings_work",
+            "family_recreation",
+            "gastronomy_social",
+            "exterior_green",
+            "common_services",
+            "mobility_parking"
+          ]
+        },
+        "normalized_label": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "aliases": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        }
+      }
+    },
+    "benchmarkCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "indicators"
+      ],
+      "properties": {
+        "indicators": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/benchmarkIndicatorCoverage"
+          }
+        }
+      }
+    },
+    "benchmarkIndicatorCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "input_project_ids",
+        "used_project_ids",
+        "missing_project_ids",
+        "excluded_projects"
+      ],
+      "properties": {
+        "input_project_ids": {
+          "$ref": "#/$defs/benchmarkProjectIdSet"
+        },
+        "used_project_ids": {
+          "$ref": "#/$defs/benchmarkProjectIdSet"
+        },
+        "missing_project_ids": {
+          "$ref": "#/$defs/benchmarkProjectIdSet"
+        },
+        "excluded_projects": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/benchmarkExcludedProject"
+          }
+        }
+      }
+    },
+    "benchmarkProjectIdSet": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/namespacedId"
+      }
+    },
+    "benchmarkExcludedProject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project_id",
+        "reasons"
+      ],
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "restricted",
+              "blocking_issue",
+              "conflicting_observations",
+              "price_area_link_unresolved",
+              "currency",
+              "area_denominator",
+              "cutoff",
+              "missing"
+            ]
           }
         }
       }

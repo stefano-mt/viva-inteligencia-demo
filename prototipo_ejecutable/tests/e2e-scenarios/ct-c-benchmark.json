@@ -1,0 +1,37 @@
+{
+  "case_id": "CT-C-benchmark",
+  "classification": "controlled",
+  "description": "Benchmark, mapa y consumidores usan el mismo subconjunto canónico de la microzona.",
+  "policy_version": "benchmark-policy-v1",
+  "input": {
+    "canonical_path": "/?sv=1&scope=radius&lat=-12.120166&lon=-77.024975&radius=500&typology=departamento&bedrooms=1&area=80&price=650000&delivery=2026#dashboard",
+    "observed_scope_project_ids": [
+      "observed:nexo-2417",
+      "observed:nexo-4088",
+      "observed:nexo-4135"
+    ],
+    "comparable_project_ids": ["project:nexo-2417"],
+    "outside_or_ineligible_ids": ["observed:nexo-4088", "observed:nexo-4135"]
+  },
+  "expected": {
+    "consumer_project_ids": {
+      "map": ["project:nexo-2417"],
+      "benchmark": ["project:nexo-2417"],
+      "compare": ["project:nexo-2417"],
+      "assistant": ["project:nexo-2417"]
+    },
+    "quantitative_state": "insufficient",
+    "orientative_series_state": "orientative_noncomparable",
+    "coverage": {
+      "input_project_ids": ["project:nexo-2417"],
+      "used_project_ids": [],
+      "missing_project_ids": [],
+      "excluded_projects": [
+        {
+          "project_id": "project:nexo-2417",
+          "reasons": ["price_area_link_unresolved"]
+        }
+      ]
+    }
+  }
+}

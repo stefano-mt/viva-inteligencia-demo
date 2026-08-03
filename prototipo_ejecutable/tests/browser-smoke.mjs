@@ -6,6 +6,16 @@ import { createObservedPage, openRoute, routes, viewports, withDemoBrowser } fro
 
 const evidenceDir = process.env.EVIDENCE_DIR ? path.resolve(process.env.EVIDENCE_DIR) : null;
 const hashes = {};
+const routeTitles = Object.freeze({
+  dashboard: "Radar comercial",
+  projects: "Proyectos comparables",
+  inspector: "Inspector de evidencia",
+  market: "Benchmark de microzona",
+  compare: "Comparador comercial",
+  trust: "Checklist comercial",
+  assistant: "Asistente de estrategia",
+  activity: "Señales del mercado",
+});
 
 assert.deepEqual(
   routes.map(({ id }) => id),
@@ -22,13 +32,32 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     for (const route of routes) {
       await openRoute(page, baseUrl, route.id);
 
-      assert.equal(await page.locator("h1").first().textContent(), route.title, `Título incorrecto en #${route.id}`);
+      assert.equal(
+        await page.locator("h1").first().textContent(),
+        routeTitles[route.id],
+        `Título incorrecto en #${route.id}`,
+      );
       assert.equal(
         await page.locator(`[data-view="${route.id}"][aria-current="page"]`).count(),
         1,
         `La navegación no marca #${route.id} como activa`,
       );
       assert.ok((await page.locator("#main-content").innerText()).trim().length > 80, `Contenido vacío en #${route.id}`);
+
+      if (route.id === "market") {
+        assert.equal(
+          await page.locator('[data-benchmark-status="orientative_noncomparable"]').count(),
+          1,
+          "El smoke debe reconocer el índice orientativo separado del benchmark elegible",
+        );
+      }
+      if (route.id === "compare") {
+        assert.equal(
+          await page.locator('[data-comparison-status="ready"]').count(),
+          1,
+          "El comparador debe iniciar con tres proyectos canónicos",
+        );
+      }
 
       if (evidenceDir) {
         await fs.mkdir(evidenceDir, { recursive: true });
