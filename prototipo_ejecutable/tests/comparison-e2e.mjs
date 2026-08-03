@@ -81,6 +81,23 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.locator("[data-comparison-group]").count(), 9);
   assert.equal(await page.locator("[data-comparison-row]").count(), 10);
   assert.equal(await page.locator(".comparison-chip:not(.is-target)").count(), 3);
+  const territorialPriceText = await page
+    .locator(".scenario-summary")
+    .textContent();
+  assert.match(territorialPriceText, /Referencia de precio no demostrada/u);
+  assert.match(
+    territorialPriceText,
+    /69 publicaciones declaran precio y área total; no prueban que ambos valores pertenezcan a la misma oferta/u,
+  );
+  assert.doesNotMatch(
+    territorialPriceText,
+    /Referencia de precio lista|precios publicados compatibles/iu,
+    "El shell no debe contradecir la conclusión de precio no elegible",
+  );
+  assert.match(
+    await page.locator(".comparison-conclusion").innerText(),
+    /No hay precio por m² elegible para posicionamiento/u,
+  );
   assert.ok(
     (await page.locator(".comparison-findings > li").count()) <= 3,
     "La conclusión nunca debe superar tres hallazgos",

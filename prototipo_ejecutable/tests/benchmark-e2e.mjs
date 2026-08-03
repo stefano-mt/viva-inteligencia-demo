@@ -195,6 +195,19 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     1,
     "CT-I debe separar el índice orientativo del benchmark elegible",
   );
+  const territorialPriceText = await observed.page
+    .locator(".scenario-summary")
+    .textContent();
+  assert.match(territorialPriceText, /Referencia de precio no demostrada/u);
+  assert.match(
+    territorialPriceText,
+    /69 publicaciones declaran precio y área total; no prueban que ambos valores pertenezcan a la misma oferta/u,
+  );
+  assert.doesNotMatch(
+    territorialPriceText,
+    /Referencia de precio lista|precios publicados compatibles/iu,
+    "El shell no debe promover los campos raw a referencia elegible",
+  );
   const baselineText = await observed.page.locator("#main-content").innerText();
   assert.match(baselineText, /85 comparables/u);
   assert.match(baselineText, /68 orientativos/u);

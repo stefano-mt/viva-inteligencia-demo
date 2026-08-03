@@ -177,18 +177,22 @@ function comparabilityStatus(context) {
 }
 
 function priceStatus(context) {
+  const declaredCount = context?.price_reference_project_ids?.length ?? 0;
   if (context?.price_status === "ready") {
     return {
-      tone: "ready",
-      label: "Referencia de precio lista",
-      detail: `${formatNumber(context.price_reference_project_ids?.length ?? 0)} precios publicados compatibles`,
-      symbol: "✓",
+      tone: "partial",
+      label: "Referencia de precio no demostrada",
+      detail: `${formatNumber(declaredCount)} publicaciones declaran precio y área total; no prueban que ambos valores pertenezcan a la misma oferta.`,
+      symbol: "!",
     };
   }
   return {
     tone: "unavailable",
-    label: "Referencia de precio insuficiente",
-    detail: "Se necesitan al menos tres precios publicados compatibles.",
+    label: "Referencia de precio no demostrada",
+    detail:
+      declaredCount > 0
+        ? `${formatNumber(declaredCount)} publicaciones declaran precio y área total; ninguna pareja está demostrada a nivel de oferta.`
+        : "La muestra no demuestra una pareja precio–área de la misma oferta.",
     symbol: "×",
   };
 }
