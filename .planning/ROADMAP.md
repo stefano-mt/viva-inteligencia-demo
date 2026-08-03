@@ -145,7 +145,9 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** comparar por precio, áreas y atributos sin sobrecarga horizontal.
 
-**Estado:** planificación P4-00A/P4-00B completada en `feat/phase-4-benchmark-comparator`. El reader-test inicial emitió `FAIL`; B1–B4 fueron remediados y el re-review emitió `PASS WITH RISKS`. Implementación funcional bloqueada hasta `HUMAN-GATE-A` A1–A12, persistencia P4-00C y baseline P4-00D.
+**Estado:** cierre técnico completado en `feat/phase-4-benchmark-comparator`. P4-13A cerró G1 y la repetición independiente P4-13 emitió `PASS` sobre `be05fdc`; no se requiere HUMAN-GATE-B. P4-14 prepara el PR funcional. Merge, P4-15 y P4-16 permanecen pendientes; la fase aún no está desplegada.
+
+**Contrato implementado:** `2.3.0`, con índice autoritativo `benchmark`; reader compatible con 2.0–2.3 y runtime territorial probado con 2.1/2.2/2.3.
 
 ### Olas
 
@@ -154,6 +156,10 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 3. Conclusión explicable y exportación opcional.
 
 **Gate de salida:** benchmark excluye inconsistencias, muestra denominadores/fuentes y permite entender diferencias sin depender del hover.
+
+**Resultado técnico:** HU-DEMO-501–504 PASS; HU-DEMO-505 diferida. Miraflores distingue 69 publicaciones raw, 68 cocientes orientativos y 0 parejas elegibles; CT-A/B/C/D/G/I/P PASS; 8 rutas × 3 viewports, zoom 200%, privacidad, determinismo y recorrido UI-only PASS.
+
+**Ship:** cierre técnico completo; PR funcional, merge humano, Pages y persistencia post-merge pendientes.
 
 ---
 

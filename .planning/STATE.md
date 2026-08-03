@@ -1,12 +1,12 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-07-31
+**Actualizado:** 2026-08-03
 
 **Milestone:** demo vNext orientada a venta
 
-**Última fase completada:** Fase 3 — ficha, evidencia e inspector
+**Última fase con ship completo:** Fase 3 — ficha, evidencia e inspector
 
-**Estado:** Fases 0, 1, 2 y 3 completadas. Fase 3 está `deployed and verified`; su memoria P3-17 fue fusionada mediante el PR #12. Fase 4 inició planificación en una rama propia; no hay implementación funcional autorizada hasta completar reader-test independiente y `HUMAN-GATE-A`.
+**Estado:** Fases 0–3 están `deployed and verified`. Fase 4 completó implementación, corrección P4-13A y verificación independiente con `PASS`; P4-14 prepara la memoria y el PR funcional. El merge continúa siendo humano y el despliegue de Fase 4 aún no está demostrado.
 
 **Rama activa:** `feat/phase-4-benchmark-comparator`.
 
@@ -42,7 +42,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Catálogos v2: 8 fuentes, 17 observaciones, 26 hechos, 4 documentos, 4 evidencias, 5 issues y 3 eventos.
 - GeoJSON público y fuente: 46,650 bytes; SHA-256 `ef75b5deb43f2ed94cc9661c3f1926e94608e0b2e4a41c8ce9197dbea71b16c0`.
 - Geografía: 433 asignaciones; 422 dentro/sobre polígono y 11 `outside_district_polygon`.
-- Miraflores CT-I: 90 observados, 85 comparables, 5 no reconciliados, 69 referencias de precio y cuadrantes 40/5/5/40.
+- Miraflores CT-I: 90 observados, 85 comparables, 5 no reconciliados, 69 publicaciones raw con precio y área total declarados —sin pairing demostrado— y cuadrantes 40/5/5/40.
 - Graphify F2 `--code-only --no-cluster`: 2,066 nodos y 4,104 relaciones; no reveló un hub nuevo injustificado.
 
 ## Verificación vigente
@@ -99,7 +99,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Los cuadrantes son analíticos, derivados por medianas, y nunca oficiales.
 - OSM se usa como snapshot referencial ODbL separado; RENLIM permanece como referencia jurídica.
 - Los 11 puntos fuera de polígono permanecen visibles como exclusiones; no se reasignan.
-- El escenario Viva y su precio son simulados; las referencias competitivas son precios de lista publicados, no precios de cierre.
+- El escenario Viva y su precio son simulados; los precios competitivos raw son precios publicados `desde`, no referencias elegibles ni precios de cierre mientras no exista pairing demostrado.
 - Los tiers `deep` demuestran profundidad estructurada; no prometen dossiers visuales públicos.
 - Los aliases ambiguos permanecen `manual_review`; no se resuelven por intuición.
 - La moneda ambigua `$` permanece `unknown`; no se infiere USD.
@@ -155,23 +155,36 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P3-17: resultado persistido en `POSTMERGE_REPORT.md` y este estado mediante una rama/PR documental separados.
 - Estado de ship de Fase 3: **`deployed and verified`**; memoria P3-17 integrada en `main` mediante PR #12.
 
-## Fase 4 — planificación activa
+## Fase 4 — cierre técnico vigente
 
 - Contexto: [phases/04-benchmark-comparator/CONTEXT.md](phases/04-benchmark-comparator/CONTEXT.md).
 - Evaluación de datos: [phases/04-benchmark-comparator/DATA-ASSESSMENT.md](phases/04-benchmark-comparator/DATA-ASSESSMENT.md).
 - UX/UI: [phases/04-benchmark-comparator/UI-SPEC.md](phases/04-benchmark-comparator/UI-SPEC.md).
 - Plan: [phases/04-benchmark-comparator/PLAN.md](phases/04-benchmark-comparator/PLAN.md).
 - Solicitud de aprobación: [phases/04-benchmark-comparator/HUMAN-GATE-A-REQUEST.md](phases/04-benchmark-comparator/HUMAN-GATE-A-REQUEST.md).
-- Baseline: checks de sintaxis, arquitectura, escenario, comparabilidad, datos e inspector pasan; Playwright requiere instalar dependencias locales antes del gate de navegador.
-- Restricción principal: el snapshot conserva precio mínimo y área mínima por proyecto, pero no demuestra que pertenezcan a la misma unidad/tipología. Los 371/69 cocientes solo pueden ser un índice orientativo no comparable; el benchmark elegible actual tiene `n = 0`. Tampoco sostiene precio de cierre, tasación, área techada/libre, stock, absorción ni atributos verificados.
-- Reader-test P4-00B inicial: `FAIL` por compatibilidad runtime 2.3, pairing, denominadores/estados y `write_sets`; B1–B4 fueron remediados y el re-review independiente emitió `PASS WITH RISKS`.
-- HUMAN-GATE-A: Stefano aceptó A1–A12 el `2026-07-31T11:11:10.4019829-05:00`; P4-00C persistido en `APPROVAL.md` y D-028.
-- Estado: P4-00D habilitado. Implementación P4-01 continúa bloqueada hasta crear el lockfile y obtener baseline browser reproducible sin regresiones.
+- Aprobación: [phases/04-benchmark-comparator/APPROVAL.md](phases/04-benchmark-comparator/APPROVAL.md), A1–A12 aceptadas el `2026-07-31T11:11:10.4019829-05:00`.
+- Implementación P4-01–P4-12: completada; P4-10/HU-505 diferida por A10.
+- Contrato público: `2.3.0`; reader compatible con 2.0–2.3 y runtime territorial probado con 2.1/2.2/2.3.
+- Dataset: 7,387,136 bytes; SHA-256 `5d8a13b3e0af73d8dc8cee674f83cea541136b4c49bd444780bac3508f562041`; 50 fingerprints ordenados.
+- Modelo: 676 proyectos, 184 agencias, 427 observaciones, 4,021 hechos, 19 documentos, 19 evidencias, 10 issues y 3 eventos.
+- Benchmark: 397 entradas y 37 atributos; partición precio/m² `397 = 0 usadas + 26 faltantes + 371 excluidas`.
+- Miraflores: 90 observados, 85 comparables, 5 por revisar, 69 publicaciones raw, 68 cocientes orientativos, 82 registros cualitativos y 0 parejas elegibles.
+- P4-13 inicial: `FAIL` por G1; informe histórico versionado en `7e5f703`.
+- Corrección P4-13A: `be05fdc456e3ab85da01df26b4cd22daa426dac6`.
+- Checker independiente: `/root/phase4_gate_checker`; repetición P4-13 `PASS`.
+- Informe vigente: [phases/04-benchmark-comparator/VERIFICATION_REPORT.md](phases/04-benchmark-comparator/VERIFICATION_REPORT.md), versionado en `6038749`.
+- Resumen: [phases/04-benchmark-comparator/SUMMARY.md](phases/04-benchmark-comparator/SUMMARY.md).
+- Handoff: [phases/04-benchmark-comparator/HANDOFF.md](phases/04-benchmark-comparator/HANDOFF.md).
+- Smoke y accesibilidad: 8 rutas × 3 viewports; responsive específico y reflow 200%: PASS.
+- Graphify F4: 3,034 nodos y 5,743 relaciones; sin blocker arquitectónico.
+- HUMAN-GATE-B: no requerido porque el veredicto final es `PASS`.
+- Estado de ship: cierre técnico completo; PR, merge humano, P4-15 y P4-16 pendientes. No declarar Fase 4 desplegada todavía.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P4-00D: lockfile, instalación reproducible y baseline browser de `e30973b`.
-2. Si P4-00D pasa, iniciar P4-01 desde el commit que contiene la aprobación.
+1. Abrir el PR funcional de `feat/phase-4-benchmark-comparator` contra `main` como borrador.
+2. Adjuntar evidencia visual portable, completar revisión humana y fusionar solo por acción humana.
+3. Después del merge, ejecutar P4-15 read-only y persistir el resultado mediante P4-16 en una rama/PR documental separados.
 
 ## Regla para actualizar este archivo
 
