@@ -6,7 +6,7 @@
 
 **Última fase con ship completo:** Fase 3 — ficha, evidencia e inspector
 
-**Estado:** Fases 0–3 están `deployed and verified`. Fase 4 completó implementación, corrección P4-13A y verificación independiente con `PASS`; P4-14 prepara la memoria y el PR funcional. El merge continúa siendo humano y el despliegue de Fase 4 aún no está demostrado.
+**Estado:** Fases 0–3 están `deployed and verified`. Fase 4 completó implementación, corrección P4-13A, verificación independiente con `PASS` y memoria P4-14. El PR funcional #13 está abierto como borrador; faltan evidencia portable, revisión y merge humano. El despliegue de Fase 4 aún no está demostrado.
 
 **Rama activa:** `feat/phase-4-benchmark-comparator`.
 
@@ -175,6 +175,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Informe vigente: [phases/04-benchmark-comparator/VERIFICATION_REPORT.md](phases/04-benchmark-comparator/VERIFICATION_REPORT.md), versionado en `6038749`.
 - Resumen: [phases/04-benchmark-comparator/SUMMARY.md](phases/04-benchmark-comparator/SUMMARY.md).
 - Handoff: [phases/04-benchmark-comparator/HANDOFF.md](phases/04-benchmark-comparator/HANDOFF.md).
+- PR funcional: [#13](https://github.com/stefano-mt/viva-inteligencia-demo/pull/13), `OPEN / DRAFT / MERGEABLE / CLEAN` al abrirse.
 - Smoke y accesibilidad: 8 rutas × 3 viewports; responsive específico y reflow 200%: PASS.
 - Graphify F4: 3,034 nodos y 5,743 relaciones; sin blocker arquitectónico.
 - HUMAN-GATE-B: no requerido porque el veredicto final es `PASS`.
@@ -182,8 +183,8 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 
 ## Próxima acción recomendada
 
-1. Abrir el PR funcional de `feat/phase-4-benchmark-comparator` contra `main` como borrador.
-2. Adjuntar evidencia visual portable, completar revisión humana y fusionar solo por acción humana.
+1. Adjuntar evidencia visual portable al PR #13 y completar revisión humana.
+2. Fusionar solo por acción humana cuando GitHub muestre base y checks actualizados.
 3. Después del merge, ejecutar P4-15 read-only y persistir el resultado mediante P4-16 en una rama/PR documental separados.
 
 ## Regla para actualizar este archivo

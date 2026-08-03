@@ -145,7 +145,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** comparar por precio, áreas y atributos sin sobrecarga horizontal.
 
-**Estado:** cierre técnico completado en `feat/phase-4-benchmark-comparator`. P4-13A cerró G1 y la repetición independiente P4-13 emitió `PASS` sobre `be05fdc`; no se requiere HUMAN-GATE-B. P4-14 prepara el PR funcional. Merge, P4-15 y P4-16 permanecen pendientes; la fase aún no está desplegada.
+**Estado:** cierre técnico completado en `feat/phase-4-benchmark-comparator`. P4-13A cerró G1 y la repetición independiente P4-13 emitió `PASS` sobre `be05fdc`; no se requiere HUMAN-GATE-B. P4-14 quedó versionada y el PR funcional #13 está abierto como borrador. Evidencia portable, revisión, merge, P4-15 y P4-16 permanecen pendientes; la fase aún no está desplegada.
 
 **Contrato implementado:** `2.3.0`, con índice autoritativo `benchmark`; reader compatible con 2.0–2.3 y runtime territorial probado con 2.1/2.2/2.3.
 

@@ -2,7 +2,7 @@
 
 ## Estado
 
-`P4-14 en curso — PASS técnico; memoria preparada; falta versionarla, crear el PR funcional y adjuntar evidencia portable; merge y cierre de ship pendientes`
+`P4-14 done — PASS técnico; memoria versionada y PR funcional #13 abierto como borrador; evidencia portable, revisión, merge y cierre de ship pendientes`
 
 ## Resultado
 
@@ -143,7 +143,11 @@ Base: `main`.
 
 Compare: `feat/phase-4-benchmark-comparator`.
 
-PR: pendiente de crear al versionar esta memoria.
+PR: [#13 — feat: add explainable benchmark and project comparison](https://github.com/stefano-mt/viva-inteligencia-demo/pull/13).
+
+Estado observado al abrirlo: `OPEN / DRAFT / MERGEABLE / CLEAN`.
+
+HEAD observado al abrirlo: `edc71ea87829896944d36ec1d8d5c1ec8efefa9f`. Los commits posteriores solo pueden actualizar los cinco documentos de P4-14. El revisor debe usar el HEAD que GitHub muestre en #13 como autoridad final.
 
 El PR debe incluir:
 
