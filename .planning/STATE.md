@@ -182,6 +182,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
 - P4-15: **PASS**; contrato `2.3.0`, CT-C/G/I, benchmark, comparador, quince activos, escritorio, móvil, consola y red verificados en la URL pública.
 - Informe post-merge: [phases/04-benchmark-comparator/POSTMERGE_REPORT.md](phases/04-benchmark-comparator/POSTMERGE_REPORT.md).
+- PR documental P4-16: [#14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14), `OPEN / READY TO MERGE`, pendiente de revisión y merge humano.
 - Smoke y accesibilidad: 8 rutas × 3 viewports; responsive específico y reflow 200%: PASS.
 - Graphify F4: 3,034 nodos y 5,743 relaciones; sin blocker arquitectónico.
 - HUMAN-GATE-B: no requerido porque el veredicto final es `PASS`.
@@ -190,9 +191,9 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 
 ## Próxima acción recomendada
 
-1. Versionar `POSTMERGE_REPORT.md` y este estado en `docs/phase-4-postmerge-report`.
-2. Abrir y revisar el PR documental P4-16 contra `main`.
-3. Fusionar ese PR solo por acción humana; después, Fase 4 queda cerrada en la memoria oficial y puede iniciarse la planificación de Fase 5.
+1. Revisar el PR documental [#14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14) contra `main`.
+2. Fusionar ese PR solo por acción humana.
+3. Después del merge, Fase 4 queda cerrada en la memoria oficial y puede iniciarse la planificación de Fase 5.
 
 ## Regla para actualizar este archivo
 

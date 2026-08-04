@@ -20,6 +20,7 @@ No se detectaron errores de consola, página, HTTP o red externa. P4-15 no modif
 
 | Evidencia | Resultado |
 |---|---|
+| PR documental P4-16 | [#14 — docs: record phase 4 postmerge verification](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14), `OPEN / READY TO MERGE`, pendiente de merge humano |
 | PR funcional | [#13 — feat: add explainable benchmark and project comparison](https://github.com/stefano-mt/viva-inteligencia-demo/pull/13), `MERGED` |
 | Fecha del merge | `2026-08-03T23:19:02Z` |
 | Head final del PR #13 | `bd631bf0d02c7deffda7e00434c459f5e5de9151` |
@@ -169,4 +170,4 @@ No se encontraron gaps o riesgos nuevos derivados del merge o del despliegue.
 - P4-15 fue read-only y no modificó el repositorio ni recursos externos.
 - El PR funcional #13 y el workflow de Pages apuntan al mismo SHA `e2c953f`.
 - P4-15 demuestra con `PASS` que `e2c953fa36de49c658393669a4a2d40e469e5790` está desplegado y verificado técnicamente.
-- Conforme al contrato de P4-16, Fase 4 solo adquiere el estado oficial `deployed and verified` en `main` cuando un humano fusione el PR documental que contiene este informe.
+- Conforme al contrato de P4-16, Fase 4 solo adquiere el estado oficial `deployed and verified` en `main` cuando un humano fusione el [PR documental #14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14) que contiene este informe.
