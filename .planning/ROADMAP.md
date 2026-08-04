@@ -169,7 +169,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** explicar qué cambió y responder con el mismo escenario y evidencia.
 
-**Estado:** planificación en `feat/phase-5-history-signals-assistant`; HUMAN-GATE-A pendiente. No se ha modificado runtime, writer ni dataset público.
+**Estado:** HUMAN-GATE-A aprobada; P5-00C y P5-00D completados con `PASS`. P5-01 (contrato 2.4 y compatibilidad) está habilitado. No se ha modificado runtime, writer ni dataset público.
 
 **Contrato propuesto:** `2.4.0`, con índices autoritativos `history` y `assistant`, reader compatible con 2.0–2.4 y degradación explícita en payloads anteriores.
 

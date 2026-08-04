@@ -204,13 +204,14 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Línea base visual: `#activity` mezcla proyectos de otros distritos y prioriza outliers legacy; `#assistant` aún no cita hechos/evidencias.
 - HUMAN-GATE-A: [phases/05-history-signals-assistant/APPROVAL.md](phases/05-history-signals-assistant/APPROVAL.md), A1–A12 aprobadas el `2026-08-04T10:50:13.4321329-05:00` sobre `ae55fa5`.
 - P5-00C: completado; decisión D-033 registrada.
-- P5-00D: siguiente paso; P5-01 permanece bloqueado hasta que el baseline preimplementación emita `PASS`.
+- P5-00D: [phases/05-history-signals-assistant/BASELINE_BROWSER.md](phases/05-history-signals-assistant/BASELINE_BROWSER.md), `PASS`; paridad runtime, `npm run verify`, ocho rutas × tres viewports, accesibilidad y cuatro capturas portables verificadas.
+- P5-01: habilitado; contrato 2.4 y compatibilidad son el siguiente paso.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-00D: baseline portable y regresiones preimplementación.
-2. Si P5-00D emite `PASS`, iniciar P5-01 sobre contrato 2.4 y compatibilidad.
-3. Mantener runtime y dataset sin cambios hasta cerrar el baseline.
+1. Iniciar P5-01: contrato 2.4 y compatibilidad, con pruebas primero.
+2. No modificar writer ni dataset público durante P5-01.
+3. Detener y solicitar enmienda si el contrato cambia la semántica aprobada o requiere ampliar write sets.
 
 ## Regla para actualizar este archivo
 
