@@ -202,13 +202,15 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Casos obligatorios: CT-C/D/E/F/G/I/P.
 - Contrato propuesto: `2.4.0`, histórico y asistente autoritativos, reader 2.0–2.4.
 - Línea base visual: `#activity` mezcla proyectos de otros distritos y prioriza outliers legacy; `#assistant` aún no cita hechos/evidencias.
-- HUMAN-GATE-A: pendiente; no comenzar P5-01.
+- HUMAN-GATE-A: [phases/05-history-signals-assistant/APPROVAL.md](phases/05-history-signals-assistant/APPROVAL.md), A1–A12 aprobadas el `2026-08-04T10:50:13.4321329-05:00` sobre `ae55fa5`.
+- P5-00C: completado; decisión D-033 registrada.
+- P5-00D: siguiente paso; P5-01 permanece bloqueado hasta que el baseline preimplementación emita `PASS`.
 
 ## Próxima acción recomendada
 
-1. Revisar las decisiones A1–A12 de Fase 5.
-2. Si se aceptan, autorizar HUMAN-GATE-A con la frase indicada.
-3. Registrar la aprobación en P5-00C y ejecutar el baseline portable P5-00D antes de modificar contrato o runtime.
+1. Ejecutar P5-00D: baseline portable y regresiones preimplementación.
+2. Si P5-00D emite `PASS`, iniciar P5-01 sobre contrato 2.4 y compatibilidad.
+3. Mantener runtime y dataset sin cambios hasta cerrar el baseline.
 
 ## Regla para actualizar este archivo
 

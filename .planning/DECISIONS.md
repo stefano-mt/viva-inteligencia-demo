@@ -324,3 +324,26 @@ La corrección reemplaza esa afirmación por `Referencia de precio no demostrada
 El checker independiente `/root/phase4_gate_checker` repitió P4-13 sobre `be05fdc456e3ab85da01df26b4cd22daa426dac6` y emitió `PASS`. Verificó HU-DEMO-501–504, CT-A/B/C/D/G/I/P, contrato 2.3, privacidad, determinismo, responsive, accesibilidad, regresiones, Graphify y recorrido comercial. No existen gaps bloqueantes y `HUMAN-GATE-B` no aplica.
 
 P4-14 puede preparar el PR funcional. El merge continúa siendo humano. El `PASS` no demuestra despliegue: P4-15 debe verificar Pages read-only después del merge y P4-16 debe persistir ese resultado en una rama y PR documental separados. Cualquier cambio posterior a P4-13 en código, datos, tests, estilos, activos o comportamiento exige repetir el checker.
+
+## D-033 — HUMAN-GATE-A habilita Fase 5 bajo A1–A12
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Acepto A1–A12 y autorizo HUMAN-GATE-A de la Fase 5.” con timestamp de sesión `2026-08-04T10:50:13.4321329-05:00`. La aprobación acepta el plan `ae55fa5fa1670fd471921b74dba8dfa7bfad048e` y habilita P5-00D; P5-01 solo puede comenzar si el baseline preimplementación pasa.
+
+Queda decidido que:
+
+1. el contrato objetivo es 2.4 con `history` y `assistant` autoritativos y reader 2.0–2.4;
+2. los 34 candidatos históricos preliminares se auditan y no constituyen un mínimo comprometido;
+3. el histórico describe precios publicados desde/mínimos a nivel proyecto en dos observaciones, nunca ventas o cierres;
+4. no se atribuye causa sin evidencia causal;
+5. vigencia se calcula contra el cutoff con umbrales 30/90 días;
+6. señales y asistente conservan el escenario canónico;
+7. calidad/vigencia preceden a magnitud y outliers débiles no lideran la lectura;
+8. HU-DEMO-603 entra como agenda reproducible, no como afirmación semanal;
+9. el asistente es determinista, local, de catálogo cerrado y sin servicios externos;
+10. toda afirmación resoluble porta referencias y CT-F rechaza precio real de cierre.
+
+La aprobación no equivale a PASS técnico, merge o despliegue. P5-13 permanece independiente y HUMAN-GATE-B será obligatorio ante `PASS WITH RISKS`.
