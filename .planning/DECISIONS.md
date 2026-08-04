@@ -395,3 +395,15 @@ El runtime territorial admite contratos 2.1–2.4. El reader estructural conserv
 El índice Benchmark es semánticamente idéntico entre 2.3 y 2.4; por ello su motor amplía exclusivamente la allowlist de compatibilidad a ambas revisiones. Esta decisión no modifica fórmulas, pairing, elegibilidad, datos ni claims.
 
 `historyContext` se deriva del mismo `scenarioContext`, pero mantiene filtros, selección y revisión locales. Los filtros no mutan ni recomponen el escenario; distrito, alcance y reset sí recomponen la cadena derivada una sola vez. La vista futura debe consumir esta proyección y queda prohibido que reconstruya reglas desde `payload.history` o campos legacy.
+
+## D-038 — P5-07 usa una columna de evidencia y divulgación nativa
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+El cuaderno histórico adopta una columna verde continua como firma visual porque representa una secuencia real de observaciones, no como ornamento. Calidad y vigencia preceden a magnitud; las señales se muestran por filas y el papel cálido queda reservado al detalle documental.
+
+La vista muestra cinco señales por defecto y utiliza `<details>` nativo para eventos adicionales. Así evita introducir un segundo estado mutable de paginación, conserva teclado y permite que una selección ubicada en el bloque adicional lo mantenga abierto. Filtros y selección siguen perteneciendo exclusivamente al estado integrado en P5-06.
+
+P5-07 no implementa la agenda aunque el motor ya la deriva. La responsabilidad de presentar esas tres acciones pertenece a P5-08; mezclarla con la línea de tiempo habría ampliado el paso atómico y dificultado su revisión.

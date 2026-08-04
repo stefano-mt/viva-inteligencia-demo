@@ -7,6 +7,8 @@ import {
   dispatchInspector,
   dispatchScenario,
   resolveDistrictId,
+  selectHistoryEvent,
+  setHistoryFilters,
   state,
 } from "./state.js";
 
@@ -126,6 +128,12 @@ export const COMPARISON_EVENTS = Object.freeze({
   selection: "viva:comparison-selection",
   target: "viva:comparison-target",
   rowFocus: "viva:comparison-row-focus",
+});
+
+const HISTORY_FILTER_VALUES = Object.freeze({
+  statuses: Object.freeze(["certified", "reviewable", "insufficient"]),
+  validities: Object.freeze(["current", "aging", "historical", "unknown"]),
+  directions: Object.freeze(["increase", "decrease", "unchanged"]),
 });
 
 export const INSPECTOR_PRESET_CASE_IDS = Object.freeze({
@@ -304,7 +312,110 @@ export function bindEvents(render) {
     });
   });
 
+  bindHistoryElementEvents();
+
   bindInspectorElementEvents();
+}
+
+function bindHistoryElementEvents() {
+  document.querySelectorAll("[data-history-filter]").forEach((control) => {
+    control.addEventListener("change", () => {
+      const key = control.dataset.historyFilter;
+      const allowed = HISTORY_FILTER_VALUES[key];
+      if (!allowed) return;
+      const value = control.value;
+      const selected = value === "all" ? [...allowed] : [value];
+      const transition = setHistoryFilters({ [key]: selected });
+      renderHistoryTransition({
+        changed: transition.changed,
+        focusId: control.id,
+        announcement: `${state.historyContext?.coverage?.shown_count ?? 0} señales visibles después de filtrar.`,
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-history-clear]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const transition = setHistoryFilters({
+        statuses: [...HISTORY_FILTER_VALUES.statuses],
+        validities: [...HISTORY_FILTER_VALUES.validities],
+        directions: [...HISTORY_FILTER_VALUES.directions],
+      });
+      renderHistoryTransition({
+        changed: transition.changed,
+        focusId: button.id || "history-status-filter",
+        announcement: "Filtros del histórico restablecidos.",
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-history-event]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const eventId = button.dataset.historyEvent;
+      const nextId = state.selectedHistoryEventId === eventId ? null : eventId;
+      if (!selectHistoryEvent(nextId)) return;
+      renderHistoryTransition({
+        changed: true,
+        focusId: button.id,
+        announcement: nextId
+          ? "Detalle y evidencia de la señal abiertos."
+          : "Detalle de la señal cerrado.",
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-history-priority]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const eventId = button.dataset.historyPriority;
+      if (!selectHistoryEvent(eventId)) return;
+      renderHistoryTransition({
+        changed: true,
+        focusId: `history-evidence-${domIdentifier(eventId)}`,
+        announcement: "Se abrió la señal certificada prioritaria.",
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-history-project]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const selected = selectScenarioProject(button.dataset.historyProject, {
+        render: false,
+      });
+      if (!selected) {
+        announceWithoutRender(
+          "El proyecto ya no pertenece a los comparables visibles del escenario.",
+        );
+        return;
+      }
+      state.mobileNavOpen = false;
+      if (viewFromHash() === "projects") renderApp?.();
+      else window.location.hash = "projects";
+    });
+  });
+
+  document.querySelectorAll("[data-history-reset]").forEach((button) => {
+    button.addEventListener("click", () => {
+      resetScenario({
+        announce: "Escenario reiniciado para reconstruir el histórico.",
+        focusId: button.id || null,
+      });
+    });
+  });
+}
+
+function renderHistoryTransition({ changed, focusId, announcement }) {
+  if (!changed) {
+    announceWithoutRender(announcement);
+    return;
+  }
+  state.scenarioFocusId = focusId ?? null;
+  renderApp?.();
+  const liveRegion = document.getElementById("history-live");
+  if (liveRegion) liveRegion.textContent = announcement;
+}
+
+function domIdentifier(value) {
+  return String(value ?? "history-event").replace(/[^a-zA-Z0-9_-]/gu, "-");
 }
 
 export function changeDistrict(district, options = {}) {
