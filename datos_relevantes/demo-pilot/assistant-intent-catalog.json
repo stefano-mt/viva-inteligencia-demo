@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "policy": {
+    "mode": "deterministic_catalog",
+    "locale": "es-PE",
+    "query_persistence": false,
+    "external_requests": false,
+    "maximum_input_characters": 500,
+    "unknown_intent_behavior": "explain_supported_questions"
+  },
+  "intents": [
+    {
+      "intent_id": "intent:scenario-summary",
+      "family": "scenario_summary",
+      "label": "Resumen del escenario",
+      "suggested_questions": [
+        "¿Cuál es la lectura principal del escenario activo?"
+      ],
+      "required_capabilities": [
+        "scenario",
+        "benchmark"
+      ],
+      "response_kind": "summary",
+      "reference_policy": "scenario_required"
+    },
+    {
+      "intent_id": "intent:market-changes",
+      "family": "market_changes",
+      "label": "Cambios observados",
+      "suggested_questions": [
+        "¿Qué precios publicados cambiaron en este escenario?"
+      ],
+      "required_capabilities": [
+        "scenario",
+        "history"
+      ],
+      "response_kind": "history",
+      "reference_policy": "numeric_facts_required"
+    },
+    {
+      "intent_id": "intent:signal-priority",
+      "family": "signal_priority",
+      "label": "Señal prioritaria",
+      "suggested_questions": [
+        "¿Qué señal certificada conviene revisar primero?"
+      ],
+      "required_capabilities": [
+        "scenario",
+        "history"
+      ],
+      "response_kind": "priority",
+      "reference_policy": "numeric_facts_required"
+    },
+    {
+      "intent_id": "intent:coverage-quality",
+      "family": "coverage_quality",
+      "label": "Cobertura y calidad",
+      "suggested_questions": [
+        "¿Qué cobertura y limitaciones tiene la muestra?"
+      ],
+      "required_capabilities": [
+        "scenario",
+        "history",
+        "benchmark"
+      ],
+      "response_kind": "quality",
+      "reference_policy": "scenario_required"
+    },
+    {
+      "intent_id": "intent:qualitative-evidence",
+      "family": "qualitative_evidence",
+      "label": "Atributos documentados",
+      "suggested_questions": [
+        "¿Qué atributos están respaldados por evidencia autorizada?"
+      ],
+      "required_capabilities": [
+        "scenario",
+        "benchmark",
+        "inspector"
+      ],
+      "response_kind": "qualitative",
+      "reference_policy": "qualitative_evidence_required"
+    },
+    {
+      "intent_id": "intent:project-comparison",
+      "family": "project_comparison",
+      "label": "Comparación de proyectos",
+      "suggested_questions": [
+        "¿Cómo se comparan los proyectos seleccionados?"
+      ],
+      "required_capabilities": [
+        "scenario",
+        "comparison"
+      ],
+      "response_kind": "comparison",
+      "reference_policy": "numeric_facts_required"
+    },
+    {
+      "intent_id": "intent:limitations",
+      "family": "limitations",
+      "label": "Límites de la demo",
+      "suggested_questions": [
+        "¿Qué preguntas no puede responder esta demo?"
+      ],
+      "required_capabilities": [
+        "scenario"
+      ],
+      "response_kind": "limitation",
+      "reference_policy": "limitation_only"
+    }
+  ],
+  "answer_contract": {
+    "block_types": [
+      "answer",
+      "data",
+      "interpretation",
+      "limitations",
+      "references",
+      "next_step"
+    ],
+    "scenario_reference_required": true,
+    "numeric_reference_required": true,
+    "qualitative_evidence_required": true
+  },
+  "limitations": [
+    {
+      "limitation_id": "limitation:closing-price",
+      "topic": "closing_price",
+      "message": "La demo observa precios publicados desde; no dispone del precio real de cierre.",
+      "behavior": "refuse_and_explain"
+    },
+    {
+      "limitation_id": "limitation:causality",
+      "topic": "causality",
+      "message": "La demo no atribuye causas sin evidencia causal autorizada.",
+      "behavior": "refuse_and_explain"
+    },
+    {
+      "limitation_id": "limitation:prediction",
+      "topic": "prediction",
+      "message": "La demo no predice demanda, absorción ni precios futuros.",
+      "behavior": "refuse_and_explain"
+    },
+    {
+      "limitation_id": "limitation:personal-data",
+      "topic": "personal_data",
+      "message": "La demo no recopila ni responde sobre datos o ubicación personal.",
+      "behavior": "refuse_and_explain"
+    },
+    {
+      "limitation_id": "limitation:external-data",
+      "topic": "external_data",
+      "message": "La demo no realiza búsquedas ni solicitudes externas en tiempo de ejecución.",
+      "behavior": "state_insufficient_evidence"
+    }
+  ],
+  "compatibility": {
+    "minimum_contract_version": "2.4.0",
+    "previous_contract_behavior": "contract_unavailable"
+  }
+}

@@ -1,4 +1,6 @@
-# Fixtures transversales de las Fases 1 y 2
+# Fixtures transversales de las Fases 1–5
+
+> Fase 5 añade `phase5-policy-cases.json`: 8 casos históricos y 7 casos del asistente para CT-C/D/E/F/G/I/P. Es un sobre de policy y no forma parte del JSON público; se valida contra `history-policy.json` y `assistant-intent-catalog.json` mediante `npm run test:phase5:fixtures`.
 
 Esta carpeta contiene los casos deterministas que P1-04, P1-05 y P1-06 deben materializar, calcular y validar. Son datos de prueba versionados: no son el dataset público ni autorizan scraping, publicación de activos restringidos o claims comerciales.
 

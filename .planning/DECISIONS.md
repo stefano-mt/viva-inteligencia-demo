@@ -359,3 +359,15 @@ P5-01 añade al schema la revisión `2.4.0` con dos índices autoritativos y cer
 Las revisiones 2.0–2.3 prohíben anunciar `history` y conservan `assistant` legacy. La revisión 2.4 hereda escenario, inspector y benchmark, y exige ambos índices F5. El reader admite 2.0–2.4; el runtime territorial permanece 2.1–2.3 hasta P5-06.
 
 P5-01 no modifica writer ni dataset. El cambio del schema produce un drift esperado en su fingerprint dentro del JSON público 2.3. P5-04 es el único propietario autorizado para regenerar el payload 2.4 y cerrar determinismo; actualizar a mano el fingerprint queda prohibido.
+
+## D-035 — P5-02 separa calidad histórica de visibilidad territorial
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+La policy y el catálogo de P5-02 se materializan exactamente dentro del contrato 2.4 aprobado, sin ampliar reason codes, topics o propiedades. CT-C no se representa como un defecto del evento: un cambio compatible puede ser materializable en el universo y, simultáneamente, quedar fuera de la vista porque su `project_id` no pertenece al escenario canónico.
+
+Moneda, cronología, semántica, entidad y evidencia gobiernan calidad; `scenario_project_ids` gobierna visibilidad. CT-G/CT-I cierran por defecto ante evidencia restringida, desconocida o conflictiva. El asistente nunca cambia de territorio por texto y las preguntas de cierre, causalidad o datos personales usan limitaciones deterministas.
+
+P5-02 no modifica writer, validator, runtime ni dataset público. El drift de fingerprint del schema permanece reservado a P5-04. P5-03 puede reutilizar los evaluadores puros para auditar candidatos, pero no puede relajar la policy para aproximarse a 34 eventos.

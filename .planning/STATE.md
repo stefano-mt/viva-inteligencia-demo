@@ -6,7 +6,7 @@
 
 **Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en planificación y no ha modificado runtime ni datos públicos.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución de datos; P5-01/P5-02 están completos y no han modificado runtime ni datos públicos.
 
 **Rama activa:** `feat/phase-5-history-signals-assistant`.
 
@@ -207,11 +207,12 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P5-00D: [phases/05-history-signals-assistant/BASELINE_BROWSER.md](phases/05-history-signals-assistant/BASELINE_BROWSER.md), `PASS`; paridad runtime, `npm run verify`, ocho rutas × tres viewports, accesibilidad y cuatro capturas portables verificadas.
 - P5-01: [phases/05-history-signals-assistant/P5-01-CONTRACT.md](phases/05-history-signals-assistant/P5-01-CONTRACT.md), completado; schema 2.4, `history`/`assistant` cerrados y reader 2.0–2.4.
 - Drift controlado: determinismo permanece rojo solo por el fingerprint del schema mientras el dataset público sigue en 2.3; P5-04 es el propietario exclusivo de la regeneración.
-- P5-02: siguiente paso; policy, catálogo y fixtures CT-C/D/E/F/G/I/P.
+- P5-02: [phases/05-history-signals-assistant/P5-02-POLICY-FIXTURES.md](phases/05-history-signals-assistant/P5-02-POLICY-FIXTURES.md), completado; policy histórica, siete familias del asistente, 8+7 fixtures CT-C/D/E/F/G/I/P y mutaciones fail-closed.
+- P5-02 preservó schema, writer, validator, runtime y JSON público; CT-C quedó modelado como visibilidad territorial, no como defecto de calidad.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-02: policy, catálogo y fixtures CT-C/D/E/F/G/I/P.
+1. Ejecutar P5-03: materializador determinista de histórico y auditoría de los 34 candidatos preliminares.
 2. Mantener writer y dataset público sin cambios hasta P5-04.
 3. No actualizar el fingerprint del schema de forma manual.
 
