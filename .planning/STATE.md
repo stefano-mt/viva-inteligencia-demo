@@ -4,11 +4,11 @@
 
 **Milestone:** demo vNext orientada a venta
 
-**Última fase con ship completo:** Fase 3 — ficha, evidencia e inspector
+**Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–3 están `deployed and verified`. Fase 4 completó implementación, corrección P4-13A, verificación independiente con `PASS` y memoria P4-14. El PR funcional #13 está abierto como borrador; faltan evidencia portable, revisión y merge humano. El despliegue de Fase 4 aún no está demostrado.
+**Estado:** Fases 0–3 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado y P4-15 verificó GitHub Pages con `PASS` para `e2c953f`. P4-16 persiste este resultado en una rama y PR documental separados; Fase 4 adquiere el estado oficial `deployed and verified` en `main` cuando un humano fusione ese PR.
 
-**Rama activa:** `feat/phase-4-benchmark-comparator`.
+**Rama activa:** `docs/phase-4-postmerge-report`.
 
 ## Baseline vigente
 
@@ -155,7 +155,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P3-17: resultado persistido en `POSTMERGE_REPORT.md` y este estado mediante una rama/PR documental separados.
 - Estado de ship de Fase 3: **`deployed and verified`**; memoria P3-17 integrada en `main` mediante PR #12.
 
-## Fase 4 — cierre técnico vigente
+## Fase 4 — cierre post-merge vigente
 
 - Contexto: [phases/04-benchmark-comparator/CONTEXT.md](phases/04-benchmark-comparator/CONTEXT.md).
 - Evaluación de datos: [phases/04-benchmark-comparator/DATA-ASSESSMENT.md](phases/04-benchmark-comparator/DATA-ASSESSMENT.md).
@@ -175,17 +175,25 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Informe vigente: [phases/04-benchmark-comparator/VERIFICATION_REPORT.md](phases/04-benchmark-comparator/VERIFICATION_REPORT.md), versionado en `6038749`.
 - Resumen: [phases/04-benchmark-comparator/SUMMARY.md](phases/04-benchmark-comparator/SUMMARY.md).
 - Handoff: [phases/04-benchmark-comparator/HANDOFF.md](phases/04-benchmark-comparator/HANDOFF.md).
-- PR funcional: [#13](https://github.com/stefano-mt/viva-inteligencia-demo/pull/13), `OPEN / DRAFT / MERGEABLE / CLEAN` al abrirse.
+- PR funcional: [#13](https://github.com/stefano-mt/viva-inteligencia-demo/pull/13), fusionado el `2026-08-03T23:19:02Z`.
+- Head final del PR funcional: `bd631bf0d02c7deffda7e00434c459f5e5de9151`.
+- SHA del merge funcional, desplegado y verificado: `e2c953fa36de49c658393669a4a2d40e469e5790`.
+- Workflow Pages: [run 30861830772](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/30861830772), `success`.
+- GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
+- P4-15: **PASS**; contrato `2.3.0`, CT-C/G/I, benchmark, comparador, quince activos, escritorio, móvil, consola y red verificados en la URL pública.
+- Informe post-merge: [phases/04-benchmark-comparator/POSTMERGE_REPORT.md](phases/04-benchmark-comparator/POSTMERGE_REPORT.md).
+- PR documental P4-16: [#14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14), `OPEN / READY TO MERGE`, pendiente de revisión y merge humano.
 - Smoke y accesibilidad: 8 rutas × 3 viewports; responsive específico y reflow 200%: PASS.
 - Graphify F4: 3,034 nodos y 5,743 relaciones; sin blocker arquitectónico.
 - HUMAN-GATE-B: no requerido porque el veredicto final es `PASS`.
-- Estado de ship: cierre técnico completo; PR, merge humano, P4-15 y P4-16 pendientes. No declarar Fase 4 desplegada todavía.
+- Estado de ship: despliegue técnico verificado con `PASS`; el estado oficial **`deployed and verified`** queda pendiente de revisión y merge humano de P4-16 en `main`.
+- Gap residual de gobernanza: el recorrido comercial de P4-13 fue automatizado. El checker independiente lo aceptó con `PASS`, pero debe realizarse un ensayo humano breve antes de presentar la demo al cliente.
 
 ## Próxima acción recomendada
 
-1. Adjuntar evidencia visual portable al PR #13 y completar revisión humana.
-2. Fusionar solo por acción humana cuando GitHub muestre base y checks actualizados.
-3. Después del merge, ejecutar P4-15 read-only y persistir el resultado mediante P4-16 en una rama/PR documental separados.
+1. Revisar el PR documental [#14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14) contra `main`.
+2. Fusionar ese PR solo por acción humana.
+3. Después del merge, Fase 4 queda cerrada en la memoria oficial y puede iniciarse la planificación de Fase 5.
 
 ## Regla para actualizar este archivo
 
