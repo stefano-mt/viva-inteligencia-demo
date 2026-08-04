@@ -364,6 +364,36 @@ function bindHistoryElementEvents() {
     });
   });
 
+  document.querySelectorAll("[data-history-agenda-event]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const eventId = button.dataset.historyAgendaEvent;
+      if (!selectHistoryEvent(eventId)) {
+        announceWithoutRender(
+          "La señal de origen ya no pertenece al escenario visible.",
+        );
+        return;
+      }
+      renderHistoryTransition({
+        changed: true,
+        focusId: `history-evidence-${domIdentifier(eventId)}`,
+        announcement: "Se abrió la señal que origina esta acción.",
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-history-focus]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = document.getElementById(button.dataset.historyFocus);
+      if (!target) {
+        announceWithoutRender("El control solicitado no está disponible.");
+        return;
+      }
+      target.focus();
+      target.scrollIntoView?.({ block: "center" });
+      announceWithoutRender("Filtros del histórico listos para revisar.");
+    });
+  });
+
   document.querySelectorAll("[data-history-priority]").forEach((button) => {
     button.addEventListener("click", () => {
       const eventId = button.dataset.historyPriority;

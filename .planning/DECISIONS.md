@@ -407,3 +407,15 @@ El cuaderno histórico adopta una columna verde continua como firma visual porqu
 La vista muestra cinco señales por defecto y utiliza `<details>` nativo para eventos adicionales. Así evita introducir un segundo estado mutable de paginación, conserva teclado y permite que una selección ubicada en el bloque adicional lo mantenga abierto. Filtros y selección siguen perteneciendo exclusivamente al estado integrado en P5-06.
 
 P5-07 no implementa la agenda aunque el motor ya la deriva. La responsabilidad de presentar esas tres acciones pertenece a P5-08; mezclarla con la línea de tiempo habría ampliado el paso atómico y dificultado su revisión.
+
+## D-039 — P5-08 conserva la prioridad del motor y enlaza su origen
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+La agenda de seguimiento consume los tres primeros elementos de `state.historyContext.agenda` en el orden recibido. Los números 1–3 son semánticos porque representan la prioridad ya derivada por calidad, no un recurso decorativo; la vista no ordena, puntúa o interpreta magnitud.
+
+Cada acción expone su evento de origen, proyecto, fecha y conteos referenciados, y reutiliza la selección de evidencia del cuaderno. Cuando el motor entrega el fallback sin evento, la acción lleva a los filtros y declara cobertura del escenario como origen. Si la agenda falta, la UI muestra indisponibilidad en vez de fabricar una recomendación.
+
+P5-08 no incorpora lenguaje periódico, urgencia, causa observada ni CTA de decisión. La agenda aparece después de la línea de tiempo para que la acción siga a la comprensión y se presenta como una sola lista vertical, sin aumentar la sobrecarga de cards.

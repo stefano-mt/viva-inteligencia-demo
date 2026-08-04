@@ -6,7 +6,7 @@
 
 **Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-07 están completos. P5-07 reemplazó el feed legacy por el cuaderno de señales canónico, explicable y accesible.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-08 están completos. P5-08 incorporó una agenda reproducible de máximo tres acciones con procedencia y navegación accesible.
 
 **Rama activa:** `feat/phase-5-history-signals-assistant`.
 
@@ -224,12 +224,15 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P5-07: [phases/05-history-signals-assistant/P5-07-HISTORY-UI.md](phases/05-history-signals-assistant/P5-07-HISTORY-UI.md), completado; `#activity` consume solo `state.historyContext` y elimina el feed legacy.
 - Vista histórica: banda de calidad, filtros, cinco señales por defecto, detalle con evidencia, estados legacy/vacío/error, foco preservado y navegación a proyecto.
 - Evidencia visual P5-07: 1440×900, 1280×720 y 390×844; smoke y accesibilidad 8 rutas × 3 viewports PASS.
+- P5-08: [phases/05-history-signals-assistant/P5-08-PRIORITIZED-AGENDA.md](phases/05-history-signals-assistant/P5-08-PRIORITIZED-AGENDA.md), completado; agenda vertical de máximo tres acciones en el orden del motor, con origen, hechos/evidencias y navegación a la señal.
+- Fallback de agenda: si no hay señales elegibles, `Revisar filtros` enfoca el control canónico; la vista no inventa prioridad, frecuencia o causalidad.
+- Evidencia visual P5-08: 1440×900, 1280×720 y 390×844; E2E, smoke y accesibilidad 8 rutas × 3 viewports PASS.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-08: construir la agenda priorizada desde `state.historyContext.agenda`.
-2. Mostrar un máximo de tres acciones y su origen, sin volver a calcular prioridades en la vista.
-3. Evitar lenguaje semanal o causal no demostrado y reutilizar la navegación del cuaderno.
+1. Ejecutar P5-09: construir el motor semántico puro del asistente sobre el catálogo 2.4.
+2. Resolver intenciones cerradas con cifras y referencias del escenario, sin DOM, reloj o red.
+3. Cerrar CT-F, fallback, XSS y rechazos de precio de cierre/PII antes de implementar la interfaz P5-10.
 
 ## Regla para actualizar este archivo
 

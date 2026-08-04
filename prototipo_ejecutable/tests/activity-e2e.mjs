@@ -23,6 +23,12 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.locator("[data-history-row]").count(), 5);
   assert.equal(await page.locator(".history-quality-item").count(), 4);
   assert.equal(await page.locator("text=Cambios publicados en Miraflores").count(), 1);
+  assert.equal(await page.locator(".history-agenda__item").count(), 3);
+  assert.equal(await page.locator("[data-history-agenda-event]").count(), 3);
+  assert.equal(
+    await page.locator(".history-agenda").innerText().then((text) => /semana/iu.test(text)),
+    false,
+  );
   if (evidenceDir) {
     await fs.mkdir(evidenceDir, { recursive: true });
     await page.screenshot({
@@ -41,9 +47,25 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   await page.keyboard.press("Space");
   assert.equal(await page.locator(".history-detail").count(), 0);
 
+  const firstAgendaAction = page.locator("[data-history-agenda-event]").first();
+  const agendaEventId = await firstAgendaAction.getAttribute(
+    "data-history-agenda-event",
+  );
+  await firstAgendaAction.focus();
+  await page.keyboard.press("Enter");
+  assert.equal(await page.locator(".history-detail").count(), 1);
+  assert.equal(
+    await page.evaluate(() => document.activeElement?.id),
+    `history-evidence-${agendaEventId.replace(/[^a-zA-Z0-9_-]/gu, "-")}`,
+  );
+  await page.keyboard.press("Enter");
+  assert.equal(await page.locator(".history-detail").count(), 0);
+
   await page.locator("#history-status-filter").selectOption("reviewable");
   assert.equal(await page.locator("[data-history-row]").count(), 0);
   assert.equal(await page.locator("text=No hay señales con estos filtros").count(), 1);
+  assert.equal(await page.locator(".history-agenda__item").count(), 1);
+  assert.equal(await page.locator("[data-history-focus]").count(), 1);
   await page.locator("[data-history-clear]").click();
   assert.equal(await page.locator("[data-history-row]").count(), 5);
 

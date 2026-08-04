@@ -102,6 +102,7 @@ export function renderActivity() {
       ${renderQualityBand(context)}
       ${renderHistoryFilters(context)}
       ${renderHistoryTimeline(context)}
+      ${renderHistoryAgenda(context)}
     `,
   });
 }
@@ -331,6 +332,86 @@ function renderHistoryTimeline(context) {
       ` : ""}
     </section>
   `;
+}
+
+function renderHistoryAgenda(context) {
+  const agenda = Array.isArray(context.agenda)
+    ? context.agenda.slice(0, 3)
+    : [];
+  return `
+    <section class="history-agenda" aria-labelledby="history-agenda-title">
+      <header class="history-agenda__header">
+        <div>
+          <span class="history-section-index">Siguiente lectura</span>
+          <h3 id="history-agenda-title">Agenda de seguimiento</h3>
+          <p>Orden reproducible · calidad antes que magnitud. Cada acción nace de la muestra y los filtros activos.</p>
+        </div>
+        <span class="history-agenda__limit">Máximo 3 acciones</span>
+      </header>
+      ${agenda.length
+        ? `<ol class="history-agenda__list">
+            ${agenda.map((item, index) => renderAgendaItem(item, index, context)).join("")}
+          </ol>`
+        : `<p class="history-agenda__unavailable">La agenda no está disponible para este histórico. Revisa la cobertura antes de concluir.</p>`}
+    </section>
+  `;
+}
+
+function renderAgendaItem(item, index, context) {
+  const position = Number.isInteger(Number(item.position))
+    ? Number(item.position)
+    : index + 1;
+  const references = item.references ?? {};
+  const eventId = references.history_event_ids?.[0] ?? null;
+  const event = eventId
+    ? context.timeline?.find(
+        ({ history_event_id: candidateId }) => candidateId === eventId,
+      )
+    : null;
+  const factCount = references.fact_ids?.length ?? 0;
+  const evidenceCount = references.evidence_ids?.length ?? 0;
+  const title = item.title ?? "Revisar acción de seguimiento";
+  const description = item.description ??
+    "Contrastar la acción con la cobertura y evidencia disponibles.";
+  const itemId = domIdentifier(item.agenda_item_id ?? `agenda-${position}`);
+  return `
+    <li
+      class="history-agenda__item"
+      data-history-agenda-position="${escapeAttr(position)}"
+    >
+      <span class="history-agenda__position" aria-label="Prioridad ${escapeAttr(position)}">${escapeHtml(position)}</span>
+      <div class="history-agenda__copy">
+        <h4>${escapeHtml(title)}</h4>
+        <p>${escapeHtml(description)}</p>
+        <div class="history-agenda__provenance">
+          <span>${event
+            ? `Señal de origen · ${escapeHtml(event.project?.canonical_name ?? "Proyecto sin nombre")} · ${escapeHtml(formatDate(event.current_observed_at))}`
+            : "Origen · cobertura del escenario"}</span>
+          <span>${event
+            ? `${escapeHtml(countLabel(factCount, "hecho", "hechos"))} · ${escapeHtml(countLabel(evidenceCount, "evidencia", "evidencias"))}`
+            : `${escapeHtml(formatNumber(context.coverage?.by_status?.certified ?? 0))} certificadas · ${escapeHtml(formatNumber(context.coverage?.scenario_event_count ?? 0))} eventos detectados`}</span>
+        </div>
+      </div>
+      ${event
+        ? `<button
+            class="history-agenda__action"
+            id="history-agenda-${escapeAttr(itemId)}"
+            type="button"
+            data-history-agenda-event="${escapeAttr(event.history_event_id)}"
+          >Abrir señal de origen</button>`
+        : `<button
+            class="history-agenda__action"
+            id="history-agenda-${escapeAttr(itemId)}"
+            type="button"
+            data-history-focus="history-status-filter"
+          >Revisar filtros</button>`}
+    </li>
+  `;
+}
+
+function countLabel(value, singular, plural) {
+  const count = Number(value) || 0;
+  return `${formatNumber(count)} ${count === 1 ? singular : plural}`;
 }
 
 function renderSignalRow(event) {

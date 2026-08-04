@@ -109,6 +109,39 @@ assert.match(markup, /En seguimiento/u);
 assert.match(markup, /Ver evidencia/u);
 assert.match(markup, /Ver proyecto/u);
 assert.doesNotMatch(markup, /Jesús María|Santiago de Surco|La Molina|San Isidro/u);
+assert.match(markup, /Agenda de seguimiento/u);
+assert.match(markup, /Orden reproducible · calidad antes que magnitud/u);
+assert.equal(
+  (markup.match(/class="history-agenda__item"/gu) ?? []).length,
+  3,
+  "the agenda must expose at most its three derived actions",
+);
+assert.match(markup, /data-history-agenda-position="1"/u);
+assert.match(markup, /data-history-agenda-position="2"/u);
+assert.match(markup, /data-history-agenda-position="3"/u);
+assert.match(markup, /Revisar cambio observado/u);
+assert.match(markup, /Señal de origen/u);
+assert.match(markup, /2 hechos · 2 evidencias/u);
+assert.match(markup, /Abrir señal de origen/u);
+assert.equal(
+  (markup.match(/data-history-agenda-event=/gu) ?? []).length,
+  3,
+);
+assert.doesNotMatch(markup, /esta semana|semanal/iu);
+
+const oversizedAgenda = structuredClone(state.historyContext);
+oversizedAgenda.agenda.push(
+  { ...structuredClone(oversizedAgenda.agenda[0]), agenda_item_id: "agenda:four", position: 4 },
+  { ...structuredClone(oversizedAgenda.agenda[0]), agenda_item_id: "agenda:five", position: 5 },
+);
+state.historyContext = oversizedAgenda;
+const boundedAgendaMarkup = renderWithoutMutation("bounded agenda");
+assert.equal(
+  (boundedAgendaMarkup.match(/class="history-agenda__item"/gu) ?? []).length,
+  3,
+  "the view must never render more than three agenda rows",
+);
+assert.doesNotMatch(boundedAgendaMarkup, /data-history-agenda-position="4"/u);
 
 const selectedId = state.historyContext.timeline[0].history_event_id;
 state.selectedHistoryEventId = selectedId;
@@ -141,6 +174,15 @@ state.historyContext = {
   ...structuredClone(state.historyContext),
   status: "empty",
   timeline: [],
+  agenda: [{
+    agenda_item_id: "agenda:history-expand-or-review-scope",
+    position: 1,
+    action: "expand_or_review_scope",
+    title: "Validar cobertura o ampliar el escenario",
+    description:
+      "No hay señales certificadas visibles; revise filtros y cobertura antes de concluir.",
+    references: { history_event_ids: [], fact_ids: [], evidence_ids: [] },
+  }],
   coverage: {
     ...state.historyContext.coverage,
     shown_count: 0,
@@ -150,6 +192,15 @@ state.historyContext = {
 const filteredEmptyMarkup = renderWithoutMutation("filtered empty");
 assert.match(filteredEmptyMarkup, /No hay señales con estos filtros/u);
 assert.match(filteredEmptyMarkup, /Limpiar filtros/u);
+assert.equal(
+  (filteredEmptyMarkup.match(/class="history-agenda__item"/gu) ?? []).length,
+  1,
+);
+assert.match(filteredEmptyMarkup, /Validar cobertura o ampliar el escenario/u);
+assert.match(filteredEmptyMarkup, /Origen · cobertura del escenario/u);
+assert.match(filteredEmptyMarkup, /Revisar filtros/u);
+assert.match(filteredEmptyMarkup, /data-history-focus="history-status-filter"/u);
+assert.doesNotMatch(filteredEmptyMarkup, /data-history-agenda-event=/u);
 
 state.historyContext.coverage.scenario_event_count = 0;
 state.historyContext.coverage.filtered_out_count = 0;
@@ -177,12 +228,18 @@ initialize();
 const maliciousContext = structuredClone(state.historyContext);
 maliciousContext.timeline[0].project.canonical_name =
   '<img src=x onerror="globalThis.pwned=true">';
+maliciousContext.agenda[0].title = '<script data-test="agenda">pwned()</script>';
 state.historyContext = maliciousContext;
 const escapedMarkup = renderWithoutMutation("escaped content");
 assert.doesNotMatch(escapedMarkup, /<img src=x/u);
 assert.match(
   escapedMarkup,
   /&lt;img src=x onerror=&quot;globalThis\.pwned=true&quot;&gt;/u,
+);
+assert.doesNotMatch(escapedMarkup, /<script data-test/u);
+assert.match(
+  escapedMarkup,
+  /&lt;script data-test=&quot;agenda&quot;&gt;pwned\(\)&lt;\/script&gt;/u,
 );
 
 const legacy = structuredClone(data);
@@ -206,6 +263,8 @@ assert.ok(
 );
 assert.match(styles, /--history-spine:\s*#00943b/iu);
 assert.match(styles, /\.history-timeline::before/u);
+assert.match(styles, /\.history-agenda__item/u);
+assert.match(styles, /\.history-agenda__position/u);
 assert.match(styles, /:focus-visible/u);
 assert.match(styles, /min-height:\s*44px/iu);
 assert.match(styles, /@media\s*\(max-width:\s*900px\)/u);
