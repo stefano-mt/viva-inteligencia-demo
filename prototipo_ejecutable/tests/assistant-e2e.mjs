@@ -65,6 +65,22 @@ await withDemoBrowser(
     await page.locator('[data-view="activity"][aria-current="page"]').waitFor();
     assert.equal(new URL(page.url()).hash, "#activity");
 
+    await page.locator(".history-detail").waitFor();
+    assert.equal(await page.locator(".history-detail").count(), 1);
+    assert.match(
+      await page.locator(".history-detail").innerText(),
+      /Causa no observada/iu,
+    );
+    assert.equal(
+      await page.locator('[data-history-event][aria-expanded="true"]').count(),
+      1,
+      "the assistant history reference must open its evidence detail",
+    );
+    await page.goBack({ waitUntil: "networkidle" });
+    await page.locator('[data-view="assistant"][aria-current="page"]').waitFor();
+    await page.locator('[data-assistant-response="ready"]').waitFor();
+    assert.equal(new URL(page.url()).hash, "#assistant");
+
     await openRoute(page, baseUrl, "assistant");
     await input.fill("¿Cuál es el precio real de cierre del competidor?");
     await input.press("Control+Enter");
@@ -81,6 +97,35 @@ await withDemoBrowser(
         (element) => document.activeElement === element,
       ),
       true,
+    );
+
+    await input.fill("¿Dónde viven las personas que consultaron?");
+    await input.press("Control+Enter");
+    await page.locator('[data-assistant-response="refused"]').waitFor();
+    assert.match(
+      await page.locator("[data-assistant-block=limitations]").innerText(),
+      /datos personales|ubicación personal/iu,
+    );
+
+    await input.fill("¿Cuál es la velocidad del viento?");
+    await input.press("Control+Enter");
+    await page.locator('[data-assistant-response="unknown_intent"]').waitFor();
+    assert.match(
+      await page.locator("[data-assistant-block=next_step]").innerText(),
+      /pregunta compatible/iu,
+    );
+
+    await input.fill("¿Qué atributos están respaldados por evidencia autorizada?");
+    await input.press("Control+Enter");
+    await page.locator('[data-assistant-response="insufficient"]').waitFor();
+    assert.doesNotMatch(
+      await page.locator('[data-assistant-response="insufficient"]').innerText(),
+      /cuarzo/iu,
+      "restricted or incompatible evidence must not become a positive claim",
+    );
+    assert.equal(
+      await page.locator('[data-assistant-reference-route="inspector"]').count(),
+      0,
     );
 
     await page.locator(".assistant-question").first().click();

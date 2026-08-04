@@ -6,7 +6,7 @@
 
 **Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-10 están completos. P5-10 integró el motor semántico como fuente de runtime y construyó la interfaz trazable del asistente.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-11 están completos. P5-11 integró las suites F5 al gate y demostró CT-C/D/E/F/G/I/P de extremo a extremo.
 
 **Rama activa:** `feat/phase-5-history-signals-assistant`.
 
@@ -235,12 +235,15 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Accesibilidad y densidad P5-10: escenario y modo visibles, `aria-live`, foco en resultado, cinco referencias iniciales con divulgación progresiva y evidencia 1440×900/390×844.
 - Graphify P5-10: 3,425 nodos y 6,536 relaciones; confirmó el recorrido vista → controlador → estado → motor sin hub nuevo bloqueante.
 - Checker independiente P5-10: `/root/p5_10_checker`, veredicto final `PASS` tras corregir y repetir los recorridos de reclasificación y navegación `benchmark`/`assistant`.
+- P5-11: [phases/05-history-signals-assistant/P5-11-E2E-REGRESSIONS.md](phases/05-history-signals-assistant/P5-11-E2E-REGRESSIONS.md), completado; siete recorridos integrales, CT-C/D/E/F/G/I/P, contrato 2.3 y escenario sin eventos verificados.
+- Gate P5-11: `npm.cmd run verify` PASS; histórico y asistente forman parte del manifiesto, con smoke/accesibilidad en ocho rutas × tres viewports y cero solicitudes externas.
+- Checker proporcional P5-11: `/root/p5_11_checker_fast`, veredicto final `PASS`; no sustituye el gate formal P5-13.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-11: integrar las pruebas nuevas al manifiesto y demostrar CT-C/D/E/F/G/I/P de extremo a extremo.
-2. Cubrir pregunta → respuesta → evidencia, rechazo de cierre, contrato 2.3, evidencia restringida y escenario sin eventos.
-3. Preservar las ocho rutas antes del gate responsive específico de P5-12.
+1. Ejecutar P5-12: responsive, contraste, densidad, teclado y zoom 200% en Señales y Asistente.
+2. Capturar evidencia portable en 1440×900, 1280×720 y 390×844 sin scroll horizontal ni truncamiento crítico.
+3. Mantener P5-11 verde antes del gate independiente formal P5-13.
 
 ## Regla para actualizar este archivo
 
