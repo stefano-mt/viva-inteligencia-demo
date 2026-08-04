@@ -205,13 +205,15 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - HUMAN-GATE-A: [phases/05-history-signals-assistant/APPROVAL.md](phases/05-history-signals-assistant/APPROVAL.md), A1–A12 aprobadas el `2026-08-04T10:50:13.4321329-05:00` sobre `ae55fa5`.
 - P5-00C: completado; decisión D-033 registrada.
 - P5-00D: [phases/05-history-signals-assistant/BASELINE_BROWSER.md](phases/05-history-signals-assistant/BASELINE_BROWSER.md), `PASS`; paridad runtime, `npm run verify`, ocho rutas × tres viewports, accesibilidad y cuatro capturas portables verificadas.
-- P5-01: habilitado; contrato 2.4 y compatibilidad son el siguiente paso.
+- P5-01: [phases/05-history-signals-assistant/P5-01-CONTRACT.md](phases/05-history-signals-assistant/P5-01-CONTRACT.md), completado; schema 2.4, `history`/`assistant` cerrados y reader 2.0–2.4.
+- Drift controlado: determinismo permanece rojo solo por el fingerprint del schema mientras el dataset público sigue en 2.3; P5-04 es el propietario exclusivo de la regeneración.
+- P5-02: siguiente paso; policy, catálogo y fixtures CT-C/D/E/F/G/I/P.
 
 ## Próxima acción recomendada
 
-1. Iniciar P5-01: contrato 2.4 y compatibilidad, con pruebas primero.
-2. No modificar writer ni dataset público durante P5-01.
-3. Detener y solicitar enmienda si el contrato cambia la semántica aprobada o requiere ampliar write sets.
+1. Ejecutar P5-02: policy, catálogo y fixtures CT-C/D/E/F/G/I/P.
+2. Mantener writer y dataset público sin cambios hasta P5-04.
+3. No actualizar el fingerprint del schema de forma manual.
 
 ## Regla para actualizar este archivo
 

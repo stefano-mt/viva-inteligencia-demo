@@ -46,6 +46,9 @@
     "benchmark": {
       "$ref": "#/$defs/benchmark"
     },
+    "history": {
+      "$ref": "#/$defs/history"
+    },
     "projects": {
       "type": "array",
       "minItems": 1,
@@ -94,7 +97,8 @@
                 "enum": [
                   "2.1.0",
                   "2.2.0",
-                  "2.3.0"
+                  "2.3.0",
+                  "2.4.0"
                 ]
               }
             }
@@ -117,7 +121,8 @@
               "contract_version": {
                 "enum": [
                   "2.2.0",
-                  "2.3.0"
+                  "2.3.0",
+                  "2.4.0"
                 ]
               }
             }
@@ -136,7 +141,10 @@
           "metadata": {
             "properties": {
               "contract_version": {
-                "const": "2.3.0"
+                "enum": [
+                  "2.3.0",
+                  "2.4.0"
+                ]
               }
             }
           }
@@ -146,6 +154,55 @@
         "required": [
           "benchmark"
         ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "contract_version": {
+                "enum": [
+                  "2.0.0",
+                  "2.1.0",
+                  "2.2.0",
+                  "2.3.0"
+                ]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "history": false
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "contract_version": {
+                "const": "2.4.0"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "history"
+        ],
+        "properties": {
+          "history": {
+            "$ref": "#/$defs/history"
+          },
+          "assistant": {
+            "$ref": "#/$defs/assistant"
+          }
+        }
       }
     }
   ],
@@ -292,7 +349,8 @@
             "2.0.0",
             "2.1.0",
             "2.2.0",
-            "2.3.0"
+            "2.3.0",
+            "2.4.0"
           ]
         },
         "dataset_id": {
@@ -3478,6 +3536,668 @@
               "missing"
             ]
           }
+        }
+      }
+    },
+    "history": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "policy",
+        "events",
+        "by_project_id",
+        "by_district_id",
+        "coverage",
+        "fingerprints"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "policy": {
+          "$ref": "#/$defs/historyPolicy"
+        },
+        "events": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/historyEvent"
+          }
+        },
+        "by_project_id": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/historyProjectIndex"
+          }
+        },
+        "by_district_id": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/historyDistrictIndex"
+          }
+        },
+        "coverage": {
+          "$ref": "#/$defs/historyCoverage"
+        },
+        "fingerprints": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/inputFingerprint"
+          }
+        }
+      }
+    },
+    "historyPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cutoff_at",
+        "field_semantics",
+        "currency",
+        "current_max_days",
+        "aging_max_days",
+        "maximum_certified_absolute_delta_pct",
+        "ordering",
+        "cause_policy"
+      ],
+      "properties": {
+        "cutoff_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "field_semantics": {
+          "const": [
+            "published_price_from_project"
+          ]
+        },
+        "currency": {
+          "const": "PEN"
+        },
+        "current_max_days": {
+          "const": 30
+        },
+        "aging_max_days": {
+          "const": 90
+        },
+        "maximum_certified_absolute_delta_pct": {
+          "const": 30
+        },
+        "ordering": {
+          "const": [
+            "scenario_membership",
+            "quality",
+            "validity",
+            "evidence",
+            "magnitude",
+            "recency",
+            "canonical_id"
+          ]
+        },
+        "cause_policy": {
+          "const": "observed_evidence_only"
+        }
+      }
+    },
+    "historyEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "history_event_id",
+        "project_id",
+        "district_id",
+        "field",
+        "unit",
+        "currency",
+        "previous_observation_id",
+        "current_observation_id",
+        "previous_value",
+        "current_value",
+        "delta_absolute",
+        "delta_pct",
+        "previous_observed_at",
+        "current_observed_at",
+        "detected_at",
+        "status",
+        "validity",
+        "reason_codes",
+        "fact_ids",
+        "evidence_ids",
+        "cause",
+        "cause_evidence_ids"
+      ],
+      "properties": {
+        "history_event_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "project_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "district_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "field": {
+          "const": "published_price_from"
+        },
+        "unit": {
+          "const": "PEN"
+        },
+        "currency": {
+          "const": "PEN"
+        },
+        "previous_observation_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "current_observation_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "previous_value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "current_value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "delta_absolute": {
+          "type": "number"
+        },
+        "delta_pct": {
+          "oneOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "previous_observed_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "current_observed_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "detected_at": {
+          "$ref": "#/$defs/dateTime"
+        },
+        "status": {
+          "enum": [
+            "certified",
+            "reviewable",
+            "insufficient"
+          ]
+        },
+        "validity": {
+          "enum": [
+            "current",
+            "aging",
+            "historical",
+            "unknown"
+          ]
+        },
+        "reason_codes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/historyReasonCode"
+          }
+        },
+        "fact_ids": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        },
+        "evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        },
+        "cause": {
+          "$ref": "#/$defs/nullableNonEmptyString"
+        },
+        "cause_evidence_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "cause": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "cause"
+            ]
+          },
+          "then": {
+            "properties": {
+              "cause_evidence_ids": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "cause": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "cause"
+            ]
+          },
+          "then": {
+            "properties": {
+              "cause_evidence_ids": {
+                "const": []
+              }
+            }
+          }
+        }
+      ]
+    },
+    "historyReasonCode": {
+      "enum": [
+        "base_zero",
+        "extreme_change",
+        "unknown_currency",
+        "invalid_date_order",
+        "semantic_mismatch",
+        "entity_mismatch",
+        "evidence_missing",
+        "restricted",
+        "outside_cutoff",
+        "duplicate"
+      ]
+    },
+    "historyProjectIndex": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "project_id",
+        "history_event_ids"
+      ],
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "history_event_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        }
+      }
+    },
+    "historyDistrictIndex": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "district_id",
+        "history_event_ids"
+      ],
+      "properties": {
+        "district_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "history_event_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/namespacedId"
+          }
+        }
+      }
+    },
+    "historyCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidate_count",
+        "materialized_count",
+        "certified_count",
+        "reviewable_count",
+        "excluded_count",
+        "districts",
+        "excluded_reasons"
+      ],
+      "properties": {
+        "candidate_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "materialized_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "certified_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reviewable_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "excluded_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "districts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/historyDistrictCoverage"
+          }
+        },
+        "excluded_reasons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/historyReasonCoverage"
+          }
+        }
+      }
+    },
+    "historyDistrictCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "district_id",
+        "candidate_count",
+        "materialized_count",
+        "certified_count",
+        "reviewable_count",
+        "excluded_count"
+      ],
+      "properties": {
+        "district_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "candidate_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "materialized_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "certified_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "reviewable_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "excluded_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "historyReasonCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reason_code",
+        "count"
+      ],
+      "properties": {
+        "reason_code": {
+          "$ref": "#/$defs/historyReasonCode"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "assistant": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "policy",
+        "intents",
+        "answer_contract",
+        "limitations",
+        "compatibility"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "policy": {
+          "$ref": "#/$defs/assistantPolicy"
+        },
+        "intents": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/assistantIntent"
+          }
+        },
+        "answer_contract": {
+          "$ref": "#/$defs/assistantAnswerContract"
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/assistantLimitation"
+          }
+        },
+        "compatibility": {
+          "$ref": "#/$defs/assistantCompatibility"
+        }
+      }
+    },
+    "assistantPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "locale",
+        "query_persistence",
+        "external_requests",
+        "maximum_input_characters",
+        "unknown_intent_behavior"
+      ],
+      "properties": {
+        "mode": {
+          "const": "deterministic_catalog"
+        },
+        "locale": {
+          "const": "es-PE"
+        },
+        "query_persistence": {
+          "const": false
+        },
+        "external_requests": {
+          "const": false
+        },
+        "maximum_input_characters": {
+          "const": 500
+        },
+        "unknown_intent_behavior": {
+          "const": "explain_supported_questions"
+        }
+      }
+    },
+    "assistantIntent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "intent_id",
+        "family",
+        "label",
+        "suggested_questions",
+        "required_capabilities",
+        "response_kind",
+        "reference_policy"
+      ],
+      "properties": {
+        "intent_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "family": {
+          "enum": [
+            "scenario_summary",
+            "market_changes",
+            "signal_priority",
+            "coverage_quality",
+            "qualitative_evidence",
+            "project_comparison",
+            "limitations"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "suggested_questions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 5,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "required_capabilities": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "scenario",
+              "history",
+              "benchmark",
+              "comparison",
+              "inspector"
+            ]
+          }
+        },
+        "response_kind": {
+          "enum": [
+            "summary",
+            "history",
+            "priority",
+            "quality",
+            "qualitative",
+            "comparison",
+            "limitation"
+          ]
+        },
+        "reference_policy": {
+          "enum": [
+            "scenario_required",
+            "numeric_facts_required",
+            "qualitative_evidence_required",
+            "limitation_only"
+          ]
+        }
+      }
+    },
+    "assistantAnswerContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "block_types",
+        "scenario_reference_required",
+        "numeric_reference_required",
+        "qualitative_evidence_required"
+      ],
+      "properties": {
+        "block_types": {
+          "const": [
+            "answer",
+            "data",
+            "interpretation",
+            "limitations",
+            "references",
+            "next_step"
+          ]
+        },
+        "scenario_reference_required": {
+          "const": true
+        },
+        "numeric_reference_required": {
+          "const": true
+        },
+        "qualitative_evidence_required": {
+          "const": true
+        }
+      }
+    },
+    "assistantLimitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "limitation_id",
+        "topic",
+        "message",
+        "behavior"
+      ],
+      "properties": {
+        "limitation_id": {
+          "$ref": "#/$defs/namespacedId"
+        },
+        "topic": {
+          "enum": [
+            "closing_price",
+            "causality",
+            "prediction",
+            "personal_data",
+            "external_data"
+          ]
+        },
+        "message": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "behavior": {
+          "enum": [
+            "refuse_and_explain",
+            "state_insufficient_evidence"
+          ]
+        }
+      }
+    },
+    "assistantCompatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimum_contract_version",
+        "previous_contract_behavior"
+      ],
+      "properties": {
+        "minimum_contract_version": {
+          "const": "2.4.0"
+        },
+        "previous_contract_behavior": {
+          "const": "contract_unavailable"
         }
       }
     },

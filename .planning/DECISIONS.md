@@ -347,3 +347,15 @@ Queda decidido que:
 10. toda afirmación resoluble porta referencias y CT-F rechaza precio real de cierre.
 
 La aprobación no equivale a PASS técnico, merge o despliegue. P5-13 permanece independiente y HUMAN-GATE-B será obligatorio ante `PASS WITH RISKS`.
+
+## D-034 — Contrato 2.4 separa histórico y catálogo semántico
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+P5-01 añade al schema la revisión `2.4.0` con dos índices autoritativos y cerrados: `history` referencia observaciones, hechos y evidencias sin duplicar el modelo; `assistant` publica política, intenciones, guardrails y contrato de respuesta sin precalcular cifras.
+
+Las revisiones 2.0–2.3 prohíben anunciar `history` y conservan `assistant` legacy. La revisión 2.4 hereda escenario, inspector y benchmark, y exige ambos índices F5. El reader admite 2.0–2.4; el runtime territorial permanece 2.1–2.3 hasta P5-06.
+
+P5-01 no modifica writer ni dataset. El cambio del schema produce un drift esperado en su fingerprint dentro del JSON público 2.3. P5-04 es el único propietario autorizado para regenerar el payload 2.4 y cerrar determinismo; actualizar a mano el fingerprint queda prohibido.
