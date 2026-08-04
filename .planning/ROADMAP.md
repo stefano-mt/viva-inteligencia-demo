@@ -145,7 +145,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** comparar por precio, áreas y atributos sin sobrecarga horizontal.
 
-**Estado:** cierre técnico completado en `feat/phase-4-benchmark-comparator`. P4-13A cerró G1 y la repetición independiente P4-13 emitió `PASS` sobre `be05fdc`; no se requiere HUMAN-GATE-B. P4-14 quedó versionada y el PR funcional #13 está abierto como borrador. Evidencia portable, revisión, merge, P4-15 y P4-16 permanecen pendientes; la fase aún no está desplegada.
+**Estado:** `deployed and verified`. El PR funcional #13 y el PR documental post-merge #14 fueron fusionados; P4-15 verificó GitHub Pages con `PASS` y P4-16 persistió el resultado en `main`.
 
 **Contrato implementado:** `2.3.0`, con índice autoritativo `benchmark`; reader compatible con 2.0–2.3 y runtime territorial probado con 2.1/2.2/2.3.
 
@@ -159,7 +159,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Resultado técnico:** HU-DEMO-501–504 PASS; HU-DEMO-505 diferida. Miraflores distingue 69 publicaciones raw, 68 cocientes orientativos y 0 parejas elegibles; CT-A/B/C/D/G/I/P PASS; 8 rutas × 3 viewports, zoom 200%, privacidad, determinismo y recorrido UI-only PASS.
 
-**Ship:** cierre técnico completo; PR funcional, merge humano, Pages y persistencia post-merge pendientes.
+**Ship:** `deployed and verified`.
 
 ---
 
@@ -168,6 +168,10 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 **Historias:** 601–603, 701–703; 603 Should.
 
 **Objetivo:** explicar qué cambió y responder con el mismo escenario y evidencia.
+
+**Estado:** planificación en `feat/phase-5-history-signals-assistant`; HUMAN-GATE-A pendiente. No se ha modificado runtime, writer ni dataset público.
+
+**Contrato propuesto:** `2.4.0`, con índices autoritativos `history` y `assistant`, reader compatible con 2.0–2.4 y degradación explícita en payloads anteriores.
 
 ### Olas
 

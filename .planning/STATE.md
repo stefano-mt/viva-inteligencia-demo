@@ -1,14 +1,14 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-08-03
+**Actualizado:** 2026-08-04
 
 **Milestone:** demo vNext orientada a venta
 
 **Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–3 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado y P4-15 verificó GitHub Pages con `PASS` para `e2c953f`. P4-16 persiste este resultado en una rama y PR documental separados; Fase 4 adquiere el estado oficial `deployed and verified` en `main` cuando un humano fusione ese PR.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en planificación y no ha modificado runtime ni datos públicos.
 
-**Rama activa:** `docs/phase-4-postmerge-report`.
+**Rama activa:** `feat/phase-5-history-signals-assistant`.
 
 ## Baseline vigente
 
@@ -182,18 +182,33 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
 - P4-15: **PASS**; contrato `2.3.0`, CT-C/G/I, benchmark, comparador, quince activos, escritorio, móvil, consola y red verificados en la URL pública.
 - Informe post-merge: [phases/04-benchmark-comparator/POSTMERGE_REPORT.md](phases/04-benchmark-comparator/POSTMERGE_REPORT.md).
-- PR documental P4-16: [#14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14), `OPEN / READY TO MERGE`, pendiente de revisión y merge humano.
+- PR documental P4-16: [#14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14), fusionado por un humano.
+- Merge documental P4-16 en `main`: `47a794ca00b451355a181acf5c20feeee0fdccb4`.
 - Smoke y accesibilidad: 8 rutas × 3 viewports; responsive específico y reflow 200%: PASS.
 - Graphify F4: 3,034 nodos y 5,743 relaciones; sin blocker arquitectónico.
 - HUMAN-GATE-B: no requerido porque el veredicto final es `PASS`.
-- Estado de ship: despliegue técnico verificado con `PASS`; el estado oficial **`deployed and verified`** queda pendiente de revisión y merge humano de P4-16 en `main`.
+- Estado de ship: **`deployed and verified`**.
 - Gap residual de gobernanza: el recorrido comercial de P4-13 fue automatizado. El checker independiente lo aceptó con `PASS`, pero debe realizarse un ensayo humano breve antes de presentar la demo al cliente.
+
+## Fase 5 — planificación vigente
+
+- Contexto: [phases/05-history-signals-assistant/CONTEXT.md](phases/05-history-signals-assistant/CONTEXT.md).
+- Evaluación técnica y de datos: [phases/05-history-signals-assistant/DATA-ASSESSMENT.md](phases/05-history-signals-assistant/DATA-ASSESSMENT.md).
+- UX/UI: [phases/05-history-signals-assistant/UI-SPEC.md](phases/05-history-signals-assistant/UI-SPEC.md).
+- Plan: [phases/05-history-signals-assistant/PLAN.md](phases/05-history-signals-assistant/PLAN.md).
+- Revisión estructural: [phases/05-history-signals-assistant/PLAN_REVIEW.md](phases/05-history-signals-assistant/PLAN_REVIEW.md).
+- Solicitud de aprobación: [phases/05-history-signals-assistant/HUMAN-GATE-A-REQUEST.md](phases/05-history-signals-assistant/HUMAN-GATE-A-REQUEST.md).
+- Historias: HU-DEMO-601–603 y 701–703; HU-DEMO-603 es Should.
+- Casos obligatorios: CT-C/D/E/F/G/I/P.
+- Contrato propuesto: `2.4.0`, histórico y asistente autoritativos, reader 2.0–2.4.
+- Línea base visual: `#activity` mezcla proyectos de otros distritos y prioriza outliers legacy; `#assistant` aún no cita hechos/evidencias.
+- HUMAN-GATE-A: pendiente; no comenzar P5-01.
 
 ## Próxima acción recomendada
 
-1. Revisar el PR documental [#14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14) contra `main`.
-2. Fusionar ese PR solo por acción humana.
-3. Después del merge, Fase 4 queda cerrada en la memoria oficial y puede iniciarse la planificación de Fase 5.
+1. Revisar las decisiones A1–A12 de Fase 5.
+2. Si se aceptan, autorizar HUMAN-GATE-A con la frase indicada.
+3. Registrar la aprobación en P5-00C y ejecutar el baseline portable P5-00D antes de modificar contrato o runtime.
 
 ## Regla para actualizar este archivo
 
