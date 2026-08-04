@@ -169,7 +169,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** explicar qué cambió y responder con el mismo escenario y evidencia.
 
-**Estado:** HUMAN-GATE-A aprobada; P5-00C/P5-00D y P5-01–P5-08 completados. El dataset público 2.4 materializa 36 eventos explicados (31 certificados, 5 revisables), 72 puntos temporales referenciados y 6 exclusiones, con 52 fingerprints y build determinista. El motor puro filtra por escenario, resuelve detalle/evidencia y deriva una agenda de máximo tres filas. Runtime 2.4 y `historyContext` están integrados; `#activity` presenta el cuaderno canónico y una agenda reproducible con origen y navegación accesible. P5-09 es el siguiente paso.
+**Estado:** HUMAN-GATE-A aprobada; P5-00C/P5-00D y P5-01–P5-09 completados. El dataset público 2.4 materializa 36 eventos explicados (31 certificados, 5 revisables), 72 puntos temporales referenciados y 6 exclusiones, con 52 fingerprints y build determinista. El motor histórico filtra por escenario, resuelve detalle/evidencia y deriva una agenda de máximo tres filas. El motor semántico del asistente reconoce las siete familias cerradas, produce seis bloques trazables y rechaza cierre, causalidad, predicción, PII y red sin depender de un proveedor externo. P5-10 es el siguiente paso.
 
 **Contrato propuesto:** `2.4.0`, con índices autoritativos `history` y `assistant`, reader compatible con 2.0–2.4 y degradación explícita en payloads anteriores.
 

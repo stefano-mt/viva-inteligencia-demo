@@ -419,3 +419,15 @@ La agenda de seguimiento consume los tres primeros elementos de `state.historyCo
 Cada acción expone su evento de origen, proyecto, fecha y conteos referenciados, y reutiliza la selección de evidencia del cuaderno. Cuando el motor entrega el fallback sin evento, la acción lleva a los filtros y declara cobertura del escenario como origen. Si la agenda falta, la UI muestra indisponibilidad en vez de fabricar una recomendación.
 
 P5-08 no incorpora lenguaje periódico, urgencia, causa observada ni CTA de decisión. La agenda aparece después de la línea de tiempo para que la acción siga a la comprensión y se presenta como una sola lista vertical, sin aumentar la sobrecarga de cards.
+
+## D-040 — P5-09 usa catálogo cerrado y referencias estructuradas
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+El motor semántico consume el catálogo `assistant` 2.4 y devuelve siempre seis bloques estructurados. Las cifras y prioridades provienen de `scenarioContext`, `benchmarkContext`, `historyContext` y `comparisonModel`; una afirmación cualitativa solo se emite cuando un dossier aporta hecho certificado, evidencia autorizada y proyecto perteneciente al escenario.
+
+Los guardrails tienen precedencia sobre una intención explícita: precio real de cierre, causalidad, predicción, datos personales y solicitudes externas producen rechazo determinista. Una mención a otro distrito se registra, pero nunca cambia territorio, muestra, corte o filtros. Una intención desconocida muestra el catálogo compatible y no invoca un fallback generativo.
+
+El motor permanece local y puro: no usa DOM, reloj, almacenamiento, red, credenciales ni SDK de IA. P5-10 debe consumir este contrato sin duplicar clasificación, cifras o reglas de evidencia en la vista.

@@ -227,12 +227,15 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P5-08: [phases/05-history-signals-assistant/P5-08-PRIORITIZED-AGENDA.md](phases/05-history-signals-assistant/P5-08-PRIORITIZED-AGENDA.md), completado; agenda vertical de máximo tres acciones en el orden del motor, con origen, hechos/evidencias y navegación a la señal.
 - Fallback de agenda: si no hay señales elegibles, `Revisar filtros` enfoca el control canónico; la vista no inventa prioridad, frecuencia o causalidad.
 - Evidencia visual P5-08: 1440×900, 1280×720 y 390×844; E2E, smoke y accesibilidad 8 rutas × 3 viewports PASS.
+- P5-09: [phases/05-history-signals-assistant/P5-09-ASSISTANT-ENGINE.md](phases/05-history-signals-assistant/P5-09-ASSISTANT-ENGINE.md), completado; motor semántico puro sobre las siete intenciones del catálogo 2.4 y seis bloques trazables.
+- Guardrails del asistente: cierre, causalidad, predicción, PII y red se rechazan antes de clasificar; evidencia cualitativa requiere hecho certificado, evidencia autorizada y pertenencia al escenario.
+- Dominio P5-09, gate integral y checker independiente: PASS; determinismo, no mutación, fallback, CT-C/D/E/F/G/I/P, contrato legacy, XSS y ausencia de DOM/reloj/red verificados.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-09: construir el motor semántico puro del asistente sobre el catálogo 2.4.
-2. Resolver intenciones cerradas con cifras y referencias del escenario, sin DOM, reloj o red.
-3. Cerrar CT-F, fallback, XSS y rechazos de precio de cierre/PII antes de implementar la interfaz P5-10.
+1. Ejecutar P5-10: integrar el motor semántico como única fuente de respuestas de `#assistant`.
+2. Renderizar los seis bloques, referencias navegables y preguntas compatibles sin recalcular cifras en la vista.
+3. Verificar consulta no persistente, escape, `aria-live`, foco, estados legacy/insuficiente y responsive antes de P5-11.
 
 ## Regla para actualizar este archivo
 
