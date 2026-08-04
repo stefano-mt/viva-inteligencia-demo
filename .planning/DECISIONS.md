@@ -371,3 +371,15 @@ La policy y el catálogo de P5-02 se materializan exactamente dentro del contrat
 Moneda, cronología, semántica, entidad y evidencia gobiernan calidad; `scenario_project_ids` gobierna visibilidad. CT-G/CT-I cierran por defecto ante evidencia restringida, desconocida o conflictiva. El asistente nunca cambia de territorio por texto y las preguntas de cierre, causalidad o datos personales usan limitaciones deterministas.
 
 P5-02 no modifica writer, validator, runtime ni dataset público. El drift de fingerprint del schema permanece reservado a P5-04. P5-03 puede reutilizar los evaluadores puros para auditar candidatos, pero no puede relajar la policy para aproximarse a 34 eventos.
+
+## D-036 — P5-03 explica 34 preliminares y materializa 36 por policy
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+La auditoría reproduce exactamente los 34 candidatos conservadores documentados, pero esa cifra no es un mínimo ni un máximo contractual. Tras exigir identidad canónica, 31 quedan certificados. La policy aprobada permite conservar cinco cambios extremos con identidad y cronología válidas como `reviewable`, de modo que el resultado materializado es 36.
+
+Se excluyen cinco identidades no resueltas (`3240`, `3385`, `3406`, `4052`, `4139`) y una moneda ambigua (`3313`). Los cinco outliers materializados (`2587`, `3445`, `3540`, `3735`, `3902`) nunca se certifican ni adquieren prioridad por magnitud. Todos los eventos conservan causa nula y vigencia derivada del cutoff.
+
+P5-03 crea IDs de linaje deterministas, no registros públicos: P5-04 debe materializar observaciones, hechos y evidencias, resolver todas las referencias y regenerar el payload 2.4. Si ese gate reduce el conteo, debe explicarlo; queda prohibido relajar identidad, moneda, cronología o evidencia para conservar 36.

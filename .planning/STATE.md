@@ -209,12 +209,14 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Drift controlado: determinismo permanece rojo solo por el fingerprint del schema mientras el dataset público sigue en 2.3; P5-04 es el propietario exclusivo de la regeneración.
 - P5-02: [phases/05-history-signals-assistant/P5-02-POLICY-FIXTURES.md](phases/05-history-signals-assistant/P5-02-POLICY-FIXTURES.md), completado; policy histórica, siete familias del asistente, 8+7 fixtures CT-C/D/E/F/G/I/P y mutaciones fail-closed.
 - P5-02 preservó schema, writer, validator, runtime y JSON público; CT-C quedó modelado como visibilidad territorial, no como defecto de calidad.
+- P5-03: [phases/05-history-signals-assistant/P5-03-MATERIALIZATION-AUDIT.md](phases/05-history-signals-assistant/P5-03-MATERIALIZATION-AUDIT.md), completado; reprodujo 34 preliminares y materializó 36 eventos (31 certificados, 5 revisables) con 6 exclusiones explicadas.
+- P5-03 conserva causas nulas, 36 vigencias `aging`, orden/idempotencia, privacidad y schema 2.4 por evento; writer y JSON público permanecen protegidos.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-03: materializador determinista de histórico y auditoría de los 34 candidatos preliminares.
-2. Mantener writer y dataset público sin cambios hasta P5-04.
-3. No actualizar el fingerprint del schema de forma manual.
+1. Ejecutar P5-04: integrar histórico/asistente al writer, crear referencias, coverage y fingerprints, y regenerar el dataset público 2.4.
+2. Resolver el drift de fingerprint solo mediante el build completo de P5-04.
+3. Repetir determinismo, privacidad y regresiones después de materializar las referencias.
 
 ## Regla para actualizar este archivo
 

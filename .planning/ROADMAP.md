@@ -169,7 +169,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** explicar qué cambió y responder con el mismo escenario y evidencia.
 
-**Estado:** HUMAN-GATE-A aprobada; P5-00C/P5-00D, P5-01 y P5-02 completados. El schema 2.4, la policy histórica, el catálogo de siete familias y los fixtures CT-C/D/E/F/G/I/P están ejecutables; P5-03 es el siguiente paso. Runtime, writer y dataset público permanecen sin cambios.
+**Estado:** HUMAN-GATE-A aprobada; P5-00C/P5-00D y P5-01–P5-03 completados. El materializador reprodujo 34 candidatos preliminares y produjo 36 eventos explicados (31 certificados, 5 revisables) con 6 exclusiones. P5-04 es el siguiente paso; runtime, writer y dataset público permanecen sin cambios.
 
 **Contrato propuesto:** `2.4.0`, con índices autoritativos `history` y `assistant`, reader compatible con 2.0–2.4 y degradación explícita en payloads anteriores.
 
