@@ -10,7 +10,11 @@ import {
   roundHalfAwayFromZero,
 } from "./comparability.js";
 import { buildEvidenceDossier } from "./evidence-inspector.js";
-import { buildBenchmarkContext } from "./benchmark.js";
+import {
+  buildBenchmarkContext,
+  buildComparisonModel,
+} from "./benchmark.js";
+import { buildAssistantResponse } from "./assistant-engine.js";
 import {
   buildHistoryContext,
   normalizeHistoryFilters,
@@ -104,7 +108,9 @@ export const state = {
   compareIncludeTarget: false,
   compareQuery: "",
   assistantInput: "",
+  assistantIntentId: null,
   assistantResponse: null,
+  assistantResponseRevision: 0,
   inspectorProjectId: null,
   inspectorTypologyId: null,
   inspectorEvidenceId: null,
@@ -136,6 +142,10 @@ export function initializeScenarioData(data, options = {}) {
   state.historyContextRevision = 0;
   state.selectedHistoryEventId = null;
   state.compareIncludeTarget = false;
+  state.assistantInput = "";
+  state.assistantIntentId = null;
+  state.assistantResponse = null;
+  state.assistantResponseRevision = 0;
 
   if (!dataValue) {
     scenarioEnvironment = null;
@@ -390,6 +400,13 @@ export function dispatchInspector(action) {
     announcement = "";
     focusIntent = "none";
   }
+  if (
+    changed &&
+    (before.projectId !== after.projectId ||
+      before.typologyId !== after.typologyId)
+  ) {
+    recomputeAssistantResponse();
+  }
   return inspectorTransition({
     changed,
     corrected,
@@ -587,6 +604,7 @@ export function recomputeScenarioContext() {
   };
   recomputeHistoryContext();
   normalizeScenarioSelections();
+  recomputeAssistantResponse();
   return state.scenarioContext;
 }
 
@@ -650,6 +668,63 @@ export function selectHistoryEvent(historyEventId) {
   }
   state.selectedHistoryEventId = requested;
   return true;
+}
+
+export function setAssistantDraft(input = "", intentId = null) {
+  const nextInput = String(input ?? "");
+  const nextIntentId =
+    typeof intentId === "string" && intentId ? intentId : null;
+  const changed =
+    nextInput !== state.assistantInput ||
+    nextIntentId !== state.assistantIntentId;
+  state.assistantInput = nextInput;
+  state.assistantIntentId = nextIntentId;
+  if (changed) state.assistantResponse = null;
+  return {
+    changed,
+    input: state.assistantInput,
+    intentId: state.assistantIntentId,
+  };
+}
+
+export function generateAssistantResponse({
+  input = state.assistantInput,
+  intentId = state.assistantIntentId,
+} = {}) {
+  state.assistantInput = String(input ?? "");
+  state.assistantIntentId =
+    typeof intentId === "string" && intentId ? intentId : null;
+  state.assistantResponse = buildAssistantResponse({
+    data: dataValue,
+    scenarioContext: state.scenarioContext,
+    historyContext: state.historyContext,
+    benchmarkContext: state.benchmarkContext,
+    comparisonModel: currentComparisonModel(),
+    inspectorDossier: currentInspectorDossier(),
+    input: state.assistantInput,
+    intentId: state.assistantIntentId,
+  });
+  state.assistantIntentId = state.assistantResponse.intentId ?? null;
+  state.assistantResponseRevision += 1;
+  return structuredClone(state.assistantResponse);
+}
+
+export function recomputeAssistantResponse() {
+  if (!state.assistantResponse) return null;
+  return generateAssistantResponse();
+}
+
+export function clearAssistantResponse() {
+  const changed = Boolean(
+    state.assistantInput ||
+      state.assistantIntentId ||
+      state.assistantResponse,
+  );
+  state.assistantInput = "";
+  state.assistantIntentId = null;
+  state.assistantResponse = null;
+  if (changed) state.assistantResponseRevision += 1;
+  return changed;
 }
 
 export function canonicalScenarioSearch() {
@@ -756,6 +831,33 @@ function setInspectorCase(inspectorCase) {
 
 function currentInspectorCase() {
   return inspectorRuntime.caseById.get(state.inspectorPreset) ?? null;
+}
+
+function currentInspectorDossier() {
+  const inspectorCase = currentInspectorCase();
+  if (!inspectorRuntime.available || !inspectorCase || !dataValue?.model) {
+    return null;
+  }
+  try {
+    return buildEvidenceDossier({
+      model: dataValue.model,
+      inspector: dataValue.inspector,
+      projectId: inspectorCase.project_id,
+      typologyId: inspectorCase.typology_id,
+    });
+  } catch {
+    return null;
+  }
+}
+
+function currentComparisonModel() {
+  return buildComparisonModel({
+    benchmarkContext: state.benchmarkContext,
+    selectedProjectIds: state.compareProjectIds
+      .map(canonicalIdFromLegacy)
+      .filter(Boolean),
+    includeTargetScenario: Boolean(state.compareIncludeTarget),
+  });
 }
 
 function resolveInspectorCase(value) {

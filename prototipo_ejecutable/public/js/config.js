@@ -17,14 +17,13 @@ export const legacyRoutes = {
 };
 
 export const suggestedQuestions = [
-  "¿Cómo posicionar un proyecto de 2 dormitorios en Miraflores?",
-  "¿Qué proyectos compiten en Santiago De Surco?",
-  "¿Qué distrito tiene mayor presión competitiva?",
-  "¿Qué inmobiliarias dominan Jesus Maria?",
-  "¿Qué proyectos podrían presionar mi campaña?",
-  "¿Qué argumento comercial usar si mi precio está sobre el promedio?",
-  "¿Dónde conviene enfocar una campaña de lanzamiento?",
-  "¿Qué atributos debería destacar frente a competidores?",
+  "¿Cuál es la lectura principal del escenario activo?",
+  "¿Qué precios publicados cambiaron en este escenario?",
+  "¿Qué señal certificada conviene revisar primero?",
+  "¿Qué cobertura y limitaciones tiene la muestra?",
+  "¿Qué atributos están respaldados por evidencia autorizada?",
+  "¿Cómo se comparan los proyectos seleccionados?",
+  "¿Qué preguntas no puede responder esta demo?",
 ];
 
 export const sectionGuides = {
@@ -63,9 +62,9 @@ export const sectionGuides = {
     outcome: "Un checklist accionable antes de activar la campaña.",
   },
   assistant: {
-    purpose: "Transforma una pregunta comercial en una lectura ejecutiva basada en el escenario activo.",
-    steps: ["Elige o redacta una pregunta", "Genera la lectura", "Valida referencias y cautelas"],
-    outcome: "Una recomendación resumida para discusión y toma de decisión.",
+    purpose: "Convierte una pregunta compatible en una lectura trazable del escenario activo, sin inventar datos ni cambiar su alcance.",
+    steps: ["Elige o redacta una pregunta", "Genera la lectura determinista", "Contrasta datos, límites y referencias"],
+    outcome: "Una lectura ejecutiva reproducible con evidencia y siguiente paso.",
   },
   activity: {
     purpose: "Resume cambios del mercado y prepara los temas de la reunión comercial semanal.",

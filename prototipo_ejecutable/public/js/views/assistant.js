@@ -354,91 +354,319 @@ export function renderAssistantResponse(response) {
 }
 
 export function renderAssistant() {
-  const response = buildScenarioAssistantResponse({
-    data: state.data,
-    scenarioContext: state.scenarioContext,
-    input: state.assistantInput,
-  });
+  return renderAssistantWorkbench();
+}
 
+function renderAssistantWorkbench() {
+  const questions = assistantQuestions();
+  const maximumCharacters = Number(
+    state.data?.assistant?.policy?.maximum_input_characters ?? 500,
+  );
+  const response = state.assistantResponse;
   return `
     <section
-      class="assistant-layout"
+      class="assistant-workbench"
       data-scenario-consumer="assistant"
+      data-assistant-status="${escapeAttr(response?.status ?? "idle")}"
     >
-      <section class="panel">
-        <div class="panel-header">
+      <section class="assistant-intro panel">
+        <div class="assistant-intro__copy">
+          <span class="assistant-mode">Lectura determinista · sin IA generativa</span>
+          <h2>Convierte una pregunta en una lectura trazable</h2>
+          <p>
+            El asistente usa el mismo escenario, benchmark, histórico,
+            comparador e inspector de la demo. No busca datos externos ni
+            cambia el alcance mientras responde.
+          </p>
+          ${
+            (state.scenarioContext?.comparable_project_ids?.length ?? 0) === 0
+              ? '<p class="assistant-availability-note">Sin comparables elegibles: la lectura explicará la cobertura insuficiente y no inventará referencias.</p>'
+              : ""
+          }
+        </div>
+        <dl class="assistant-scenario" aria-label="Escenario usado por el asistente">
+          <div><dt>Escenario</dt><dd>${escapeHtml(state.scenarioContext?.scope_text ?? "No disponible")}</dd></div>
+          <div><dt>Comparables</dt><dd>${formatNumber(state.scenarioContext?.comparable_project_ids?.length ?? 0)}</dd></div>
+          <div><dt>Corte</dt><dd>${escapeHtml(formatAssistantDate(state.scenarioContext?.cutoff_at))}</dd></div>
+        </dl>
+      </section>
+
+      <section class="assistant-query panel" aria-labelledby="assistant-query-title">
+        <div class="assistant-question-bank">
           <div>
-            <h2>Preguntas de estrategia</h2>
-            <p>
-              Explora la evidencia del escenario activo sin cambiar su
-              distrito, alcance o muestra.
-            </p>
+            <p class="assistant-step">1 · Elige una pregunta compatible</p>
+            <h2 id="assistant-query-title">¿Qué necesitas leer?</h2>
+            <p>Parte de una pregunta validada o escribe una consulta breve sobre el escenario activo.</p>
           </div>
-          ${componentHelp(
-            "Preguntas de estrategia",
-            "Elige una pregunta sugerida o redacta una propia. La respuesta no cambia el escenario activo ni incorpora proyectos ajenos a sus comparables.",
-          )}
-        </div>
-        <div class="suggestion-list">
-          ${suggestedQuestions
-            .slice(0, 4)
-            .map(
-              (question) => `
-                <button
-                  class="suggestion-button ${
-                    state.assistantInput === question ? "active" : ""
-                  }"
-                  type="button"
-                  data-suggest="${escapeAttr(question)}"
-                >
-                  ${escapeHtml(question)}
-                </button>
-              `,
-            )
-            .join("")}
-        </div>
-        <details class="more-suggestions">
-          <summary>
-            Ver ${formatNumber(
-              Math.max(suggestedQuestions.length - 4, 0),
-            )} preguntas adicionales
-          </summary>
-          <div class="suggestion-list">
-            ${suggestedQuestions
-              .slice(4)
-              .map(
-                (question) => `
-                  <button
-                    class="suggestion-button ${
-                      state.assistantInput === question
-                        ? "active"
-                        : ""
-                    }"
-                    type="button"
-                    data-suggest="${escapeAttr(question)}"
-                  >
-                    ${escapeHtml(question)}
-                  </button>
-                `,
-              )
-              .join("")}
+          <div class="assistant-suggestions">
+            ${questions.slice(0, 3).map(renderAssistantQuestion).join("")}
           </div>
-        </details>
-        <form class="assistant-composer" id="assistant-form">
-          <label class="field-control" for="assistant-input">
-            <span>Pregunta comercial</span>
-            <textarea
-              id="assistant-input"
-              placeholder="Ej. ¿Qué evidencia de precio tiene este escenario?"
-            >${escapeHtml(state.assistantInput)}</textarea>
-          </label>
-          <button class="primary-button" type="submit">
-            Generar lectura
-          </button>
+          ${renderAdditionalQuestions(questions.slice(3))}
+        </div>
+
+        <form class="assistant-composer" id="assistant-form" novalidate>
+          <div class="assistant-composer__heading">
+            <p class="assistant-step">2 · Formula la consulta</p>
+            <h2>Pregunta comercial</h2>
+          </div>
+          <label for="assistant-input">Escribe una pregunta sobre el escenario activo</label>
+          <textarea
+            id="assistant-input"
+            name="assistant-input"
+            rows="5"
+            maxlength="${maximumCharacters}"
+            aria-describedby="assistant-input-help assistant-input-count assistant-input-error"
+            placeholder="Ej. ¿Qué precios publicados cambiaron en este escenario?"
+          >${escapeHtml(state.assistantInput)}</textarea>
+          <div class="assistant-composer__meta">
+            <p id="assistant-input-help">La consulta no se guarda. Usa Ctrl + Enter para generar.</p>
+            <p id="assistant-input-count" aria-live="off">${formatNumber(state.assistantInput.length)} de ${formatNumber(maximumCharacters)} caracteres</p>
+          </div>
+          <p class="assistant-input-error" id="assistant-input-error" hidden></p>
+          <div class="assistant-composer__actions">
+            <button class="primary-button assistant-submit" type="submit">Generar lectura</button>
+            ${response ? '<button class="secondary-button" type="button" data-assistant-clear>Nueva pregunta</button>' : ""}
+          </div>
         </form>
       </section>
 
-      ${renderAssistantResponse(response)}
+      ${response ? renderTraceableAssistantResponse(response) : renderAssistantEmptyState()}
+      <p class="sr-only" id="assistant-live" aria-live="polite" aria-atomic="true"></p>
     </section>
   `;
+}
+
+function assistantQuestions() {
+  const catalog = state.data?.assistant?.intents;
+  if (Array.isArray(catalog) && catalog.length) {
+    return catalog.flatMap((intent) =>
+      (intent.suggested_questions ?? []).map((question) => ({
+        intentId: intent.intent_id,
+        label: intent.label,
+        question,
+      })),
+    );
+  }
+  return suggestedQuestions.map((question) => ({
+    intentId: null,
+    label: "Pregunta compatible",
+    question,
+  }));
+}
+
+function renderAssistantQuestion(entry) {
+  const active =
+    state.assistantInput === entry.question ||
+    state.assistantIntentId === entry.intentId;
+  return `
+    <button
+      class="assistant-question${active ? " is-active" : ""}"
+      type="button"
+      data-assistant-question="${escapeAttr(entry.question)}"
+      data-assistant-intent="${escapeAttr(entry.intentId ?? "")}"
+      aria-pressed="${active ? "true" : "false"}"
+    >
+      <span>${escapeHtml(entry.label)}</span>
+      ${escapeHtml(entry.question)}
+    </button>
+  `;
+}
+
+function renderAdditionalQuestions(questions) {
+  if (!questions.length) return "";
+  return `
+    <details class="assistant-more">
+      <summary>Ver preguntas compatibles <span>${formatNumber(questions.length)} más</span></summary>
+      <div class="assistant-suggestions assistant-suggestions--more">
+        ${questions.map(renderAssistantQuestion).join("")}
+      </div>
+    </details>
+  `;
+}
+
+function renderAssistantEmptyState() {
+  return `
+    <section class="assistant-empty panel" aria-labelledby="assistant-empty-title">
+      <div class="assistant-empty__marker" aria-hidden="true">↳</div>
+      <div>
+        <p class="assistant-step">3 · Contrasta la lectura</p>
+        <h2 id="assistant-empty-title">La respuesta aparecerá aquí</h2>
+        <p>Verás una respuesta breve, los datos usados, la interpretación, los límites, las referencias navegables y un siguiente paso.</p>
+      </div>
+    </section>
+  `;
+}
+
+export function renderTraceableAssistantResponse(response) {
+  const meta = assistantStatusMeta(response.status);
+  return `
+    <section
+      class="assistant-response panel assistant-response--${escapeAttr(meta.tone)}"
+      aria-labelledby="assistant-response-title"
+      data-assistant-response="${escapeAttr(response.status)}"
+    >
+      <header class="assistant-response__header">
+        <div><p class="assistant-step">3 · Lectura trazable</p><h2 id="assistant-response-title" tabindex="-1">${escapeHtml(meta.title)}</h2></div>
+        <span class="assistant-response__status">${escapeHtml(meta.label)}</span>
+      </header>
+      <div class="assistant-response__context">
+        <span>${escapeHtml(response.scenario?.scopeText ?? "Escenario no disponible")}</span>
+        <span>${formatNumber(response.scenario?.comparableProjectCount ?? 0)} comparables</span>
+        <span>Respuesta reproducible</span>
+      </div>
+      <div class="assistant-ledger">
+        ${(response.blocks ?? []).map(renderAssistantBlock).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderAssistantBlock(block, index) {
+  return `
+    <section class="assistant-block assistant-block--${escapeAttr(block.type)}" data-assistant-block="${escapeAttr(block.type)}" aria-labelledby="assistant-block-${escapeAttr(block.type)}">
+      <div class="assistant-block__marker" aria-hidden="true">${index + 1}</div>
+      <div class="assistant-block__body">
+        <h3 id="assistant-block-${escapeAttr(block.type)}">${escapeHtml(block.title)}</h3>
+        ${renderAssistantItems(block)}
+      </div>
+    </section>
+  `;
+}
+
+function renderAssistantItems(block) {
+  const items = Array.isArray(block.items) ? block.items : [];
+  if (!items.length) return '<p class="assistant-empty-line">Sin datos elegibles para este bloque.</p>';
+  if (block.type === "references") {
+    return renderAssistantReferences(items);
+  }
+  if (block.type === "next_step") {
+    return `<div class="assistant-next-actions">${items.map(renderAssistantAction).join("")}</div>`;
+  }
+  if (block.type === "data") {
+    return `<div class="assistant-data-list">${items.map(renderAssistantDataItem).join("")}</div>`;
+  }
+  return `<div class="assistant-copy-list">${items
+    .map((item) => `<p class="assistant-copy assistant-copy--${escapeAttr(item.tone ?? "neutral")}">${escapeHtml(item.text ?? item.label ?? "")}</p>`)
+    .join("")}</div>`;
+}
+
+function renderAssistantDataItem(item) {
+  if (item.kind === "history_change") {
+    return `
+      <article class="assistant-change-row">
+        <div><strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(assistantQualityLabel(item.status))} · ${escapeHtml(assistantValidityLabel(item.validity))}</span></div>
+        <dl>
+          <div><dt>Anterior</dt><dd>${escapeHtml(formatAssistantValue(item.previousValue, item))}</dd></div>
+          <div><dt>Publicado</dt><dd>${escapeHtml(formatAssistantValue(item.currentValue, item))}</dd></div>
+          <div><dt>Variación</dt><dd>${escapeHtml(formatSignedPercent(item.deltaPercent))}</dd></div>
+        </dl>
+      </article>
+    `;
+  }
+  if (item.kind === "agenda_item") {
+    return `<article class="assistant-agenda-row"><span class="assistant-agenda-row__position">${formatNumber(item.position)}</span><div><strong>${escapeHtml(item.label)}</strong><p>${escapeHtml(item.description ?? "")}</p></div></article>`;
+  }
+  if (item.kind === "comparison_row") {
+    return `<article class="assistant-comparison-row"><strong>${escapeHtml(item.label)}</strong><div>${(item.values ?? []).map((value) => `<span class="assistant-comparison-value">${escapeHtml(assistantProjectLabel(value.projectId))} · ${escapeHtml(formatAssistantValue(value.value, value))}</span>`).join("")}</div></article>`;
+  }
+  return `
+    <div class="assistant-data-row assistant-data-row--${escapeAttr(item.kind ?? "value")}">
+      <span>${escapeHtml(item.label ?? "Dato")}</span>
+      <strong>${escapeHtml(formatAssistantValue(item.value ?? item.originalValue, item))}</strong>
+    </div>
+  `;
+}
+
+function renderAssistantReference(reference) {
+  return `
+    <li><button type="button" data-assistant-reference="${escapeAttr(reference.id)}" data-assistant-reference-type="${escapeAttr(reference.type)}" data-assistant-reference-route="${escapeAttr(reference.route ?? "dashboard")}" data-assistant-project="${escapeAttr(reference.projectId ?? "")}"${reference.projectId ? ` data-canonical-project-id="${escapeAttr(reference.projectId)}"` : ""}>
+      <span>${escapeHtml(assistantReferenceType(reference.type))}</span>
+      <strong>${escapeHtml(assistantReferenceLabel(reference))}</strong>
+      <small>${escapeHtml(assistantQualityLabel(reference.status))} · Abrir</small>
+    </button></li>
+  `;
+}
+
+function renderAssistantReferences(items) {
+  const visible = items.slice(0, 5);
+  const additional = items.slice(5);
+  return `
+    <ul class="assistant-reference-list">${visible.map(renderAssistantReference).join("")}</ul>
+    ${
+      additional.length
+        ? `
+          <details class="assistant-reference-more">
+            <summary>Ver ${formatNumber(additional.length)} referencias adicionales</summary>
+            <ul class="assistant-reference-list">${additional.map(renderAssistantReference).join("")}</ul>
+          </details>
+        `
+        : ""
+    }
+  `;
+}
+
+function renderAssistantAction(item) {
+  return `<button class="assistant-next-action" type="button" data-assistant-route="${escapeAttr(item.route ?? "dashboard")}" data-assistant-detail="${escapeAttr(item.detail ?? "")}"><span>Siguiente verificación</span><strong>${escapeHtml(item.label)}</strong></button>`;
+}
+
+function assistantStatusMeta(status) {
+  return {
+    ready: { tone: "ready", title: "Lectura del escenario", label: "Lectura lista" },
+    insufficient: { tone: "caution", title: "Lectura con evidencia insuficiente", label: "Revisar cobertura" },
+    refused: { tone: "caution", title: "Límite de la demo", label: "Límite aplicado" },
+    unknown_intent: { tone: "caution", title: "Pregunta fuera del catálogo", label: "Reformula la consulta" },
+    invalid_input: { tone: "caution", title: "La pregunta necesita ajuste", label: "Revisa el texto" },
+    contract_unavailable: { tone: "unavailable", title: "Asistente no disponible", label: "Contrato no compatible" },
+  }[status] ?? { tone: "unavailable", title: "Lectura no disponible", label: "Sin resultado" };
+}
+
+function formatAssistantValue(value, item = {}) {
+  if (value === null || value === undefined || value === "") return "No disponible";
+  if (typeof value !== "number") return String(value);
+  if (item.currency === "PEN" || item.unit === "PEN") {
+    return new Intl.NumberFormat("es-PE", { style: "currency", currency: "PEN", maximumFractionDigits: 0 }).format(value);
+  }
+  const suffix = item.unit && item.unit !== "count" ? ` ${item.unit}` : "";
+  return `${formatNumber(value)}${suffix}`;
+}
+
+function formatSignedPercent(value) {
+  if (!Number.isFinite(Number(value))) return "No disponible";
+  const numeric = Number(value);
+  return `${numeric > 0 ? "+" : ""}${new Intl.NumberFormat("es-PE", { maximumFractionDigits: 2 }).format(numeric)}%`;
+}
+
+function formatAssistantDate(value) {
+  if (!value) return "No disponible";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "No disponible";
+  return new Intl.DateTimeFormat("es-PE", { day: "2-digit", month: "short", year: "numeric", timeZone: "UTC" }).format(date);
+}
+
+function assistantReferenceType(type) {
+  return { scenario: "Escenario", history_event: "Señal histórica", fact: "Hecho", evidence: "Evidencia" }[type] ?? "Referencia";
+}
+
+function assistantReferenceLabel(reference) {
+  if (reference.type !== "history_event") return reference.label;
+  const [label, timestamp] = String(reference.label ?? "").split(" · ");
+  return timestamp
+    ? `${label} · ${formatAssistantDate(timestamp)}`
+    : String(reference.label ?? "");
+}
+
+function assistantProjectLabel(projectId) {
+  return (
+    state.benchmarkContext?.projectSummaries?.find(
+      ({ projectId: candidate }) => candidate === projectId,
+    )?.name ?? "Proyecto comparable"
+  );
+}
+
+function assistantQualityLabel(value) {
+  return { valid: "Válido", certified: "Certificado", available: "Disponible", reviewable: "Por revisar", insufficient: "Insuficiente", restricted: "Restringido" }[value] ?? String(value ?? "Sin estado");
+}
+
+function assistantValidityLabel(value) {
+  return { current: "Vigente", aging: "En seguimiento", historical: "Histórico", unknown: "Vigencia no determinada" }[value] ?? String(value ?? "Vigencia no determinada");
 }

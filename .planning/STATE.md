@@ -6,7 +6,7 @@
 
 **Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-08 están completos. P5-08 incorporó una agenda reproducible de máximo tres acciones con procedencia y navegación accesible.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-10 están completos. P5-10 integró el motor semántico como fuente de runtime y construyó la interfaz trazable del asistente.
 
 **Rama activa:** `feat/phase-5-history-signals-assistant`.
 
@@ -230,12 +230,17 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P5-09: [phases/05-history-signals-assistant/P5-09-ASSISTANT-ENGINE.md](phases/05-history-signals-assistant/P5-09-ASSISTANT-ENGINE.md), completado; motor semántico puro sobre las siete intenciones del catálogo 2.4 y seis bloques trazables.
 - Guardrails del asistente: cierre, causalidad, predicción, PII y red se rechazan antes de clasificar; evidencia cualitativa requiere hecho certificado, evidencia autorizada y pertenencia al escenario.
 - Dominio P5-09, gate integral y checker independiente: PASS; determinismo, no mutación, fallback, CT-C/D/E/F/G/I/P, contrato legacy, XSS y ausencia de DOM/reloj/red verificados.
+- P5-10: [phases/05-history-signals-assistant/P5-10-ASSISTANT-UI.md](phases/05-history-signals-assistant/P5-10-ASSISTANT-UI.md), completado; preguntas compatibles, editor seguro, seis bloques verticales, referencias navegables y estado inicial explícito.
+- La consulta del asistente vive solo en memoria: no se guarda, no entra en la URL y no realiza solicitudes externas; Enter inserta línea y Ctrl+Enter genera.
+- Accesibilidad y densidad P5-10: escenario y modo visibles, `aria-live`, foco en resultado, cinco referencias iniciales con divulgación progresiva y evidencia 1440×900/390×844.
+- Graphify P5-10: 3,425 nodos y 6,536 relaciones; confirmó el recorrido vista → controlador → estado → motor sin hub nuevo bloqueante.
+- Checker independiente P5-10: `/root/p5_10_checker`, veredicto final `PASS` tras corregir y repetir los recorridos de reclasificación y navegación `benchmark`/`assistant`.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-10: integrar el motor semántico como única fuente de respuestas de `#assistant`.
-2. Renderizar los seis bloques, referencias navegables y preguntas compatibles sin recalcular cifras en la vista.
-3. Verificar consulta no persistente, escape, `aria-live`, foco, estados legacy/insuficiente y responsive antes de P5-11.
+1. Ejecutar P5-11: integrar las pruebas nuevas al manifiesto y demostrar CT-C/D/E/F/G/I/P de extremo a extremo.
+2. Cubrir pregunta → respuesta → evidencia, rechazo de cierre, contrato 2.3, evidencia restringida y escenario sin eventos.
+3. Preservar las ocho rutas antes del gate responsive específico de P5-12.
 
 ## Regla para actualizar este archivo
 

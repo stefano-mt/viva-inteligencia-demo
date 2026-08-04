@@ -325,6 +325,11 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     ["assistant", "assistant"],
   ]) {
     await openPath(page, baseUrl, pathForRoute(descriptor.canonical_path, routeId));
+    if (routeId === "assistant") {
+      await page.locator(".assistant-question").first().click();
+      await page.locator("#assistant-input").press("Control+Enter");
+      await page.locator('[data-assistant-response="ready"]').waitFor();
+    }
     await assertCanonicalIds(page, consumer, descriptor.expected.consumer_project_ids[consumer]);
   }
   await openPath(page, baseUrl, pathForRoute(descriptor.canonical_path, "compare"));
@@ -359,6 +364,11 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     ["assistant", "assistant"],
   ]) {
     await openPath(page, baseUrl, `/#${routeId}`);
+    if (routeId === "assistant") {
+      await page.locator(".assistant-question").first().click();
+      await page.locator("#assistant-input").press("Control+Enter");
+      await page.locator('[data-assistant-response="ready"]').waitFor();
+    }
     const referenceIds = await uniqueAttributeValues(
       page.locator(`[data-scenario-consumer="${consumer}"] [data-canonical-project-id]`),
       "data-canonical-project-id",
