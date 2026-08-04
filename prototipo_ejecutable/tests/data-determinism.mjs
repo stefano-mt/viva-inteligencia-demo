@@ -50,7 +50,7 @@ assert.equal(first.geoJsonSerialized, second.geoJsonSerialized);
 assert.equal(first.geoJsonSha256, second.geoJsonSha256);
 assert.equal(first.coverageReportSerialized, second.coverageReportSerialized);
 assert.equal(first.coverageReportSha256, second.coverageReportSha256);
-assert.equal(first.payload.metadata.contract_version, "2.3.0");
+assert.equal(first.payload.metadata.contract_version, "2.4.0");
 assert.ok(
   Buffer.byteLength(first.serialized, "utf8") < 10_000_000,
   "the public JSON must remain below the approved 10 MB limit"
@@ -110,8 +110,8 @@ assert.deepEqual(
   requiredInputPaths,
   "every required input must be fingerprinted once"
 );
-assert.equal(requiredInputPaths.length, 50);
-assert.equal(fingerprintByPath.size, 50);
+assert.equal(requiredInputPaths.length, 52);
+assert.equal(fingerprintByPath.size, 52);
 for (const logicalPath of requiredInputPaths) {
   const content = await fs.readFile(
     path.join(repositoryRoot, ...logicalPath.split("/"))
@@ -278,5 +278,5 @@ try {
 
 console.log(
   `Determinism OK: JSON ${first.sha256}, report ${first.coverageReportSha256}, ` +
-    `GeoJSON ${first.geoJsonSha256}, 50 sorted text/binary inputs.`
+    `GeoJSON ${first.geoJsonSha256}, 52 sorted text/binary inputs.`
 );

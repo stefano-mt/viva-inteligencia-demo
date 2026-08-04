@@ -6,7 +6,7 @@
 
 **Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución de datos; P5-01/P5-02 están completos y no han modificado runtime ni datos públicos.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución de datos; P5-01–P5-04 están completos. P5-04 publicó el contrato 2.4 determinista en la rama, sin modificar runtime ni vistas.
 
 **Rama activa:** `feat/phase-5-history-signals-assistant`.
 
@@ -211,12 +211,16 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P5-02 preservó schema, writer, validator, runtime y JSON público; CT-C quedó modelado como visibilidad territorial, no como defecto de calidad.
 - P5-03: [phases/05-history-signals-assistant/P5-03-MATERIALIZATION-AUDIT.md](phases/05-history-signals-assistant/P5-03-MATERIALIZATION-AUDIT.md), completado; reprodujo 34 preliminares y materializó 36 eventos (31 certificados, 5 revisables) con 6 exclusiones explicadas.
 - P5-03 conserva causas nulas, 36 vigencias `aging`, orden/idempotencia, privacidad y schema 2.4 por evento; writer y JSON público permanecen protegidos.
+- P5-04: [phases/05-history-signals-assistant/P5-04-PUBLIC-DATASET.md](phases/05-history-signals-assistant/P5-04-PUBLIC-DATASET.md), completado; writer y JSON público ahora usan contrato `2.4.0`.
+- Histórico público: 36 eventos, 31 certificados, 5 revisables, 6 exclusiones; 72 observaciones, 72 hechos, 72 evidencias y un documento de snapshot con referencias válidas.
+- Dataset 2.4: SHA-256 `20d44245c956a198c8621b3f544115387037b73cc462e50f63a5ce6d61fb4a37`; 52 fingerprints; reporte de cobertura SHA-256 `639b613aff89f9605c3dcc74a7914700dfa89fb84ababe70910fc25c3ba81864`.
+- Gate integral temporal: `test:architecture` se detiene porque `scenario.js` aún no adopta 2.4; P5-06 es su propietario aprobado. Los gates de writer, contrato, datos, referencias, privacidad, determinismo, Inspector y Benchmark están verdes.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-04: integrar histórico/asistente al writer, crear referencias, coverage y fingerprints, y regenerar el dataset público 2.4.
-2. Resolver el drift de fingerprint solo mediante el build completo de P5-04.
-3. Repetir determinismo, privacidad y regresiones después de materializar las referencias.
+1. Ejecutar P5-05: construir el motor puro de histórico y señales sobre `payload.history` y `scenarioContext`.
+2. Preservar el orden policy-first y excluir revisables de la prioridad certificada.
+3. Mantener runtime y vistas fuera del writer; la integración de estado corresponde a P5-06.
 
 ## Regla para actualizar este archivo
 

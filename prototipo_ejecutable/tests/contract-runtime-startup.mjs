@@ -93,7 +93,12 @@ const payloads = new Map();
 for (const contractVersion of ["2.1.0", "2.2.0", "2.3.0"]) {
   const payload = structuredClone(data);
   payload.metadata.contract_version = contractVersion;
-  if (contractVersion === "2.3.0") payload.benchmark = minimalBenchmark();
+  delete payload.history;
+  if (contractVersion === "2.3.0") {
+    payload.benchmark = minimalBenchmark();
+  } else {
+    delete payload.benchmark;
+  }
   payloads.set(contractVersion, payload);
   assert.deepEqual(
     validateRootDocument(payload, { schema, assetExists }),

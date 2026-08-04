@@ -37,15 +37,15 @@ const logicalBytes = (value) =>
 const logicalDataBytes = logicalBytes(dataBytes);
 const logicalBoundaryBytes = logicalBytes(boundaryBytes);
 
-assert.equal(data.metadata.contract_version, "2.3.0");
+assert.equal(data.metadata.contract_version, "2.4.0");
 assert.equal(data.metadata.dataset_id, "dataset:viva-platform-demo-2026-07-28");
 assert.equal(data.metadata.generated_at, "2026-07-28T01:24:28Z");
 assert.equal(data.metadata.cutoff_at, "2026-07-28T01:24:28Z");
-assert.equal(data.metadata.input_fingerprints.length, 50);
+assert.equal(data.metadata.input_fingerprints.length, 52);
 const fingerprintPaths = data.metadata.input_fingerprints.map(
   (fingerprint) => fingerprint.path
 );
-assert.equal(new Set(fingerprintPaths).size, 50);
+assert.equal(new Set(fingerprintPaths).size, 52);
 assert.deepEqual(fingerprintPaths, [...fingerprintPaths].sort());
 assert.equal(
   fingerprintPaths.filter((logicalPath) => logicalPath.endsWith(".webp"))
@@ -77,10 +77,10 @@ assert.deepEqual(
   {
     sources: 10,
     typologies: 11,
-    observations: 427,
-    facts: 4021,
-    documents: 19,
-    evidence: 19,
+    observations: 499,
+    facts: 4093,
+    documents: 20,
+    evidence: 91,
     issues: 10,
     events: 3
   }
@@ -225,8 +225,8 @@ assert.equal(
   hash(logicalDataBytes),
   coverageReport.source_artifact.sha256
 );
-assert.equal(coverageReport.source_artifact.contract_version, "2.3.0");
-assert.equal(coverageReport.derivation.input_fingerprint_count, 50);
+assert.equal(coverageReport.source_artifact.contract_version, "2.4.0");
+assert.equal(coverageReport.derivation.input_fingerprint_count, 52);
 assert.equal(
   logicalDataBytes.length,
   coverageReport.source_artifact.byte_length
@@ -267,6 +267,7 @@ const requiredUpperSections = [
   "matching",
   "coverage",
   "quality",
+  "history",
   "assistant",
   "pipeline",
   "deployment"

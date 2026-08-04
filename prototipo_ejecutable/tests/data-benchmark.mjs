@@ -70,21 +70,21 @@ assert.equal(
   "the opt-in materializer must not break the frozen 2.2 regression harness"
 );
 assert.equal(legacyBuilt.payload.benchmark, undefined);
-assert.equal(payload.metadata.contract_version, "2.3.0");
-assert.equal(built.serialized, rebuilt.serialized, "two 2.3 builds must be byte-identical");
+assert.equal(payload.metadata.contract_version, "2.4.0");
+assert.equal(built.serialized, rebuilt.serialized, "two 2.4 builds must be byte-identical");
 assert.equal(built.sha256, rebuilt.sha256);
 assert.equal(
   built.coverageReport.phase_gaps.some(
     ({ gap_id: gapId }) => gapId === "GAP-F4-BENCHMARK"
   ),
   false,
-  "the materialized 2.3 build must close GAP-F4-BENCHMARK"
+  "the materialized 2.4 build must keep GAP-F4-BENCHMARK closed"
 );
 assert.equal(built.coverageReport.benchmark_coverage.indexed_project_count, 397);
 assert.deepEqual(
   validateRootDocument(payload, { schema, assetExists }),
   [],
-  "the materialized 2.3 payload must pass the production reader"
+  "the materialized 2.4 payload must pass the production reader"
 );
 assert.ok(
   built.inputPaths.includes(policy.source.snapshot_path) &&
