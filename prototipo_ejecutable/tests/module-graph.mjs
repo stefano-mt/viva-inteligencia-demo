@@ -45,6 +45,7 @@ const expectedModules = [
   "controller.js",
   "domain.js",
   "evidence-inspector.js",
+  "history.js",
   "navigation.js",
   "scenario.js",
   "state.js",
@@ -493,10 +494,17 @@ applyScenarioProduct(
 );
 assert.equal(state.scenario.target_area_m2, 90);
 const beforeBackRevision = state.scenarioContextRevision;
+const beforeBackHistoryRevision = state.historyContextRevision;
 setFakeLocation("https://demo.test/?area=80&sv=1#dashboard");
 const beforeBackReplaceCount = replaceStateCount;
 window.dispatchEvent({ type: "popstate" });
 assert.equal(state.scenarioContextRevision, beforeBackRevision + 1);
+assert.equal(state.historyContextRevision, beforeBackHistoryRevision + 1);
+assert.equal(
+  state.historyContext.scenario_revision,
+  state.scenarioContextRevision,
+  "Back recompone histórico con la misma revisión territorial",
+);
 assert.equal(state.scenario.target_area_m2, scenarioA.area);
 assert.equal(fakeLocation.search, scenarioA.search);
 assert.equal(
@@ -507,12 +515,24 @@ assert.equal(
 assert.equal(historyRenderCount, 1);
 
 const beforeHashRevision = state.scenarioContextRevision;
+const beforeHashHistoryRevision = state.historyContextRevision;
+const beforeHashHistoryContext = state.historyContext;
 setFakeLocation(`${fakeLocation.pathname}${fakeLocation.search}#market`);
 window.dispatchEvent({ type: "hashchange" });
 assert.equal(
   state.scenarioContextRevision,
   beforeHashRevision,
   "hashchange solo navega y no recompone el escenario",
+);
+assert.equal(
+  state.historyContextRevision,
+  beforeHashHistoryRevision,
+  "hashchange conserva el histórico porque el escenario no cambió",
+);
+assert.strictEqual(
+  state.historyContext,
+  beforeHashHistoryContext,
+  "navegar entre rutas conserva la misma derivación histórica",
 );
 delete globalThis.window;
 delete globalThis.document;

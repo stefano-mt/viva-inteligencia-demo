@@ -195,8 +195,8 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(publicMetadata.dataset_id, descriptor.dataset_id, "Dataset CT-C inesperado");
   assert.equal(
     publicMetadata.contract_version,
-    "2.3.0",
-    "P4 debe conservar el contrato público 2.3 durante CT-C",
+    "2.4.0",
+    "P5 debe conservar el contrato público 2.4 durante CT-C",
   );
   assert.equal(
     descriptor.contract_version,

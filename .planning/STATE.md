@@ -6,7 +6,7 @@
 
 **Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-05 están completos. P5-05 añadió el motor puro de histórico, filtros, detalle y agenda sin modificar runtime ni vistas.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-06 están completos. P5-06 adoptó el contrato 2.4 en runtime e integró el histórico como estado derivado sin modificar vistas.
 
 **Rama activa:** `feat/phase-5-history-signals-assistant`.
 
@@ -214,16 +214,19 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P5-04: [phases/05-history-signals-assistant/P5-04-PUBLIC-DATASET.md](phases/05-history-signals-assistant/P5-04-PUBLIC-DATASET.md), completado; writer y JSON público ahora usan contrato `2.4.0`.
 - Histórico público: 36 eventos, 31 certificados, 5 revisables, 6 exclusiones; 72 observaciones, 72 hechos, 72 evidencias y un documento de snapshot con referencias válidas.
 - Dataset 2.4: SHA-256 `20d44245c956a198c8621b3f544115387037b73cc462e50f63a5ce6d61fb4a37`; 52 fingerprints; reporte de cobertura SHA-256 `639b613aff89f9605c3dcc74a7914700dfa89fb84ababe70910fc25c3ba81864`.
-- Gate integral temporal: `test:architecture` se detiene porque `scenario.js` aún no adopta 2.4; P5-06 es su propietario aprobado. Los gates de writer, contrato, datos, referencias, privacidad, determinismo, Inspector y Benchmark están verdes.
 - P5-05: [phases/05-history-signals-assistant/P5-05-HISTORY-DOMAIN.md](phases/05-history-signals-assistant/P5-05-HISTORY-DOMAIN.md), completado; motor puro sobre `payload.history` + `scenarioContext`, filtros locales, detalle referenciado, vigencia por cutoff y agenda de máximo tres filas.
 - CT-C/E/G/I de dominio: PASS; 36 señales completas, orden calidad-primero, base cero sin infinito, evidencia restringida fail-closed y Miraflores limitado a los 85 comparables.
-- El gate arquitectónico continúa rojo únicamente en la adopción 2.4 de `scenario.js`; P5-06 conserva la propiedad de ese cambio.
+- P5-06: [phases/05-history-signals-assistant/P5-06-STATE-INTEGRATION.md](phases/05-history-signals-assistant/P5-06-STATE-INTEGRATION.md), completado; runtime territorial compatible con 2.1–2.4 e histórico derivado desde el escenario canónico.
+- Estado histórico local: filtros y selección no mutan escenario ni payload; distrito, alcance y reset recomponen una vez y eliminan selecciones obsoletas.
+- Compatibilidad: 2.3 conserva Benchmark y degrada histórico explícitamente; 2.4 habilita Benchmark e histórico sin cambiar la semántica de elegibilidad.
+- Gate integral: `npm.cmd run verify` PASS, incluidas ocho rutas × tres viewports, E2E, accesibilidad, privacidad y determinismo.
+- El gate arquitectónico está verde tras P5-06; los hashes del JSON, cobertura y GeoJSON permanecen sin cambios.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-06: adoptar contrato 2.4 en runtime e integrar `historyContext` como estado derivado.
-2. Reutilizar `buildHistoryContext` sin duplicar reglas de orden, vigencia, filtros o agenda en `state.js`.
-3. Mantener vistas y estilos para P5-07/P5-08; P5-06 solo integra estado y compatibilidad.
+1. Ejecutar P5-07: construir la interfaz tipo cuaderno del histórico sobre `state.historyContext`.
+2. Consumir filtros y selección mediante las APIs del estado, sin leer ni recalcular `payload.history` en la vista.
+3. Mantener la densidad progresiva, evidencia visible y estados explícitos definidos en `UI-SPEC.md`.
 
 ## Regla para actualizar este archivo
 

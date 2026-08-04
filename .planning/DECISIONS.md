@@ -383,3 +383,15 @@ La auditoría reproduce exactamente los 34 candidatos conservadores documentados
 Se excluyen cinco identidades no resueltas (`3240`, `3385`, `3406`, `4052`, `4139`) y una moneda ambigua (`3313`). Los cinco outliers materializados (`2587`, `3445`, `3540`, `3735`, `3902`) nunca se certifican ni adquieren prioridad por magnitud. Todos los eventos conservan causa nula y vigencia derivada del cutoff.
 
 P5-03 crea IDs de linaje deterministas, no registros públicos: P5-04 debe materializar observaciones, hechos y evidencias, resolver todas las referencias y regenerar el payload 2.4. Si ese gate reduce el conteo, debe explicarlo; queda prohibido relajar identidad, moneda, cronología o evidencia para conservar 36.
+
+## D-037 — P5-06 adopta 2.4 sin acoplar histórico y escenario
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+El runtime territorial admite contratos 2.1–2.4. El reader estructural conserva 2.0, pero el escenario F2 no lo declara operativo porque esa revisión no contiene su contrato territorial. Histórico se habilita únicamente en 2.4 y degrada explícitamente en 2.1–2.3.
+
+El índice Benchmark es semánticamente idéntico entre 2.3 y 2.4; por ello su motor amplía exclusivamente la allowlist de compatibilidad a ambas revisiones. Esta decisión no modifica fórmulas, pairing, elegibilidad, datos ni claims.
+
+`historyContext` se deriva del mismo `scenarioContext`, pero mantiene filtros, selección y revisión locales. Los filtros no mutan ni recomponen el escenario; distrito, alcance y reset sí recomponen la cadena derivada una sola vez. La vista futura debe consumir esta proyección y queda prohibido que reconstruya reglas desde `payload.history` o campos legacy.

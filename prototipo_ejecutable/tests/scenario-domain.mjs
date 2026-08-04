@@ -32,13 +32,14 @@ const ctI = await readJson(
 const environment = createScenarioEnvironment(data);
 const defaults = environment.defaults;
 
-assert.equal(data.metadata.contract_version, "2.3.0");
+assert.equal(data.metadata.contract_version, "2.4.0");
 assert.deepEqual(SUPPORTED_PUBLIC_CONTRACT_VERSIONS, [
   "2.1.0",
   "2.2.0",
-  "2.3.0"
+  "2.3.0",
+  "2.4.0"
 ]);
-for (const contractVersion of ["2.1.0", "2.2.0"]) {
+for (const contractVersion of ["2.1.0", "2.2.0", "2.3.0"]) {
   const compatibleData = structuredClone(data);
   compatibleData.metadata.contract_version = contractVersion;
   assert.deepEqual(
@@ -63,7 +64,7 @@ for (const contractVersion of [
   }
   assert.throws(
     () => createScenarioEnvironment(candidate),
-    /requires public contract 2\.1\.0 or 2\.2\.0/,
+    /requires public contract 2\.1\.0 through 2\.4\.0/,
     `contract ${String(contractVersion)} must fail closed`
   );
 }

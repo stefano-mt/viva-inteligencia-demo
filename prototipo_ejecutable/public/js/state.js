@@ -11,6 +11,10 @@ import {
 } from "./comparability.js";
 import { buildEvidenceDossier } from "./evidence-inspector.js";
 import { buildBenchmarkContext } from "./benchmark.js";
+import {
+  buildHistoryContext,
+  normalizeHistoryFilters,
+} from "./history.js";
 
 let dataValue = null;
 let scenarioEnvironment = null;
@@ -68,6 +72,10 @@ export const state = {
   scenarioContext: null,
   scenarioContextRevision: 0,
   benchmarkContext: null,
+  historyFilters: normalizeHistoryFilters(),
+  historyContext: null,
+  historyContextRevision: 0,
+  selectedHistoryEventId: null,
   get selectedDistrict() {
     return districtNameForId(state.scenario?.district_id);
   },
@@ -123,6 +131,10 @@ export function initializeScenarioData(data, options = {}) {
   state.scenarioContext = null;
   state.scenarioContextRevision = 0;
   state.benchmarkContext = null;
+  state.historyFilters = normalizeHistoryFilters();
+  state.historyContext = null;
+  state.historyContextRevision = 0;
+  state.selectedHistoryEventId = null;
   state.compareIncludeTarget = false;
 
   if (!dataValue) {
@@ -398,13 +410,29 @@ export function dispatchScenario(action, options = {}) {
     JSON.stringify(previous.scenario) !== JSON.stringify(next.scenario) ||
     previous.scenario_status !== next.scenario_status ||
     JSON.stringify(previous.corrections) !== JSON.stringify(next.corrections);
+  const resetsHistory = action?.type === "RESET";
+  const defaultHistoryFilters = resetsHistory
+    ? normalizeHistoryFilters()
+    : null;
+  const historyChangedByReset =
+    resetsHistory &&
+    (JSON.stringify(state.historyFilters) !==
+      JSON.stringify(defaultHistoryFilters) ||
+      state.selectedHistoryEventId !== null);
+  if (resetsHistory) {
+    state.historyFilters = defaultHistoryFilters;
+    state.selectedHistoryEventId = null;
+  }
 
   if (!changed) {
+    if (historyChangedByReset) recomputeHistoryContext();
     applyDispatchEffects(options);
     return {
       ...next,
       recomputed: false,
       revision: state.scenarioContextRevision,
+      history_recomputed: historyChangedByReset,
+      history_revision: state.historyContextRevision,
     };
   }
 
@@ -417,6 +445,8 @@ export function dispatchScenario(action, options = {}) {
     ...next,
     recomputed: true,
     revision: state.scenarioContextRevision,
+    history_recomputed: true,
+    history_revision: state.historyContextRevision,
   };
 }
 
@@ -451,6 +481,7 @@ export function recomputeScenarioContext() {
   if (!dataValue || !scenarioEnvironment || !state.scenario) {
     state.scenarioContext = null;
     state.benchmarkContext = null;
+    state.historyContext = null;
     return null;
   }
 
@@ -554,8 +585,71 @@ export function recomputeScenarioContext() {
     }),
     revision,
   };
+  recomputeHistoryContext();
   normalizeScenarioSelections();
   return state.scenarioContext;
+}
+
+export function recomputeHistoryContext() {
+  if (!dataValue || !state.scenarioContext) {
+    state.historyContext = null;
+    state.selectedHistoryEventId = null;
+    return null;
+  }
+  const revision = state.historyContextRevision + 1;
+  const scenarioProjection = historyScenarioProjection(state.scenarioContext);
+  state.historyContextRevision = revision;
+  state.historyContext = {
+    ...buildHistoryContext({
+      data: dataValue,
+      scenarioContext: scenarioProjection,
+      filters: state.historyFilters,
+    }),
+    scenario: scenarioProjection,
+    revision,
+    scenario_revision: state.scenarioContextRevision,
+  };
+  normalizeHistorySelection();
+  return state.historyContext;
+}
+
+export function setHistoryFilters(patch = {}) {
+  const next = normalizeHistoryFilters({
+    ...state.historyFilters,
+    ...(patch ?? {}),
+  });
+  if (JSON.stringify(next) === JSON.stringify(state.historyFilters)) {
+    return {
+      changed: false,
+      revision: state.historyContextRevision,
+      historyContext: state.historyContext,
+    };
+  }
+  state.historyFilters = next;
+  const historyContext = recomputeHistoryContext();
+  return {
+    changed: true,
+    revision: state.historyContextRevision,
+    historyContext,
+  };
+}
+
+export function selectHistoryEvent(historyEventId) {
+  if (historyEventId === null) {
+    state.selectedHistoryEventId = null;
+    return true;
+  }
+  const requested = String(historyEventId ?? "");
+  if (
+    !requested ||
+    !state.historyContext?.timeline?.some(
+      ({ history_event_id: candidate }) => candidate === requested,
+    )
+  ) {
+    return false;
+  }
+  state.selectedHistoryEventId = requested;
+  return true;
 }
 
 export function canonicalScenarioSearch() {
@@ -783,6 +877,29 @@ function normalizeScenarioSelections() {
   if (!state.benchmarkContext?.targetScenario) {
     state.compareIncludeTarget = false;
   }
+}
+
+function normalizeHistorySelection() {
+  if (
+    state.selectedHistoryEventId &&
+    !state.historyContext?.timeline?.some(
+      ({ history_event_id: candidate }) =>
+        candidate === state.selectedHistoryEventId,
+    )
+  ) {
+    state.selectedHistoryEventId = null;
+  }
+}
+
+function historyScenarioProjection(context) {
+  return {
+    scenario: structuredClone(context.scenario),
+    scope: structuredClone(context.scope),
+    comparable_project_ids: [...context.comparable_project_ids],
+    cutoff_at: context.cutoff_at,
+    scenario_status: context.scenario_status,
+    comparability_status: context.comparability_status,
+  };
 }
 
 function benchmarkScenarioProjection(context) {
