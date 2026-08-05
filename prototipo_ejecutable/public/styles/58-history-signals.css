@@ -5,13 +5,20 @@
   --history-ink: #202022;
   display: grid;
   gap: 18px;
+  min-width: 0;
   color: var(--history-ink);
   font-family: Aptos, "Segoe UI", Arial, sans-serif;
 }
 
 .history-view :is(button, select, summary, a):focus-visible {
-  outline: 3px solid #0057b8;
-  outline-offset: 3px;
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--history-ink);
+}
+
+.history-view :is(button, select, summary, a, [tabindex]),
+.history-detail {
+  scroll-margin-top: 108px;
 }
 
 .history-sr-only {
@@ -72,7 +79,7 @@
 }
 
 .history-hero p {
-  max-width: 760px;
+  max-width: 72ch;
   margin: 0;
   color: var(--muted);
   font-size: 17px;
@@ -461,7 +468,7 @@
   max-width: 72ch;
   margin: 13px 0 0;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
@@ -761,7 +768,7 @@
   max-width: 72ch;
   margin: 0;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
@@ -800,7 +807,7 @@
   margin: 0;
   padding: 24px;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.5;
 }
 
@@ -905,6 +912,11 @@
     grid-column: 2;
     justify-self: start;
   }
+
+  .history-view :is(button, select, summary, a, [tabindex]),
+  .history-detail {
+    scroll-margin-top: 88px;
+  }
 }
 
 @media (max-width: 620px) {
@@ -936,6 +948,15 @@
   .history-observation-pair,
   .history-detail__facts {
     grid-template-columns: 1fr;
+  }
+
+  .history-quality-item summary {
+    min-height: 76px;
+    padding: 13px 14px;
+  }
+
+  .history-quality-item > p {
+    padding: 0 14px 14px;
   }
 
   .history-quality-item,
@@ -1067,8 +1088,8 @@
   .history-view *::before,
   .history-view *::after {
     scroll-behavior: auto;
-    transition-duration: 0.001ms;
-    animation-duration: 0.001ms;
+    transition-duration: 0s;
+    animation-duration: 0s;
     animation-iteration-count: 1;
   }
 }

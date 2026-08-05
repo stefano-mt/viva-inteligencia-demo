@@ -4,6 +4,19 @@
   --assistant-paper: #f8f5ec;
   display: grid;
   gap: 20px;
+  min-width: 0;
+}
+
+.assistant-workbench :is(button, textarea, summary, a):focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--assistant-ink);
+}
+
+.assistant-workbench :is(button, textarea, summary, a, [tabindex]),
+.assistant-response,
+#assistant-response-title {
+  scroll-margin-top: 108px;
 }
 
 .assistant-intro {
@@ -20,7 +33,7 @@
 }
 
 .assistant-intro__copy {
-  max-width: 780px;
+  max-width: 72ch;
 }
 
 .assistant-mode,
@@ -203,6 +216,12 @@
   box-shadow: 0 0 0 3px rgba(0, 148, 59, 0.13);
 }
 
+.assistant-composer textarea:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--assistant-ink);
+}
+
 .assistant-composer__meta,
 .assistant-composer__actions {
   display: flex;
@@ -371,7 +390,7 @@
 
 .assistant-copy,
 .assistant-empty-line {
-  max-width: 900px;
+  max-width: 72ch;
   margin: 0;
   color: var(--text);
   font-size: 1rem;
@@ -589,6 +608,12 @@
   .assistant-change-row {
     grid-template-columns: 1fr;
   }
+
+  .assistant-workbench :is(button, textarea, summary, a, [tabindex]),
+  .assistant-response,
+  #assistant-response-title {
+    scroll-margin-top: 88px;
+  }
 }
 
 @media (max-width: 620px) {
@@ -599,6 +624,26 @@
   .assistant-ledger {
     padding-right: 16px;
     padding-left: 16px;
+  }
+
+  .assistant-intro,
+  .assistant-question-bank,
+  .assistant-composer {
+    gap: 14px;
+  }
+
+  .assistant-intro h2 {
+    font-size: 1.85rem;
+  }
+
+  .assistant-scenario div {
+    gap: 5px;
+    padding: 11px 13px;
+  }
+
+  .assistant-question {
+    min-height: 52px;
+    padding: 10px 12px;
   }
 
   .assistant-intro,
@@ -658,7 +703,12 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .assistant-workbench * {
+  .assistant-workbench *,
+  .assistant-workbench *::before,
+  .assistant-workbench *::after {
     scroll-behavior: auto;
+    transition-duration: 0s;
+    animation-duration: 0s;
+    animation-iteration-count: 1;
   }
 }
