@@ -1,0 +1,14 @@
+{
+  "fixture_version": 1,
+  "case_id": "CT-B",
+  "stage_id": "depth",
+  "scenario_path": "/#journey/depth",
+  "source_fixture": "ct-b-benchmark.json",
+  "story_ids": ["HU-DEMO-103", "HU-DEMO-801"],
+  "expected": {
+    "capability_status": "available",
+    "public_stage_status": "insufficient",
+    "expert_routes": ["market", "compare", "projects"],
+    "claim": "Los precios discrepantes permanecen separados por fuente"
+  }
+}

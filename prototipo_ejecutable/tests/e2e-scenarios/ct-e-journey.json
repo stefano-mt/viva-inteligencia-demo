@@ -1,0 +1,14 @@
+{
+  "fixture_version": 1,
+  "case_id": "CT-E",
+  "stage_id": "movement",
+  "scenario_path": "/#journey/movement",
+  "source_fixture": null,
+  "story_ids": ["HU-DEMO-103", "HU-DEMO-801"],
+  "expected": {
+    "capability_status": "available",
+    "public_stage_status": "ready",
+    "expert_routes": ["activity"],
+    "claim": "El cambio conserva valor anterior, nuevo, vigencia y causa no observada"
+  }
+}

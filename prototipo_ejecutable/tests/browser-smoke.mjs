@@ -43,6 +43,21 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
         `La navegación no marca #${route.id} como activa`,
       );
       assert.ok((await page.locator("#main-content").innerText()).trim().length > 80, `Contenido vacío en #${route.id}`);
+      assert.equal(
+        await page.locator("[data-journey-entry]").count(),
+        1,
+        `#${route.id} debe conservar una entrada única al recorrido`,
+      );
+      assert.equal(
+        await page.locator("[data-expert-navigation]").count(),
+        1,
+        `#${route.id} debe conservar la agrupación de análisis experto`,
+      );
+      assert.doesNotMatch(
+        await page.locator("body").innerText(),
+        /NaN|Infinity|∞/u,
+        `#${route.id} no debe mostrar valores no finitos`,
+      );
 
       const ownerStyles = await page.evaluate(() => {
         const imports = [...document.styleSheets].flatMap((sheet) =>

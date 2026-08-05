@@ -1,0 +1,14 @@
+{
+  "fixture_version": 1,
+  "case_id": "CT-C",
+  "stage_id": "geography",
+  "scenario_path": "/#journey/geography",
+  "source_fixture": "ct-c-public.json",
+  "story_ids": ["HU-DEMO-103", "HU-DEMO-801", "HU-DEMO-804"],
+  "expected": {
+    "capability_status": "available",
+    "public_stage_status": "ready",
+    "expert_routes": ["dashboard", "projects"],
+    "claim": "El mismo subconjunto territorial alimenta todos los consumidores"
+  }
+}

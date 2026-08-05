@@ -17,6 +17,16 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
         1,
         `Falta navegación principal etiquetada en #${route.id}`,
       );
+      assert.equal(
+        await page.locator('[data-journey-entry]').count(),
+        1,
+        `Falta la entrada accesible al recorrido en #${route.id}`,
+      );
+      assert.equal(
+        await page.locator('[data-expert-navigation][aria-labelledby="nav-expert"]').count(),
+        1,
+        `Falta la agrupación accesible de análisis experto en #${route.id}`,
+      );
 
       const unnamedControls = await page.locator("button, input, select, textarea, summary, a[href]").evaluateAll((controls) =>
         controls
