@@ -6,7 +6,7 @@
 
 **Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-12 están completos. P5-12 cerró responsive, contraste, densidad, teclado, reflow 200% y evidencia portable de Señales y Asistente.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-13 están completos. P5-13 emitió `PASS` formal y habilitó P5-14 sin HUMAN-GATE-B.
 
 **Rama activa:** `feat/phase-5-history-signals-assistant`.
 
@@ -242,12 +242,16 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Evidencia P5-12: trece capturas portables cubren ambas rutas, zoom, vacío, solo por revisar, CT-F y contrato legacy; cero scroll horizontal, truncamiento crítico o solicitudes externas.
 - Ajuste territorial P5-12: metadata ≥14 px y métricas 2×2 en laptop evitan que “Sin precio objetivo” se fragmente palabra por palabra.
 - Checker proporcional P5-12: `/root/p5_12_checker`, veredicto final `PASS` tras cerrar la tautología de movimiento reducido y verificar geométricamente foco/solapes a 200%; no sustituye P5-13.
+- P5-13: [phases/05-history-signals-assistant/VERIFICATION_REPORT.md](phases/05-history-signals-assistant/VERIFICATION_REPORT.md), completado; checker independiente `/root/p5_13_checker`, veredicto formal `PASS` sobre `8e76b796b1fef3616b5a0b7a5526a72d2f125e2c`.
+- Gate formal P5-13: `npm.cmd run verify` PASS en aproximadamente 7 min 45 s; contrato 2.4, CT-C/D/E/F/G/I/P, determinismo, privacidad, Graphify, evidencia, ocho rutas × tres viewports, 200% y recorrido UI-only cerrados.
+- Riesgos residuales P5-13: ninguno alto o medio. Permanecen como notas bajas el ensayo comercial automatizado, helpers legacy no alcanzables, cobertura parcial de Graphify para CSS/JSON y seis hard-breaks Markdown históricos.
+- HUMAN-GATE-B: no requerido porque P5-13 emitió `PASS`.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-13: checker independiente formal de contrato, código, dataset, pruebas, navegador, privacidad y narrativa.
-2. Si el veredicto es `PASS WITH RISKS`, solicitar HUMAN-GATE-B; si es `PASS`, continuar con P5-14.
-3. Mantener P5-11 y P5-12 verdes durante el gate formal.
+1. Ejecutar P5-14: memoria, handoff, evidencia portable y preparación del pull request funcional.
+2. Mantener `npm.cmd run verify` verde y no introducir cambios funcionales durante la memoria.
+3. Realizar un ensayo humano breve durante la revisión del PR o antes de presentar la demo al cliente.
 
 ## Regla para actualizar este archivo
 

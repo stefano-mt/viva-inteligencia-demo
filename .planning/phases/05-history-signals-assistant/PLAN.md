@@ -1,6 +1,6 @@
 # Plan ejecutable — Fase 5: histórico, señales y asistente
 
-**Estado:** `IN PROGRESS / HUMAN-GATE-A APPROVED / P5-01–P5-12 COMPLETED`.
+**Estado:** `IN PROGRESS / HUMAN-GATE-A APPROVED / P5-01–P5-13 COMPLETED / P5-14 NEXT`.
 
 **Rama:** `feat/phase-5-history-signals-assistant`.
 
