@@ -2,7 +2,7 @@
 
 ## Estado
 
-`P5-14 en preparación — PASS técnico; memoria y evidencia portable listas; PR funcional y revisión humana pendientes`
+`P5-14 done — PASS técnico; memoria versionada y PR funcional #15 abierto como borrador; revisión humana, merge y cierre de ship pendientes`
 
 ## Resultado
 
@@ -141,7 +141,11 @@ Base: `main`.
 
 Compare: `feat/phase-5-history-signals-assistant`.
 
-PR: pendiente de creación en P5-14.
+PR: [#15 — feat: add explainable market signals and deterministic assistant](https://github.com/stefano-mt/viva-inteligencia-demo/pull/15).
+
+Estado observado al abrirlo: `OPEN / DRAFT / MERGEABLE / CLEAN`.
+
+HEAD observado al abrirlo: `e4b7858af329a9a3cd9ac460d111c565f76665f4`. El commit posterior de cierre solo actualiza memoria de P5-14. El revisor debe usar el HEAD que GitHub muestre en #15 como autoridad final.
 
 El PR debe incluir:
 

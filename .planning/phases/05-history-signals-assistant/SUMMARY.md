@@ -2,7 +2,7 @@
 
 **Fecha de cierre técnico:** 2026-08-04
 
-**Estado:** implementación y verificación independiente completadas; P5-14 en preparación; revisión humana, merge y verificación de GitHub Pages pendientes
+**Estado:** implementación y verificación independiente completadas; P5-14 versionada y PR funcional [#15](https://github.com/stefano-mt/viva-inteligencia-demo/pull/15) abierto como borrador; revisión humana, merge y verificación de GitHub Pages pendientes
 
 **Veredicto independiente:** `PASS`
 
@@ -246,7 +246,7 @@ No existen gaps altos o medios. Ninguna nota altera el `PASS` ni exige HUMAN-GAT
 
 - P5-01–P5-12: implementación completada.
 - P5-13: checker independiente `PASS`.
-- P5-14: memoria y PR funcional en preparación.
+- P5-14: memoria versionada y PR funcional #15 abierto como borrador.
 - Merge: exclusivamente humano y pendiente.
 - P5-15: verificación read-only de GitHub Pages, bloqueada hasta el merge.
 - P5-16: persistencia post-merge en rama/PR documental separados, pendiente.

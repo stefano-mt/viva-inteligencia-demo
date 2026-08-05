@@ -6,7 +6,7 @@
 
 **Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está en ejecución; P5-01–P5-13 están completos. P5-13 emitió `PASS` formal y habilitó P5-14 sin HUMAN-GATE-B.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está técnicamente completa: P5-01–P5-14 cerrados, P5-13 `PASS` y PR funcional [#15](https://github.com/stefano-mt/viva-inteligencia-demo/pull/15) abierto como borrador. Merge humano y verificación post-merge pendientes.
 
 **Rama activa:** `feat/phase-5-history-signals-assistant`.
 
@@ -246,12 +246,16 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Gate formal P5-13: `npm.cmd run verify` PASS en aproximadamente 7 min 45 s; contrato 2.4, CT-C/D/E/F/G/I/P, determinismo, privacidad, Graphify, evidencia, ocho rutas × tres viewports, 200% y recorrido UI-only cerrados.
 - Riesgos residuales P5-13: ninguno alto o medio. Permanecen como notas bajas el ensayo comercial automatizado, helpers legacy no alcanzables, cobertura parcial de Graphify para CSS/JSON y seis hard-breaks Markdown históricos.
 - HUMAN-GATE-B: no requerido porque P5-13 emitió `PASS`.
+- P5-14: [phases/05-history-signals-assistant/SUMMARY.md](phases/05-history-signals-assistant/SUMMARY.md) y [phases/05-history-signals-assistant/HANDOFF.md](phases/05-history-signals-assistant/HANDOFF.md), completado; memoria y evidencia portable listas.
+- PR funcional: [#15 — feat: add explainable market signals and deterministic assistant](https://github.com/stefano-mt/viva-inteligencia-demo/pull/15), observado `OPEN / DRAFT / MERGEABLE / CLEAN` al abrirlo.
+- Último commit funcional: `8e76b796b1fef3616b5a0b7a5526a72d2f125e2c`; los commits posteriores son P5-13/P5-14 documentales.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P5-14: memoria, handoff, evidencia portable y preparación del pull request funcional.
-2. Mantener `npm.cmd run verify` verde y no introducir cambios funcionales durante la memoria.
-3. Realizar un ensayo humano breve durante la revisión del PR o antes de presentar la demo al cliente.
+1. Revisar el PR #15 y las trece capturas portables; probar `#activity`, `#assistant` y CT-F.
+2. Marcar el PR `Ready for review` cuando la revisión esté lista y realizar el merge exclusivamente de forma humana.
+3. Después del merge, ejecutar P5-15 read-only; si concluye `PASS`, persistir P5-16 en una rama/PR documental separados.
+4. Realizar un ensayo humano breve antes de presentar la demo al cliente; no es un gate técnico de merge.
 
 ## Regla para actualizar este archivo
 

@@ -169,7 +169,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** explicar qué cambió y responder con el mismo escenario y evidencia.
 
-**Estado:** HUMAN-GATE-A aprobada; P5-00C/P5-00D y P5-01–P5-13 completados. El dataset público 2.4 materializa 36 eventos explicados (31 certificados, 5 revisables), 72 puntos temporales referenciados y 6 exclusiones, con 52 fingerprints y build determinista. El motor histórico filtra por escenario, resuelve detalle/evidencia y deriva una agenda de máximo tres filas. El asistente integra las siete familias cerradas en una interfaz trazable de seis bloques. P5-11 incorporó histórico y asistente al gate, P5-12 cerró responsive/accesibilidad y P5-13 emitió `PASS` formal sin requerir HUMAN-GATE-B. P5-14 es el siguiente paso.
+**Estado:** P5-00C/P5-00D y P5-01–P5-14 completados. El dataset público 2.4 materializa 36 eventos explicados (31 certificados, 5 revisables), 72 puntos temporales referenciados y 6 candidatos excluidos, con 52 fingerprints y build determinista. El motor histórico filtra por escenario, resuelve detalle/evidencia y deriva una agenda de máximo tres filas. El asistente integra las siete familias cerradas en una interfaz trazable de seis bloques. P5-13 emitió `PASS` formal sin requerir HUMAN-GATE-B y P5-14 abrió el PR funcional #15 como borrador. Merge humano, P5-15 y P5-16 están pendientes.
 
 **Contrato propuesto:** `2.4.0`, con índices autoritativos `history` y `assistant`, reader compatible con 2.0–2.4 y degradación explícita en payloads anteriores.
 
