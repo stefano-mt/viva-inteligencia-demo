@@ -1,3 +1,17 @@
+import {
+  DEFAULT_JOURNEY_STAGE_ID,
+  JOURNEY_STAGES,
+} from "./journey.js";
+
+export const journeyEntry = Object.freeze({
+  id: "journey",
+  label: "Recorrido ejecutivo",
+  hint: "Seis decisiones con evidencia",
+  defaultStageId: DEFAULT_JOURNEY_STAGE_ID,
+});
+
+export const journeyStages = JOURNEY_STAGES;
+
 export const views = [
   { id: "dashboard", label: "Radar comercial", hint: "Decisión del distrito", group: "Análisis" },
   { id: "projects", label: "Proyectos comparables", hint: "Competidores y detalle", group: "Análisis" },

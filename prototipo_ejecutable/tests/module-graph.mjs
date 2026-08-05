@@ -25,7 +25,16 @@ import {
   setComparisonTarget,
   setScenarioScope,
 } from "../public/js/controller.js";
-import { sectionGuides, views } from "../public/js/config.js";
+import {
+  journeyEntry,
+  journeyStages,
+  sectionGuides,
+  views,
+} from "../public/js/config.js";
+import {
+  JOURNEY_MODULE_RETURN_STAGE,
+  JOURNEY_STAGE_IDS,
+} from "../public/js/journey.js";
 import {
   inspectorCaseHash,
   parseHashRoute,
@@ -46,6 +55,7 @@ const expectedModules = [
   "domain.js",
   "evidence-inspector.js",
   "history.js",
+  "journey.js",
   "navigation.js",
   "scenario.js",
   "state.js",
@@ -105,6 +115,19 @@ assert.deepEqual(
     "assistant",
     "activity",
   ],
+);
+assert.deepEqual(JOURNEY_STAGE_IDS, [
+  "scale",
+  "geography",
+  "quality",
+  "depth",
+  "movement",
+  "decision",
+]);
+assert.strictEqual(journeyStages[0].id, journeyEntry.defaultStageId);
+assert.deepEqual(
+  Object.keys(JOURNEY_MODULE_RETURN_STAGE).sort(),
+  views.map(({ id }) => id).sort(),
 );
 assert.deepEqual(views[2], {
   id: "inspector",
