@@ -18,6 +18,95 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.geography-brief {
+  display: grid;
+  grid-template-columns: minmax(190px, 0.7fr) minmax(0, 2fr);
+  gap: 20px;
+  margin: 0 16px 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.geography-brief__intro {
+  display: grid;
+  gap: 5px;
+  align-content: start;
+}
+
+.geography-brief__intro strong {
+  color: var(--teal);
+  font-size: 14px;
+}
+
+.geography-brief__intro span,
+.geography-brief__ledger small {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.geography-brief__ledger {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+}
+
+.geography-brief__ledger > div {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  align-content: start;
+  min-width: 0;
+  padding: 0 16px;
+}
+
+.geography-brief__ledger > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.geography-brief__ledger > div:first-child {
+  padding-left: 0;
+}
+
+.geography-brief__ledger > div:last-child {
+  padding-right: 0;
+}
+
+.geography-brief__ledger dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.geography-brief__ledger dd {
+  display: grid;
+  gap: 3px;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+@media (max-width: 760px) {
+  .geography-brief {
+    grid-template-columns: 1fr;
+  }
+
+  .geography-brief__ledger {
+    grid-template-columns: 1fr;
+  }
+
+  .geography-brief__ledger > div {
+    padding: 12px 0;
+  }
+
+  .geography-brief__ledger > div + div {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+}
+
 .competitor-card,
 .signal-card,
 .weekly-card {

@@ -17,6 +17,72 @@ function positiveNumber(value) {
   return Number.isFinite(number) && number > 0 ? number : null;
 }
 
+function countOrNull(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : null;
+}
+
+function scaleValue(value, suffix) {
+  const count = countOrNull(value);
+  return count === null ? "No disponible" : `${formatNumber(count)} ${suffix}`;
+}
+
+function renderScaleLedger() {
+  const counts = state.data?.metadata?.counts ?? {};
+  const pilot = state.data?.pilot?.counts ?? {};
+  const scenario = state.scenarioContext ?? {};
+  const modelAgencyCount = countOrNull(counts.canonical_agencies);
+  const pilotBaseCount = countOrNull(pilot.base_count);
+  const pilotEnrichedCount = countOrNull(pilot.enriched_count);
+  const pilotDeepCount = countOrNull(pilot.deep_count);
+  const observedProjectCount = countOrNull(
+    scenario.scope?.observed_project_count ??
+      scenario.observed_scope_project_ids?.length,
+  );
+  const comparableProjectCount = countOrNull(
+    scenario.market_reading?.comparable_project_count ??
+      scenario.comparable_project_ids?.length,
+  );
+
+  return `
+    <section
+      class="scale-primer span-12"
+      aria-labelledby="scale-primer-title"
+      data-scale-ledger
+      data-model-agencies="${escapeAttr(modelAgencyCount ?? "")}"
+      data-pilot-base="${escapeAttr(pilotBaseCount ?? "")}"
+      data-pilot-enriched="${escapeAttr(pilotEnrichedCount ?? "")}"
+      data-pilot-deep="${escapeAttr(pilotDeepCount ?? "")}"
+      data-scenario-observed="${escapeAttr(observedProjectCount ?? "")}"
+      data-scenario-comparable="${escapeAttr(comparableProjectCount ?? "")}"
+    >
+      <div class="scale-primer__heading">
+        <span class="benchmark-kicker">Regla de escala</span>
+        <h2 id="scale-primer-title">Tres universos, una lectura sin mezclar denominadores</h2>
+        <p>Modelo, piloto y escenario describen alcances distintos. Las cifras no se suman entre sí.</p>
+      </div>
+      <dl class="scale-ledger">
+        <div>
+          <dt>Modelo completo</dt>
+          <dd>${scaleValue(modelAgencyCount, "inmobiliarias")}</dd>
+          <small>Catálogo canónico disponible para la demo.</small>
+        </div>
+        <div>
+          <dt>Piloto acumulativo</dt>
+          <dd>${scaleValue(pilotBaseCount, "base")} · ${scaleValue(pilotEnrichedCount, "enriquecidas")} · ${scaleValue(pilotDeepCount, "profundas")}</dd>
+          <small>Son niveles de cobertura dentro del piloto, no grupos adicionales.</small>
+        </div>
+        <div>
+          <dt>Escenario activo</dt>
+          <dd>${scaleValue(observedProjectCount, "observados")} · ${scaleValue(comparableProjectCount, "comparables")}</dd>
+          <small>Se recalcula con el distrito y los filtros vigentes.</small>
+        </div>
+      </dl>
+    </section>
+  `;
+}
+
 function districtName(district) {
   return district?.source_name ?? district?.district_name ?? "Distrito";
 }
@@ -831,6 +897,7 @@ export function renderMarket() {
 
   return `
     <section class="dashboard-grid market-reading benchmark-view" data-scenario-consumer="benchmark">
+      ${renderScaleLedger()}
       ${
         benchmarkAvailable
           ? `

@@ -109,7 +109,14 @@ function renderScenarioStrip(context) {
       .filter(Boolean),
   ).size;
   const coverage = context.geography_coverage ?? {};
-  const targetPricePerM2 = scenarioTargetPricePerM2(context.scenario);
+  const observedProjectCount = context.observed_scope_project_ids.length;
+  const comparableProjectCount = context.comparable_project_ids.length;
+  const excludedProjectCount = context.excluded_projects?.length ?? 0;
+  const geographyIncluded = Number(coverage.included) || 0;
+  const geographyTotal = Number(coverage.total) || 0;
+  const geographyPct = geographyTotal
+    ? (geographyIncluded / geographyTotal) * 100
+    : 0;
   const geographyStatus =
     STATUS_LABELS.geography[context.geography_status] ??
     "Cobertura territorial por revisar";
@@ -134,20 +141,33 @@ function renderScenarioStrip(context) {
           <span class="status-badge ${statusTone(context.comparability_status)}">${escapeHtml(`${comparabilityStatus}${comparabilityDetail}`)}</span>
         </div>
       </div>
-      <div class="planner-results">
-        ${miniMetric(
-          "Proyectos / cobertura geográfica",
-          `${formatNumber(context.observed_scope_project_ids.length)} · ${formatNumber(coverage.included)}/${formatNumber(coverage.total)}`,
-        )}
-        ${miniMetric(
-          "Comparables elegibles",
-          formatNumber(context.comparable_project_ids.length),
-        )}
-        ${miniMetric("Inmobiliarias visibles", formatNumber(agencyCount))}
-        ${miniMetric(
-          "Escenario Viva / m²",
-          targetPricePerM2 ? priceM2(targetPricePerM2) : "Por definir",
-        )}
+      <div
+        class="geography-brief"
+        data-geography-brief
+        data-observed-projects="${escapeAttr(observedProjectCount)}"
+        data-geography-included="${escapeAttr(geographyIncluded)}"
+        data-geography-total="${escapeAttr(geographyTotal)}"
+        data-comparable-projects="${escapeAttr(comparableProjectCount)}"
+        data-excluded-projects="${escapeAttr(excludedProjectCount)}"
+      >
+        <div class="geography-brief__intro">
+          <strong>Lectura territorial del escenario</strong>
+          <span>${formatNumber(agencyCount)} inmobiliarias visibles en el universo observado.</span>
+        </div>
+        <dl class="geography-brief__ledger">
+          <div>
+            <dt>Oferta observada</dt>
+            <dd>${formatNumber(observedProjectCount)} <small>proyectos del distrito</small></dd>
+          </div>
+          <div>
+            <dt>Cobertura geográfica</dt>
+            <dd>${formatNumber(geographyIncluded)}/${formatNumber(geographyTotal)} <small>${formatNumber(geographyPct, 1)}% ubicable en el mapa</small></dd>
+          </div>
+          <div>
+            <dt>Muestra comparable</dt>
+            <dd>${formatNumber(comparableProjectCount)} <small>${formatNumber(excludedProjectCount)} fuera por reglas o evidencia</small></dd>
+          </div>
+        </dl>
       </div>
     </section>
   `;
