@@ -391,6 +391,8 @@ function renderAssistantWorkbench() {
         </dl>
       </section>
 
+      ${response ? renderTraceableAssistantResponse(response) : renderAssistantEmptyState()}
+
       <section class="assistant-query panel" aria-labelledby="assistant-query-title">
         <div class="assistant-question-bank">
           <div>
@@ -424,13 +426,12 @@ function renderAssistantWorkbench() {
           </div>
           <p class="assistant-input-error" id="assistant-input-error" hidden></p>
           <div class="assistant-composer__actions">
-            <button class="primary-button assistant-submit" type="submit">Generar lectura</button>
+            <button class="${response ? "secondary-button" : "primary-button"} assistant-submit" type="submit">Generar lectura</button>
             ${response ? '<button class="secondary-button" type="button" data-assistant-clear>Nueva pregunta</button>' : ""}
           </div>
         </form>
       </section>
 
-      ${response ? renderTraceableAssistantResponse(response) : renderAssistantEmptyState()}
       <p class="sr-only" id="assistant-live" aria-live="polite" aria-atomic="true"></p>
     </section>
   `;
@@ -486,12 +487,13 @@ function renderAdditionalQuestions(questions) {
 
 function renderAssistantEmptyState() {
   return `
-    <section class="assistant-empty panel" aria-labelledby="assistant-empty-title">
+    <section class="assistant-empty panel" aria-labelledby="assistant-empty-title" data-assistant-decision="idle">
       <div class="assistant-empty__marker" aria-hidden="true">↳</div>
       <div>
-        <p class="assistant-step">3 · Contrasta la lectura</p>
-        <h2 id="assistant-empty-title">La respuesta aparecerá aquí</h2>
-        <p>Verás una respuesta breve, los datos usados, la interpretación, los límites, las referencias navegables y un siguiente paso.</p>
+        <p class="assistant-step">Decisión pendiente</p>
+        <h2 id="assistant-empty-title">Formula una consulta antes de tomar una decisión</h2>
+        <p>La respuesta aparecerá aquí después de que envíes una consulta. El asistente no elige una intención ni genera una lectura por su cuenta.</p>
+        <a class="assistant-canonical-return" href="#journey/decision" data-journey-return="decision">Volver al recorrido: Decisión</a>
       </div>
     </section>
   `;
@@ -499,14 +501,33 @@ function renderAssistantEmptyState() {
 
 export function renderTraceableAssistantResponse(response) {
   const meta = assistantStatusMeta(response.status);
+  const blocks = Array.isArray(response.blocks) ? response.blocks : [];
+  const responseBlock = blocks.find(({ type }) => type === "response");
+  const nextStepBlock = blocks.find(({ type }) => type === "next_step");
+  const referencesBlock = blocks.find(({ type }) => type === "references");
+  const limitationsBlock = blocks.find(({ type }) => type === "limitations");
+  const detailBlocks = blocks.filter(
+    ({ type }) =>
+      type !== "response" &&
+      type !== "next_step" &&
+      type !== "references" &&
+      type !== "limitations",
+  );
+  const canCloseDecision = ["ready", "insufficient"].includes(response.status);
+  const shouldReformulate = [
+    "refused",
+    "unknown_intent",
+    "invalid_input",
+  ].includes(response.status);
   return `
     <section
       class="assistant-response panel assistant-response--${escapeAttr(meta.tone)}"
       aria-labelledby="assistant-response-title"
       data-assistant-response="${escapeAttr(response.status)}"
+      data-assistant-decision="${escapeAttr(response.status)}"
     >
       <header class="assistant-response__header">
-        <div><p class="assistant-step">3 · Lectura trazable</p><h2 id="assistant-response-title" tabindex="-1">${escapeHtml(meta.title)}</h2></div>
+        <div><p class="assistant-step">Decisión y siguiente acción</p><h2 id="assistant-response-title" tabindex="-1">${escapeHtml(meta.title)}</h2></div>
         <span class="assistant-response__status">${escapeHtml(meta.label)}</span>
       </header>
       <div class="assistant-response__context">
@@ -514,9 +535,36 @@ export function renderTraceableAssistantResponse(response) {
         <span>${formatNumber(response.scenario?.comparableProjectCount ?? 0)} comparables</span>
         <span>Respuesta reproducible</span>
       </div>
-      <div class="assistant-ledger">
-        ${(response.blocks ?? []).map(renderAssistantBlock).join("")}
+      <div class="assistant-decision-lead">
+        ${responseBlock ? renderAssistantBlock(responseBlock, blocks.indexOf(responseBlock)) : ""}
+        ${nextStepBlock ? renderAssistantBlock(nextStepBlock, blocks.indexOf(nextStepBlock)) : ""}
+        <div class="assistant-decision-handoff" aria-label="Continuar la decisión">
+          ${
+            canCloseDecision
+              ? '<a class="primary-button" href="#trust" data-view="trust">Preparar checklist comercial</a>'
+              : shouldReformulate
+                ? '<button class="primary-button" type="button" data-assistant-clear>Formular otra consulta</button>'
+                : '<a class="primary-button" href="#journey/decision" data-journey-return="decision">Volver a Decisión</a>'
+          }
+          <a class="assistant-canonical-return" href="#journey/decision" data-journey-return="decision">Volver al recorrido: Decisión</a>
+        </div>
       </div>
+      ${
+        limitationsBlock
+          ? `<div class="assistant-limit-access">${renderAssistantBlock(limitationsBlock, blocks.indexOf(limitationsBlock))}</div>`
+          : ""
+      }
+      ${
+        referencesBlock
+          ? `<div class="assistant-reference-access">${renderAssistantBlock(referencesBlock, blocks.indexOf(referencesBlock))}</div>`
+          : ""
+      }
+      <details class="assistant-evidence-disclosure">
+        <summary>Ver datos usados e interpretación completa</summary>
+        <div class="assistant-ledger">
+          ${detailBlocks.map((block) => renderAssistantBlock(block, blocks.indexOf(block))).join("")}
+        </div>
+      </details>
     </section>
   `;
 }

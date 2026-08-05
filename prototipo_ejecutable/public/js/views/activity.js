@@ -99,6 +99,7 @@ export function renderActivity() {
     status,
     header,
     body: `
+      ${renderCurrentSignalBrief(context)}
       ${renderQualityBand(context)}
       ${renderHistoryFilters(context)}
       ${renderHistoryTimeline(context)}
@@ -162,7 +163,7 @@ function renderHistoryHeader(context) {
       <div class="history-hero__actions" aria-label="Acciones principales del histórico">
         ${priority && certified > 0 ? `
           <button
-            class="primary-button history-primary-action"
+            class="secondary-button history-primary-action"
             id="history-priority-action"
             type="button"
             data-history-priority="${escapeAttr(priority.history_event_id)}"
@@ -186,6 +187,59 @@ function scopeLabel(context) {
       : "Radio del escenario";
   }
   return "Distrito completo";
+}
+
+function renderCurrentSignalBrief(context) {
+  const signal = context.timeline?.[0] ?? null;
+  if (!signal) {
+    return `
+      <section class="history-signal-brief is-empty" data-history-signal-brief="empty">
+        <div>
+          <span class="history-eyebrow">Lectura del movimiento</span>
+          <h3>Sin una señal vigente para resumir</h3>
+          <p>La ausencia de dos observaciones compatibles no demuestra estabilidad. Revisa filtros o comparables antes de decidir.</p>
+        </div>
+      </section>
+    `;
+  }
+
+  const causeLabel = signal.cause ?? "Causa no observada";
+  const causeStatus = signal.cause_status ?? "not_observed";
+  return `
+    <section
+      class="history-signal-brief"
+      aria-labelledby="history-signal-brief-title"
+      data-history-signal-brief="ready"
+      data-history-current-event="${escapeAttr(signal.history_event_id)}"
+      data-history-current-validity="${escapeAttr(signal.validity ?? "unknown")}"
+      data-history-current-status="${escapeAttr(signal.effective_status ?? "insufficient")}"
+      data-history-current-cause="${escapeAttr(causeStatus)}"
+    >
+      <div class="history-signal-brief__thesis">
+        <span class="history-eyebrow">Lectura del movimiento</span>
+        <h3 id="history-signal-brief-title">Hay un cambio publicado; su causa no se presume</h3>
+        <p>${escapeHtml(signal.project?.canonical_name ?? "Proyecto sin nombre")} encabeza la agenda vigente. El cambio describe publicaciones observadas, no ventas ni una explicación causal.</p>
+      </div>
+      <dl class="history-signal-brief__ledger">
+        <div>
+          <dt>Anterior → nuevo</dt>
+          <dd><strong>${escapeHtml(valueLabel(signal.previous_value, signal))}</strong><span aria-hidden="true">→</span><strong>${escapeHtml(valueLabel(signal.current_value, signal))}</strong></dd>
+        </div>
+        <div>
+          <dt>Frescura</dt>
+          <dd><strong>${escapeHtml(VALIDITY_LABELS[signal.validity] ?? "Vigencia desconocida")}</strong><small>Observado ${escapeHtml(formatDate(signal.current_observed_at))}</small></dd>
+        </div>
+        <div>
+          <dt>Uso analítico</dt>
+          <dd><strong>${escapeHtml(STATUS_LABELS[signal.effective_status] ?? "Estado desconocido")}</strong><small>${escapeHtml(causeLabel)}</small></dd>
+        </div>
+      </dl>
+      <div class="history-signal-brief__handoff">
+        <p><strong>Límite:</strong> un cambio publicado no permite afirmar precio de cierre, venta ni motivo comercial.</p>
+        <a class="primary-button history-decision-action" href="#assistant">Preparar decisión</a>
+      </div>
+    </section>
+  `;
 }
 
 function renderQualityBand(context) {
