@@ -1,5 +1,10 @@
-import { sectionGuides } from "./config.js";
 import { state } from "./state.js";
+export {
+  componentHelp,
+  panelActions,
+  renderJourneyGuide,
+  renderSectionGuide,
+} from "./views/guidance.js";
 
 export function getProjects() {
   return toArray(state.data?.projects);
@@ -918,59 +923,6 @@ export function scatterPlot(projects, strategy) {
       </svg>
       </div>
       <p class="scatter-help">Pasa el puntero o usa Tab para consultar cada proyecto. Las líneas discontinuas marcan las medianas del escenario.</p>
-    </div>
-  `;
-}
-
-export function renderSectionGuide(viewId) {
-  const guide = sectionGuides[viewId] ?? sectionGuides.dashboard;
-  return `
-    <details class="section-guide">
-      <summary>
-        <span class="guide-icon" aria-hidden="true">i</span>
-        <span class="guide-summary">
-          <strong>Cómo usar esta sección</strong>
-          <small>${escapeHtml(guide.purpose)}</small>
-        </span>
-        <span class="guide-toggle" aria-hidden="true">Ver guía</span>
-      </summary>
-      <div class="section-guide-body">
-        <div class="guide-purpose">
-          <span>Para qué sirve</span>
-          <p>${escapeHtml(guide.purpose)}</p>
-        </div>
-        <div>
-          <span>Cómo usarla</span>
-          <ol class="guide-steps">
-            ${guide.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
-          </ol>
-        </div>
-        <div class="guide-outcome">
-          <span>Resultado que obtienes</span>
-          <p>${escapeHtml(guide.outcome)}</p>
-        </div>
-      </div>
-    </details>
-  `;
-}
-
-export function componentHelp(title, copy) {
-  return `
-    <details class="component-help">
-      <summary aria-label="Información sobre ${escapeAttr(title)}">i</summary>
-      <div class="component-help-popover" role="note">
-        <strong>${escapeHtml(title)}</strong>
-        <p>${escapeHtml(copy)}</p>
-      </div>
-    </details>
-  `;
-}
-
-export function panelActions(content, helpTitle, helpCopy) {
-  return `
-    <div class="panel-header-actions">
-      ${content || ""}
-      ${componentHelp(helpTitle, helpCopy)}
     </div>
   `;
 }
