@@ -4,6 +4,7 @@ import {
   journeyStageFromHash,
   journeyStageHash,
   parseHashRoute,
+  replaceCanonicalJourneyLocation,
   replaceHashPreservingLocation,
   viewFromHash,
 } from "../public/js/navigation.js";
@@ -100,6 +101,31 @@ assert.equal(
   false,
 );
 
+const resetReplacements = [];
+assert.equal(
+  replaceCanonicalJourneyLocation({
+    location: {
+      pathname: "/viva-inteligencia-demo/",
+      search: "?sv=1&scope=radius",
+    },
+    history: {
+      replaceState: (_state, _title, path) => resetReplacements.push(path),
+    },
+  }),
+  true,
+);
+assert.deepEqual(resetReplacements, [
+  "/viva-inteligencia-demo/#journey/scale",
+]);
+assert.equal(
+  replaceCanonicalJourneyLocation({
+    search: "sv=1",
+    location: { pathname: "/" },
+    history: { replaceState() {} },
+  }),
+  false,
+);
+
 console.log(
-  "Journey navigation OK: raíz, seis etapas, aliases, deep-links, query y canonicalización.",
+  "Journey navigation OK: raíz, seis etapas, aliases, deep-links, query, canonicalización y reset.",
 );

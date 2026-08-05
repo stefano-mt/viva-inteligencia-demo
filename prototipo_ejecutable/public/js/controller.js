@@ -1,5 +1,9 @@
 import * as domain from "./domain.js";
-import { parseHashRoute, viewFromHash } from "./navigation.js";
+import {
+  parseHashRoute,
+  replaceCanonicalJourneyLocation,
+  viewFromHash,
+} from "./navigation.js";
 import { JOURNEY_STAGES, journeyStageById } from "./journey.js";
 import {
   INSPECTOR_ACTIONS,
@@ -9,6 +13,7 @@ import {
   dispatchScenario,
   generateAssistantResponse,
   recomputeAssistantResponse,
+  resetApplicationState,
   resolveDistrictId,
   selectHistoryEvent,
   setAssistantDraft,
@@ -200,10 +205,7 @@ export function bindEvents(render) {
     changeDistrict(event.target.value);
   });
   document.getElementById("reset-scenario")?.addEventListener("click", () => {
-    resetScenario({
-      announce: "Escenario reiniciado al preset base.",
-      focusId: "reset-scenario",
-    });
+    resetScenario();
   });
   document.querySelectorAll("[data-district-chip]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -733,26 +735,32 @@ export function selectScenarioProject(
 }
 
 export function resetScenario(options = {}) {
-  const transition = runScenarioAction(
-    { type: "RESET" },
-    {
-      render: false,
-      ...options,
-    },
-  );
-  const district = state.selectedDistrict || defaultDistrict();
-  state.projectFilters = {
-    district,
-    typology: "Todos",
-    phase: "Todos",
-    query: "",
-    sort: "direct",
-  };
-  state.compareQuery = "";
-  state.projectLimit = 18;
-  seedSelectionsForScenario();
-  clearAssistantResponse();
-  if (options.render !== false) renderApp?.();
+  const announcement =
+    options.announce ??
+    "Escenario y recorrido reiniciados. Etapa 1 de 6: Escala.";
+  const transition = resetApplicationState({
+    announce: announcement,
+    focusId: "journey-title",
+  });
+  const competitors = getCompetitors(state.strategy, 6);
+  const displayProjects = getScenarioDisplayProjects();
+  state.selectedProjectId =
+    competitors[0]?.id ?? displayProjects[0]?.id ?? null;
+  state.compareProjectIds = [];
+  replaceCanonicalJourneyLocation({
+    search: canonicalScenarioSearch(),
+    stageId: "scale",
+  });
+  scenarioHistorySearch = canonicalScenarioSearch();
+  lastJourneyRoute = null;
+  if (options.render !== false) {
+    renderApp?.();
+    const liveRegion = document.getElementById("journey-live");
+    if (liveRegion) liveRegion.textContent = announcement;
+    const title = document.getElementById("journey-title");
+    title?.setAttribute("tabindex", "-1");
+    title?.focus({ preventScroll: true });
+  }
   return transition;
 }
 

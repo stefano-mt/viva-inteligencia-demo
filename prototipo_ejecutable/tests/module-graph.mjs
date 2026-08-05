@@ -425,7 +425,6 @@ const resetRevision = state.scenarioContextRevision;
 const resetTransition = resetScenario({
   render: false,
   announce: "Escenario reiniciado al preset base.",
-  focusId: "reset-scenario",
 });
 assert.equal(resetTransition.recomputed, true);
 assert.equal(state.scenarioContextRevision, resetRevision + 1);
@@ -435,8 +434,8 @@ assert.equal(
   state.scenarioAnnouncement,
   "Escenario reiniciado al preset base.",
 );
-assert.equal(state.scenarioFocusId, "reset-scenario");
-assert.ok(state.compareProjectIds.every(isComparableProject));
+assert.equal(state.scenarioFocusId, "journey-title");
+assert.deepEqual(state.compareProjectIds, []);
 
 const windowListeners = new Map();
 const documentListeners = new Map();

@@ -195,6 +195,33 @@ export function replaceHashPreservingLocation(
   return true;
 }
 
+export function replaceCanonicalJourneyLocation({
+  search = "",
+  stageId = DEFAULT_JOURNEY_STAGE_ID,
+  location = globalThis.window?.location,
+  history = globalThis.window?.history,
+} = {}) {
+  const hash = journeyStageHash(stageId);
+  const normalizedSearch =
+    search === "" || (typeof search === "string" && search.startsWith("?"))
+      ? search
+      : null;
+  if (
+    !hash ||
+    normalizedSearch === null ||
+    !location ||
+    typeof history?.replaceState !== "function"
+  ) {
+    return false;
+  }
+  history.replaceState(
+    null,
+    "",
+    `${location.pathname}${normalizedSearch}${hash}`,
+  );
+  return true;
+}
+
 export function viewFromHash(
   hash = globalThis.window?.location?.hash ?? "",
 ) {

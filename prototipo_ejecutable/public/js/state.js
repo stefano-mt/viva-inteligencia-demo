@@ -38,6 +38,18 @@ let inspectorRuntime = {
 
 const JOURNEY_QUALITY_CASE_ID = "case:f3-ct-g-pardo";
 
+const PROJECT_PAGE_SIZE = 18;
+
+function initialProjectFilters(district = "") {
+  return {
+    district,
+    typology: "Todos",
+    phase: "Todos",
+    query: "",
+    sort: "direct",
+  };
+}
+
 const EMPTY_GEOGRAPHY_ARTIFACT = Object.freeze({
   status: "missing",
   geojson: null,
@@ -102,14 +114,8 @@ export const state = {
   get strategy() {
     return legacyScenarioProjection();
   },
-  projectFilters: {
-    district: "",
-    typology: "Todos",
-    phase: "Todos",
-    query: "",
-    sort: "direct",
-  },
-  projectLimit: 18,
+  projectFilters: initialProjectFilters(),
+  projectLimit: PROJECT_PAGE_SIZE,
   selectedProjectId: null,
   compareProjectIds: [],
   compareIncludeTarget: false,
@@ -151,7 +157,14 @@ export function initializeScenarioData(data, options = {}) {
   state.journeyContext = null;
   state.journeyContextRevision = 0;
   state.journeyAnnouncement = "";
+  state.view = "dashboard";
+  state.mobileNavOpen = false;
+  state.projectFilters = initialProjectFilters();
+  state.projectLimit = PROJECT_PAGE_SIZE;
+  state.selectedProjectId = null;
+  state.compareProjectIds = [];
   state.compareIncludeTarget = false;
+  state.compareQuery = "";
   state.assistantInput = "";
   state.assistantIntentId = null;
   state.assistantResponse = null;
@@ -169,6 +182,61 @@ export function initializeScenarioData(data, options = {}) {
   state.scenario_corrections = initial.corrections;
   state.projectFilters.district = districtNameForId(state.scenario.district_id);
   return recomputeScenarioContext();
+}
+
+export function resetApplicationState(options = {}) {
+  if (!scenarioEnvironment || !state.scenario) {
+    throw new Error("Scenario data must be initialized before reset");
+  }
+
+  const assistantChanged = Boolean(
+    state.assistantInput ||
+      state.assistantIntentId ||
+      state.assistantResponse,
+  );
+  state.assistantInput = "";
+  state.assistantIntentId = null;
+  state.assistantResponse = null;
+  if (assistantChanged) state.assistantResponseRevision += 1;
+
+  state.historyFilters = normalizeHistoryFilters();
+  state.selectedHistoryEventId = null;
+  state.compareProjectIds = [];
+  state.compareIncludeTarget = false;
+  state.compareQuery = "";
+
+  const transition = dispatchScenario(
+    { type: "RESET" },
+    {
+      announce:
+        options.announce ??
+        "Escenario y recorrido reiniciados. Etapa 1 de 6: Escala.",
+      focusId: options.focusId ?? "journey-title",
+    },
+  );
+
+  state.projectFilters = initialProjectFilters(state.selectedDistrict);
+  state.projectLimit = PROJECT_PAGE_SIZE;
+  state.selectedProjectId = null;
+  state.compareProjectIds = [];
+  state.compareIncludeTarget = false;
+  state.compareQuery = "";
+  state.mobileNavOpen = false;
+  state.view = "journey";
+  state.journeyAnnouncement = state.scenarioAnnouncement;
+
+  if (inspectorRuntime.defaultCase) {
+    setInspectorCase(inspectorRuntime.defaultCase);
+  } else {
+    resetInspectorSelection();
+  }
+
+  recomputeJourneyContext();
+  return {
+    ...transition,
+    inspector: inspectorSelection(),
+    journey_revision: state.journeyContextRevision,
+  };
 }
 
 export function initializeInspectorState(inspector = dataValue?.inspector) {

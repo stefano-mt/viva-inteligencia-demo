@@ -403,8 +403,18 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 
   await openPath(page, baseUrl, descriptor.canonical_path);
   await page.locator("#reset-scenario").click();
-  await assertCurrentPath(page, baseUrl, "/#dashboard", "Reset debe restaurar el preset CT-I");
-  assert.equal(await page.evaluate(() => document.activeElement?.id), "reset-scenario", "Reset debe recuperar foco");
+  await assertCurrentPath(page, baseUrl, "/#journey/scale", "Reset debe restaurar CT-I en Escala");
+  assert.equal(await page.evaluate(() => document.activeElement?.id), "journey-title", "Reset debe mover foco al h1 de Escala");
+  assert.deepEqual(
+    await page.evaluate(async () => {
+      const module = await import(new URL("js/state.js", document.baseURI).href);
+      return module.state.compareProjectIds;
+    }),
+    [],
+    "Reset debe vaciar la selección del comparador",
+  );
+  await page.locator('[data-view="dashboard"]').first().click();
+  await waitForActiveRoute(page, "dashboard");
   assert.equal(await page.locator("[data-geo-point-id]").count(), 90, "CT-I debe mostrar 90 observaciones");
   assert.equal(await page.locator("#geo-project-select option").count(), 90, "CT-I debe ofrecer 90 observaciones por teclado");
 
@@ -482,8 +492,17 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   }
 
   await page.locator("#reset-scenario").click();
-  await waitForFocus(page, "reset-scenario");
-  assert.equal(await page.evaluate(() => document.activeElement?.id), "reset-scenario", "Reset debe recuperar foco fuera del dashboard");
+  await assertCurrentPath(page, baseUrl, "/#journey/scale", "Reset fuera del dashboard debe volver a Escala");
+  await waitForFocus(page, "journey-title");
+  assert.equal(await page.evaluate(() => document.activeElement?.id), "journey-title", "Reset fuera del dashboard debe enfocar el h1");
+  assert.deepEqual(
+    await page.evaluate(async () => {
+      const module = await import(new URL("js/state.js", document.baseURI).href);
+      return module.state.compareProjectIds;
+    }),
+    [],
+    "Reset posterior al cuadrante debe vaciar la comparación",
+  );
   await page.locator('[data-view="dashboard"]').first().click();
   await waitForActiveRoute(page, "dashboard");
   assert.equal(await page.locator("[data-geo-point-id]").count(), 90, "Reset posterior al cuadrante debe volver a 90 observaciones");
