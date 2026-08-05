@@ -4,11 +4,14 @@
 
 ## Alcance
 
-El contrato distingue tres capas:
+El contrato distingue seis capas:
 
 1. `model`: modelo autoritativo de fuentes, inmobiliarias, aliases, proyectos, tipologías, observaciones, hechos, documentos, evidencia, issues y eventos.
 2. `inspector`: índice opcional de casos y activos que solo referencia IDs nativos de `model`; no duplica hechos ni evidencia.
-3. `projects` y las secciones legacy superiores: proyección temporal consumida por la UI existente.
+3. `benchmark`: índice de metodología, referencias y cobertura; no duplica hechos.
+4. `history`: índice de política, cambios observados, cobertura y referencias históricas.
+5. `assistant`: catálogo semántico determinista, guardrails y contrato de respuesta; no almacena respuestas con cifras duplicadas.
+6. `projects` y las demás secciones legacy superiores: proyección temporal consumida por la UI existente.
 
 La proyección legacy no es una fuente de verdad y no debe utilizarse para reconstruir observaciones o hechos. Se conserva para que la Fase 1 pueda cambiar el contrato sin modificar las siete rutas actuales.
 
@@ -18,9 +21,23 @@ La revisión `2.1.0` añade tres secciones de Fase 2 sin modificar las coleccion
 2. `scenario_defaults`: escenario inicial completo, incluidos los `null` que desactivan cuadrante o radio.
 3. `geography`: procedencia cartográfica, distritos, cuadrantes analíticos, asignaciones y exclusiones trazables.
 
-Estas tres secciones son obligatorias cuando `metadata.contract_version` es `2.1.0` o `2.2.0`.
+Estas tres secciones son obligatorias desde `metadata.contract_version = 2.1.0`.
 
-La revisión `2.2.0` exige además `inspector`. La revisión `2.3.0` conserva escenario e inspector y exige el índice `benchmark`. El reader de datos admite documentos `2.0.0`, `2.1.0`, `2.2.0` y `2.3.0`; el runtime territorial admite `2.1.0`, `2.2.0` y `2.3.0` sin cambiar selección, IDs ni geometría.
+La revisión `2.2.0` exige además `inspector`. La revisión `2.3.0` conserva escenario e inspector y exige `benchmark`. La revisión `2.4.0` conserva las capacidades anteriores y exige `history` y la forma cerrada de `assistant`. El reader admite `2.0.0`–`2.4.0`; el runtime territorial conserva por ahora su allowlist `2.1.0`–`2.3.0` hasta la integración derivada de P5-06. P5-01 no modifica runtime, writer ni dataset público.
+
+## Índices histórico y asistente 2.4
+
+`history.version` es `1` y no sustituye a `model.events`: publica una proyección orientada a consulta con referencias explícitas y semántica más estrecha.
+
+- `policy` congela cutoff, precio publicado desde/mínimo a nivel proyecto, PEN, vigencias 30/90, umbral certificado de 30%, orden y prohibición de causa inferida;
+- `events[]` muestra dos observaciones, dos hechos, valores, delta, porcentaje nullable, fechas, estado, vigencia, razones y evidencia;
+- `by_project_id[]` y `by_district_id[]` son índices ordenables por IDs, no mapas con valores duplicados;
+- `coverage` declara candidatos, materializados, certificados, revisables, excluidos y motivos;
+- `fingerprints` conserva procedencia determinista.
+
+Una causa no nula exige al menos un `cause_evidence_id`; una causa nula exige la lista vacía. Las reglas cruzadas de identidad, fechas, matemáticas, cobertura y referencias se implementan en P5-02/P5-03, no se corrigen desde el schema.
+
+`assistant.version` es `1`. Su política fija modo `deterministic_catalog`, locale `es-PE`, cero persistencia, cero solicitudes externas y fallback prudente. `intents[]` contiene familias y preguntas permitidas sin cifras precalculadas. `answer_contract` exige escenario y referencias; `limitations[]` cubre cierre, causalidad, predicción, datos personales y fuentes externas. En contratos 2.0–2.3, `assistant` conserva su forma legacy y no puede publicarse `history`; Fase 5 debe degradar a `contract_unavailable`.
 
 ## Índice de benchmark 2.3
 
@@ -147,10 +164,10 @@ La moneda legacy también debe ser `PEN`, `USD` o `unknown`. Las secciones:
 
 ```text
 executive, rankings, sourceScope, scopeSummary, matching,
-coverage, quality, assistant, pipeline, deployment
+coverage, quality, pipeline, deployment
 ```
 
-se mantienen estructuralmente durante la Fase 1. Sus contratos internos continuarán siendo legacy hasta que las fases funcionales migren cada consumidor.
+se mantienen estructuralmente durante la Fase 1. `assistant` también es legacy en 2.0–2.3, pero pasa a su contrato cerrado en 2.4. Las demás secciones continuarán siendo legacy hasta que una fase funcional migre cada consumidor.
 
 ## Contrato geográfico y de escenario 2.1
 
@@ -192,8 +209,10 @@ JSON Schema valida forma y reglas locales, pero el validador de P1-06/P1-07 debe
 18. Los casos de `inspector` resuelven exclusivamente a registros nativos de `model`, sin duplicarlos; observaciones, hechos, documentos, evidencias e issues deben pertenecer al proyecto o tipología seleccionados y conservar sus enlaces internos.
 19. `required_fact_ids` y `primary_evidence_id` pertenecen a sus listas de caso y `coverage` coincide con el índice.
 20. Cada activo visual autorizado resuelve a un documento autorizado y conserva evidencia disponible con `fragment` no vacío.
+21. Cada evento histórico resuelve proyecto, observaciones, hechos y evidencias; índices y cobertura coinciden con eventos materializados.
+22. Assistant no duplica cifras, conserva catálogo único de intenciones y toda respuesta numérica/cualitativa exige las referencias declaradas.
 
-Durante P4-01–P4-03 el dataset público permanece en `2.2.0`; P4-04 lo regenera como `2.3.0` y actualiza el fingerprint del schema. En esa ventana, la prueba de determinismo puede señalar el fingerprint pendiente aunque las pruebas dirigidas del contrato y el runtime permanezcan verdes. El writer, el build y el dataset no se modifican antes de sus tareas propietarias.
+Durante P5-01–P5-03 el dataset público permanece en `2.3.0`; P5-04 será la única tarea que podrá regenerarlo como `2.4.0` y actualizar fingerprints. En esa ventana, determinismo continuará comprobando el artefacto 2.3 vigente mientras las pruebas dirigidas del schema 2.4 permanecen verdes. El writer, el build y el dataset no se modifican antes de P5-04.
 
 ## Uso por roles posteriores
 

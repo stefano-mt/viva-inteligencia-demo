@@ -1,4 +1,4 @@
-import { suggestedQuestions, views } from "./js/config.js";
+import { views } from "./js/config.js";
 import {
   bindEvents,
   initializeScenarioFromLocation,
@@ -48,7 +48,6 @@ const {
   comparableScore,
   classifyPricePosition,
   buildCommercialRecommendation,
-  buildAssistantResponse,
   buildOpportunitySignals,
   checklistRisks,
   messageAngles,
@@ -210,8 +209,6 @@ function initializeScenario() {
   const competitors = getCompetitors(state.strategy, 6);
   state.selectedProjectId = competitors[0]?.id ?? getProjects()[0]?.id ?? null;
   state.compareProjectIds = competitors.slice(0, 3).map((project) => project.id);
-  state.assistantInput = suggestedQuestions[0];
-  state.assistantResponse = buildAssistantResponse(state.assistantInput);
 }
 
 function getCanonicalScenarioUrl() {

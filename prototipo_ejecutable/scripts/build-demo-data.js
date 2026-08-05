@@ -13,6 +13,7 @@ import {
 } from "./data/benchmark.js";
 import { buildEvidenceBundle } from "./data/evidence.js";
 import { buildGeographyModel } from "./data/geography.js";
+import { materializeHistoryCandidates } from "./data/history.js";
 import { materializeMeasureRecords } from "./data/measures.js";
 import {
   loadContractSchema,
@@ -89,17 +90,22 @@ const PATHS = Object.freeze({
   fixtureI: "datos_relevantes/demo-pilot/fixtures/ct-i.json",
   benchmarkPolicy: "datos_relevantes/demo-pilot/benchmark-policy.json",
   benchmarkAttributes:
-    "datos_relevantes/demo-pilot/benchmark-attribute-catalog.json"
+    "datos_relevantes/demo-pilot/benchmark-attribute-catalog.json",
+  historyPolicy: "datos_relevantes/demo-pilot/history-policy.json",
+  assistantCatalog:
+    "datos_relevantes/demo-pilot/assistant-intent-catalog.json"
 });
 
-const BENCHMARK_INPUT_PATHS = Object.freeze([
+const EXTENDED_CONTRACT_INPUT_PATHS = Object.freeze([
   PATHS.benchmarkAttributes,
-  PATHS.benchmarkPolicy
+  PATHS.benchmarkPolicy,
+  PATHS.historyPolicy,
+  PATHS.assistantCatalog
 ]);
 
 export const REQUIRED_INPUT_PATHS = Object.freeze(
   [...new Set(Object.values(PATHS))]
-    .filter((logicalPath) => !BENCHMARK_INPUT_PATHS.includes(logicalPath))
+    .filter((logicalPath) => !EXTENDED_CONTRACT_INPUT_PATHS.includes(logicalPath))
     .sort(compareText)
 );
 
@@ -317,7 +323,7 @@ async function readRequiredInputs(
   const buffers = new Map();
   await readLogicalPaths(repositoryRoot, REQUIRED_INPUT_PATHS, buffers);
   if (includeBenchmark) {
-    await readLogicalPaths(repositoryRoot, BENCHMARK_INPUT_PATHS, buffers);
+    await readLogicalPaths(repositoryRoot, EXTENDED_CONTRACT_INPUT_PATHS, buffers);
   }
   const manifest = parseRequiredJson(
     buffers,
@@ -386,6 +392,115 @@ function buildInputFingerprints(inputs) {
       ? binaryInputSha256(inputs.get(logicalPath))
       : logicalInputSha256(inputs.get(logicalPath))
   }));
+}
+
+function historyIndexes(events, key, idField) {
+  const grouped = new Map();
+  for (const event of events) {
+    const groupId = event[key];
+    const eventIds = grouped.get(groupId) ?? [];
+    eventIds.push(event.history_event_id);
+    grouped.set(groupId, eventIds);
+  }
+  return [...grouped.entries()]
+    .map(([groupId, eventIds]) => ({
+      [idField]: groupId,
+      history_event_ids: [...eventIds].sort(compareText)
+    }))
+    .sort((left, right) => compareText(left[idField], right[idField]));
+}
+
+function materializeHistoryModelRecords(materialized, snapshotSha256) {
+  const documentId = "document:history-nexo-snapshot";
+  const observations = [];
+  const facts = [];
+  const evidence = [];
+  const eventsById = new Map(
+    materialized.events.map((event) => [event.history_event_id, event])
+  );
+
+  for (const lineage of materialized.lineage) {
+    const event = eventsById.get(lineage.history_event_id);
+    if (!event) {
+      throw new Error(`History lineage has no event: ${lineage.history_event_id}`);
+    }
+    for (const point of [lineage.previous, lineage.current]) {
+      const sourceUrl = /^https?:\/\//i.test(lineage.source_url ?? "")
+        ? lineage.source_url
+        : null;
+      observations.push({
+        observation_id: point.observation_id,
+        source_id: "source:nexo",
+        entity_type: "project",
+        entity_id: event.project_id,
+        captured_at: point.observed_at,
+        source_url: sourceUrl,
+        extraction_method: "structured_snapshot_history",
+        evidence_ids: [point.evidence_id],
+        evidence_status: "available",
+        evidence_absence_reason: null
+      });
+      facts.push({
+        fact_id: point.fact_id,
+        observation_id: point.observation_id,
+        entity_id: event.project_id,
+        field_name: "published_price_from",
+        original_value: point.value,
+        normalized_value: point.value,
+        unit: "PEN",
+        value_kind: "observed",
+        semantic_type: "price",
+        area_type: null,
+        price_type: "from",
+        currency: "PEN",
+        denominator_area_type: null,
+        confidence: event.status === "certified" ? "high" : "medium",
+        quality_status: event.status,
+        benchmark_eligible: false,
+        exclusion_reason:
+          event.status === "certified"
+            ? "historical_signal_not_current_benchmark"
+            : "reviewable_history_signal",
+        derivation: null
+      });
+      evidence.push({
+        evidence_id: point.evidence_id,
+        observation_id: point.observation_id,
+        document_id: documentId,
+        kind: "structured_value",
+        fragment: `Precio publicado desde observado: PEN ${point.value}.`,
+        page: null,
+        region: null,
+        captured_at: point.observed_at,
+        sha256: snapshotSha256,
+        publish_permission: "authorized",
+        availability: "available"
+      });
+    }
+  }
+
+  return {
+    observations: observations.sort(compareById("observation_id")),
+    facts: facts.sort(compareById("fact_id")),
+    documents:
+      materialized.events.length === 0
+        ? []
+        : [
+            {
+              document_id: documentId,
+              source_id: "source:nexo",
+              document_type: "other",
+              title: "Snapshot estructurado Nexo para histórico de precios publicados",
+              captured_at: CUTOFF_AT,
+              source_url: null,
+              sha256: snapshotSha256,
+              publish_permission: "authorized",
+              availability: "available",
+              public_asset_path: null
+            }
+          ],
+    evidence: evidence.sort(compareById("evidence_id"))
+  };
 }
 
 function normalizeLegacyProjects(rows) {
@@ -1322,6 +1437,73 @@ async function buildDemoBundle({
     };
     benchmark = materialized.benchmark;
   }
+  let history = null;
+  let assistantCatalog = null;
+  if (includeBenchmark) {
+    const historyPolicy = parseRequiredJson(
+      inputs,
+      PATHS.historyPolicy,
+      "object"
+    );
+    assistantCatalog = parseRequiredJson(
+      inputs,
+      PATHS.assistantCatalog,
+      "object"
+    );
+    const historyMaterialization = materializeHistoryCandidates(nexoRows, {
+      policy: historyPolicy,
+      authoritative_project_ids: model.projects.map(
+        ({ project_id: projectId }) => projectId
+      ),
+      district_catalog: geography.districts,
+      source_snapshot_path: PATHS.nexo
+    });
+    const historyRecords = materializeHistoryModelRecords(
+      historyMaterialization,
+      logicalInputSha256(inputs.get(PATHS.nexo))
+    );
+    model = {
+      ...model,
+      observations: [
+        ...model.observations,
+        ...historyRecords.observations
+      ].sort(compareById("observation_id")),
+      facts: [...model.facts, ...historyRecords.facts].sort(
+        compareById("fact_id")
+      ),
+      documents: [...model.documents, ...historyRecords.documents].sort(
+        compareById("document_id")
+      ),
+      evidence: [...model.evidence, ...historyRecords.evidence].sort(
+        compareById("evidence_id")
+      )
+    };
+    const inputFingerprints = buildInputFingerprints(inputs);
+    const historyFingerprintPaths = new Set([
+      PATHS.historyPolicy,
+      PATHS.geographyManifest,
+      PATHS.nexo
+    ]);
+    history = {
+      version: 1,
+      policy: structuredClone(historyPolicy),
+      events: structuredClone(historyMaterialization.events),
+      by_project_id: historyIndexes(
+        historyMaterialization.events,
+        "project_id",
+        "project_id"
+      ),
+      by_district_id: historyIndexes(
+        historyMaterialization.events,
+        "district_id",
+        "district_id"
+      ),
+      coverage: structuredClone(historyMaterialization.coverage),
+      fingerprints: inputFingerprints.filter(({ path: logicalPath }) =>
+        historyFingerprintPaths.has(logicalPath)
+      )
+    };
+  }
   const miraflores = geography.districts.find(
     (district) => district.district_id === "150122"
   );
@@ -1351,16 +1533,21 @@ async function buildDemoBundle({
     (row) => !CONTACT_FIELD_NAMES.has(row.field_name)
   );
   const quality = parseRequiredJson(inputs, PATHS.quality, "object");
-  const assistant = parseRequiredJson(inputs, PATHS.assistant, "object");
+  const assistantValidation = parseRequiredJson(
+    inputs,
+    PATHS.assistant,
+    "object"
+  );
   const certifiedAggregates = buildCertifiedAggregates(facts);
+  const inputFingerprints = buildInputFingerprints(inputs);
 
   const payload = {
     metadata: {
-      contract_version: includeBenchmark ? "2.3.0" : "2.2.0",
+      contract_version: includeBenchmark ? "2.4.0" : "2.2.0",
       dataset_id: DATASET_ID,
       generated_at: GENERATED_AT,
       cutoff_at: CUTOFF_AT,
-      input_fingerprints: buildInputFingerprints(inputs),
+      input_fingerprints: inputFingerprints,
       publication: {
         is_public_artifact: true,
         contains_contact_pii: false,
@@ -1375,7 +1562,7 @@ async function buildDemoBundle({
         min_captured_at: "2026-01-01T00:00:00Z",
         max_captured_at: CUTOFF_AT,
         assistant_dataset_run_id:
-          clean(assistant?.metadata?.dataset_run_id) ?? null
+          clean(assistantValidation?.metadata?.dataset_run_id) ?? null
       },
       counts: {
         projects: legacyProjects.length,
@@ -1434,6 +1621,7 @@ async function buildDemoBundle({
       coverage: structuredClone(inspectorCases.coverage)
     },
     ...(benchmark ? { benchmark } : {}),
+    ...(history ? { history } : {}),
     projects: legacyProjects,
     executive: buildExecutive(legacyProjects, certifiedAggregates),
     rankings: {
@@ -1450,7 +1638,9 @@ async function buildDemoBundle({
     },
     coverage: buildCoverage(feasibility),
     quality: normalizeQuality(quality),
-    assistant: normalizeAssistant(assistant),
+    assistant: includeBenchmark
+      ? structuredClone(assistantCatalog)
+      : normalizeAssistant(assistantValidation),
     pipeline: buildPipeline(),
     deployment: {
       mode: "static_versioned_demo",
@@ -1517,12 +1707,6 @@ export function buildCoverageReport(
   const miraflores = payload.geography.districts.find(
     (district) => district.district_id === "150122"
   );
-  const certifiedEvents = payload.model.events.filter(
-    (event) => event.quality_status === "certified"
-  );
-  const reviewableEvents = payload.model.events.filter(
-    (event) => event.quality_status === "reviewable"
-  );
   return {
     report_version: "2.0.0",
     dataset_id: payload.metadata.dataset_id,
@@ -1535,7 +1719,7 @@ export function buildCoverageReport(
     },
     derivation: {
       authority:
-        "$.model, $.inspector and $.benchmark when present are authoritative; $.projects is the temporary legacy projection.",
+        "$.model, $.inspector, $.benchmark, $.history and $.assistant when present are authoritative; $.projects is the temporary legacy projection.",
       method:
         `All counts and distributions are recomputed offline from the deterministic ${payload.metadata.contract_version} payload.`,
       input_fingerprint_count: payload.metadata.input_fingerprints.length,
@@ -1555,6 +1739,12 @@ export function buildCoverageReport(
           source_path: "$.model.facts",
           operation:
             "group benchmark_eligible independently by quality_status, value_kind and semantic_type"
+        },
+        {
+          code: "HISTORY_REFERENCE_COVERAGE",
+          source_path: "$.history",
+          operation:
+            "count events, indexes, status, exclusions and referenced model records"
         }
       ],
       interpretation_rules: [
@@ -1655,6 +1845,44 @@ export function buildCoverageReport(
                 ])
             ),
             reference: "$.benchmark"
+          }
+        }
+      : {}),
+    ...(payload.history
+      ? {
+          history_coverage: {
+            event_count: payload.history.events.length,
+            project_index_count: payload.history.by_project_id.length,
+            district_index_count: payload.history.by_district_id.length,
+            certified_count: payload.history.events.filter(
+              ({ status }) => status === "certified"
+            ).length,
+            reviewable_count: payload.history.events.filter(
+              ({ status }) => status === "reviewable"
+            ).length,
+            excluded_count: payload.history.coverage.excluded_count,
+            model_reference_counts: {
+              observations: payload.model.observations.filter(({ observation_id }) =>
+                observation_id.startsWith("observation:history-")
+              ).length,
+              facts: payload.model.facts.filter(({ fact_id }) =>
+                fact_id.startsWith("fact:history-")
+              ).length,
+              documents: payload.model.documents.filter(({ document_id }) =>
+                document_id.startsWith("document:history-")
+              ).length,
+              evidence: payload.model.evidence.filter(({ evidence_id }) =>
+                evidence_id.startsWith("evidence:history-")
+              ).length
+            },
+            input_fingerprint_count: payload.history.fingerprints.length,
+            references: [
+              "$.history",
+              "$.model.observations",
+              "$.model.facts",
+              "$.model.documents",
+              "$.model.evidence"
+            ]
           }
         }
       : {}),
@@ -2044,22 +2272,30 @@ export function buildCoverageReport(
         target_phase: "F5",
         severity: "blocking_for_phase",
         current_evidence: {
-          event_count: payload.model.events.length,
-          certified_event_count: certifiedEvents.length,
-          reviewable_event_count: reviewableEvents.length,
-          event_with_observed_cause_count: payload.model.events.filter(
+          history_event_count: payload.history?.events.length ?? 0,
+          certified_history_event_count:
+            payload.history?.coverage.certified_count ?? 0,
+          reviewable_history_event_count:
+            payload.history?.coverage.reviewable_count ?? 0,
+          excluded_history_candidate_count:
+            payload.history?.coverage.excluded_count ?? 0,
+          assistant_intent_count: payload.assistant?.intents?.length ?? 0,
+          event_with_observed_cause_count: (payload.history?.events ?? []).filter(
             (event) => event.cause !== null
           ).length,
-          event_with_cause_evidence_count: payload.model.events.filter(
+          event_with_cause_evidence_count: (payload.history?.events ?? []).filter(
             (event) => event.cause_evidence_ids.length > 0
-          ).length
+          ).length,
+          runtime_status: "not_materialized"
         },
         required_outcome:
-          "Expand dated observations beyond CT-E and resolve assistant answers against selected certified facts and evidence IDs.",
+          "Implement the pure history and assistant engines, scenario integration and UI over the materialized 2.4 contract.",
         references: [
-          "$.model.events",
+          "$.history",
           "$.model.observations",
-          "$.assistant.questions"
+          "$.model.facts",
+          "$.model.evidence",
+          "$.assistant.intents"
         ]
       }
     ],

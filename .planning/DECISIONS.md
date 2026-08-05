@@ -324,3 +324,110 @@ La corrección reemplaza esa afirmación por `Referencia de precio no demostrada
 El checker independiente `/root/phase4_gate_checker` repitió P4-13 sobre `be05fdc456e3ab85da01df26b4cd22daa426dac6` y emitió `PASS`. Verificó HU-DEMO-501–504, CT-A/B/C/D/G/I/P, contrato 2.3, privacidad, determinismo, responsive, accesibilidad, regresiones, Graphify y recorrido comercial. No existen gaps bloqueantes y `HUMAN-GATE-B` no aplica.
 
 P4-14 puede preparar el PR funcional. El merge continúa siendo humano. El `PASS` no demuestra despliegue: P4-15 debe verificar Pages read-only después del merge y P4-16 debe persistir ese resultado en una rama y PR documental separados. Cualquier cambio posterior a P4-13 en código, datos, tests, estilos, activos o comportamiento exige repetir el checker.
+
+## D-033 — HUMAN-GATE-A habilita Fase 5 bajo A1–A12
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Acepto A1–A12 y autorizo HUMAN-GATE-A de la Fase 5.” con timestamp de sesión `2026-08-04T10:50:13.4321329-05:00`. La aprobación acepta el plan `ae55fa5fa1670fd471921b74dba8dfa7bfad048e` y habilita P5-00D; P5-01 solo puede comenzar si el baseline preimplementación pasa.
+
+Queda decidido que:
+
+1. el contrato objetivo es 2.4 con `history` y `assistant` autoritativos y reader 2.0–2.4;
+2. los 34 candidatos históricos preliminares se auditan y no constituyen un mínimo comprometido;
+3. el histórico describe precios publicados desde/mínimos a nivel proyecto en dos observaciones, nunca ventas o cierres;
+4. no se atribuye causa sin evidencia causal;
+5. vigencia se calcula contra el cutoff con umbrales 30/90 días;
+6. señales y asistente conservan el escenario canónico;
+7. calidad/vigencia preceden a magnitud y outliers débiles no lideran la lectura;
+8. HU-DEMO-603 entra como agenda reproducible, no como afirmación semanal;
+9. el asistente es determinista, local, de catálogo cerrado y sin servicios externos;
+10. toda afirmación resoluble porta referencias y CT-F rechaza precio real de cierre.
+
+La aprobación no equivale a PASS técnico, merge o despliegue. P5-13 permanece independiente y HUMAN-GATE-B será obligatorio ante `PASS WITH RISKS`.
+
+## D-034 — Contrato 2.4 separa histórico y catálogo semántico
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+P5-01 añade al schema la revisión `2.4.0` con dos índices autoritativos y cerrados: `history` referencia observaciones, hechos y evidencias sin duplicar el modelo; `assistant` publica política, intenciones, guardrails y contrato de respuesta sin precalcular cifras.
+
+Las revisiones 2.0–2.3 prohíben anunciar `history` y conservan `assistant` legacy. La revisión 2.4 hereda escenario, inspector y benchmark, y exige ambos índices F5. El reader admite 2.0–2.4; el runtime territorial permanece 2.1–2.3 hasta P5-06.
+
+P5-01 no modifica writer ni dataset. El cambio del schema produce un drift esperado en su fingerprint dentro del JSON público 2.3. P5-04 es el único propietario autorizado para regenerar el payload 2.4 y cerrar determinismo; actualizar a mano el fingerprint queda prohibido.
+
+## D-035 — P5-02 separa calidad histórica de visibilidad territorial
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+La policy y el catálogo de P5-02 se materializan exactamente dentro del contrato 2.4 aprobado, sin ampliar reason codes, topics o propiedades. CT-C no se representa como un defecto del evento: un cambio compatible puede ser materializable en el universo y, simultáneamente, quedar fuera de la vista porque su `project_id` no pertenece al escenario canónico.
+
+Moneda, cronología, semántica, entidad y evidencia gobiernan calidad; `scenario_project_ids` gobierna visibilidad. CT-G/CT-I cierran por defecto ante evidencia restringida, desconocida o conflictiva. El asistente nunca cambia de territorio por texto y las preguntas de cierre, causalidad o datos personales usan limitaciones deterministas.
+
+P5-02 no modifica writer, validator, runtime ni dataset público. El drift de fingerprint del schema permanece reservado a P5-04. P5-03 puede reutilizar los evaluadores puros para auditar candidatos, pero no puede relajar la policy para aproximarse a 34 eventos.
+
+## D-036 — P5-03 explica 34 preliminares y materializa 36 por policy
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+La auditoría reproduce exactamente los 34 candidatos conservadores documentados, pero esa cifra no es un mínimo ni un máximo contractual. Tras exigir identidad canónica, 31 quedan certificados. La policy aprobada permite conservar cinco cambios extremos con identidad y cronología válidas como `reviewable`, de modo que el resultado materializado es 36.
+
+Se excluyen cinco identidades no resueltas (`3240`, `3385`, `3406`, `4052`, `4139`) y una moneda ambigua (`3313`). Los cinco outliers materializados (`2587`, `3445`, `3540`, `3735`, `3902`) nunca se certifican ni adquieren prioridad por magnitud. Todos los eventos conservan causa nula y vigencia derivada del cutoff.
+
+P5-03 crea IDs de linaje deterministas, no registros públicos: P5-04 debe materializar observaciones, hechos y evidencias, resolver todas las referencias y regenerar el payload 2.4. Si ese gate reduce el conteo, debe explicarlo; queda prohibido relajar identidad, moneda, cronología o evidencia para conservar 36.
+
+## D-037 — P5-06 adopta 2.4 sin acoplar histórico y escenario
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+El runtime territorial admite contratos 2.1–2.4. El reader estructural conserva 2.0, pero el escenario F2 no lo declara operativo porque esa revisión no contiene su contrato territorial. Histórico se habilita únicamente en 2.4 y degrada explícitamente en 2.1–2.3.
+
+El índice Benchmark es semánticamente idéntico entre 2.3 y 2.4; por ello su motor amplía exclusivamente la allowlist de compatibilidad a ambas revisiones. Esta decisión no modifica fórmulas, pairing, elegibilidad, datos ni claims.
+
+`historyContext` se deriva del mismo `scenarioContext`, pero mantiene filtros, selección y revisión locales. Los filtros no mutan ni recomponen el escenario; distrito, alcance y reset sí recomponen la cadena derivada una sola vez. La vista futura debe consumir esta proyección y queda prohibido que reconstruya reglas desde `payload.history` o campos legacy.
+
+## D-038 — P5-07 usa una columna de evidencia y divulgación nativa
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+El cuaderno histórico adopta una columna verde continua como firma visual porque representa una secuencia real de observaciones, no como ornamento. Calidad y vigencia preceden a magnitud; las señales se muestran por filas y el papel cálido queda reservado al detalle documental.
+
+La vista muestra cinco señales por defecto y utiliza `<details>` nativo para eventos adicionales. Así evita introducir un segundo estado mutable de paginación, conserva teclado y permite que una selección ubicada en el bloque adicional lo mantenga abierto. Filtros y selección siguen perteneciendo exclusivamente al estado integrado en P5-06.
+
+P5-07 no implementa la agenda aunque el motor ya la deriva. La responsabilidad de presentar esas tres acciones pertenece a P5-08; mezclarla con la línea de tiempo habría ampliado el paso atómico y dificultado su revisión.
+
+## D-039 — P5-08 conserva la prioridad del motor y enlaza su origen
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+La agenda de seguimiento consume los tres primeros elementos de `state.historyContext.agenda` en el orden recibido. Los números 1–3 son semánticos porque representan la prioridad ya derivada por calidad, no un recurso decorativo; la vista no ordena, puntúa o interpreta magnitud.
+
+Cada acción expone su evento de origen, proyecto, fecha y conteos referenciados, y reutiliza la selección de evidencia del cuaderno. Cuando el motor entrega el fallback sin evento, la acción lleva a los filtros y declara cobertura del escenario como origen. Si la agenda falta, la UI muestra indisponibilidad en vez de fabricar una recomendación.
+
+P5-08 no incorpora lenguaje periódico, urgencia, causa observada ni CTA de decisión. La agenda aparece después de la línea de tiempo para que la acción siga a la comprensión y se presenta como una sola lista vertical, sin aumentar la sobrecarga de cards.
+
+## D-040 — P5-09 usa catálogo cerrado y referencias estructuradas
+
+**Fecha:** 2026-08-04
+
+**Estado:** aceptada
+
+El motor semántico consume el catálogo `assistant` 2.4 y devuelve siempre seis bloques estructurados. Las cifras y prioridades provienen de `scenarioContext`, `benchmarkContext`, `historyContext` y `comparisonModel`; una afirmación cualitativa solo se emite cuando un dossier aporta hecho certificado, evidencia autorizada y proyecto perteneciente al escenario.
+
+Los guardrails tienen precedencia sobre una intención explícita: precio real de cierre, causalidad, predicción, datos personales y solicitudes externas producen rechazo determinista. Una mención a otro distrito se registra, pero nunca cambia territorio, muestra, corte o filtros. Una intención desconocida muestra el catálogo compatible y no invoca un fallback generativo.
+
+El motor permanece local y puro: no usa DOM, reloj, almacenamiento, red, credenciales ni SDK de IA. P5-10 debe consumir este contrato sin duplicar clasificación, cifras o reglas de evidencia en la vista.

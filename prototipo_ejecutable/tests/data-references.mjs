@@ -150,7 +150,7 @@ for (const exclusion of data.geography.exclusions) {
   assert.ok(geographyAssignmentIds.has(exclusion.project_id));
 }
 
-assert.equal(data.metadata.contract_version, "2.3.0");
+assert.equal(data.metadata.contract_version, "2.4.0");
 assert.equal(data.benchmark.fact_index.length, 397);
 const benchmarkProjectIds = new Set();
 for (const entry of data.benchmark.fact_index) {

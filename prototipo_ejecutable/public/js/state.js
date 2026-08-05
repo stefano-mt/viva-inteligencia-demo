@@ -10,7 +10,15 @@ import {
   roundHalfAwayFromZero,
 } from "./comparability.js";
 import { buildEvidenceDossier } from "./evidence-inspector.js";
-import { buildBenchmarkContext } from "./benchmark.js";
+import {
+  buildBenchmarkContext,
+  buildComparisonModel,
+} from "./benchmark.js";
+import { buildAssistantResponse } from "./assistant-engine.js";
+import {
+  buildHistoryContext,
+  normalizeHistoryFilters,
+} from "./history.js";
 
 let dataValue = null;
 let scenarioEnvironment = null;
@@ -68,6 +76,10 @@ export const state = {
   scenarioContext: null,
   scenarioContextRevision: 0,
   benchmarkContext: null,
+  historyFilters: normalizeHistoryFilters(),
+  historyContext: null,
+  historyContextRevision: 0,
+  selectedHistoryEventId: null,
   get selectedDistrict() {
     return districtNameForId(state.scenario?.district_id);
   },
@@ -96,7 +108,9 @@ export const state = {
   compareIncludeTarget: false,
   compareQuery: "",
   assistantInput: "",
+  assistantIntentId: null,
   assistantResponse: null,
+  assistantResponseRevision: 0,
   inspectorProjectId: null,
   inspectorTypologyId: null,
   inspectorEvidenceId: null,
@@ -123,7 +137,15 @@ export function initializeScenarioData(data, options = {}) {
   state.scenarioContext = null;
   state.scenarioContextRevision = 0;
   state.benchmarkContext = null;
+  state.historyFilters = normalizeHistoryFilters();
+  state.historyContext = null;
+  state.historyContextRevision = 0;
+  state.selectedHistoryEventId = null;
   state.compareIncludeTarget = false;
+  state.assistantInput = "";
+  state.assistantIntentId = null;
+  state.assistantResponse = null;
+  state.assistantResponseRevision = 0;
 
   if (!dataValue) {
     scenarioEnvironment = null;
@@ -378,6 +400,13 @@ export function dispatchInspector(action) {
     announcement = "";
     focusIntent = "none";
   }
+  if (
+    changed &&
+    (before.projectId !== after.projectId ||
+      before.typologyId !== after.typologyId)
+  ) {
+    recomputeAssistantResponse();
+  }
   return inspectorTransition({
     changed,
     corrected,
@@ -398,13 +427,29 @@ export function dispatchScenario(action, options = {}) {
     JSON.stringify(previous.scenario) !== JSON.stringify(next.scenario) ||
     previous.scenario_status !== next.scenario_status ||
     JSON.stringify(previous.corrections) !== JSON.stringify(next.corrections);
+  const resetsHistory = action?.type === "RESET";
+  const defaultHistoryFilters = resetsHistory
+    ? normalizeHistoryFilters()
+    : null;
+  const historyChangedByReset =
+    resetsHistory &&
+    (JSON.stringify(state.historyFilters) !==
+      JSON.stringify(defaultHistoryFilters) ||
+      state.selectedHistoryEventId !== null);
+  if (resetsHistory) {
+    state.historyFilters = defaultHistoryFilters;
+    state.selectedHistoryEventId = null;
+  }
 
   if (!changed) {
+    if (historyChangedByReset) recomputeHistoryContext();
     applyDispatchEffects(options);
     return {
       ...next,
       recomputed: false,
       revision: state.scenarioContextRevision,
+      history_recomputed: historyChangedByReset,
+      history_revision: state.historyContextRevision,
     };
   }
 
@@ -417,6 +462,8 @@ export function dispatchScenario(action, options = {}) {
     ...next,
     recomputed: true,
     revision: state.scenarioContextRevision,
+    history_recomputed: true,
+    history_revision: state.historyContextRevision,
   };
 }
 
@@ -451,6 +498,7 @@ export function recomputeScenarioContext() {
   if (!dataValue || !scenarioEnvironment || !state.scenario) {
     state.scenarioContext = null;
     state.benchmarkContext = null;
+    state.historyContext = null;
     return null;
   }
 
@@ -554,8 +602,129 @@ export function recomputeScenarioContext() {
     }),
     revision,
   };
+  recomputeHistoryContext();
   normalizeScenarioSelections();
+  recomputeAssistantResponse();
   return state.scenarioContext;
+}
+
+export function recomputeHistoryContext() {
+  if (!dataValue || !state.scenarioContext) {
+    state.historyContext = null;
+    state.selectedHistoryEventId = null;
+    return null;
+  }
+  const revision = state.historyContextRevision + 1;
+  const scenarioProjection = historyScenarioProjection(state.scenarioContext);
+  state.historyContextRevision = revision;
+  state.historyContext = {
+    ...buildHistoryContext({
+      data: dataValue,
+      scenarioContext: scenarioProjection,
+      filters: state.historyFilters,
+    }),
+    scenario: scenarioProjection,
+    revision,
+    scenario_revision: state.scenarioContextRevision,
+  };
+  normalizeHistorySelection();
+  return state.historyContext;
+}
+
+export function setHistoryFilters(patch = {}) {
+  const next = normalizeHistoryFilters({
+    ...state.historyFilters,
+    ...(patch ?? {}),
+  });
+  if (JSON.stringify(next) === JSON.stringify(state.historyFilters)) {
+    return {
+      changed: false,
+      revision: state.historyContextRevision,
+      historyContext: state.historyContext,
+    };
+  }
+  state.historyFilters = next;
+  const historyContext = recomputeHistoryContext();
+  return {
+    changed: true,
+    revision: state.historyContextRevision,
+    historyContext,
+  };
+}
+
+export function selectHistoryEvent(historyEventId) {
+  if (historyEventId === null) {
+    state.selectedHistoryEventId = null;
+    return true;
+  }
+  const requested = String(historyEventId ?? "");
+  if (
+    !requested ||
+    !state.historyContext?.timeline?.some(
+      ({ history_event_id: candidate }) => candidate === requested,
+    )
+  ) {
+    return false;
+  }
+  state.selectedHistoryEventId = requested;
+  return true;
+}
+
+export function setAssistantDraft(input = "", intentId = null) {
+  const nextInput = String(input ?? "");
+  const nextIntentId =
+    typeof intentId === "string" && intentId ? intentId : null;
+  const changed =
+    nextInput !== state.assistantInput ||
+    nextIntentId !== state.assistantIntentId;
+  state.assistantInput = nextInput;
+  state.assistantIntentId = nextIntentId;
+  if (changed) state.assistantResponse = null;
+  return {
+    changed,
+    input: state.assistantInput,
+    intentId: state.assistantIntentId,
+  };
+}
+
+export function generateAssistantResponse({
+  input = state.assistantInput,
+  intentId = state.assistantIntentId,
+} = {}) {
+  state.assistantInput = String(input ?? "");
+  state.assistantIntentId =
+    typeof intentId === "string" && intentId ? intentId : null;
+  state.assistantResponse = buildAssistantResponse({
+    data: dataValue,
+    scenarioContext: state.scenarioContext,
+    historyContext: state.historyContext,
+    benchmarkContext: state.benchmarkContext,
+    comparisonModel: currentComparisonModel(),
+    inspectorDossier: currentInspectorDossier(),
+    input: state.assistantInput,
+    intentId: state.assistantIntentId,
+  });
+  state.assistantIntentId = state.assistantResponse.intentId ?? null;
+  state.assistantResponseRevision += 1;
+  return structuredClone(state.assistantResponse);
+}
+
+export function recomputeAssistantResponse() {
+  if (!state.assistantResponse) return null;
+  return generateAssistantResponse();
+}
+
+export function clearAssistantResponse() {
+  const changed = Boolean(
+    state.assistantInput ||
+      state.assistantIntentId ||
+      state.assistantResponse,
+  );
+  state.assistantInput = "";
+  state.assistantIntentId = null;
+  state.assistantResponse = null;
+  if (changed) state.assistantResponseRevision += 1;
+  return changed;
 }
 
 export function canonicalScenarioSearch() {
@@ -662,6 +831,33 @@ function setInspectorCase(inspectorCase) {
 
 function currentInspectorCase() {
   return inspectorRuntime.caseById.get(state.inspectorPreset) ?? null;
+}
+
+function currentInspectorDossier() {
+  const inspectorCase = currentInspectorCase();
+  if (!inspectorRuntime.available || !inspectorCase || !dataValue?.model) {
+    return null;
+  }
+  try {
+    return buildEvidenceDossier({
+      model: dataValue.model,
+      inspector: dataValue.inspector,
+      projectId: inspectorCase.project_id,
+      typologyId: inspectorCase.typology_id,
+    });
+  } catch {
+    return null;
+  }
+}
+
+function currentComparisonModel() {
+  return buildComparisonModel({
+    benchmarkContext: state.benchmarkContext,
+    selectedProjectIds: state.compareProjectIds
+      .map(canonicalIdFromLegacy)
+      .filter(Boolean),
+    includeTargetScenario: Boolean(state.compareIncludeTarget),
+  });
 }
 
 function resolveInspectorCase(value) {
@@ -783,6 +979,29 @@ function normalizeScenarioSelections() {
   if (!state.benchmarkContext?.targetScenario) {
     state.compareIncludeTarget = false;
   }
+}
+
+function normalizeHistorySelection() {
+  if (
+    state.selectedHistoryEventId &&
+    !state.historyContext?.timeline?.some(
+      ({ history_event_id: candidate }) =>
+        candidate === state.selectedHistoryEventId,
+    )
+  ) {
+    state.selectedHistoryEventId = null;
+  }
+}
+
+function historyScenarioProjection(context) {
+  return {
+    scenario: structuredClone(context.scenario),
+    scope: structuredClone(context.scope),
+    comparable_project_ids: [...context.comparable_project_ids],
+    cutoff_at: context.cutoff_at,
+    scenario_status: context.scenario_status,
+    comparability_status: context.comparability_status,
+  };
 }
 
 function benchmarkScenarioProjection(context) {

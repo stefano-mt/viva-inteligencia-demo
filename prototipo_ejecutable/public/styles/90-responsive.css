@@ -1215,3 +1215,70 @@
     animation: none !important;
   }
 }
+
+/* Phase 5: keep territorial context legible beside the history and assistant. */
+.workspace:has(:is(.history-view, .assistant-workbench))
+  :is(
+    .scenario-summary__eligibility,
+    .scenario-summary__metrics dt,
+    .scenario-summary__metrics dd small,
+    .scenario-status strong,
+    .scenario-status small,
+    .scenario-share summary
+  ) {
+  font-size: 14px;
+}
+
+.workspace:has(:is(.history-view, .assistant-workbench))
+  .scenario-summary__metrics dd {
+  overflow-wrap: normal;
+  word-break: normal;
+}
+
+@media (max-width: 1320px) {
+  .workspace:has(:is(.history-view, .assistant-workbench))
+    .scenario-summary__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace:has(:is(.history-view, .assistant-workbench))
+    .scenario-summary__metrics > div:nth-child(odd) {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .workspace:has(:is(.history-view, .assistant-workbench))
+    .scenario-summary__metrics > div:nth-child(n + 3) {
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 620px) {
+  .workspace:has(:is(.history-view, .assistant-workbench))
+    .scenario-summary__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace:has(:is(.history-view, .assistant-workbench))
+    .scenario-summary__metrics > div {
+    padding: 11px 0;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .workspace:has(:is(.history-view, .assistant-workbench))
+    .scenario-summary__metrics > div:first-child {
+    border-top: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body:has(:is(.history-view, .assistant-workbench)) *,
+  body:has(:is(.history-view, .assistant-workbench)) *::before,
+  body:has(:is(.history-view, .assistant-workbench)) *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0s !important;
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+  }
+}

@@ -265,6 +265,7 @@ assert.deepEqual(
 const payload23 = structuredClone(publicData);
 payload23.metadata.contract_version = "2.3.0";
 payload23.benchmark = benchmark;
+delete payload23.history;
 assert.deepEqual(
   validateRootDocument(payload23, { schema, assetExists }),
   [],

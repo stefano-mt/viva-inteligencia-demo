@@ -83,17 +83,27 @@ function startupSnapshot(document) {
     scope: territorial.scope,
     geography_status: territorial.geography_status,
     benchmark_status:
-      document.metadata.contract_version === "2.3.0" && document.benchmark
+      ["2.3.0", "2.4.0"].includes(document.metadata.contract_version) &&
+      document.benchmark
+        ? "available"
+        : "contract_unavailable",
+    history_status:
+      document.metadata.contract_version === "2.4.0" && document.history
         ? "available"
         : "contract_unavailable"
   };
 }
 
 const payloads = new Map();
-for (const contractVersion of ["2.1.0", "2.2.0", "2.3.0"]) {
+for (const contractVersion of ["2.1.0", "2.2.0", "2.3.0", "2.4.0"]) {
   const payload = structuredClone(data);
   payload.metadata.contract_version = contractVersion;
-  if (contractVersion === "2.3.0") payload.benchmark = minimalBenchmark();
+  if (contractVersion !== "2.4.0") delete payload.history;
+  if (contractVersion === "2.3.0") {
+    payload.benchmark = minimalBenchmark();
+  } else if (contractVersion !== "2.4.0") {
+    delete payload.benchmark;
+  }
   payloads.set(contractVersion, payload);
   assert.deepEqual(
     validateRootDocument(payload, { schema, assetExists }),
@@ -108,10 +118,18 @@ const snapshots = Object.fromEntries(
     startupSnapshot(payload)
   ])
 );
-for (const contractVersion of ["2.2.0", "2.3.0"]) {
-  const { benchmark_status: ignoredBaseStatus, ...baseTerritory } =
+for (const contractVersion of ["2.2.0", "2.3.0", "2.4.0"]) {
+  const {
+    benchmark_status: ignoredBaseBenchmark,
+    history_status: ignoredBaseHistory,
+    ...baseTerritory
+  } =
     snapshots["2.1.0"];
-  const { benchmark_status: ignoredCandidateStatus, ...candidateTerritory } =
+  const {
+    benchmark_status: ignoredCandidateBenchmark,
+    history_status: ignoredCandidateHistory,
+    ...candidateTerritory
+  } =
     snapshots[contractVersion];
   assert.deepEqual(
     candidateTerritory,
@@ -122,17 +140,22 @@ for (const contractVersion of ["2.2.0", "2.3.0"]) {
 assert.equal(snapshots["2.1.0"].benchmark_status, "contract_unavailable");
 assert.equal(snapshots["2.2.0"].benchmark_status, "contract_unavailable");
 assert.equal(snapshots["2.3.0"].benchmark_status, "available");
+assert.equal(snapshots["2.4.0"].benchmark_status, "available");
+assert.equal(snapshots["2.1.0"].history_status, "contract_unavailable");
+assert.equal(snapshots["2.2.0"].history_status, "contract_unavailable");
+assert.equal(snapshots["2.3.0"].history_status, "contract_unavailable");
+assert.equal(snapshots["2.4.0"].history_status, "available");
 
 for (const contractVersion of ["2.0.0", "3.0.0"]) {
   const payload = structuredClone(data);
   payload.metadata.contract_version = contractVersion;
   assert.throws(
     () => startupSnapshot(payload),
-    /requires public contract 2\.1\.0 or 2\.2\.0/,
+    /requires public contract 2\.1\.0 through 2\.4\.0/,
     `runtime must fail closed for ${contractVersion}`
   );
 }
 
 console.log(
-  "Runtime startup OK: 2.1/2.2/2.3 preserve territorial IDs; only F4 availability changes."
+  "Runtime startup OK: 2.1–2.4 preserve territorial IDs with explicit F4/F5 availability."
 );

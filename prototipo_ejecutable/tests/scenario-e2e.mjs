@@ -195,8 +195,8 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(publicMetadata.dataset_id, descriptor.dataset_id, "Dataset CT-C inesperado");
   assert.equal(
     publicMetadata.contract_version,
-    "2.3.0",
-    "P4 debe conservar el contrato público 2.3 durante CT-C",
+    "2.4.0",
+    "P5 debe conservar el contrato público 2.4 durante CT-C",
   );
   assert.equal(
     descriptor.contract_version,
@@ -325,6 +325,11 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     ["assistant", "assistant"],
   ]) {
     await openPath(page, baseUrl, pathForRoute(descriptor.canonical_path, routeId));
+    if (routeId === "assistant") {
+      await page.locator(".assistant-question").first().click();
+      await page.locator("#assistant-input").press("Control+Enter");
+      await page.locator('[data-assistant-response="ready"]').waitFor();
+    }
     await assertCanonicalIds(page, consumer, descriptor.expected.consumer_project_ids[consumer]);
   }
   await openPath(page, baseUrl, pathForRoute(descriptor.canonical_path, "compare"));
@@ -359,6 +364,11 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     ["assistant", "assistant"],
   ]) {
     await openPath(page, baseUrl, `/#${routeId}`);
+    if (routeId === "assistant") {
+      await page.locator(".assistant-question").first().click();
+      await page.locator("#assistant-input").press("Control+Enter");
+      await page.locator('[data-assistant-response="ready"]').waitFor();
+    }
     const referenceIds = await uniqueAttributeValues(
       page.locator(`[data-scenario-consumer="${consumer}"] [data-canonical-project-id]`),
       "data-canonical-project-id",

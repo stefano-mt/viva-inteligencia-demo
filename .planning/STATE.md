@@ -1,14 +1,14 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-08-03
+**Actualizado:** 2026-08-04
 
 **Milestone:** demo vNext orientada a venta
 
 **Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
 
-**Estado:** Fases 0–3 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado y P4-15 verificó GitHub Pages con `PASS` para `e2c953f`. P4-16 persiste este resultado en una rama y PR documental separados; Fase 4 adquiere el estado oficial `deployed and verified` en `main` cuando un humano fusione ese PR.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está técnicamente completa: P5-01–P5-14 cerrados, P5-13 `PASS` y PR funcional [#15](https://github.com/stefano-mt/viva-inteligencia-demo/pull/15) abierto como borrador. Merge humano y verificación post-merge pendientes.
 
-**Rama activa:** `docs/phase-4-postmerge-report`.
+**Rama activa:** `feat/phase-5-history-signals-assistant`.
 
 ## Baseline vigente
 
@@ -182,18 +182,80 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
 - P4-15: **PASS**; contrato `2.3.0`, CT-C/G/I, benchmark, comparador, quince activos, escritorio, móvil, consola y red verificados en la URL pública.
 - Informe post-merge: [phases/04-benchmark-comparator/POSTMERGE_REPORT.md](phases/04-benchmark-comparator/POSTMERGE_REPORT.md).
-- PR documental P4-16: [#14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14), `OPEN / READY TO MERGE`, pendiente de revisión y merge humano.
+- PR documental P4-16: [#14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14), fusionado por un humano.
+- Merge documental P4-16 en `main`: `47a794ca00b451355a181acf5c20feeee0fdccb4`.
 - Smoke y accesibilidad: 8 rutas × 3 viewports; responsive específico y reflow 200%: PASS.
 - Graphify F4: 3,034 nodos y 5,743 relaciones; sin blocker arquitectónico.
 - HUMAN-GATE-B: no requerido porque el veredicto final es `PASS`.
-- Estado de ship: despliegue técnico verificado con `PASS`; el estado oficial **`deployed and verified`** queda pendiente de revisión y merge humano de P4-16 en `main`.
+- Estado de ship: **`deployed and verified`**.
 - Gap residual de gobernanza: el recorrido comercial de P4-13 fue automatizado. El checker independiente lo aceptó con `PASS`, pero debe realizarse un ensayo humano breve antes de presentar la demo al cliente.
+
+## Fase 5 — planificación vigente
+
+- Contexto: [phases/05-history-signals-assistant/CONTEXT.md](phases/05-history-signals-assistant/CONTEXT.md).
+- Evaluación técnica y de datos: [phases/05-history-signals-assistant/DATA-ASSESSMENT.md](phases/05-history-signals-assistant/DATA-ASSESSMENT.md).
+- UX/UI: [phases/05-history-signals-assistant/UI-SPEC.md](phases/05-history-signals-assistant/UI-SPEC.md).
+- Plan: [phases/05-history-signals-assistant/PLAN.md](phases/05-history-signals-assistant/PLAN.md).
+- Revisión estructural: [phases/05-history-signals-assistant/PLAN_REVIEW.md](phases/05-history-signals-assistant/PLAN_REVIEW.md).
+- Solicitud de aprobación: [phases/05-history-signals-assistant/HUMAN-GATE-A-REQUEST.md](phases/05-history-signals-assistant/HUMAN-GATE-A-REQUEST.md).
+- Historias: HU-DEMO-601–603 y 701–703; HU-DEMO-603 es Should.
+- Casos obligatorios: CT-C/D/E/F/G/I/P.
+- Contrato propuesto: `2.4.0`, histórico y asistente autoritativos, reader 2.0–2.4.
+- Línea base visual: `#activity` mezcla proyectos de otros distritos y prioriza outliers legacy; `#assistant` aún no cita hechos/evidencias.
+- HUMAN-GATE-A: [phases/05-history-signals-assistant/APPROVAL.md](phases/05-history-signals-assistant/APPROVAL.md), A1–A12 aprobadas el `2026-08-04T10:50:13.4321329-05:00` sobre `ae55fa5`.
+- P5-00C: completado; decisión D-033 registrada.
+- P5-00D: [phases/05-history-signals-assistant/BASELINE_BROWSER.md](phases/05-history-signals-assistant/BASELINE_BROWSER.md), `PASS`; paridad runtime, `npm run verify`, ocho rutas × tres viewports, accesibilidad y cuatro capturas portables verificadas.
+- P5-01: [phases/05-history-signals-assistant/P5-01-CONTRACT.md](phases/05-history-signals-assistant/P5-01-CONTRACT.md), completado; schema 2.4, `history`/`assistant` cerrados y reader 2.0–2.4.
+- Drift controlado: determinismo permanece rojo solo por el fingerprint del schema mientras el dataset público sigue en 2.3; P5-04 es el propietario exclusivo de la regeneración.
+- P5-02: [phases/05-history-signals-assistant/P5-02-POLICY-FIXTURES.md](phases/05-history-signals-assistant/P5-02-POLICY-FIXTURES.md), completado; policy histórica, siete familias del asistente, 8+7 fixtures CT-C/D/E/F/G/I/P y mutaciones fail-closed.
+- P5-02 preservó schema, writer, validator, runtime y JSON público; CT-C quedó modelado como visibilidad territorial, no como defecto de calidad.
+- P5-03: [phases/05-history-signals-assistant/P5-03-MATERIALIZATION-AUDIT.md](phases/05-history-signals-assistant/P5-03-MATERIALIZATION-AUDIT.md), completado; reprodujo 34 preliminares y materializó 36 eventos (31 certificados, 5 revisables) con 6 exclusiones explicadas.
+- P5-03 conserva causas nulas, 36 vigencias `aging`, orden/idempotencia, privacidad y schema 2.4 por evento; writer y JSON público permanecen protegidos.
+- P5-04: [phases/05-history-signals-assistant/P5-04-PUBLIC-DATASET.md](phases/05-history-signals-assistant/P5-04-PUBLIC-DATASET.md), completado; writer y JSON público ahora usan contrato `2.4.0`.
+- Histórico público: 36 eventos, 31 certificados, 5 revisables, 6 exclusiones; 72 observaciones, 72 hechos, 72 evidencias y un documento de snapshot con referencias válidas.
+- Dataset 2.4: SHA-256 `20d44245c956a198c8621b3f544115387037b73cc462e50f63a5ce6d61fb4a37`; 52 fingerprints; reporte de cobertura SHA-256 `639b613aff89f9605c3dcc74a7914700dfa89fb84ababe70910fc25c3ba81864`.
+- P5-05: [phases/05-history-signals-assistant/P5-05-HISTORY-DOMAIN.md](phases/05-history-signals-assistant/P5-05-HISTORY-DOMAIN.md), completado; motor puro sobre `payload.history` + `scenarioContext`, filtros locales, detalle referenciado, vigencia por cutoff y agenda de máximo tres filas.
+- CT-C/E/G/I de dominio: PASS; 36 señales completas, orden calidad-primero, base cero sin infinito, evidencia restringida fail-closed y Miraflores limitado a los 85 comparables.
+- P5-06: [phases/05-history-signals-assistant/P5-06-STATE-INTEGRATION.md](phases/05-history-signals-assistant/P5-06-STATE-INTEGRATION.md), completado; runtime territorial compatible con 2.1–2.4 e histórico derivado desde el escenario canónico.
+- Estado histórico local: filtros y selección no mutan escenario ni payload; distrito, alcance y reset recomponen una vez y eliminan selecciones obsoletas.
+- Compatibilidad: 2.3 conserva Benchmark y degrada histórico explícitamente; 2.4 habilita Benchmark e histórico sin cambiar la semántica de elegibilidad.
+- Gate integral: `npm.cmd run verify` PASS, incluidas ocho rutas × tres viewports, E2E, accesibilidad, privacidad y determinismo.
+- El gate arquitectónico está verde tras P5-06; los hashes del JSON, cobertura y GeoJSON permanecen sin cambios.
+- P5-07: [phases/05-history-signals-assistant/P5-07-HISTORY-UI.md](phases/05-history-signals-assistant/P5-07-HISTORY-UI.md), completado; `#activity` consume solo `state.historyContext` y elimina el feed legacy.
+- Vista histórica: banda de calidad, filtros, cinco señales por defecto, detalle con evidencia, estados legacy/vacío/error, foco preservado y navegación a proyecto.
+- Evidencia visual P5-07: 1440×900, 1280×720 y 390×844; smoke y accesibilidad 8 rutas × 3 viewports PASS.
+- P5-08: [phases/05-history-signals-assistant/P5-08-PRIORITIZED-AGENDA.md](phases/05-history-signals-assistant/P5-08-PRIORITIZED-AGENDA.md), completado; agenda vertical de máximo tres acciones en el orden del motor, con origen, hechos/evidencias y navegación a la señal.
+- Fallback de agenda: si no hay señales elegibles, `Revisar filtros` enfoca el control canónico; la vista no inventa prioridad, frecuencia o causalidad.
+- Evidencia visual P5-08: 1440×900, 1280×720 y 390×844; E2E, smoke y accesibilidad 8 rutas × 3 viewports PASS.
+- P5-09: [phases/05-history-signals-assistant/P5-09-ASSISTANT-ENGINE.md](phases/05-history-signals-assistant/P5-09-ASSISTANT-ENGINE.md), completado; motor semántico puro sobre las siete intenciones del catálogo 2.4 y seis bloques trazables.
+- Guardrails del asistente: cierre, causalidad, predicción, PII y red se rechazan antes de clasificar; evidencia cualitativa requiere hecho certificado, evidencia autorizada y pertenencia al escenario.
+- Dominio P5-09, gate integral y checker independiente: PASS; determinismo, no mutación, fallback, CT-C/D/E/F/G/I/P, contrato legacy, XSS y ausencia de DOM/reloj/red verificados.
+- P5-10: [phases/05-history-signals-assistant/P5-10-ASSISTANT-UI.md](phases/05-history-signals-assistant/P5-10-ASSISTANT-UI.md), completado; preguntas compatibles, editor seguro, seis bloques verticales, referencias navegables y estado inicial explícito.
+- La consulta del asistente vive solo en memoria: no se guarda, no entra en la URL y no realiza solicitudes externas; Enter inserta línea y Ctrl+Enter genera.
+- Accesibilidad y densidad P5-10: escenario y modo visibles, `aria-live`, foco en resultado, cinco referencias iniciales con divulgación progresiva y evidencia 1440×900/390×844.
+- Graphify P5-10: 3,425 nodos y 6,536 relaciones; confirmó el recorrido vista → controlador → estado → motor sin hub nuevo bloqueante.
+- Checker independiente P5-10: `/root/p5_10_checker`, veredicto final `PASS` tras corregir y repetir los recorridos de reclasificación y navegación `benchmark`/`assistant`.
+- P5-11: [phases/05-history-signals-assistant/P5-11-E2E-REGRESSIONS.md](phases/05-history-signals-assistant/P5-11-E2E-REGRESSIONS.md), completado; siete recorridos integrales, CT-C/D/E/F/G/I/P, contrato 2.3 y escenario sin eventos verificados.
+- Gate P5-11: `npm.cmd run verify` PASS; histórico y asistente forman parte del manifiesto, con smoke/accesibilidad en ocho rutas × tres viewports y cero solicitudes externas.
+- Checker proporcional P5-11: `/root/p5_11_checker_fast`, veredicto final `PASS`; no sustituye el gate formal P5-13.
+- P5-12: [phases/05-history-signals-assistant/P5-12-RESPONSIVE-A11Y.md](phases/05-history-signals-assistant/P5-12-RESPONSIVE-A11Y.md), completado; 1440×900, 1280×720, 390×844, teclado, contraste AA, densidad y reflow equivalente a 200% automatizados.
+- Evidencia P5-12: trece capturas portables cubren ambas rutas, zoom, vacío, solo por revisar, CT-F y contrato legacy; cero scroll horizontal, truncamiento crítico o solicitudes externas.
+- Ajuste territorial P5-12: metadata ≥14 px y métricas 2×2 en laptop evitan que “Sin precio objetivo” se fragmente palabra por palabra.
+- Checker proporcional P5-12: `/root/p5_12_checker`, veredicto final `PASS` tras cerrar la tautología de movimiento reducido y verificar geométricamente foco/solapes a 200%; no sustituye P5-13.
+- P5-13: [phases/05-history-signals-assistant/VERIFICATION_REPORT.md](phases/05-history-signals-assistant/VERIFICATION_REPORT.md), completado; checker independiente `/root/p5_13_checker`, veredicto formal `PASS` sobre `8e76b796b1fef3616b5a0b7a5526a72d2f125e2c`.
+- Gate formal P5-13: `npm.cmd run verify` PASS en aproximadamente 7 min 45 s; contrato 2.4, CT-C/D/E/F/G/I/P, determinismo, privacidad, Graphify, evidencia, ocho rutas × tres viewports, 200% y recorrido UI-only cerrados.
+- Riesgos residuales P5-13: ninguno alto o medio. Permanecen como notas bajas el ensayo comercial automatizado, helpers legacy no alcanzables, cobertura parcial de Graphify para CSS/JSON y seis hard-breaks Markdown históricos.
+- HUMAN-GATE-B: no requerido porque P5-13 emitió `PASS`.
+- P5-14: [phases/05-history-signals-assistant/SUMMARY.md](phases/05-history-signals-assistant/SUMMARY.md) y [phases/05-history-signals-assistant/HANDOFF.md](phases/05-history-signals-assistant/HANDOFF.md), completado; memoria y evidencia portable listas.
+- PR funcional: [#15 — feat: add explainable market signals and deterministic assistant](https://github.com/stefano-mt/viva-inteligencia-demo/pull/15), observado `OPEN / DRAFT / MERGEABLE / CLEAN` al abrirlo.
+- Último commit funcional: `8e76b796b1fef3616b5a0b7a5526a72d2f125e2c`; los commits posteriores son P5-13/P5-14 documentales.
 
 ## Próxima acción recomendada
 
-1. Revisar el PR documental [#14](https://github.com/stefano-mt/viva-inteligencia-demo/pull/14) contra `main`.
-2. Fusionar ese PR solo por acción humana.
-3. Después del merge, Fase 4 queda cerrada en la memoria oficial y puede iniciarse la planificación de Fase 5.
+1. Revisar el PR #15 y las trece capturas portables; probar `#activity`, `#assistant` y CT-F.
+2. Marcar el PR `Ready for review` cuando la revisión esté lista y realizar el merge exclusivamente de forma humana.
+3. Después del merge, ejecutar P5-15 read-only; si concluye `PASS`, persistir P5-16 en una rama/PR documental separados.
+4. Realizar un ensayo humano breve antes de presentar la demo al cliente; no es un gate técnico de merge.
 
 ## Regla para actualizar este archivo
 

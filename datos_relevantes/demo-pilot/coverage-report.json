@@ -4,14 +4,14 @@
   "cutoff_at": "2026-07-28T01:24:28Z",
   "source_artifact": {
     "path": "prototipo_ejecutable/public/demo-data/viva-platform-demo.json",
-    "contract_version": "2.3.0",
-    "sha256": "5d8a13b3e0af73d8dc8cee674f83cea541136b4c49bd444780bac3508f562041",
-    "byte_length": 7387136
+    "contract_version": "2.4.0",
+    "sha256": "20d44245c956a198c8621b3f544115387037b73cc462e50f63a5ce6d61fb4a37",
+    "byte_length": 7555617
   },
   "derivation": {
-    "authority": "$.model, $.inspector and $.benchmark when present are authoritative; $.projects is the temporary legacy projection.",
-    "method": "All counts and distributions are recomputed offline from the deterministic 2.3.0 payload.",
-    "input_fingerprint_count": 50,
+    "authority": "$.model, $.inspector, $.benchmark, $.history and $.assistant when present are authoritative; $.projects is the temporary legacy projection.",
+    "method": "All counts and distributions are recomputed offline from the deterministic 2.4.0 payload.",
+    "input_fingerprint_count": 52,
     "counting_rules": [
       {
         "code": "MODEL_COLLECTION_COUNTS",
@@ -27,6 +27,11 @@
         "code": "BENCHMARK_EXCLUSIONS",
         "source_path": "$.model.facts",
         "operation": "group benchmark_eligible independently by quality_status, value_kind and semantic_type"
+      },
+      {
+        "code": "HISTORY_REFERENCE_COVERAGE",
+        "source_path": "$.history",
+        "operation": "count events, indexes, status, exclusions and referenced model records"
       }
     ],
     "interpretation_rules": [
@@ -144,6 +149,28 @@
     },
     "reference": "$.benchmark"
   },
+  "history_coverage": {
+    "event_count": 36,
+    "project_index_count": 36,
+    "district_index_count": 15,
+    "certified_count": 31,
+    "reviewable_count": 5,
+    "excluded_count": 6,
+    "model_reference_counts": {
+      "observations": 72,
+      "facts": 72,
+      "documents": 1,
+      "evidence": 72
+    },
+    "input_fingerprint_count": 3,
+    "references": [
+      "$.history",
+      "$.model.observations",
+      "$.model.facts",
+      "$.model.documents",
+      "$.model.evidence"
+    ]
+  },
   "source_observation_and_evidence_coverage": {
     "sources": {
       "count": 10,
@@ -217,13 +244,13 @@
       "reference": "$.model.sources"
     },
     "observations": {
-      "count": 427,
+      "count": 499,
       "entity_type_distribution": {
         "document": 1,
-        "project": 397,
+        "project": 469,
         "typology": 29
       },
-      "with_evidence_ids_count": 18,
+      "with_evidence_ids_count": 90,
       "without_evidence_ids_count": 409,
       "extraction_method_distribution": {
         "controlled_absence": 2,
@@ -231,6 +258,7 @@
         "controlled_illegible_field": 1,
         "controlled_transcription": 11,
         "deterministic_derivation": 4,
+        "structured_snapshot_history": 72,
         "user_provided_image_manual_transcription": 1,
         "user_provided_metadata_only": 1,
         "user_provided_screenshot_transcription": 1,
@@ -239,19 +267,20 @@
       "reference": "$.model.observations"
     },
     "documents": {
-      "count": 19,
+      "count": 20,
       "type_distribution": {
         "card": 9,
+        "other": 1,
         "plan": 1,
         "specification": 9
       },
       "availability_distribution": {
-        "available": 16,
+        "available": 17,
         "restricted": 2,
         "unavailable": 1
       },
       "publish_permission_distribution": {
-        "authorized": 16,
+        "authorized": 17,
         "pending": 1,
         "restricted": 2
       },
@@ -259,23 +288,24 @@
       "reference": "$.model.documents"
     },
     "evidence": {
-      "count": 19,
+      "count": 91,
       "kind_distribution": {
         "fragment": 1,
         "image_region": 15,
-        "metadata": 3
+        "metadata": 3,
+        "structured_value": 72
       },
       "availability_distribution": {
-        "available": 16,
+        "available": 88,
         "restricted": 2,
         "unavailable": 1
       },
       "publish_permission_distribution": {
-        "authorized": 16,
+        "authorized": 88,
         "pending": 1,
         "restricted": 2
       },
-      "authorized_and_available_count": 16,
+      "authorized_and_available_count": 88,
       "reference": "$.model.evidence"
     }
   },
@@ -285,10 +315,10 @@
       "agencies": 184,
       "projects": 676,
       "typologies": 11,
-      "observations": 427,
-      "facts": 4021,
-      "documents": 19,
-      "evidence": 19,
+      "observations": 499,
+      "facts": 4093,
+      "documents": 20,
+      "evidence": 91,
       "issues": 10,
       "events": 3
     },
@@ -316,22 +346,24 @@
         "controlled_illegible_field": 1,
         "controlled_transcription": 11,
         "deterministic_derivation": 4,
+        "structured_snapshot_history": 72,
         "user_provided_image_manual_transcription": 1,
         "user_provided_metadata_only": 1,
         "user_provided_screenshot_transcription": 1,
         "versioned_snapshot_materialization": 397
       },
-      "with_evidence_ids_count": 18,
+      "with_evidence_ids_count": 90,
       "without_evidence_ids_count": 409
     },
     "documents": {
       "type_distribution": {
         "card": 9,
+        "other": 1,
         "plan": 1,
         "specification": 9
       },
       "availability_distribution": {
-        "available": 16,
+        "available": 17,
         "restricted": 2,
         "unavailable": 1
       },
@@ -341,34 +373,35 @@
       "kind_distribution": {
         "fragment": 1,
         "image_region": 15,
-        "metadata": 3
+        "metadata": 3,
+        "structured_value": 72
       },
       "availability_distribution": {
-        "available": 16,
+        "available": 88,
         "restricted": 2,
         "unavailable": 1
       },
-      "authorized_and_available_count": 16
+      "authorized_and_available_count": 88
     }
   },
   "analytical_quality_and_exclusions": {
     "facts": {
-      "count": 4021,
+      "count": 4093,
       "quality_status_distribution": {
-        "certified": 3593,
+        "certified": 3655,
         "illegible": 1,
         "inconsistent": 10,
         "insufficient": 2,
-        "reviewable": 415
+        "reviewable": 425
       },
       "value_kind_distribution": {
         "derived": 381,
-        "observed": 3639,
+        "observed": 3711,
         "simulated": 1
       },
       "benchmark_eligibility": {
         "eligible": 3593,
-        "excluded": 428
+        "excluded": 500
       },
       "eligible_by_quality_status": {
         "certified": 3593
@@ -384,14 +417,15 @@
         "price": 372
       },
       "excluded_by_quality_status": {
+        "certified": 62,
         "illegible": 1,
         "inconsistent": 10,
         "insufficient": 2,
-        "reviewable": 415
+        "reviewable": 425
       },
       "excluded_by_value_kind": {
         "derived": 380,
-        "observed": 47,
+        "observed": 119,
         "simulated": 1
       },
       "excluded_by_semantic_type": {
@@ -399,7 +433,7 @@
         "attribute": 1,
         "count": 10,
         "percentage": 2,
-        "price": 35,
+        "price": 107,
         "price_per_m2": 372,
         "text": 2
       }
@@ -410,13 +444,13 @@
         "unknown": 37
       },
       "model_monetary_facts": {
-        "count": 779,
+        "count": 851,
         "currency_distribution": {
-          "PEN": 753,
+          "PEN": 825,
           "unknown": 26
         },
         "eligible": 372,
-        "excluded": 407
+        "excluded": 479
       }
     },
     "issues": {
@@ -556,17 +590,22 @@
       "target_phase": "F5",
       "severity": "blocking_for_phase",
       "current_evidence": {
-        "event_count": 3,
-        "certified_event_count": 1,
-        "reviewable_event_count": 2,
+        "history_event_count": 36,
+        "certified_history_event_count": 31,
+        "reviewable_history_event_count": 5,
+        "excluded_history_candidate_count": 6,
+        "assistant_intent_count": 7,
         "event_with_observed_cause_count": 0,
-        "event_with_cause_evidence_count": 0
+        "event_with_cause_evidence_count": 0,
+        "runtime_status": "not_materialized"
       },
-      "required_outcome": "Expand dated observations beyond CT-E and resolve assistant answers against selected certified facts and evidence IDs.",
+      "required_outcome": "Implement the pure history and assistant engines, scenario integration and UI over the materialized 2.4 contract.",
       "references": [
-        "$.model.events",
+        "$.history",
         "$.model.observations",
-        "$.assistant.questions"
+        "$.model.facts",
+        "$.model.evidence",
+        "$.assistant.intents"
       ]
     }
   ],

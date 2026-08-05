@@ -65,7 +65,7 @@ assert.deepEqual(
   [],
   "authorized manifest metadata must be privacy-clean"
 );
-assert.equal(data.metadata.contract_version, "2.3.0");
+assert.equal(data.metadata.contract_version, "2.4.0");
 assert.doesNotMatch(
   JSON.stringify(geography),
   /[A-Za-z]:\\\\|\/Users\/|\/home\/|\"email\"|\"phone\"|\"whatsapp\"|\"contact\"/i

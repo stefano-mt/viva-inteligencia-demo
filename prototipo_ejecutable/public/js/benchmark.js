@@ -1,4 +1,4 @@
-const PUBLIC_CONTRACT_VERSION = "2.3.0";
+const PUBLIC_CONTRACT_VERSIONS = new Set(["2.3.0", "2.4.0"]);
 const LEGACY_RUNTIME_CONTRACTS = new Set(["2.1.0", "2.2.0"]);
 const QUANTITATIVE_STATES = new Set([
   "ready",
@@ -1113,7 +1113,7 @@ export function buildBenchmarkContext({
   if (LEGACY_RUNTIME_CONTRACTS.has(contractVersion)) {
     return emptyContext("contract_unavailable", ["BENCHMARK_CONTRACT_UNAVAILABLE"]);
   }
-  if (contractVersion !== PUBLIC_CONTRACT_VERSION) {
+  if (!PUBLIC_CONTRACT_VERSIONS.has(contractVersion)) {
     return emptyContext("error", ["UNSUPPORTED_PUBLIC_CONTRACT"]);
   }
   if (

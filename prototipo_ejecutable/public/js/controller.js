@@ -1,12 +1,17 @@
-import { suggestedQuestions } from "./config.js";
 import * as domain from "./domain.js";
 import { viewFromHash } from "./navigation.js";
 import {
   INSPECTOR_ACTIONS,
   canonicalScenarioSearch,
+  clearAssistantResponse,
   dispatchInspector,
   dispatchScenario,
+  generateAssistantResponse,
+  recomputeAssistantResponse,
   resolveDistrictId,
+  selectHistoryEvent,
+  setAssistantDraft,
+  setHistoryFilters,
   state,
 } from "./state.js";
 
@@ -126,6 +131,12 @@ export const COMPARISON_EVENTS = Object.freeze({
   selection: "viva:comparison-selection",
   target: "viva:comparison-target",
   rowFocus: "viva:comparison-row-focus",
+});
+
+const HISTORY_FILTER_VALUES = Object.freeze({
+  statuses: Object.freeze(["certified", "reviewable", "insufficient"]),
+  validities: Object.freeze(["current", "aging", "historical", "unknown"]),
+  directions: Object.freeze(["increase", "decrease", "unchanged"]),
 });
 
 export const INSPECTOR_PRESET_CASE_IDS = Object.freeze({
@@ -290,21 +301,282 @@ export function bindEvents(render) {
 
   bindComparisonElementEvents();
 
-  document.getElementById("assistant-form")?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    const input = document.getElementById("assistant-input")?.value ?? "";
-    state.assistantInput = input;
-    render();
-  });
+  bindAssistantElementEvents();
 
-  document.querySelectorAll("[data-suggest]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.assistantInput = button.dataset.suggest;
-      render();
+  bindHistoryElementEvents();
+
+  bindInspectorElementEvents();
+}
+
+function bindHistoryElementEvents() {
+  document.querySelectorAll("[data-history-filter]").forEach((control) => {
+    control.addEventListener("change", () => {
+      const key = control.dataset.historyFilter;
+      const allowed = HISTORY_FILTER_VALUES[key];
+      if (!allowed) return;
+      const value = control.value;
+      const selected = value === "all" ? [...allowed] : [value];
+      const transition = setHistoryFilters({ [key]: selected });
+      renderHistoryTransition({
+        changed: transition.changed,
+        focusId: control.id,
+        announcement: `${state.historyContext?.coverage?.shown_count ?? 0} señales visibles después de filtrar.`,
+      });
     });
   });
 
-  bindInspectorElementEvents();
+  document.querySelectorAll("[data-history-clear]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const transition = setHistoryFilters({
+        statuses: [...HISTORY_FILTER_VALUES.statuses],
+        validities: [...HISTORY_FILTER_VALUES.validities],
+        directions: [...HISTORY_FILTER_VALUES.directions],
+      });
+      renderHistoryTransition({
+        changed: transition.changed,
+        focusId: button.id || "history-status-filter",
+        announcement: "Filtros del histórico restablecidos.",
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-history-event]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const eventId = button.dataset.historyEvent;
+      const nextId = state.selectedHistoryEventId === eventId ? null : eventId;
+      if (!selectHistoryEvent(nextId)) return;
+      renderHistoryTransition({
+        changed: true,
+        focusId: button.id,
+        announcement: nextId
+          ? "Detalle y evidencia de la señal abiertos."
+          : "Detalle de la señal cerrado.",
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-history-agenda-event]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const eventId = button.dataset.historyAgendaEvent;
+      if (!selectHistoryEvent(eventId)) {
+        announceWithoutRender(
+          "La señal de origen ya no pertenece al escenario visible.",
+        );
+        return;
+      }
+      renderHistoryTransition({
+        changed: true,
+        focusId: `history-evidence-${domIdentifier(eventId)}`,
+        announcement: "Se abrió la señal que origina esta acción.",
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-history-focus]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = document.getElementById(button.dataset.historyFocus);
+      if (!target) {
+        announceWithoutRender("El control solicitado no está disponible.");
+        return;
+      }
+      target.focus();
+      target.scrollIntoView?.({ block: "center" });
+      announceWithoutRender("Filtros del histórico listos para revisar.");
+    });
+  });
+
+  document.querySelectorAll("[data-history-priority]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const eventId = button.dataset.historyPriority;
+      if (!selectHistoryEvent(eventId)) return;
+      renderHistoryTransition({
+        changed: true,
+        focusId: `history-evidence-${domIdentifier(eventId)}`,
+        announcement: "Se abrió la señal certificada prioritaria.",
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-history-project]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const selected = selectScenarioProject(button.dataset.historyProject, {
+        render: false,
+      });
+      if (!selected) {
+        announceWithoutRender(
+          "El proyecto ya no pertenece a los comparables visibles del escenario.",
+        );
+        return;
+      }
+      state.mobileNavOpen = false;
+      if (viewFromHash() === "projects") renderApp?.();
+      else window.location.hash = "projects";
+    });
+  });
+
+  document.querySelectorAll("[data-history-reset]").forEach((button) => {
+    button.addEventListener("click", () => {
+      resetScenario({
+        announce: "Escenario reiniciado para reconstruir el histórico.",
+        focusId: button.id || null,
+      });
+    });
+  });
+}
+
+function bindAssistantElementEvents() {
+  const form = document.getElementById("assistant-form");
+  const input = document.getElementById("assistant-input");
+
+  input?.addEventListener("input", () => {
+    setAssistantDraft(input.value, null);
+    const counter = document.getElementById("assistant-input-count");
+    const maximum = Number(input.maxLength > 0 ? input.maxLength : 500);
+    if (counter) {
+      counter.textContent = `${input.value.length} de ${maximum} caracteres`;
+    }
+    const error = document.getElementById("assistant-input-error");
+    if (error) {
+      error.hidden = true;
+      error.textContent = "";
+    }
+  });
+
+  input?.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" || !event.ctrlKey) return;
+    event.preventDefault();
+    form?.requestSubmit();
+  });
+
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const query = input?.value ?? "";
+    setAssistantDraft(query, state.assistantIntentId);
+    const result = generateAssistantResponse();
+    state.scenarioFocusId = "assistant-response-title";
+    renderApp?.();
+    const liveRegion = document.getElementById("assistant-live");
+    if (liveRegion) {
+      liveRegion.textContent = assistantAnnouncement(
+        result?.status,
+      );
+    }
+    document.getElementById("assistant-response-title")?.focus();
+  });
+
+  document.querySelectorAll("[data-assistant-question]").forEach((button) => {
+    button.addEventListener("click", () => {
+      setAssistantDraft(
+        button.dataset.assistantQuestion ?? "",
+        button.dataset.assistantIntent || null,
+      );
+      state.scenarioFocusId = "assistant-input";
+      renderApp?.();
+      const nextInput = document.getElementById("assistant-input");
+      nextInput?.focus();
+      nextInput?.setSelectionRange?.(
+        nextInput.value.length,
+        nextInput.value.length,
+      );
+    });
+  });
+
+  document.querySelector("[data-assistant-clear]")?.addEventListener("click", () => {
+    clearAssistantResponse();
+    state.scenarioFocusId = "assistant-input";
+    renderApp?.();
+    document.getElementById("assistant-input")?.focus();
+  });
+
+  document.querySelectorAll("[data-assistant-reference]").forEach((button) => {
+    button.addEventListener("click", () => {
+      navigateAssistantReference({
+        id: button.dataset.assistantReference,
+        type: button.dataset.assistantReferenceType,
+        route: button.dataset.assistantReferenceRoute,
+        projectId: button.dataset.assistantProject,
+      });
+    });
+  });
+
+  document.querySelectorAll("[data-assistant-route]").forEach((button) => {
+    button.addEventListener("click", () => {
+      navigateAssistantReference({
+        id: button.dataset.assistantDetail,
+        type: "action",
+        route: button.dataset.assistantRoute,
+        projectId: null,
+      });
+    });
+  });
+}
+
+function navigateAssistantReference({ id, type, route, projectId }) {
+  if (route === "assistant") {
+    clearAssistantResponse();
+    state.mobileNavOpen = false;
+    state.scenarioFocusId = null;
+    if (viewFromHash() === "assistant") renderApp?.();
+    else window.location.hash = "assistant";
+    document.querySelector("[data-assistant-question]")?.focus();
+    return;
+  }
+  const normalizedRoute = route === "benchmark" ? "market" : route;
+  const targetRoute = [
+    "dashboard",
+    "projects",
+    "inspector",
+    "market",
+    "compare",
+    "activity",
+    "trust",
+  ].includes(normalizedRoute)
+    ? normalizedRoute
+    : "dashboard";
+
+  if (targetRoute === "activity" && type === "history_event" && id) {
+    selectHistoryEvent(id);
+  }
+  if (targetRoute === "inspector" && projectId) {
+    selectInspectorProject(projectId, { render: false });
+    if (type === "evidence" && id) {
+      openInspectorEvidence(id, { render: false });
+    }
+  }
+  if (targetRoute === "projects" && projectId) {
+    selectScenarioProject(projectId, { render: false });
+  }
+
+  state.mobileNavOpen = false;
+  state.scenarioFocusId = null;
+  if (viewFromHash() === targetRoute) renderApp?.();
+  else window.location.hash = targetRoute;
+}
+
+function assistantAnnouncement(status) {
+  return {
+    ready: "Lectura generada. Revisa la respuesta y sus referencias.",
+    refused: "La demo aplicó un límite y explica qué información no puede afirmar.",
+    insufficient: "La lectura está disponible con evidencia insuficiente.",
+    unknown_intent: "La pregunta no coincide con el catálogo compatible.",
+    invalid_input: "La pregunta necesita un ajuste antes de generar una lectura.",
+    contract_unavailable: "El asistente no está disponible para este contrato.",
+  }[status] ?? "La lectura terminó sin un resultado disponible.";
+}
+
+function renderHistoryTransition({ changed, focusId, announcement }) {
+  if (!changed) {
+    announceWithoutRender(announcement);
+    return;
+  }
+  state.scenarioFocusId = focusId ?? null;
+  renderApp?.();
+  const liveRegion = document.getElementById("history-live");
+  if (liveRegion) liveRegion.textContent = announcement;
+}
+
+function domIdentifier(value) {
+  return String(value ?? "history-event").replace(/[^a-zA-Z0-9_-]/gu, "-");
 }
 
 export function changeDistrict(district, options = {}) {
@@ -424,7 +696,7 @@ export function resetScenario(options = {}) {
   state.compareQuery = "";
   state.projectLimit = 18;
   seedSelectionsForScenario();
-  state.assistantInput = suggestedQuestions[0];
+  clearAssistantResponse();
   if (options.render !== false) renderApp?.();
   return transition;
 }
@@ -584,6 +856,7 @@ export function setComparisonProject(
     nextIds.length !== currentIds.length ||
     nextIds.some((id, index) => id !== currentIds[index]);
   if (changed) state.compareProjectIds = nextIds;
+  if (changed) recomputeAssistantResponse();
   const projectName = comparisonProjectName(canonicalId);
   const announcement = changed
     ? `${projectName} ${selected ? "se añadió a" : "se quitó de"} la comparación. ${nextIds.length} de 3 proyectos seleccionados.`
@@ -624,6 +897,7 @@ export function setComparisonTarget(included, options = {}) {
       : !state.compareIncludeTarget;
   const changed = nextIncluded !== state.compareIncludeTarget;
   if (changed) state.compareIncludeTarget = nextIncluded;
+  if (changed) recomputeAssistantResponse();
   return applyComparisonEffects(
     comparisonTransition({
       changed,

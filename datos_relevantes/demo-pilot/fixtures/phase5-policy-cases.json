@@ -1,0 +1,708 @@
+{
+  "fixture_version": 1,
+  "contract_cases": [
+    "CT-C",
+    "CT-D",
+    "CT-E",
+    "CT-F",
+    "CT-G",
+    "CT-I",
+    "CT-P"
+  ],
+  "history_cases": [
+    {
+      "case_id": "ct-c-outside-scenario",
+      "input": {
+        "project_id": "project:ct-c-outside",
+        "district_id": "150140",
+        "scenario_project_ids": [
+          "project:ct-c-inside"
+        ],
+        "field_semantic": "published_price_from_project",
+        "previous": {
+          "entity_id": "project:ct-c-outside",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 600000,
+          "observed_at": "2026-06-20T00:00:00Z",
+          "observation_id": "observation:ct-c-a-previous",
+          "fact_id": "fact:ct-c-a-previous",
+          "evidence_ids": [
+            "evidence:ct-c-a-previous"
+          ],
+          "evidence_state": "authorized"
+        },
+        "current": {
+          "entity_id": "project:ct-c-outside",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 630000,
+          "observed_at": "2026-07-20T00:00:00Z",
+          "observation_id": "observation:ct-c-b-current",
+          "fact_id": "fact:ct-c-b-current",
+          "evidence_ids": [
+            "evidence:ct-c-b-current"
+          ],
+          "evidence_state": "authorized"
+        },
+        "detected_at": "2026-07-28T01:24:28Z",
+        "cause": null,
+        "cause_evidence_ids": []
+      },
+      "expected": {
+        "project_id": "project:ct-c-outside",
+        "district_id": "150140",
+        "materializable": true,
+        "visible_in_scenario": false,
+        "status": "certified",
+        "validity": "current",
+        "delta_absolute": 30000,
+        "delta_pct": 5,
+        "reason_codes": [],
+        "fact_ids": [
+          "fact:ct-c-a-previous",
+          "fact:ct-c-b-current"
+        ],
+        "evidence_ids": [
+          "evidence:ct-c-a-previous",
+          "evidence:ct-c-b-current"
+        ],
+        "cause": null,
+        "cause_evidence_ids": []
+      }
+    },
+    {
+      "case_id": "ct-e-normal-change",
+      "input": {
+        "project_id": "project:ct-e-normal",
+        "district_id": "150122",
+        "scenario_project_ids": [
+          "project:ct-e-normal"
+        ],
+        "field_semantic": "published_price_from_project",
+        "previous": {
+          "entity_id": "project:ct-e-normal",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 600000,
+          "observed_at": "2026-06-20T00:00:00Z",
+          "observation_id": "observation:ct-e-normal-a-previous",
+          "fact_id": "fact:ct-e-normal-a-previous",
+          "evidence_ids": [
+            "evidence:ct-e-normal-a-previous"
+          ],
+          "evidence_state": "authorized"
+        },
+        "current": {
+          "entity_id": "project:ct-e-normal",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 630000,
+          "observed_at": "2026-07-20T00:00:00Z",
+          "observation_id": "observation:ct-e-normal-b-current",
+          "fact_id": "fact:ct-e-normal-b-current",
+          "evidence_ids": [
+            "evidence:ct-e-normal-b-current"
+          ],
+          "evidence_state": "authorized"
+        },
+        "detected_at": "2026-07-28T01:24:28Z",
+        "cause": null,
+        "cause_evidence_ids": []
+      },
+      "expected": {
+        "project_id": "project:ct-e-normal",
+        "district_id": "150122",
+        "materializable": true,
+        "visible_in_scenario": true,
+        "status": "certified",
+        "validity": "current",
+        "delta_absolute": 30000,
+        "delta_pct": 5,
+        "reason_codes": [],
+        "fact_ids": [
+          "fact:ct-e-normal-a-previous",
+          "fact:ct-e-normal-b-current"
+        ],
+        "evidence_ids": [
+          "evidence:ct-e-normal-a-previous",
+          "evidence:ct-e-normal-b-current"
+        ],
+        "cause": null,
+        "cause_evidence_ids": []
+      }
+    },
+    {
+      "case_id": "ct-e-zero-base",
+      "input": {
+        "project_id": "project:ct-e-zero",
+        "district_id": "150122",
+        "scenario_project_ids": [
+          "project:ct-e-zero"
+        ],
+        "field_semantic": "published_price_from_project",
+        "previous": {
+          "entity_id": "project:ct-e-zero",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 0,
+          "observed_at": "2026-06-20T00:00:00Z",
+          "observation_id": "observation:ct-e-zero-a-previous",
+          "fact_id": "fact:ct-e-zero-a-previous",
+          "evidence_ids": [
+            "evidence:ct-e-zero-a-previous"
+          ],
+          "evidence_state": "authorized"
+        },
+        "current": {
+          "entity_id": "project:ct-e-zero",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 450000,
+          "observed_at": "2026-07-20T00:00:00Z",
+          "observation_id": "observation:ct-e-zero-b-current",
+          "fact_id": "fact:ct-e-zero-b-current",
+          "evidence_ids": [
+            "evidence:ct-e-zero-b-current"
+          ],
+          "evidence_state": "authorized"
+        },
+        "detected_at": "2026-07-28T01:24:28Z",
+        "cause": null,
+        "cause_evidence_ids": []
+      },
+      "expected": {
+        "project_id": "project:ct-e-zero",
+        "district_id": "150122",
+        "materializable": true,
+        "visible_in_scenario": true,
+        "status": "reviewable",
+        "validity": "current",
+        "delta_absolute": 450000,
+        "delta_pct": null,
+        "reason_codes": [
+          "base_zero"
+        ],
+        "fact_ids": [
+          "fact:ct-e-zero-a-previous",
+          "fact:ct-e-zero-b-current"
+        ],
+        "evidence_ids": [
+          "evidence:ct-e-zero-a-previous",
+          "evidence:ct-e-zero-b-current"
+        ],
+        "cause": null,
+        "cause_evidence_ids": []
+      }
+    },
+    {
+      "case_id": "ct-e-extreme-change",
+      "input": {
+        "project_id": "project:ct-e-extreme",
+        "district_id": "150122",
+        "scenario_project_ids": [
+          "project:ct-e-extreme"
+        ],
+        "field_semantic": "published_price_from_project",
+        "previous": {
+          "entity_id": "project:ct-e-extreme",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 500000,
+          "observed_at": "2026-06-20T00:00:00Z",
+          "observation_id": "observation:ct-e-extreme-a-previous",
+          "fact_id": "fact:ct-e-extreme-a-previous",
+          "evidence_ids": [
+            "evidence:ct-e-extreme-a-previous"
+          ],
+          "evidence_state": "authorized"
+        },
+        "current": {
+          "entity_id": "project:ct-e-extreme",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 800000,
+          "observed_at": "2026-07-20T00:00:00Z",
+          "observation_id": "observation:ct-e-extreme-b-current",
+          "fact_id": "fact:ct-e-extreme-b-current",
+          "evidence_ids": [
+            "evidence:ct-e-extreme-b-current"
+          ],
+          "evidence_state": "authorized"
+        },
+        "detected_at": "2026-07-28T01:24:28Z",
+        "cause": null,
+        "cause_evidence_ids": []
+      },
+      "expected": {
+        "project_id": "project:ct-e-extreme",
+        "district_id": "150122",
+        "materializable": true,
+        "visible_in_scenario": true,
+        "status": "reviewable",
+        "validity": "current",
+        "delta_absolute": 300000,
+        "delta_pct": 60,
+        "reason_codes": [
+          "extreme_change"
+        ],
+        "fact_ids": [
+          "fact:ct-e-extreme-a-previous",
+          "fact:ct-e-extreme-b-current"
+        ],
+        "evidence_ids": [
+          "evidence:ct-e-extreme-a-previous",
+          "evidence:ct-e-extreme-b-current"
+        ],
+        "cause": null,
+        "cause_evidence_ids": []
+      }
+    },
+    {
+      "case_id": "ct-e-unknown-currency",
+      "input": {
+        "project_id": "project:ct-e-currency",
+        "district_id": "150122",
+        "scenario_project_ids": [
+          "project:ct-e-currency"
+        ],
+        "field_semantic": "published_price_from_project",
+        "previous": {
+          "entity_id": "project:ct-e-currency",
+          "field_semantic": "published_price_from_project",
+          "currency": "unknown",
+          "value": 600000,
+          "observed_at": "2026-06-20T00:00:00Z",
+          "observation_id": "observation:ct-e-currency-a-previous",
+          "fact_id": "fact:ct-e-currency-a-previous",
+          "evidence_ids": [
+            "evidence:ct-e-currency-a-previous"
+          ],
+          "evidence_state": "authorized"
+        },
+        "current": {
+          "entity_id": "project:ct-e-currency",
+          "field_semantic": "published_price_from_project",
+          "currency": "unknown",
+          "value": 630000,
+          "observed_at": "2026-07-20T00:00:00Z",
+          "observation_id": "observation:ct-e-currency-b-current",
+          "fact_id": "fact:ct-e-currency-b-current",
+          "evidence_ids": [
+            "evidence:ct-e-currency-b-current"
+          ],
+          "evidence_state": "authorized"
+        },
+        "detected_at": "2026-07-28T01:24:28Z",
+        "cause": null,
+        "cause_evidence_ids": []
+      },
+      "expected": {
+        "project_id": "project:ct-e-currency",
+        "district_id": "150122",
+        "materializable": false,
+        "visible_in_scenario": false,
+        "status": "insufficient",
+        "validity": "current",
+        "delta_absolute": 30000,
+        "delta_pct": 5,
+        "reason_codes": [
+          "unknown_currency"
+        ],
+        "fact_ids": [
+          "fact:ct-e-currency-a-previous",
+          "fact:ct-e-currency-b-current"
+        ],
+        "evidence_ids": [
+          "evidence:ct-e-currency-a-previous",
+          "evidence:ct-e-currency-b-current"
+        ],
+        "cause": null,
+        "cause_evidence_ids": []
+      }
+    },
+    {
+      "case_id": "ct-e-inverted-date",
+      "input": {
+        "project_id": "project:ct-e-date",
+        "district_id": "150122",
+        "scenario_project_ids": [
+          "project:ct-e-date"
+        ],
+        "field_semantic": "published_price_from_project",
+        "previous": {
+          "entity_id": "project:ct-e-date",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 600000,
+          "observed_at": "2026-07-24T00:00:00Z",
+          "observation_id": "observation:ct-e-date-a-previous",
+          "fact_id": "fact:ct-e-date-a-previous",
+          "evidence_ids": [
+            "evidence:ct-e-date-a-previous"
+          ],
+          "evidence_state": "authorized"
+        },
+        "current": {
+          "entity_id": "project:ct-e-date",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 630000,
+          "observed_at": "2026-07-20T00:00:00Z",
+          "observation_id": "observation:ct-e-date-b-current",
+          "fact_id": "fact:ct-e-date-b-current",
+          "evidence_ids": [
+            "evidence:ct-e-date-b-current"
+          ],
+          "evidence_state": "authorized"
+        },
+        "detected_at": "2026-07-28T01:24:28Z",
+        "cause": null,
+        "cause_evidence_ids": []
+      },
+      "expected": {
+        "project_id": "project:ct-e-date",
+        "district_id": "150122",
+        "materializable": false,
+        "visible_in_scenario": false,
+        "status": "insufficient",
+        "validity": "current",
+        "delta_absolute": 30000,
+        "delta_pct": 5,
+        "reason_codes": [
+          "invalid_date_order"
+        ],
+        "fact_ids": [
+          "fact:ct-e-date-a-previous",
+          "fact:ct-e-date-b-current"
+        ],
+        "evidence_ids": [
+          "evidence:ct-e-date-a-previous",
+          "evidence:ct-e-date-b-current"
+        ],
+        "cause": null,
+        "cause_evidence_ids": []
+      }
+    },
+    {
+      "case_id": "ct-g-restricted-evidence",
+      "input": {
+        "project_id": "project:ct-g-pardo",
+        "district_id": "150122",
+        "scenario_project_ids": [
+          "project:ct-g-pardo"
+        ],
+        "field_semantic": "published_price_from_project",
+        "previous": {
+          "entity_id": "project:ct-g-pardo",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 790000,
+          "observed_at": "2026-06-20T00:00:00Z",
+          "observation_id": "observation:ct-g-a-previous",
+          "fact_id": "fact:ct-g-a-previous",
+          "evidence_ids": [
+            "evidence:ct-g-a-previous"
+          ],
+          "evidence_state": "restricted"
+        },
+        "current": {
+          "entity_id": "project:ct-g-pardo",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 797688,
+          "observed_at": "2026-07-20T00:00:00Z",
+          "observation_id": "observation:ct-g-b-current",
+          "fact_id": "fact:ct-g-b-current",
+          "evidence_ids": [
+            "evidence:ct-g-b-current"
+          ],
+          "evidence_state": "authorized"
+        },
+        "detected_at": "2026-07-28T01:24:28Z",
+        "cause": null,
+        "cause_evidence_ids": []
+      },
+      "expected": {
+        "project_id": "project:ct-g-pardo",
+        "district_id": "150122",
+        "materializable": false,
+        "visible_in_scenario": false,
+        "status": "insufficient",
+        "validity": "current",
+        "delta_absolute": 7688,
+        "delta_pct": 0.97,
+        "reason_codes": [
+          "restricted"
+        ],
+        "fact_ids": [
+          "fact:ct-g-a-previous",
+          "fact:ct-g-b-current"
+        ],
+        "evidence_ids": [
+          "evidence:ct-g-a-previous",
+          "evidence:ct-g-b-current"
+        ],
+        "cause": null,
+        "cause_evidence_ids": []
+      }
+    },
+    {
+      "case_id": "ct-i-unknown-evidence",
+      "input": {
+        "project_id": "project:ct-i-unknown",
+        "district_id": "150122",
+        "scenario_project_ids": [
+          "project:ct-i-unknown"
+        ],
+        "field_semantic": "published_price_from_project",
+        "previous": {
+          "entity_id": "project:ct-i-unknown",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 600000,
+          "observed_at": "2026-06-20T00:00:00Z",
+          "observation_id": "observation:ct-i-a-previous",
+          "fact_id": "fact:ct-i-a-previous",
+          "evidence_ids": [],
+          "evidence_state": "unknown"
+        },
+        "current": {
+          "entity_id": "project:ct-i-unknown",
+          "field_semantic": "published_price_from_project",
+          "currency": "PEN",
+          "value": 630000,
+          "observed_at": "2026-07-20T00:00:00Z",
+          "observation_id": "observation:ct-i-b-current",
+          "fact_id": "fact:ct-i-b-current",
+          "evidence_ids": [],
+          "evidence_state": "unknown"
+        },
+        "detected_at": "2026-07-28T01:24:28Z",
+        "cause": null,
+        "cause_evidence_ids": []
+      },
+      "expected": {
+        "project_id": "project:ct-i-unknown",
+        "district_id": "150122",
+        "materializable": false,
+        "visible_in_scenario": false,
+        "status": "insufficient",
+        "validity": "current",
+        "delta_absolute": 30000,
+        "delta_pct": 5,
+        "reason_codes": [
+          "evidence_missing"
+        ],
+        "fact_ids": [
+          "fact:ct-i-a-previous",
+          "fact:ct-i-b-current"
+        ],
+        "evidence_ids": [],
+        "cause": null,
+        "cause_evidence_ids": []
+      }
+    }
+  ],
+  "assistant_cases": [
+    {
+      "case_id": "ct-c-scenario-text-does-not-switch",
+      "input": {
+        "intent_id": "intent:scenario-summary",
+        "scenario_district_id": "150122",
+        "mentioned_district_id": "150140",
+        "fact_ids": [],
+        "evidence_ids": [],
+        "evidence_state": "not_required"
+      },
+      "expected": {
+        "intent_id": "intent:scenario-summary",
+        "family": "scenario_summary",
+        "outcome": "answer",
+        "scenario_district_id": "150122",
+        "query_changes_scenario": false,
+        "reference_policy": "scenario_required",
+        "fact_ids": [],
+        "evidence_ids": [],
+        "limitation_id": null,
+        "reason_codes": [
+          "scenario_text_ignored"
+        ],
+        "supported_families": []
+      }
+    },
+    {
+      "case_id": "ct-d-authorized-qualitative",
+      "input": {
+        "intent_id": "intent:qualitative-evidence",
+        "scenario_district_id": "150122",
+        "fact_ids": [
+          "fact:ct-d-quartz-countertop"
+        ],
+        "evidence_ids": [
+          "evidence:ct-d-quartz-countertop"
+        ],
+        "evidence_state": "authorized"
+      },
+      "expected": {
+        "intent_id": "intent:qualitative-evidence",
+        "family": "qualitative_evidence",
+        "outcome": "answer",
+        "scenario_district_id": "150122",
+        "query_changes_scenario": false,
+        "reference_policy": "qualitative_evidence_required",
+        "fact_ids": [
+          "fact:ct-d-quartz-countertop"
+        ],
+        "evidence_ids": [
+          "evidence:ct-d-quartz-countertop"
+        ],
+        "limitation_id": null,
+        "reason_codes": [],
+        "supported_families": []
+      }
+    },
+    {
+      "case_id": "ct-f-closing-price",
+      "input": {
+        "intent_id": "intent:limitations",
+        "scenario_district_id": "150122",
+        "limitation_topic": "closing_price",
+        "fact_ids": [],
+        "evidence_ids": [],
+        "evidence_state": "not_required"
+      },
+      "expected": {
+        "intent_id": "intent:limitations",
+        "family": "limitations",
+        "outcome": "refuse_and_explain",
+        "scenario_district_id": "150122",
+        "query_changes_scenario": false,
+        "reference_policy": "limitation_only",
+        "fact_ids": [],
+        "evidence_ids": [],
+        "limitation_id": "limitation:closing-price",
+        "reason_codes": [
+          "closing_price"
+        ],
+        "supported_families": []
+      }
+    },
+    {
+      "case_id": "ct-f-unobserved-cause",
+      "input": {
+        "intent_id": "intent:limitations",
+        "scenario_district_id": "150122",
+        "limitation_topic": "causality",
+        "fact_ids": [],
+        "evidence_ids": [],
+        "evidence_state": "not_required"
+      },
+      "expected": {
+        "intent_id": "intent:limitations",
+        "family": "limitations",
+        "outcome": "refuse_and_explain",
+        "scenario_district_id": "150122",
+        "query_changes_scenario": false,
+        "reference_policy": "limitation_only",
+        "fact_ids": [],
+        "evidence_ids": [],
+        "limitation_id": "limitation:causality",
+        "reason_codes": [
+          "causality"
+        ],
+        "supported_families": []
+      }
+    },
+    {
+      "case_id": "ct-g-conflicting-evidence",
+      "input": {
+        "intent_id": "intent:qualitative-evidence",
+        "scenario_district_id": "150122",
+        "fact_ids": [
+          "fact:ct-g-card-area",
+          "fact:ct-g-plan-area"
+        ],
+        "evidence_ids": [
+          "evidence:ct-g-card-area",
+          "evidence:ct-g-plan-area"
+        ],
+        "evidence_state": "conflicting"
+      },
+      "expected": {
+        "intent_id": "intent:qualitative-evidence",
+        "family": "qualitative_evidence",
+        "outcome": "state_insufficient_evidence",
+        "scenario_district_id": "150122",
+        "query_changes_scenario": false,
+        "reference_policy": "qualitative_evidence_required",
+        "fact_ids": [],
+        "evidence_ids": [],
+        "limitation_id": null,
+        "reason_codes": [
+          "conflicting_evidence"
+        ],
+        "supported_families": []
+      }
+    },
+    {
+      "case_id": "ct-i-unknown-intent",
+      "input": {
+        "intent_id": "intent:not-supported",
+        "scenario_district_id": "150122",
+        "fact_ids": [],
+        "evidence_ids": [],
+        "evidence_state": "unknown"
+      },
+      "expected": {
+        "intent_id": null,
+        "family": null,
+        "outcome": "explain_supported_questions",
+        "scenario_district_id": "150122",
+        "query_changes_scenario": false,
+        "reference_policy": null,
+        "fact_ids": [],
+        "evidence_ids": [],
+        "limitation_id": null,
+        "reason_codes": [
+          "unknown_intent"
+        ],
+        "supported_families": [
+          "scenario_summary",
+          "market_changes",
+          "signal_priority",
+          "coverage_quality",
+          "qualitative_evidence",
+          "project_comparison",
+          "limitations"
+        ]
+      }
+    },
+    {
+      "case_id": "ct-p-personal-data",
+      "input": {
+        "intent_id": "intent:limitations",
+        "scenario_district_id": "150122",
+        "limitation_topic": "personal_data",
+        "fact_ids": [],
+        "evidence_ids": [],
+        "evidence_state": "not_required"
+      },
+      "expected": {
+        "intent_id": "intent:limitations",
+        "family": "limitations",
+        "outcome": "refuse_and_explain",
+        "scenario_district_id": "150122",
+        "query_changes_scenario": false,
+        "reference_policy": "limitation_only",
+        "fact_ids": [],
+        "evidence_ids": [],
+        "limitation_id": "limitation:personal-data",
+        "reason_codes": [
+          "personal_data"
+        ],
+        "supported_families": []
+      }
+    }
+  ]
+}

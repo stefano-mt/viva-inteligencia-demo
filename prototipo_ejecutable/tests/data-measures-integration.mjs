@@ -23,7 +23,7 @@ for (const collection of ["typologies", "facts", "issues", "events"]) {
     const retainedSourceRecords = data.model.facts.filter((record) =>
       sourceIds.has(record.fact_id)
     );
-    const benchmarkRecords = data.model.facts.filter(
+    const addedRecords = data.model.facts.filter(
       (record) => !sourceIds.has(record.fact_id)
     );
     assert.deepEqual(
@@ -31,12 +31,17 @@ for (const collection of ["typologies", "facts", "issues", "events"]) {
       source,
       "facts must preserve the complete P1-05 catalog"
     );
+    const benchmarkRecords = addedRecords.filter((record) =>
+      record.fact_id.startsWith("fact:benchmark-nexo-")
+    );
+    const historyRecords = addedRecords.filter((record) =>
+      record.fact_id.startsWith("fact:history-nexo-")
+    );
     assert.equal(benchmarkRecords.length, 3981);
+    assert.equal(historyRecords.length, 72);
     assert.ok(
-      benchmarkRecords.every((record) =>
-        record.fact_id.startsWith("fact:benchmark-nexo-")
-      ),
-      "every fact added after P1-05 must belong to the F4 benchmark namespace"
+      addedRecords.length === benchmarkRecords.length + historyRecords.length,
+      "every fact added after P1-05 must belong to F4 benchmark or F5 history"
     );
     continue;
   }
@@ -121,5 +126,5 @@ assert.equal(event.percentage, 5);
 assert.equal(event.cause, null);
 
 console.log(
-  `Measures integration OK: 40 preserved + 3981 benchmark facts, ${data.model.issues.length} issues, ${data.model.events.length} events.`
+  `Measures integration OK: 40 preserved + 3981 benchmark + 72 history facts, ${data.model.issues.length} issues, ${data.model.events.length} base events.`
 );

@@ -26,7 +26,7 @@ for (const collection of [
     const retainedSourceRecords = data.model.observations.filter((record) =>
       sourceIds.has(record.observation_id)
     );
-    const benchmarkRecords = data.model.observations.filter(
+    const addedRecords = data.model.observations.filter(
       (record) => !sourceIds.has(record.observation_id)
     );
     assert.deepEqual(
@@ -34,12 +34,35 @@ for (const collection of [
       source,
       "observations must preserve the complete P1-04 catalog"
     );
+    const benchmarkRecords = addedRecords.filter((record) =>
+      record.observation_id.startsWith("observation:benchmark-nexo-")
+    );
+    const historyRecords = addedRecords.filter((record) =>
+      record.observation_id.startsWith("observation:history-nexo-")
+    );
     assert.equal(benchmarkRecords.length, 397);
+    assert.equal(historyRecords.length, 72);
     assert.ok(
-      benchmarkRecords.every((record) =>
-        record.observation_id.startsWith("observation:benchmark-nexo-")
-      ),
-      "every observation added after P1-04 must belong to the F4 benchmark namespace"
+      addedRecords.length === benchmarkRecords.length + historyRecords.length,
+      "every observation added after P1-04 must belong to F4 benchmark or F5 history"
+    );
+    continue;
+  }
+  if (["documents", "evidence"].includes(collection)) {
+    const idField = collection === "documents" ? "document_id" : "evidence_id";
+    const sourceIds = new Set(source.map((record) => record[idField]));
+    assert.deepEqual(
+      data.model[collection].filter((record) => sourceIds.has(record[idField])),
+      source,
+      `${collection} must preserve the complete P1-04 catalog`
+    );
+    const addedRecords = data.model[collection].filter(
+      (record) => !sourceIds.has(record[idField])
+    );
+    assert.equal(addedRecords.length, collection === "documents" ? 1 : 72);
+    assert.ok(
+      addedRecords.every((record) => record[idField].startsWith(`${collection === "documents" ? "document" : "evidence"}:history-`)),
+      `${collection} additions must belong to the F5 history namespace`
     );
     continue;
   }
@@ -103,5 +126,5 @@ for (const documentId of [
 }
 
 console.log(
-  `Evidence integration OK: ${data.model.sources.length} sources, 30 preserved + 397 benchmark observations, ${data.model.evidence.length} evidence records.`
+  `Evidence integration OK: ${data.model.sources.length} sources, 30 preserved + 397 benchmark + 72 history observations, ${data.model.evidence.length} evidence records.`
 );

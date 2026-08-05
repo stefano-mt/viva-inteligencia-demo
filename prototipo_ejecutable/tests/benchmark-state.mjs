@@ -90,7 +90,7 @@ assert.doesNotMatch(stateSource, /benchmarkMicrozone|benchmarkTerritory/iu);
 
 initializeScenarioData(data, { geographyArtifact: validArtifact });
 assert.equal(state.scenarioContextRevision, 1);
-assertSharedRevision("initial 2.3 composition");
+assertSharedRevision("initial 2.4 composition");
 assert.equal(state.benchmarkContext.status, "orientative_noncomparable");
 assert.equal(state.benchmarkContext.scope.projectCount, 85);
 assert.equal(state.benchmarkContext.quantitative.pricePerM2Total.n, 0);
@@ -248,7 +248,7 @@ for (const contractVersion of ["2.1.0", "2.2.0"]) {
 const malformedBenchmark = structuredClone(data);
 delete malformedBenchmark.benchmark.methodology.pairing_policy;
 initializeScenarioData(malformedBenchmark, { geographyArtifact: validArtifact });
-assertSharedRevision("malformed 2.3 benchmark");
+assertSharedRevision("malformed 2.4 benchmark");
 assert.equal(state.benchmarkContext.status, "error");
 assert.deepEqual(state.benchmarkContext.errorCodes, [
   "DUPLICATE_OR_INVALID_MODEL_IDS"

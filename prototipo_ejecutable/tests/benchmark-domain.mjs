@@ -39,7 +39,7 @@ const coverageShape = (coverage) => ({
   }))
 });
 
-assert.equal(data.metadata.contract_version, "2.3.0");
+assert.equal(data.metadata.contract_version, "2.4.0");
 assert.doesNotMatch(
   source,
   /\b(?:window|document|fetch|XMLHttpRequest|localStorage|sessionStorage)\b/,
@@ -787,6 +787,26 @@ for (const contractVersion of ["2.1.0", "2.2.0"]) {
     "contract_unavailable"
   );
 }
+const compatible23 = structuredClone(data);
+compatible23.metadata.contract_version = "2.3.0";
+delete compatible23.history;
+assert.deepEqual(
+  buildBenchmarkContext({
+    data: compatible23,
+    scenarioContext: {
+      comparable_project_ids: mirafloresIds,
+      district_id: ctI.input.district_id,
+      scope_mode: "district",
+    },
+    targetScenario: {
+      target_price_pen: 650000,
+      target_area_m2: 80,
+      district: "Miraflores",
+    },
+  }),
+  mirafloresContext,
+  "contract 2.3 and 2.4 must expose the same F4 benchmark semantics",
+);
 for (const contractVersion of ["2.0.0", "3.0.0", null]) {
   const unsupportedData = structuredClone(data);
   unsupportedData.metadata.contract_version = contractVersion;

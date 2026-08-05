@@ -3,7 +3,8 @@ export const EARTH_RADIUS_METERS = 6_371_008.8;
 export const SUPPORTED_PUBLIC_CONTRACT_VERSIONS = Object.freeze([
   "2.1.0",
   "2.2.0",
-  "2.3.0"
+  "2.3.0",
+  "2.4.0"
 ]);
 export const SCENARIO_QUERY_ORDER = Object.freeze([
   "sv",
@@ -125,7 +126,7 @@ export function createScenarioEnvironment(data) {
   const contractVersion = data?.metadata?.contract_version;
   if (!SUPPORTED_PUBLIC_CONTRACT_VERSIONS.includes(contractVersion)) {
     throw new Error(
-      "Scenario domain requires public contract 2.1.0 or 2.2.0"
+      "Scenario domain requires public contract 2.1.0 through 2.4.0"
     );
   }
   const catalogs = clone(data.scenario_catalogs);

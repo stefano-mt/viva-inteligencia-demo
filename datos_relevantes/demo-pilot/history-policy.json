@@ -1,0 +1,20 @@
+{
+  "cutoff_at": "2026-07-28T01:24:28Z",
+  "field_semantics": [
+    "published_price_from_project"
+  ],
+  "currency": "PEN",
+  "current_max_days": 30,
+  "aging_max_days": 90,
+  "maximum_certified_absolute_delta_pct": 30,
+  "ordering": [
+    "scenario_membership",
+    "quality",
+    "validity",
+    "evidence",
+    "magnitude",
+    "recency",
+    "canonical_id"
+  ],
+  "cause_policy": "observed_evidence_only"
+}
