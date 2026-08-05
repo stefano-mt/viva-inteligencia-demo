@@ -29,7 +29,7 @@ P5-16 no modifica runtime, datos, tests, estilos, evidencia visual ni artefactos
 
 | Evidencia | Resultado |
 |---|---|
-| PR documental P5-16 | Rama `docs/phase-5-postmerge-report`; PR separado pendiente de creación y merge humano |
+| PR documental P5-16 | [#16 — docs: record phase 5 postmerge verification](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16), abierto y pendiente de merge humano |
 | PR funcional | [#15](https://github.com/stefano-mt/viva-inteligencia-demo/pull/15), `MERGED` |
 | Fecha del merge | `2026-08-05T13:08:57Z` |
 | Head final del PR #15 | `34bc190bf456b2612c4636cb4fc81dd8f0bc4586` |
@@ -194,5 +194,5 @@ No se encontraron gaps altos o medios derivados del merge o del despliegue.
 - P5-15 fue read-only y no modificó el repositorio ni recursos externos.
 - El PR funcional #15 y el workflow de Pages apuntan al mismo SHA `8d4c6de`.
 - P5-15 demuestra con `PASS` que `8d4c6de5b47f30d4b058de371a45b59377f2cf78` está desplegado y verificado técnicamente.
-- P5-16 persiste este resultado y actualiza el estado mediante una rama y PR documentales separados.
-- Conforme al plan aprobado, Fase 5 adquiere el estado oficial `deployed and verified` en `main` únicamente cuando un humano fusione ese PR documental.
+- P5-16 persiste este resultado y actualiza el estado mediante la rama documental y el [PR #16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16).
+- Conforme al plan aprobado, Fase 5 adquiere el estado oficial `deployed and verified` en `main` únicamente cuando un humano fusione el PR documental #16.

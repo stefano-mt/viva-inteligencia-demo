@@ -6,7 +6,7 @@
 
 **Última fase con despliegue técnico verificado:** Fase 5 — histórico, señales y asistente determinista
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. Fase 5 tiene despliegue técnico verificado con `PASS` para `8d4c6de`. **Regla de efectividad:** cuando esta versión de `STATE.md` exista en `main` por el merge humano del PR documental P5-16, Fase 5 también estará oficialmente `deployed and verified`.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. Fase 5 tiene despliegue técnico verificado con `PASS` para `8d4c6de`. **Regla de efectividad:** cuando esta versión de `STATE.md` exista en `main` por el merge humano del PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16), Fase 5 también estará oficialmente `deployed and verified`.
 
 **Rama activa:** `docs/phase-5-postmerge-report`.
 
@@ -254,13 +254,13 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
 - P5-15: **PASS**; contrato 2.4, integridad determinista, CT-C/E/F, histórico, agenda, asistente, escritorio, móvil, consola y red verificados en la URL pública.
 - Informe post-merge: [phases/05-history-signals-assistant/POSTMERGE_REPORT.md](phases/05-history-signals-assistant/POSTMERGE_REPORT.md).
-- P5-16: resultado preparado en este estado y en `POSTMERGE_REPORT.md` mediante la rama documental `docs/phase-5-postmerge-report`.
+- P5-16: resultado preparado en este estado y en `POSTMERGE_REPORT.md` mediante la rama documental `docs/phase-5-postmerge-report`; PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16) abierto y pendiente de merge humano.
 - Estado de ship de Fase 5: P5-15 `PASS`; **`deployed and verified`** oficial si y solo si esta versión fue integrada en `main` mediante el merge humano del PR documental P5-16.
 - Último commit funcional: `8e76b796b1fef3616b5a0b7a5526a72d2f125e2c`; los commits posteriores son P5-13/P5-14 documentales.
 
 ## Próxima acción recomendada
 
-1. Crear desde `docs/phase-5-postmerge-report` el PR documental P5-16; después, revisarlo y fusionarlo exclusivamente de forma humana.
+1. Revisar y fusionar exclusivamente de forma humana el PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16).
 2. Realizar un ensayo humano breve de `#activity`, `#assistant` y CT-F antes de presentar la demo al cliente; no es un gate técnico de merge.
 3. Definir el alcance y HUMAN-GATE-A de una eventual Fase 6 antes de modificar runtime, datos o UX.
 
