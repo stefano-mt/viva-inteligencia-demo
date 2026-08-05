@@ -32,7 +32,7 @@ La demo ya contiene ocho módulos correctos, ayudas por sección y navegación a
 ## 3. Baseline técnico y de producto
 
 - Fases 0–5: `deployed and verified`.
-- Contrato público: `2.4.0`; reader compatible con 2.0–2.4.
+- Contrato público: `2.4.0`; runtime compatible con 2.1–2.4. Un payload 2.0 debe degradar globalmente a `contract_unavailable`.
 - Dataset determinista: 676 proyectos, 184 agencias, 36 eventos históricos y siete intenciones del asistente.
 - Rutas expertas: `dashboard`, `projects`, `inspector`, `market`, `compare`, `trust`, `assistant`, `activity`.
 - Estado territorial único y serializado en URL.
@@ -44,6 +44,39 @@ La demo ya contiene ocho módulos correctos, ayudas por sección y navegación a
 Crear una nueva puerta de entrada `Recorrido ejecutivo` con seis etapas enlazadas y reproducibles. Cada etapa responde una pregunta comercial, presenta una sola lectura principal, muestra la evidencia mínima necesaria y ofrece una acción primaria hacia la siguiente decisión.
 
 Los ocho módulos actuales permanecen disponibles como `Explorar análisis`. El recorrido no duplica motores ni fija cifras en el HTML: deriva sus lecturas del escenario y de los índices públicos vigentes.
+
+## 4.1. Autoridad de datos por etapa
+
+El recorrido solo adapta resultados ya calculados. No vuelve a contar, clasificar, comparar ni inferir cifras. Cada claim visible debe tener una prueba de paridad con su superficie experta.
+
+| Etapa | Selector/motor autoritativo | Claim dinámico | Procedencia visible | Aplicabilidad | Fallback y CTA correctivo | Paridad experta |
+|---|---|---|---|---|---|---|
+| Escala | `state.data.metadata.counts`, `state.data.pilot.counts`, `state.scenarioContext` | 184 agencias modeladas; piloto 30/22/5; cobertura del distrito activo | metadata pública, tiers del piloto y contexto territorial | 2.1–2.4 | `Cobertura no disponible`; reiniciar escenario | `#market` y resumen de escenario |
+| Geografía | `state.scenarioContext` y `state.geographyArtifact` | incluidos, comparables, excluidos y alcance del escenario actual | IDs/fuente geográfica y denominadores vigentes | 2.1–2.4 | `Lectura geográfica insuficiente`; ajustar o reiniciar escenario | `#dashboard` y `#projects` |
+| Calidad | caso `case:f3-ct-g-pardo` de `state.data.inspector` | discrepancia 104.15/53.37/50.78 m² y decisión de exclusión | ficha, evidencia y ledger F3 | 2.2–2.4; transversal | `Caso de calidad no disponible en este contrato`; ir a geografía | `#inspector/case/f3-ct-g-pardo` |
+| Profundidad | `state.benchmarkContext` y `buildComparisonModel` | diferencias, denominadores y referencias del escenario vigente | benchmark y comparador públicos | 2.3–2.4 | `Benchmark insuficiente`; revisar comparables o metodología | `#market`, `#compare`, `#projects` |
+| Movimiento | `state.historyContext` | cambios publicados, vigencia y estado del escenario vigente | eventos y referencias F5 | 2.4 | distinguir `sin eventos` de `capacidad no disponible`; volver a profundidad | `#activity` |
+| Decisión | `state.assistantResponse` vigente y checklist vigente | recomendación prudente, límites y próxima acción | referencias literales de la respuesta ya generada y reglas del checklist | 2.4 | sin respuesta previa: mostrar solo resumen prudente/checklist y CTA a `#assistant`; nunca ejecutar una consulta implícita | `#assistant` y `#trust` |
+
+La cifra 184 es el total modelado del contrato público e incluye cuatro registros controlados; 30/22/5 son niveles del piloto, no inmobiliarias adicionales ni el universo de mercado. La interfaz debe nombrar esta diferencia y no mezclar denominadores.
+
+El caso Tipo 7 es un **caso demostrativo transversal de Miraflores**. No cambia al modificar el escenario, no alimenta sus agregados y debe rotularse como independiente del distrito activo. Si el contrato no contiene F3, el recorrido no sustituye otro proyecto ni restaura silenciosamente datos.
+
+La etapa Decisión tampoco crea una respuesta del asistente. Si `state.assistantResponse` existe, ya fue recompuesta por el estado para el escenario/revisión vigentes y se muestra literalmente, con las mismas referencias de `#assistant`. Si es nula, se presenta únicamente el resumen prudente del checklist y un CTA para formular la consulta en `#assistant`; no se selecciona una intención ni se llama `buildAssistantResponse` desde el recorrido.
+
+## 4.2. Matriz de compatibilidad y estados
+
+| Contrato/estado | Escala | Geografía | Calidad | Profundidad | Movimiento | Decisión |
+|---|---|---|---|---|---|---|
+| Cargando | skeleton semántico; rail estable | igual | igual | igual | igual | igual |
+| Error de carga | error global + `Reintentar` | error global | error global | error global | error global | error global |
+| 2.0 | `contract_unavailable` global, sin cifras parciales | igual | igual | igual | igual | igual |
+| 2.1 | disponible | disponible | capacidad no disponible | capacidad no disponible | capacidad no disponible | capacidad no disponible |
+| 2.2 | disponible | disponible | disponible | capacidad no disponible | capacidad no disponible | capacidad no disponible |
+| 2.3 | disponible | disponible | disponible | disponible | capacidad no disponible | capacidad no disponible |
+| 2.4 | disponible | disponible | disponible | disponible | disponible | disponible |
+
+Para 2.1–2.4, cada etapa también prueba su vacío/insuficiente propio: conteos ausentes, cero comparables, caso Tipo 7 ausente, benchmark con `n=0`, historial sin eventos y catálogo del asistente ausente. Todos muestran límite y CTA correctivo, y nunca `NaN`, infinito, valores de otro escenario ni contenido obsoleto.
 
 ## 5. Mapeo narrativo propuesto
 
@@ -102,4 +135,3 @@ Un usuario nuevo inicia el recorrido, completa seis etapas, abre mapa e inspecto
 5. qué cambió y qué no puede afirmar el asistente.
 
 Debe lograrlo en no más de diez minutos, sin consultar código ni recibir instrucciones del implementador.
-

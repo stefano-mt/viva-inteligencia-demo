@@ -268,14 +268,14 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Solicitud de aprobación: [phases/06-commercial-narrative-qa/HUMAN-GATE-A-REQUEST.md](phases/06-commercial-narrative-qa/HUMAN-GATE-A-REQUEST.md).
 - Historias: HU-DEMO-103/104/801–804.
 - Contrato/datos 2.4 protegidos; la fase reorganiza navegación, narrativa, densidad y QA.
-- P6-00A: completado en borrador; P6-00B revisión independiente pendiente.
+- P6-00A: completado. P6-00B: [revisión independiente](phases/06-commercial-narrative-qa/PLAN_REVIEW.md) `PASS` tras dos ciclos correctivos; sin hallazgos P0–P2.
 - HUMAN-GATE-A: pendiente; runtime bloqueado.
 
 ## Próxima acción recomendada
 
-1. Completar P6-00B y corregir cualquier gap P0–P2 del plan.
-2. Revisar A1–A13 y autorizar HUMAN-GATE-A de Fase 6.
-3. Solo después, ejecutar P6-00C/P6-00D y comenzar P6-01.
+1. Revisar A1–A13 y autorizar HUMAN-GATE-A de Fase 6.
+2. Persistir P6-00C y ejecutar P6-00D sobre el baseline.
+3. Solo después, comenzar P6-01.
 
 ## Regla para actualizar este archivo
 

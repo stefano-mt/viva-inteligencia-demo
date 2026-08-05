@@ -17,12 +17,14 @@ No se modificará runtime antes de una aceptación textual.
 5. **A5 — Secuencia:** escala → geografía → calidad → profundidad → movimiento → decisión.
 6. **A6 — Reproducibilidad:** etapa en hash, escenario en query canónica y cero progreso oculto persistido.
 7. **A7 — Densidad:** una acción primaria y máximo tres resúmenes antes del detalle.
-8. **A8 — Jerarquía:** mapa e inspector Tipo 7 son los dos momentos centrales.
+8. **A8 — Jerarquía y alcance del caso:** mapa e inspector Tipo 7 son los dos momentos centrales. Tipo 7 es un caso demostrativo transversal de Miraflores, independiente del escenario activo y sin efecto sobre sus agregados.
 9. **A9 — Acceso experto:** los ocho módulos permanecen disponibles y completos.
 10. **A10 — Marca:** se preservan paleta, logo y tipografías locales; sin librería visual externa.
 11. **A11 — Diferido:** HU-DEMO-505/exportación permanece fuera de alcance.
 12. **A12 — Ensayo humano:** lector nuevo, ≤10 minutos y cinco claims correctos; gate bloqueante.
 13. **A13 — Riesgos:** HUMAN-GATE-B no puede aceptar claims falsos ni regresiones Must.
+
+La aprobación también acepta la matriz de autoridad y compatibilidad: 2.0 degrada globalmente; 2.1 habilita escala/geografía; 2.2 agrega calidad; 2.3 agrega profundidad; 2.4 agrega movimiento/decisión. Ninguna etapa recalcula cifras de las vistas expertas.
 
 ## Qué autoriza el gate
 
@@ -47,4 +49,3 @@ Acepto A1–A13 y autorizo HUMAN-GATE-A de la Fase 6.
 ```
 
 Si algún supuesto requiere cambio, debe citarse por ID antes de autorizar la implementación.
-

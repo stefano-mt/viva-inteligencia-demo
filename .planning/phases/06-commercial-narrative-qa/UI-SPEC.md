@@ -70,7 +70,7 @@ El menú deja de presentar ambos niveles con la misma jerarquía.
 │ VIVA             │ Escenario canónico · Miraflores · Distrito         │
 │                  ├──────────────────────────────────────────────────────┤
 │ RECORRIDO        │ 01 Escala — 02 Geografía — 03 Calidad — ...        │
-│ [Continuar]      ├──────────────────────────────────────────────────────┤
+│ [Ver recorrido] ├──────────────────────────────────────────────────────┤
 │                  │ ETAPA 03/06 · CALIDAD                               │
 │ EXPLORAR         │ ¿Qué dato puede utilizarse?                         │
 │ Radar            │ Lectura principal + límite                          │
@@ -121,16 +121,20 @@ Cada etapa contiene, en este orden:
 
 La primera pantalla de 1280×720 debe mostrar 1–6 y el CTA principal, salvo que el estado sea error/carga.
 
+Dentro del recorrido, `Ver recorrido` en el sidebar es navegación secundaria y no adopta estilo de botón primario. La única acción primaria es el CTA de la etapa.
+
 ## 7. Contenido por etapa
 
 | Etapa | Lectura principal | Evidencia visible | CTA primario |
 |---|---|---|---|
-| Escala | tamaño y cobertura observable | proyectos, inmobiliarias, fecha, profundidad | `Continuar a geografía` |
-| Geografía | alcance y comparables del escenario | mapa, 90/85, cuadrante/radio | `Validar calidad` |
-| Calidad | dato apto vs. excluido | Tipo 7, 104.15/53.37/50.78 m² | `Comparar con evidencia` |
+| Escala | tamaño y cobertura observable | modelo 184, piloto 30/22/5 y cobertura actual, con denominadores diferenciados | `Continuar a geografía` |
+| Geografía | alcance y comparables del escenario | mapa y conteos derivados del escenario; nunca 90/85 fijados | `Validar calidad` |
+| Calidad | dato apto vs. excluido | caso transversal Tipo 7, Miraflores, 104.15/53.37/50.78 m² | `Comparar con evidencia` |
 | Profundidad | diferencias que afectan decisión | matriz por filas, denominadores, referencias | `Revisar movimiento` |
 | Movimiento | cambios publicados prioritarios | anterior/nuevo, vigencia, estado, causa nula | `Preparar decisión` |
 | Decisión | lectura prudente y siguiente acción | respuesta, límites, referencias, checklist | `Reiniciar recorrido` |
+
+En Decisión, una `state.assistantResponse` existente se reproduce literalmente. Si no existe, la etapa muestra solo el resumen prudente del checklist y `Formular consulta en el asistente`; no genera una pregunta ni elige una intención por el usuario.
 
 ## 8. Ayuda contextual
 
@@ -165,6 +169,48 @@ El resumen visible no repite todo el cuerpo. Los componentes complejos mantienen
 | Legacy 2.0–2.3 | recorrido degrada capacidades sin inventar índices 2.4 |
 | Deep-link inválido | corrige a `scale` con anuncio accesible y URL canónica |
 
+Reglas de legacy: 2.0 produce `contract_unavailable` global; 2.1 habilita escala/geografía; 2.2 agrega calidad; 2.3 agrega profundidad; 2.4 agrega movimiento/decisión. Una capacidad ausente se explica y no se presenta como un vacío de negocio.
+
+## 10.1. Retorno entre recorrido y módulos
+
+| Módulo | Etapa canónica de retorno |
+|---|---|
+| `dashboard` | `geography` |
+| `projects` | `depth` |
+| `inspector` | `quality` |
+| `market` | `scale` |
+| `compare` | `depth` |
+| `activity` | `movement` |
+| `assistant` | `decision` |
+| `trust` | `decision` |
+
+| Etapa | Enlaces expertos permitidos |
+|---|---|
+| `scale` | `market` |
+| `geography` | `dashboard`, `projects` |
+| `quality` | `inspector` con `case:f3-ct-g-pardo` |
+| `depth` | `market`, `compare`, `projects` |
+| `movement` | `activity` |
+| `decision` | `assistant`, `trust` |
+
+El retorno es canónico, no depende de memoria oculta. Al entrar a un módulo, la UI muestra `Volver al recorrido: <etapa>` según esta tabla.
+
+## 10.2. Contrato de reinicio
+
+`Reiniciar escenario` debe restaurar en una sola transición:
+
+- URL final `/#journey/scale` con query del escenario por defecto y sin alias residuales;
+- escenario, geografía y revisiones a `scenario_defaults`;
+- filtros de proyectos, límite 18, búsqueda, orden y selección a los inicializadores canónicos;
+- comparación vacía, `includeTarget=false` y query vacía;
+- filtros de historial normalizados y evento seleccionado nulo;
+- input, intención, respuesta y revisión del asistente vacíos/recalculados;
+- inspector al caso inicial exacto: `inspectorProjectId="project:nexo-2951"`, `inspectorTypologyId="typology:pardo-coast-tipo-7"`, `inspectorPreset="case:f3-ct-g-pardo"`; `inspectorEvidenceId=null` e `inspectorDialogOpen=false`;
+- menú móvil y divulgaciones transitorias cerrados;
+- foco en el `h1` de Escala y anuncio accesible de reinicio.
+
+Atrás/adelante debe recorrer URLs reales, no reponer valores borrados por el reinicio. Recargar cualquier `#journey/<stage>` conserva el escenario serializado y reconstruye la misma lectura.
+
 ## 11. Accesibilidad y movimiento
 
 - Landmarks y un solo `h1` por etapa.
@@ -180,4 +226,3 @@ El resumen visible no repite todo el cuerpo. Los componentes complejos mantienen
 ## 12. Autocrítica de diseño
 
 Se descartó un dashboard-resumen con seis tarjetas porque repetiría el patrón que causa sobrecarga. También se descartó ocultar los módulos actuales detrás de un modal obligatorio. La ruta propuesta es específica al proceso de decisión inmobiliaria, preserva exploración experta y gasta la audacia visual en una sola estructura: el rastro de decisión y evidencia.
-

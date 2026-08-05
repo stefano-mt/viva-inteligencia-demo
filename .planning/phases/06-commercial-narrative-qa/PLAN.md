@@ -10,296 +10,307 @@
 
 Fase 6 convierte los módulos verificados de F1–F5 en un recorrido ejecutivo de seis etapas, reduce densidad sin perder evidencia y cierra la demo con un ensayo humano reproducible.
 
-La fase está terminada solo si:
+La fase termina solo si:
 
 1. HU-DEMO-103/104/801–804 cumplen todos sus criterios;
-2. las seis etapas derivan cifras del escenario canónico;
+2. las seis etapas consumen selectores/motores autoritativos y pasan paridad con la vista experta;
 3. las ocho rutas expertas permanecen accesibles y compatibles;
 4. reinicio, deep-link, recarga y atrás/adelante son deterministas;
 5. CT-A–I y CT-P no sufren regresiones;
 6. 14 superficies (6 etapas + 8 rutas) pasan smoke/a11y en 3 viewports;
-7. zoom 200%, teclado, contraste, densidad y red externa pasan;
-8. un lector humano nuevo completa el guion en ≤10 minutos y explica los cinco claims de `CONTEXT.md`;
-9. un checker independiente emite `PASS` o HUMAN-GATE-B acepta explícitamente riesgos;
-10. Pages se verifica después del merge y el resultado se persiste en PR documental separado.
+7. 2.0 degrada globalmente y 2.1–2.4 respetan capacidades/estados sin `NaN`, infinito o datos obsoletos;
+8. zoom 200%, teclado, contraste, densidad y red externa pasan;
+9. un lector humano nuevo completa el guion en ≤10 minutos y explica los cinco claims de `CONTEXT.md`;
+10. un checker independiente emite `PASS` o HUMAN-GATE-B acepta riesgos permitidos;
+11. Pages se verifica después del merge y el resultado se persiste en PR documental separado.
 
 ## 2. Historias y criterios de aceptación
 
 ### HU-DEMO-103 — Estados vacíos e insuficientes
 
-- Cada etapa define carga, vacío, insuficiente, error y degradación legacy.
-- Un faltante no recupera datos de otro escenario ni muestra `NaN`/infinito.
-- La acción correctiva indica qué debe hacer el usuario.
-- Un límite no se oculta al colapsar detalle.
+- Hay fixtures/resultados para carga, error global, 2.0, 2.1, 2.2, 2.3, 2.4 y vacío/insuficiente de cada etapa.
+- 2.0 muestra `contract_unavailable`; 2.1 habilita escala/geografía; 2.2 suma calidad; 2.3 suma profundidad; 2.4 suma movimiento/decisión.
+- Un faltante no recupera datos de otro escenario ni muestra `NaN`, infinito o contenido obsoleto.
+- La acción correctiva es operable y el límite permanece visible.
 
 ### HU-DEMO-104 — Ayuda contextual actualizada
 
-- Las seis etapas y ocho rutas explican propósito, acción, resultado, límite y siguiente paso.
+- Las 6 etapas y 8 rutas explican propósito, acción, resultado, límite y siguiente paso.
 - La ayuda abre con click y teclado y no depende de hover.
-- El texto usa vocabulario comercial coherente: publicado, orientativo, simulado, certificado, revisable y excluido.
+- El vocabulario comercial es coherente: publicado, orientativo, simulado, certificado, revisable y excluido.
 - No hay ayudas obsoletas respecto del contrato 2.4.
 
 ### HU-DEMO-801 — Recorrido guiado
 
-- Existe una entrada `Recorrido ejecutivo` visible al cargar la demo.
-- Hay seis slugs canónicos: `scale`, `geography`, `quality`, `depth`, `movement`, `decision`.
+- `Recorrido ejecutivo` es visible al cargar la demo.
+- Slugs: `scale`, `geography`, `quality`, `depth`, `movement`, `decision`.
 - Cada etapa muestra pregunta, lectura, respaldo, límite, evidencia y CTA.
 - Anterior/siguiente preservan escenario y mueven foco al título.
-- Mapa e inspector Tipo 7 son pasos explícitos, no enlaces accidentales.
-- El usuario puede abandonar el recorrido hacia un módulo y volver a la etapa relacionada.
+- Tipo 7 se rotula `Caso demostrativo transversal · Miraflores`; nunca contamina el escenario activo.
+- El usuario abandona el recorrido hacia un módulo y vuelve mediante el mapeo canónico de `UI-SPEC.md`.
 
 ### HU-DEMO-802 — Reducción de densidad y jerarquía
 
-- En 1280×720 la pregunta, lectura, límite y CTA primario de una etapa están visibles.
+- En 1280×720 se ven pregunta, lectura, límite y CTA primario.
 - Hay una sola acción primaria de alto contraste por etapa.
 - No hay más de tres resúmenes en una fila; móvil usa una columna.
-- Listas/metodología/evidencia extensa usan divulgación progresiva o módulo experto.
-- No se elimina procedencia, denominador, exclusión o limitación.
+- Evidencia extensa usa divulgación progresiva o módulo experto.
+- Procedencia, denominador, exclusión y limitación no se eliminan.
 - Ningún texto crítico se trunca o fragmenta palabra por palabra.
 
 ### HU-DEMO-803 — Reinicio y reproducibilidad
 
 - Ruta, escenario y etapa tienen representación canónica en URL.
-- Recarga reproduce la misma etapa y el mismo subconjunto.
-- Atrás/adelante recorre etapas sin perder escenario.
-- `Reiniciar` limpia filtros/selecciones/borradores y vuelve a la entrada canónica.
-- Consultas del asistente siguen solo en memoria.
-- No se usa localStorage, cookie, telemetría o red externa.
+- Recarga reproduce etapa y subconjunto; atrás/adelante recorre URLs reales.
+- `Reiniciar` ejecuta toda la matriz de reset de `UI-SPEC.md` y termina en `/#journey/scale` con foco en su `h1`.
+- Consultas del asistente siguen solo en memoria; no se usa localStorage, cookie, telemetría o red externa.
 
 ### HU-DEMO-804 — Navegación orientada a venta
 
 - El sidebar separa `Recorrido` de `Explorar análisis`.
-- La etapa actual se identifica con texto, número y `aria-current`.
-- Los CTA nombran el resultado siguiente, no `Continuar` sin contexto.
+- La etapa actual usa texto, número y `aria-current`.
+- Los CTA nombran el resultado siguiente.
 - Las ocho rutas expertas siguen accesibles en máximo dos interacciones.
-- La navegación móvil conserva foco, cierre por Escape y retorno al control de apertura.
+- La navegación móvil conserva foco, Escape y retorno al control de apertura.
 
 ## 3. Supuestos para aprobación
 
 | ID | Supuesto |
 |---|---|
-| A1 | Fase 6 conserva GitHub Pages estático y no añade servicios externos. |
+| A1 | GitHub Pages estático; sin servicios externos. |
 | A2 | Contrato 2.4, dataset, writer, hashes y elegibilidad quedan protegidos. |
 | A3 | `Recorrido ejecutivo` es la entrada comercial principal; los módulos son exploración experta. |
 | A4 | `/` sin hash abre `#journey/scale`; `#dashboard` y deep-links existentes siguen válidos. |
-| A5 | Las seis etapas son escala, geografía, calidad, profundidad, movimiento y decisión. |
-| A6 | La etapa se serializa en hash y el escenario conserva su query canónica; no hay progreso oculto persistido. |
-| A7 | Cada etapa muestra una acción primaria y como máximo tres resúmenes antes del detalle. |
-| A8 | Mapa e inspector Tipo 7 reciben máxima jerarquía dentro del guion. |
+| A5 | La secuencia es escala, geografía, calidad, profundidad, movimiento y decisión. |
+| A6 | La etapa se serializa en hash y el escenario conserva query canónica; no hay progreso persistido. |
+| A7 | Una acción primaria y máximo tres resúmenes antes del detalle. |
+| A8 | Tipo 7 es un caso transversal de Miraflores, independiente del escenario activo y de sus agregados. |
 | A9 | Los ocho módulos permanecen disponibles y no pierden evidencia ni controles. |
-| A10 | Se preservan paleta Viva, logo y tipografías locales; no se carga una librería visual nueva. |
+| A10 | Se preservan paleta Viva, logo y tipografías locales; sin librería visual nueva. |
 | A11 | HU-DEMO-505/exportación continúa fuera de alcance. |
-| A12 | El ensayo humano nuevo de ≤10 minutos es bloqueante para el ship de Fase 6. |
-| A13 | HUMAN-GATE-B solo puede aceptar riesgos explícitos; no puede ocultar un claim falso o una regresión Must. |
+| A12 | El ensayo humano nuevo de ≤10 minutos es bloqueante. |
+| A13 | HUMAN-GATE-B no puede aceptar un claim falso o una regresión Must. |
 
-## 4. Arquitectura y archivos protegidos
+## 4. Autoridad, compatibilidad y paridad
 
-### Protegidos por defecto
+La matriz vinculante está en `CONTEXT.md`. El recorrido no recalcula cifras: usa `state.scenarioContext`, `state.geographyArtifact`, el caso F3, `state.benchmarkContext`, `buildComparisonModel`, `state.historyContext` y `buildAssistantResponse`.
+
+Cada etapa debe probar:
+
+1. igualdad de valor, denominador, estado y referencia con su superficie experta;
+2. escenario estable al navegar;
+3. ausencia de recomputación paralela;
+4. fallback de capacidad por contrato;
+5. vacío/insuficiente específico con CTA correctivo.
+
+La cifra 184 identifica registros modelados; 30/22/5 son niveles anidados del piloto. No se suman ni se presentan como universos equivalentes.
+
+## 5. Protegidos y disciplina de escritura
+
+Protegidos por defecto:
 
 - `contracts/demo-v2.schema.json`;
 - `scripts/build-demo-data.js` y `scripts/data/*`;
 - `public/demo-data/*`;
 - `datos_relevantes/*`;
-- assets/evidencia de F3–F5;
+- assets/evidencia F3–F5;
 - `.github/workflows/deploy-pages.yml`.
 
-Modificar un protegido exige enmienda técnica y aprobación humana explícita.
+Modificar un protegido exige enmienda técnica y aprobación humana. `domain.js`, `app.js`, `state.js`, `controller.js`, `navigation.js`, `styles.css`, `50-views.css` y `90-responsive.css` tienen escritor único por tarea. Ninguna tarea paralela comparte `write_set`.
 
-### Fronteras
+## 6. Olas
 
-- `domain.js`, `app.js`, `state.js`, `controller.js`, `navigation.js` y `90-responsive.css` tienen escritor único por tarea.
-- Ninguna tarea paralela comparte `write_set`.
-- La lógica nueva del recorrido vive en `public/js/journey.js` y una vista propietaria, no dentro de un nuevo hub.
-- CSS global del recorrido usa un bloque nuevo importado antes de `90-responsive.css`.
+- **Wave 6.0:** P6-00A–D, plan, revisión, gate y baseline.
+- **Wave 6.1:** P6-01–05, catálogo, URL, shell, estado y ayuda.
+- **Wave 6.2:** P6-06–09, extracción CSS serial y vistas con propietarios disjuntos.
+- **Wave 6.3:** P6-10–15, reset, integración, E2E, responsive, ensayo y checker.
+- **Wave 6.4:** P6-16–19, handoff, merge, post-merge y persistencia.
 
-## 5. Olas
-
-### Wave 6.0 — Planificación y gate
-
-P6-00A a P6-00D. Contexto, auditoría, UI-SPEC, plan, revisión, aprobación y baseline portable.
-
-### Wave 6.1 — Contrato y shell
-
-P6-01 a P6-04. Catálogo de etapas, navegación, vista del recorrido, shell y ayuda contextual.
-
-### Wave 6.2 — Handoffs y densidad
-
-P6-05 a P6-08. Reordenamiento progresivo de módulos con propietarios de vista/estilo separados.
-
-### Wave 6.3 — Reproducibilidad y QA
-
-P6-09 a P6-14. Reset, E2E, responsive, ensayo humano y checker independiente.
-
-### Wave 6.4 — Integración y ship
-
-P6-15 a P6-18. Memoria, PR funcional, merge humano, Pages y persistencia documental.
-
-## 6. Secuencia atómica
+## 7. Secuencia atómica y write sets cerrados
 
 ### P6-00A — Diagnóstico y plan
 
-**Salida:** `CONTEXT.md`, `UX-AUDIT.md`, `UI-SPEC.md`, `PLAN.md`, solicitud de gate, actualización de roadmap/estado.
+**Write set:** `CONTEXT.md`, `UX-AUDIT.md`, `UI-SPEC.md`, `PLAN.md`, `HUMAN-GATE-A-REQUEST.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`.
 
-**DoD:** cero archivos de runtime modificados; baseline y supuestos explícitos.
+**DoD:** cero runtime modificado; baseline, autoridad y supuestos explícitos.
 
 ### P6-00B — Revisión estructural independiente
 
-**Salida:** `PLAN_REVIEW.md`.
+**Write set:** `PLAN_REVIEW.md`.
 
-**DoD:** criterios, dependencias, write sets, narrativa, riesgos y gates revisados por un agente sin contexto de autor.
+**DoD:** checker independiente revisa criterios, fuentes, compatibilidad, write sets, reset, rehearsal y rollback. Todo `FAIL` se corrige y se repite.
 
 ### P6-00C — HUMAN-GATE-A
 
-**Write set:** `APPROVAL.md`, `DECISIONS.md`, `STATE.md`.
+**Write set posterior al texto humano:** `APPROVAL.md`, `DECISIONS.md`, `.planning/STATE.md`.
 
-**DoD:** A1–A13 aceptados o enmendados textualmente; no se inicia runtime antes.
+**DoD:** A1–A13 aceptados o enmendados textualmente; no inicia runtime antes.
 
 ### P6-00D — Baseline reproducible
 
 **Write set:** `BASELINE_BROWSER.md`, `evidence/baseline/*`.
 
-**Checks:** `npm.cmd run verify`, ocho rutas × tres viewports, auditoría de navegación y densidad.
+**Checks:** `npm.cmd run verify`; 8 rutas × 3 viewports; navegación, densidad, consola y red.
 
 ### P6-01 — Catálogo puro del recorrido
 
-**Write set:** `public/js/journey.js`, `public/js/config.js`, `tests/journey-domain.mjs`, `tests/module-graph.mjs`, `package.json`.
+**Write set:** `prototipo_ejecutable/public/js/journey.js`, `prototipo_ejecutable/public/js/config.js`, `prototipo_ejecutable/tests/journey-domain.mjs`, `prototipo_ejecutable/tests/module-graph.mjs`, `prototipo_ejecutable/package.json`.
 
 **Protegidos:** estado, shell, vistas, estilos y datos.
 
-**DoD:** seis etapas cerradas, rutas válidas, anterior/siguiente y mapeo módulo↔etapa deterministas; tests primero.
+**DoD:** seis etapas, matriz `module→canonicalReturnStage`, `stage→expertLinks`, fuentes y capacidades por versión; tests primero.
 
-### P6-02 — Contrato de navegación y URL
+### P6-02 — Navegación y URL
 
-**Write set:** `public/js/navigation.js`, `tests/journey-navigation.mjs`, regresiones de navegación existentes.
+**Write set:** `prototipo_ejecutable/public/js/navigation.js`, `prototipo_ejecutable/tests/journey-navigation.mjs`, `prototipo_ejecutable/tests/scenario-e2e.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** `#journey/<stage>`, aliases, deep-links inválidos, back/forward y query de escenario verificados.
+**DoD:** `#journey/<stage>`, `/`, aliases, deep-links inválidos, query, recarga y back/forward verificados.
 
 ### P6-03 — Vista y shell del recorrido
 
-**Write set:** `public/app.js`, `public/js/views/journey.js`, `public/js/views/index.js`, `public/styles.css`, `public/styles/61-journey.css`, `public/styles/20-shell.css`, pruebas de vista/shell.
+**Write set:** `prototipo_ejecutable/public/app.js`, `prototipo_ejecutable/public/js/views/journey.js`, `prototipo_ejecutable/public/js/views/index.js`, `prototipo_ejecutable/public/styles.css`, `prototipo_ejecutable/public/styles/20-shell.css`, `prototipo_ejecutable/public/styles/61-journey.css`, `prototipo_ejecutable/tests/journey-view.mjs`, `prototipo_ejecutable/tests/journey-shell.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** entrada principal, rail de seis etapas, un `h1`, CTA anterior/siguiente, navegación experta y estados base.
+**DoD:** entrada, rail, un `h1`, CTA, acceso experto y estados base; solo esta tarea importa `61-journey.css`.
 
-### P6-04 — Estado, controlador y foco
+### P6-04 — Estado, adaptadores y foco
 
-**Write set:** `public/js/state.js`, `public/js/controller.js`, `tests/journey-state.mjs`, `tests/journey-e2e.mjs`.
+**Write set:** `prototipo_ejecutable/public/js/state.js`, `prototipo_ejecutable/public/js/controller.js`, `prototipo_ejecutable/public/js/journey.js`, `prototipo_ejecutable/tests/journey-state.mjs`, `prototipo_ejecutable/tests/journey-parity.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** recorrido deriva escenario vigente, no duplica payload, anuncia etapas y preserva foco/URL.
+**DoD:** adaptadores consumen motores vigentes sin recomputar; paridad de 6 etapas; foco/anuncio correctos; Tipo 7 transversal no altera escenario. Decisión reproduce literalmente `state.assistantResponse` si existe; si es nula muestra checklist + CTA y `journey-parity.mjs` demuestra que no invoca `buildAssistantResponse`.
 
 ### P6-05 — Ayuda contextual y handoff
 
-**Write set:** `public/js/domain.js`, `public/js/views/guidance.js`, `public/js/config.js`, `public/styles/30-components.css`, tests de ayuda.
+**Write set:** `prototipo_ejecutable/public/js/domain.js`, `prototipo_ejecutable/public/js/views/guidance.js`, `prototipo_ejecutable/public/js/config.js`, `prototipo_ejecutable/public/styles/30-components.css`, `prototipo_ejecutable/tests/journey-guidance.mjs`, `prototipo_ejecutable/package.json`.
 
-**Dependencia:** P6-03/P6-04 integrados; escritor único sobre `domain.js` y `config.js`.
+**DoD:** propósito, acción, resultado, límite y siguiente paso para 6+8; retorno canónico; no hover-only.
 
-**DoD:** propósito, acción, resultado, límite y siguiente paso para 6+8 superficies; no hover-only.
+### P6-06 — Extracción CSS serial sin cambio visual
 
-### P6-06 — Escala y geografía
+**Write set:** `prototipo_ejecutable/public/styles.css`, `prototipo_ejecutable/public/styles/50-views.css`, `prototipo_ejecutable/public/styles/62-projects.css`, `prototipo_ejecutable/public/styles/63-checklist.css`, `prototipo_ejecutable/tests/style-ownership.mjs`, `prototipo_ejecutable/tests/browser-smoke.mjs`, `prototipo_ejecutable/package.json`.
 
-**Write set:** `public/js/views/dashboard.js`, `public/js/views/market.js`, `public/styles/50-views.css`, `public/styles/56-benchmark.css`, pruebas dirigidas.
+**DoD:** selectores de proyectos/checklist se mueven mecánicamente; manifest importa 62/63 una vez; smoke de ocho rutas demuestra paridad visual/funcional. Es serial y precede cualquier paralelismo de vistas.
 
-**DoD:** escala y mapa aparecen antes de detalle, lente duplicada se reduce y CTA entrega el handoff correcto.
+### P6-07 — Escala y geografía
 
-### P6-07 — Calidad y profundidad
+**Write set:** `prototipo_ejecutable/public/js/views/dashboard.js`, `prototipo_ejecutable/public/js/views/market.js`, `prototipo_ejecutable/public/styles/50-views.css`, `prototipo_ejecutable/public/styles/56-benchmark.css`, `prototipo_ejecutable/tests/journey-scale-geography.mjs`.
 
-**Subtarea A:** `inspector.js` + `55-inspector.css`.
+**DoD:** escala distingue 184 de 30/22/5; mapa/conteos derivan escenario; paridad y fallbacks 2.0–2.4.
 
-**Subtarea B:** `projects.js` + estilos propietarios de proyectos extraídos desde `50-views.css` si se necesita paralelismo.
+### P6-08 — Calidad y profundidad (paralelo tras P6-06)
 
-**Subtarea C:** `compare.js` + `57-comparison.css`.
+- **A Inspector:** `public/js/views/inspector.js`, `public/styles/55-inspector.css`, `tests/journey-quality.mjs`.
+- **B Proyectos:** `public/js/views/projects.js`, `public/styles/62-projects.css`, `tests/journey-projects-handoff.mjs`.
+- **C Comparador:** `public/js/views/compare.js`, `public/styles/57-comparison.css`, `tests/journey-depth.mjs`.
 
-**DoD:** Tipo 7 es inequívoco; comparación concluye antes de detalle; evidencia completa permanece accesible. Solo subtareas con write sets disjuntos pueden ejecutarse en paralelo.
+Todos los paths se resuelven bajo `prototipo_ejecutable/`.
 
-### P6-08 — Movimiento y decisión
+**DoD:** Tipo 7 transversal e inequívoco; conclusión antes del detalle; evidencia accesible; write sets disjuntos.
 
-**Subtarea A:** `activity.js` + `58-history-signals.css`.
+### P6-09 — Movimiento y decisión (paralelo tras P6-06)
 
-**Subtarea B:** `assistant.js` + `59-assistant.css`.
+- **A Actividad:** `public/js/views/activity.js`, `public/styles/58-history-signals.css`, `tests/journey-movement.mjs`.
+- **B Asistente:** `public/js/views/assistant.js`, `public/styles/59-assistant.css`, `tests/journey-decision.mjs`.
+- **C Checklist:** `public/js/views/checklist.js`, `public/styles/63-checklist.css`, `tests/journey-checklist-handoff.mjs`.
 
-**Subtarea C:** `checklist.js` + estilo propietario extraído si aplica.
+Todos los paths se resuelven bajo `prototipo_ejecutable/`.
 
-**DoD:** señal→asistente→checklist tiene handoffs explícitos; CT-E/F y privacidad intactos.
+**DoD:** señal→asistente→checklist con handoffs explícitos; CT-E/F y privacidad intactos; write sets disjuntos.
 
-### P6-09 — Reinicio y reproducibilidad
+### P6-10 — Reinicio y reproducibilidad
 
-**Write set:** `state.js`, `controller.js`, `navigation.js`, tests de reset/reload/history.
+**Write set:** `prototipo_ejecutable/public/js/state.js`, `prototipo_ejecutable/public/js/controller.js`, `prototipo_ejecutable/public/js/navigation.js`, `prototipo_ejecutable/tests/journey-reset.mjs`, `prototipo_ejecutable/tests/journey-navigation.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** reinicio global vuelve a `#journey/scale`, limpia UI local, preserva baseline y no persiste consultas.
+**DoD:** ejecuta exhaustivamente la matriz de `UI-SPEC.md`; URL final `/#journey/scale`; foco en `h1`; historial no revive estado; consultas no persisten. El reset restaura `project:nexo-2951`, `typology:pardo-coast-tipo-7` y `case:f3-ct-g-pardo`, y `journey-reset.mjs` demuestra que el dossier Tipo 7 queda disponible con evidencia/diálogo cerrados.
 
-### P6-10 — Integración de regresiones
+### P6-11 — Compatibilidad e integración
 
-**Write set:** tests F6, `package.json`.
+**Write set:** `prototipo_ejecutable/tests/phase6-fixtures.mjs`, `prototipo_ejecutable/tests/phase6-integral-e2e.mjs`, `prototipo_ejecutable/tests/e2e-scenarios/ct-a-journey.json`, `prototipo_ejecutable/tests/e2e-scenarios/ct-b-journey.json`, `prototipo_ejecutable/tests/e2e-scenarios/ct-c-journey.json`, `prototipo_ejecutable/tests/e2e-scenarios/ct-d-journey.json`, `prototipo_ejecutable/tests/e2e-scenarios/ct-e-journey.json`, `prototipo_ejecutable/tests/e2e-scenarios/ct-f-journey.json`, `prototipo_ejecutable/tests/e2e-scenarios/ct-g-journey.json`, `prototipo_ejecutable/tests/e2e-scenarios/ct-h-journey.json`, `prototipo_ejecutable/tests/e2e-scenarios/ct-i-journey.json`, `prototipo_ejecutable/tests/e2e-scenarios/ct-p-journey.json`, `prototipo_ejecutable/tests/browser-smoke.mjs`, `prototipo_ejecutable/tests/browser-a11y.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** HU 103/104/801–804, CT-A–I/P, contratos 2.0–2.4 y ocho rutas expertas pasan.
+**DoD:** loading, error, 2.0–2.4, vacíos por etapa, HU 103/104/801–804, CT-A–I/P y 8 rutas pasan; cero `NaN`/infinito.
 
-### P6-11 — E2E de narrativa
+### P6-12 — E2E de narrativa UI-only
 
-**Write set:** `tests/journey-e2e.mjs`, evidencia funcional P6.
+**Write set:** `prototipo_ejecutable/tests/journey-e2e.mjs`, `.planning/phases/06-commercial-narrative-qa/evidence/functional/*`.
 
-**DoD:** seis etapas por UI-only, mapa, Tipo 7, comparador, señal, asistente y checklist; cero consulta al código durante el recorrido.
+**DoD:** seis etapas, mapa, Tipo 7, comparador, señal, asistente, checklist, salida/retorno experto y paridad; cero consulta al código durante el recorrido.
 
-### P6-12 — Responsive, contraste y zoom 200%
+### P6-13 — Responsive, contraste y zoom 200%
 
-**Write set:** `90-responsive.css`, `tests/phase6-responsive.mjs`, evidencia visual P6.
+**Write set:** `prototipo_ejecutable/public/styles/90-responsive.css`, `prototipo_ejecutable/tests/phase6-responsive.mjs`, `prototipo_ejecutable/tests/browser-a11y.mjs`, `.planning/phases/06-commercial-narrative-qa/evidence/responsive/*`, `prototipo_ejecutable/package.json`.
 
 **DoD:** 14 superficies × 3 viewports, 200%, teclado, foco, 44×44, AA, reduced motion, cero overflow/solape/truncamiento.
 
-### P6-13 — Ensayo comercial humano
+### P6-14 — Ensayo comercial humano
 
-**Salida:** `COMMERCIAL_REHEARSAL.md` y evidencia de observación, sin código.
+**Write set:** `.planning/phases/06-commercial-narrative-qa/COMMERCIAL_REHEARSAL.md`, `.planning/phases/06-commercial-narrative-qa/evidence/rehearsal/*`.
 
-**DoD:** lector nuevo, ≤10 minutos, cinco claims correctos, cero ayuda del maker y cero afirmaciones prohibidas. Si falla, vuelve al propietario del defecto; no se sustituye por automatización.
+**Protocolo pre-merge:** lector que no participó en implementación; copia limpia del SHA candidato; servidor estático local con el comando documentado `npm.cmd run dev`; registrar SHA, comando, origen limpio y URL exacta `http://127.0.0.1:<puerto>/#journey/scale`. Prompt: `Explora la demo y prepara una recomendación comercial prudente para el escenario visible. Avísame cuando puedas justificarla.` El maker no explica controles ni contenido. No se modifica el workflow protegido ni se presume una preview pública.
 
-### P6-14 — Verificación formal independiente
+**Respuestas esperadas:** cobertura/denominadores; alcance geográfico; exclusión Tipo 7; diferencia respaldada; cambio observado y límite de causalidad.
 
-**Salida:** `VERIFICATION_REPORT.md`.
+**Claims prohibidos:** precio de cierre; causalidad no observada; exhaustividad del mercado; certificación de una fuente no certificada; mezclar 184 con 30/22/5; presentar Tipo 7 como parte del escenario activo.
 
-**Checks:** `npm.cmd run verify`, Graphify, diff/write sets, E2E, responsive, evidencia, ensayo humano y regresiones.
+**Rúbrica bloqueante:** ≤10:00; 5/5 respuestas correctas; 0 claims prohibidos; 0 ayudas del maker; completa mapa, evidencia Tipo 7 y decisión. Evidencia: grabación/capturas, cronómetro, respuestas textuales y rubricado firmado. Cada repetición usa un lector nuevo.
 
-**DoD:** `PASS`, `PASS WITH RISKS` + HUMAN-GATE-B, o `FAIL` con gaps clasificados.
+P6-18 repite el recorrido crítico sobre la URL pública de Pages y verifica que su SHA desplegado coincide con el merge.
 
-### P6-15 — Memoria, handoff y PR funcional
+### P6-15 — Verificación formal independiente
 
-**Salida:** `SUMMARY.md`, `HANDOFF.md`, `STATE.md`, commits atómicos y PR en borrador/listo según checker.
+**Write set:** `.planning/phases/06-commercial-narrative-qa/VERIFICATION_REPORT.md`, `.planning/phases/06-commercial-narrative-qa/evidence/verification/*`.
 
-### P6-16 — Merge humano
+**Checks:** `npm.cmd run verify`, Graphify, diff/write sets, E2E, responsive, paridad, evidencia y ensayo.
 
-**DoD:** revisión y merge realizados exclusivamente por el usuario; nunca por el agente.
+**DoD:** `PASS`, `PASS WITH RISKS` + HUMAN-GATE-B, o `FAIL` clasificado.
 
-### P6-17 — Verificación post-merge
+### P6-16 — Memoria, handoff y PR funcional
 
-**Objetivo:** verificar Pages, SHA, 14 superficies, recorrido humano crítico, red y consola de forma read-only.
+**Write set:** `SUMMARY.md`, `HANDOFF.md`, `.planning/STATE.md`, commits atómicos y cuerpo del PR.
 
-### P6-18 — Persistencia post-merge
+### P6-17 — Merge humano
 
-**Objetivo:** rama y PR documentales separados. Solo tras ese merge Fase 6 queda `deployed and verified`.
+**DoD:** revisión y merge exclusivamente por el usuario.
 
-## 7. Matriz de verificación
+### P6-18 — Verificación post-merge
+
+**Write set:** ninguno en `main`; verificación read-only de Pages, SHA, 14 superficies, recorrido crítico, red y consola.
+
+### P6-19 — Persistencia post-merge
+
+**Write set en rama documental separada:** `POSTMERGE_REPORT.md`, `.planning/STATE.md`, `.planning/ROADMAP.md`, evidencia post-merge. Tras merge humano de ese PR, F6 queda `deployed and verified`.
+
+## 8. Matriz de verificación
 
 | Capa | Actividad | Evidencia |
 |---|---|---|
-| Sintaxis/arquitectura | `npm.cmd run check`, módulo graph, Graphify | logs y conteos |
-| Dominio | journey catalog/state/navigation | tests unitarios |
-| Datos | hashes, referencias, compatibilidad 2.0–2.4 | hashes invariantes |
-| Integración | 6 etapas + 8 rutas | E2E UI-only |
-| Narrativa | cinco claims y límites | ensayo humano |
+| Sintaxis/arquitectura | `npm.cmd run check`, module graph, Graphify | logs y conteos |
+| Dominio | journey/state/navigation/parity | tests unitarios |
+| Compatibilidad | carga/error, 2.0–2.4 y vacíos por etapa | fixtures/resultados |
+| Integración | 6 etapas + 8 rutas + CT-A–I/P | E2E UI-only |
+| Narrativa | cinco claims, límites y prohibiciones | ensayo humano |
 | Visual | 1440×900, 1280×720, 390×844, 200% | capturas portables |
 | Accesibilidad | teclado, foco, landmarks, AA, reduced motion | pruebas + revisión |
 | Privacidad/red | consultas en memoria, 0 hosts externos | scanner y navegador |
-| Ship | SHA del merge = workflow = Pages | informe post-merge |
+| Ship | SHA merge = workflow = Pages | informe post-merge |
 
-## 8. Condición de rollback
+## 9. Rollback verificable
 
-Antes del merge, revertir la tarea atómica que falle y conservar las ocho rutas expertas. Después del merge, un rollback debe restaurar `/`→`#dashboard` y retirar únicamente el catálogo/vista del recorrido, sin tocar contrato, datos o motores. Un rollback no puede ocultar evidencia ni relajar tests.
+### Rollback parcial antes del merge
 
-## 9. Condiciones de parada
+Revertir la tarea atómica que falla, retirar sus imports/registro si aplica y ejecutar `npm.cmd run verify`, `browser-smoke.mjs`, `browser-a11y.mjs` y las ocho rutas expertas. El journey no puede quedar apuntando a una etapa incompleta: se deshabilita el enlace o se revierte el catálogo de esa etapa en el mismo rollback.
 
-- cambio de contrato o dataset no aprobado;
+### Rollback funcional después del merge
+
+Revertir el PR funcional completo para restaurar `/`→`#dashboard` y retirar catálogo/vista/estilos del recorrido, sin tocar contrato, datos o motores. Volver a desplegar, confirmar SHA de Pages y repetir smoke/a11y de las ocho rutas. La persistencia documental registra causa, SHA revertido, SHA desplegado y resultado.
+
+Ningún rollback puede ocultar evidencia, relajar tests o conservar enlaces rotos.
+
+## 10. Condiciones de parada
+
+- cambio de contrato/dataset no aprobado;
 - nueva fuente externa, telemetría o persistencia;
-- cifras del recorrido que no coincidan con vistas expertas;
+- cifra del recorrido distinta de su vista experta;
 - pérdida de un deep-link existente;
 - claim comercial sin evidencia;
 - colisión de write sets;
 - ensayo humano fallido sin hipótesis correctiva;
-- tres fallos consecutivos del mismo gate sin una causa nueva.
-
+- tres fallos consecutivos del mismo gate sin causa nueva.
