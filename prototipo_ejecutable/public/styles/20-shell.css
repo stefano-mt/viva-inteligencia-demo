@@ -92,6 +92,32 @@
   gap: 5px;
 }
 
+.nav-section--journey {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.nav-item--journey {
+  min-height: 66px;
+  border-color: var(--teal-line);
+  background: linear-gradient(135deg, var(--teal-soft), #f5faf8);
+}
+
+.nav-item--journey:not(.active) .nav-copy strong {
+  color: var(--teal);
+}
+
+.journey-entry-mark {
+  width: 34px;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: -0.08em;
+}
+
+.nav-section--expert {
+  gap: 3px;
+}
+
 .nav-section-label {
   padding: 0 10px 5px;
   color: #7a8581;

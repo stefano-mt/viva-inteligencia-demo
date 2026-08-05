@@ -6,6 +6,7 @@ export { renderCompare } from "./compare.js";
 export { renderChecklist } from "./checklist.js";
 export { renderAssistant } from "./assistant.js";
 export { renderActivity } from "./activity.js";
+export { renderJourney, renderJourneyTopbar } from "./journey.js";
 export {
   buildScenarioPresentation,
   loadBoundaryArtifact,
