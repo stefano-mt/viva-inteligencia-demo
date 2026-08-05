@@ -1,5 +1,6 @@
 import * as domain from "./domain.js";
-import { viewFromHash } from "./navigation.js";
+import { parseHashRoute, viewFromHash } from "./navigation.js";
+import { JOURNEY_STAGES, journeyStageById } from "./journey.js";
 import {
   INSPECTOR_ACTIONS,
   canonicalScenarioSearch,
@@ -155,6 +156,7 @@ let scenarioHistorySearch = null;
 let inspectorDocumentEventsBound = false;
 let comparisonDocumentEventsBound = false;
 let inspectorRestoreFocusId = null;
+let lastJourneyRoute = null;
 const inspectorBoundElements = new WeakSet();
 const inspectorDialogBoundElements = new WeakSet();
 
@@ -306,6 +308,59 @@ export function bindEvents(render) {
   bindHistoryElementEvents();
 
   bindInspectorElementEvents();
+  bindJourneyRouteEffects();
+}
+
+export function applyJourneyRouteEffects({
+  route,
+  previousRoute = null,
+  documentRef = globalThis.document,
+} = {}) {
+  const stage =
+    route?.view === "journey" ? journeyStageById(route.stageId) : null;
+  if (!stage) {
+    state.journeyAnnouncement = "";
+    return { changed: false, focused: false, announcement: "" };
+  }
+
+  const changed = Boolean(
+    previousRoute &&
+      (previousRoute.view !== route.view ||
+        previousRoute.stageId !== route.stageId),
+  );
+  if (!changed) {
+    return {
+      changed: false,
+      focused: false,
+      announcement: state.journeyAnnouncement,
+    };
+  }
+
+  const stageAnnouncement = `Etapa ${stage.position} de ${JOURNEY_STAGES.length}: ${stage.label}`;
+  const liveRegion = documentRef?.getElementById?.("journey-live");
+  const existingAnnouncement = String(liveRegion?.textContent ?? "").trim();
+  const announcement = existingAnnouncement || stageAnnouncement;
+  state.journeyAnnouncement = announcement;
+  if (liveRegion) liveRegion.textContent = announcement;
+  const title = documentRef?.getElementById?.("journey-title");
+  if (title) {
+    title.setAttribute?.("tabindex", "-1");
+    title.focus?.({ preventScroll: true });
+  }
+  return {
+    changed: true,
+    focused: Boolean(title),
+    announcement,
+  };
+}
+
+function bindJourneyRouteEffects() {
+  const route = parseHashRoute(globalThis.window?.location?.hash ?? "");
+  applyJourneyRouteEffects({ route, previousRoute: lastJourneyRoute });
+  lastJourneyRoute = {
+    view: route.view,
+    stageId: route.stageId ?? null,
+  };
 }
 
 function bindHistoryElementEvents() {

@@ -19,6 +19,7 @@ import {
   buildHistoryContext,
   normalizeHistoryFilters,
 } from "./history.js";
+import { buildJourneyContext } from "./journey.js";
 
 let dataValue = null;
 let scenarioEnvironment = null;
@@ -31,8 +32,11 @@ let inspectorRuntime = {
   caseByRoute: new Map(),
   casesByProject: new Map(),
   caseByProjectTypology: new Map(),
+  dossierByCaseId: new Map(),
   defaultCase: null,
 };
+
+const JOURNEY_QUALITY_CASE_ID = "case:f3-ct-g-pardo";
 
 const EMPTY_GEOGRAPHY_ARTIFACT = Object.freeze({
   status: "missing",
@@ -80,6 +84,9 @@ export const state = {
   historyContext: null,
   historyContextRevision: 0,
   selectedHistoryEventId: null,
+  journeyContext: null,
+  journeyContextRevision: 0,
+  journeyAnnouncement: "",
   get selectedDistrict() {
     return districtNameForId(state.scenario?.district_id);
   },
@@ -141,6 +148,9 @@ export function initializeScenarioData(data, options = {}) {
   state.historyContext = null;
   state.historyContextRevision = 0;
   state.selectedHistoryEventId = null;
+  state.journeyContext = null;
+  state.journeyContextRevision = 0;
+  state.journeyAnnouncement = "";
   state.compareIncludeTarget = false;
   state.assistantInput = "";
   state.assistantIntentId = null;
@@ -188,6 +198,7 @@ export function initializeInspectorState(inspector = dataValue?.inspector) {
     const caseByRoute = new Map();
     const casesByProject = new Map();
     const caseByProjectTypology = new Map();
+    const dossierByCaseId = new Map();
     for (const inspectorCase of cases) {
       const caseId = inspectorCase?.case_id;
       const routeSlug = inspectorCase?.route_slug;
@@ -211,7 +222,7 @@ export function initializeInspectorState(inspector = dataValue?.inspector) {
       if (caseByProjectTypology.has(pairKey)) {
         throw new Error("Inspector project and typology pair is ambiguous");
       }
-      buildEvidenceDossier({
+      const dossier = buildEvidenceDossier({
         model: dataValue.model,
         inspector,
         projectId,
@@ -220,6 +231,7 @@ export function initializeInspectorState(inspector = dataValue?.inspector) {
       caseById.set(caseId, inspectorCase);
       caseByRoute.set(routeSlug, inspectorCase);
       caseByProjectTypology.set(pairKey, inspectorCase);
+      dossierByCaseId.set(caseId, dossier);
       const projectCases = casesByProject.get(projectId) ?? [];
       projectCases.push(inspectorCase);
       casesByProject.set(projectId, projectCases);
@@ -240,6 +252,7 @@ export function initializeInspectorState(inspector = dataValue?.inspector) {
       caseByRoute,
       casesByProject,
       caseByProjectTypology,
+      dossierByCaseId,
       defaultCase,
     };
     setInspectorCase(defaultCase);
@@ -499,6 +512,7 @@ export function recomputeScenarioContext() {
     state.scenarioContext = null;
     state.benchmarkContext = null;
     state.historyContext = null;
+    state.journeyContext = null;
     return null;
   }
 
@@ -602,16 +616,18 @@ export function recomputeScenarioContext() {
     }),
     revision,
   };
-  recomputeHistoryContext();
+  recomputeHistoryContext({ recomputeJourney: false });
   normalizeScenarioSelections();
-  recomputeAssistantResponse();
+  recomputeAssistantResponse({ recomputeJourney: false });
+  recomputeJourneyContext();
   return state.scenarioContext;
 }
 
-export function recomputeHistoryContext() {
+export function recomputeHistoryContext({ recomputeJourney = true } = {}) {
   if (!dataValue || !state.scenarioContext) {
     state.historyContext = null;
     state.selectedHistoryEventId = null;
+    if (recomputeJourney) recomputeJourneyContext();
     return null;
   }
   const revision = state.historyContextRevision + 1;
@@ -628,6 +644,7 @@ export function recomputeHistoryContext() {
     scenario_revision: state.scenarioContextRevision,
   };
   normalizeHistorySelection();
+  if (recomputeJourney) recomputeJourneyContext();
   return state.historyContext;
 }
 
@@ -679,7 +696,10 @@ export function setAssistantDraft(input = "", intentId = null) {
     nextIntentId !== state.assistantIntentId;
   state.assistantInput = nextInput;
   state.assistantIntentId = nextIntentId;
-  if (changed) state.assistantResponse = null;
+  if (changed) {
+    state.assistantResponse = null;
+    recomputeJourneyContext();
+  }
   return {
     changed,
     input: state.assistantInput,
@@ -690,6 +710,7 @@ export function setAssistantDraft(input = "", intentId = null) {
 export function generateAssistantResponse({
   input = state.assistantInput,
   intentId = state.assistantIntentId,
+  recomputeJourney = true,
 } = {}) {
   state.assistantInput = String(input ?? "");
   state.assistantIntentId =
@@ -706,12 +727,16 @@ export function generateAssistantResponse({
   });
   state.assistantIntentId = state.assistantResponse.intentId ?? null;
   state.assistantResponseRevision += 1;
+  if (recomputeJourney) recomputeJourneyContext();
   return structuredClone(state.assistantResponse);
 }
 
-export function recomputeAssistantResponse() {
-  if (!state.assistantResponse) return null;
-  return generateAssistantResponse();
+export function recomputeAssistantResponse({ recomputeJourney = true } = {}) {
+  if (!state.assistantResponse) {
+    if (recomputeJourney) recomputeJourneyContext();
+    return null;
+  }
+  return generateAssistantResponse({ recomputeJourney });
 }
 
 export function clearAssistantResponse() {
@@ -724,7 +749,39 @@ export function clearAssistantResponse() {
   state.assistantIntentId = null;
   state.assistantResponse = null;
   if (changed) state.assistantResponseRevision += 1;
+  if (changed) recomputeJourneyContext();
   return changed;
+}
+
+export function recomputeJourneyContext() {
+  if (!dataValue) {
+    state.journeyContext = null;
+    return null;
+  }
+  const revision = state.journeyContextRevision + 1;
+  const context = buildJourneyContext({
+    contractVersion: dataValue.metadata?.contract_version ?? null,
+    metadataCounts: dataValue.metadata?.counts ?? null,
+    pilotCounts: dataValue.pilot?.counts ?? null,
+    scenarioContext: state.scenarioContext,
+    geographyArtifact: state.geographyArtifact,
+    qualityDossier:
+      inspectorRuntime.dossierByCaseId.get(JOURNEY_QUALITY_CASE_ID) ?? null,
+    benchmarkContext: state.benchmarkContext,
+    comparisonModel: currentComparisonModel(),
+    historyContext: state.historyContext,
+    assistantCatalog: dataValue.assistant,
+    assistantResponse: state.assistantResponse,
+  });
+  state.journeyContextRevision = revision;
+  state.journeyContext = {
+    ...context,
+    revision,
+    scenarioRevision: state.scenarioContextRevision,
+    historyRevision: state.historyContextRevision,
+    assistantResponseRevision: state.assistantResponseRevision,
+  };
+  return state.journeyContext;
 }
 
 export function canonicalScenarioSearch() {
@@ -801,6 +858,7 @@ function unavailableInspectorRuntime(reasonCode) {
     caseByRoute: new Map(),
     casesByProject: new Map(),
     caseByProjectTypology: new Map(),
+    dossierByCaseId: new Map(),
     defaultCase: null,
   };
 }
@@ -838,16 +896,7 @@ function currentInspectorDossier() {
   if (!inspectorRuntime.available || !inspectorCase || !dataValue?.model) {
     return null;
   }
-  try {
-    return buildEvidenceDossier({
-      model: dataValue.model,
-      inspector: dataValue.inspector,
-      projectId: inspectorCase.project_id,
-      typologyId: inspectorCase.typology_id,
-    });
-  } catch {
-    return null;
-  }
+  return inspectorRuntime.dossierByCaseId.get(inspectorCase.case_id) ?? null;
 }
 
 function currentComparisonModel() {
