@@ -44,6 +44,23 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
       );
       assert.ok((await page.locator("#main-content").innerText()).trim().length > 80, `Contenido vacío en #${route.id}`);
 
+      const ownerStyles = await page.evaluate(() => {
+        const imports = [...document.styleSheets].flatMap((sheet) =>
+          [...sheet.cssRules]
+            .filter((rule) => rule.type === CSSRule.IMPORT_RULE)
+            .map((rule) => new URL(rule.href, document.baseURI).pathname),
+        );
+        return {
+          projects: imports.filter((pathname) => pathname.endsWith("/styles/62-projects.css")).length,
+          checklist: imports.filter((pathname) => pathname.endsWith("/styles/63-checklist.css")).length,
+        };
+      });
+      assert.deepEqual(
+        ownerStyles,
+        { projects: 1, checklist: 1 },
+        `Los estilos propietarios no cargan exactamente una vez en #${route.id}`,
+      );
+
       if (route.id === "market") {
         assert.equal(
           await page.locator('[data-benchmark-status="orientative_noncomparable"]').count(),
@@ -61,6 +78,13 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 
       if (evidenceDir) {
         await fs.mkdir(evidenceDir, { recursive: true });
+        await page.evaluate(() => {
+          document.activeElement?.blur();
+          const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+          document.documentElement.style.scrollBehavior = "auto";
+          window.scrollTo(0, 0);
+          document.documentElement.style.scrollBehavior = previousScrollBehavior;
+        });
         const filename = `${viewport.name}-${route.id}.png`;
         const screenshot = await page.screenshot({
           path: path.join(evidenceDir, filename),

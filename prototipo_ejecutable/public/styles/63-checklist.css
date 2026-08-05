@@ -1,0 +1,98 @@
+.risk-list {
+  display: grid;
+  gap: 10px;
+  padding: 15px 16px 16px;
+}
+
+.check-item,
+.next-action-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: var(--surface-soft);
+}
+
+.check-item span {
+  color: var(--muted);
+}
+
+.check-item p,
+.next-action-card p {
+  font-size: 13px;
+}
+
+.check-item.success {
+  border-color: #b8ddc7;
+  background: var(--green-soft);
+}
+
+.check-item.warning {
+  border-color: #f1d0a4;
+  background: var(--amber-soft);
+}
+
+.check-item.neutral {
+  border-color: #c8d4ea;
+  background: var(--blue-soft);
+}
+
+.check-block {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 16px;
+}
+
+.check-block h2 {
+  margin-bottom: 3px;
+}
+
+.workflow-step {
+  position: relative;
+  padding-left: 76px;
+}
+
+.workflow-step::before {
+  content: "";
+  position: absolute;
+  left: 38px;
+  top: 54px;
+  bottom: -18px;
+  width: 2px;
+  background: #b9d7ce;
+}
+
+.workflow-step.final-step::before {
+  display: none;
+}
+
+.check-block-title {
+  align-items: flex-start;
+}
+
+.step-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--action);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.check-item {
+  display: grid;
+  gap: 6px;
+}
+
+.check-item span {
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.next-action-card {
+  display: grid;
+  gap: 8px;
+  border-color: #b7dcd2;
+  background: var(--teal-soft);
+}
