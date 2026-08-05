@@ -189,7 +189,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** convertir módulos correctos en un recorrido que se entiende y se recuerda.
 
-**Estado:** P6-00A completado y P6-00B aprobado por checker independiente (`PASS`, sin hallazgos P0–P2) en `feat/phase-6-commercial-narrative-qa`; HUMAN-GATE-A pendiente. No se ha modificado runtime de Fase 6.
+**Estado:** P6-00A/P6-00B completados; HUMAN-GATE-A aprobada bajo A1–A13 y P6-00D habilitado en `feat/phase-6-commercial-narrative-qa`. No se ha modificado runtime de Fase 6.
 
 ### Olas
 

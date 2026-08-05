@@ -431,3 +431,24 @@ El motor semántico consume el catálogo `assistant` 2.4 y devuelve siempre seis
 Los guardrails tienen precedencia sobre una intención explícita: precio real de cierre, causalidad, predicción, datos personales y solicitudes externas producen rechazo determinista. Una mención a otro distrito se registra, pero nunca cambia territorio, muestra, corte o filtros. Una intención desconocida muestra el catálogo compatible y no invoca un fallback generativo.
 
 El motor permanece local y puro: no usa DOM, reloj, almacenamiento, red, credenciales ni SDK de IA. P5-10 debe consumir este contrato sin duplicar clasificación, cifras o reglas de evidencia en la vista.
+
+## D-041 — HUMAN-GATE-A habilita Fase 6 bajo A1–A13
+
+**Fecha:** 2026-08-05
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Acepto A1–A13 y autorizo HUMAN-GATE-A de la Fase 6.” con timestamp de sesión `2026-08-05T09:37:27.3408491-05:00`. La aprobación acepta el plan `bb9b5a858f05acbafaa9f3ec55dc9dea48b281e8`, revisado con `PASS`, y habilita P6-00D; P6-01 solo puede comenzar si el baseline preimplementación pasa.
+
+Queda decidido que:
+
+1. `Recorrido ejecutivo` será la entrada principal y conservará las ocho rutas expertas;
+2. las seis etapas reutilizan motores/estado vigentes y prueban paridad, sin recomputar claims;
+3. Tipo 7 es un caso transversal de Miraflores e independiente del escenario activo;
+4. la compatibilidad observable degrada 2.0 globalmente y habilita capacidades acumulativas hasta 2.4;
+5. Decisión no genera consultas implícitas;
+6. reinicio, deep-link, recarga y atrás/adelante son deterministas;
+7. una CTA primaria, divulgación progresiva y presupuestos de densidad gobiernan cada etapa;
+8. el ensayo humano pre-merge es bloqueante y se repite sobre Pages después del merge.
+
+La aprobación no autoriza modificar contrato, dataset, writer, hashes, elegibilidad o workflow protegido. Tampoco equivale a PASS técnico, merge o despliegue. P6-15 permanece independiente y HUMAN-GATE-B será obligatorio ante `PASS WITH RISKS`.

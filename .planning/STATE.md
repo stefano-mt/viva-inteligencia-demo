@@ -269,13 +269,13 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Historias: HU-DEMO-103/104/801–804.
 - Contrato/datos 2.4 protegidos; la fase reorganiza navegación, narrativa, densidad y QA.
 - P6-00A: completado. P6-00B: [revisión independiente](phases/06-commercial-narrative-qa/PLAN_REVIEW.md) `PASS` tras dos ciclos correctivos; sin hallazgos P0–P2.
-- HUMAN-GATE-A: pendiente; runtime bloqueado.
+- HUMAN-GATE-A: [aprobada](phases/06-commercial-narrative-qa/APPROVAL.md) bajo A1–A13 el `2026-08-05T09:37:27.3408491-05:00`; P6-00C completado y P6-00D habilitado. Runtime sigue sin cambios hasta cerrar baseline.
 
 ## Próxima acción recomendada
 
-1. Revisar A1–A13 y autorizar HUMAN-GATE-A de Fase 6.
-2. Persistir P6-00C y ejecutar P6-00D sobre el baseline.
-3. Solo después, comenzar P6-01.
+1. Ejecutar P6-00D sobre el baseline portable.
+2. Corregir cualquier regresión previa o emitir PASS.
+3. Solo con P6-00D PASS, comenzar P6-01.
 
 ## Regla para actualizar este archivo
 
