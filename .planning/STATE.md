@@ -1,16 +1,16 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-08-04
+**Actualizado:** 2026-08-05
 
 **Milestone:** demo vNext orientada a venta
 
-**Última fase con despliegue técnico verificado:** Fase 4 — benchmark y comparador
+**Última fase con despliegue técnico verificado:** Fase 5 — histórico, señales y asistente determinista
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. El PR funcional #13 fue fusionado, P4-15 verificó GitHub Pages con `PASS` para `e2c953f` y el PR documental #14 fue fusionado en `main` (`47a794c`). Fase 5 está técnicamente completa: P5-01–P5-14 cerrados, P5-13 `PASS` y PR funcional [#15](https://github.com/stefano-mt/viva-inteligencia-demo/pull/15) abierto como borrador. Merge humano y verificación post-merge pendientes.
+**Estado:** Fases 0–4 están oficialmente `deployed and verified`. Fase 5 tiene despliegue técnico verificado con `PASS` para `8d4c6de`. **Regla de efectividad:** cuando esta versión de `STATE.md` exista en `main` por el merge humano del PR documental P5-16, Fase 5 también estará oficialmente `deployed and verified`.
 
-**Rama activa:** `feat/phase-5-history-signals-assistant`.
+**Rama activa:** `docs/phase-5-postmerge-report`.
 
-## Baseline vigente
+## Baseline histórica de Fase 2
 
 - Base de Fase 2: `a8f0284`, merge de Fase 1 en `main`.
 - HEAD funcional verificado por P2-16: `606452569040d0489685a3c26b16e15da0c476ac`.
@@ -45,7 +45,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Miraflores CT-I: 90 observados, 85 comparables, 5 no reconciliados, 69 publicaciones raw con precio y área total declarados —sin pairing demostrado— y cuadrantes 40/5/5/40.
 - Graphify F2 `--code-only --no-cluster`: 2,066 nodos y 4,104 relaciones; no reveló un hub nuevo injustificado.
 
-## Verificación vigente
+## Verificación histórica de Fase 2
 
 - Veredicto P2-16: `PASS WITH RISKS`; nunca `PASS`.
 - Checker independiente: `/root/phase2_final_checker`.
@@ -115,7 +115,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - R5: el reflujo equivalente a 200% fue automatizado; falta una comprobación humana breve antes de la demo. Puede realizarse durante la revisión del PR únicamente si la revisión ocurre primero.
 - F3 mantiene tres notas no bloqueantes: posible confusión inicial entre porcentaje de evidencia y 30/22/5, cobertura parcial de Graphify para CSS/JSON y prerequisito local de instalar dependencias de desarrollo para Playwright.
 - F4 no dispone de precio por m² de mercado elegible; los dos hechos actuales provienen de CT-A simulado.
-- F5 solo dispone de tres eventos controlados y ninguno tiene causa observada.
+- F5 publica 36 eventos históricos y ninguno tiene causa observada; la demo demuestra cambios de precios publicados, no causalidad ni precios reales de cierre.
 
 ## Cierre vigente de Fase 2
 
@@ -190,7 +190,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Estado de ship: **`deployed and verified`**.
 - Gap residual de gobernanza: el recorrido comercial de P4-13 fue automatizado. El checker independiente lo aceptó con `PASS`, pero debe realizarse un ensayo humano breve antes de presentar la demo al cliente.
 
-## Fase 5 — planificación vigente
+## Fase 5 — cierre post-merge vigente
 
 - Contexto: [phases/05-history-signals-assistant/CONTEXT.md](phases/05-history-signals-assistant/CONTEXT.md).
 - Evaluación técnica y de datos: [phases/05-history-signals-assistant/DATA-ASSESSMENT.md](phases/05-history-signals-assistant/DATA-ASSESSMENT.md).
@@ -200,8 +200,8 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Solicitud de aprobación: [phases/05-history-signals-assistant/HUMAN-GATE-A-REQUEST.md](phases/05-history-signals-assistant/HUMAN-GATE-A-REQUEST.md).
 - Historias: HU-DEMO-601–603 y 701–703; HU-DEMO-603 es Should.
 - Casos obligatorios: CT-C/D/E/F/G/I/P.
-- Contrato propuesto: `2.4.0`, histórico y asistente autoritativos, reader 2.0–2.4.
-- Línea base visual: `#activity` mezcla proyectos de otros distritos y prioriza outliers legacy; `#assistant` aún no cita hechos/evidencias.
+- Contrato público: `2.4.0`, histórico y asistente autoritativos, reader 2.0–2.4.
+- La línea base visual defectuosa fue reemplazada: `#activity` deriva el escenario canónico y `#assistant` cita hechos/evidencias autorizados.
 - HUMAN-GATE-A: [phases/05-history-signals-assistant/APPROVAL.md](phases/05-history-signals-assistant/APPROVAL.md), A1–A12 aprobadas el `2026-08-04T10:50:13.4321329-05:00` sobre `ae55fa5`.
 - P5-00C: completado; decisión D-033 registrada.
 - P5-00D: [phases/05-history-signals-assistant/BASELINE_BROWSER.md](phases/05-history-signals-assistant/BASELINE_BROWSER.md), `PASS`; paridad runtime, `npm run verify`, ocho rutas × tres viewports, accesibilidad y cuatro capturas portables verificadas.
@@ -247,15 +247,22 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Riesgos residuales P5-13: ninguno alto o medio. Permanecen como notas bajas el ensayo comercial automatizado, helpers legacy no alcanzables, cobertura parcial de Graphify para CSS/JSON y seis hard-breaks Markdown históricos.
 - HUMAN-GATE-B: no requerido porque P5-13 emitió `PASS`.
 - P5-14: [phases/05-history-signals-assistant/SUMMARY.md](phases/05-history-signals-assistant/SUMMARY.md) y [phases/05-history-signals-assistant/HANDOFF.md](phases/05-history-signals-assistant/HANDOFF.md), completado; memoria y evidencia portable listas.
-- PR funcional: [#15 — feat: add explainable market signals and deterministic assistant](https://github.com/stefano-mt/viva-inteligencia-demo/pull/15), observado `OPEN / DRAFT / MERGEABLE / CLEAN` al abrirlo.
+- PR funcional: [#15 — feat: add explainable market signals and deterministic assistant](https://github.com/stefano-mt/viva-inteligencia-demo/pull/15), fusionado el `2026-08-05T13:08:57Z`.
+- Head final del PR funcional: `34bc190bf456b2612c4636cb4fc81dd8f0bc4586`.
+- SHA del merge funcional, desplegado y verificado: `8d4c6de5b47f30d4b058de371a45b59377f2cf78`.
+- Workflow Pages: [run 31008846208](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/31008846208), job `92315480879`, `success` y `headSha = 8d4c6de`.
+- GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
+- P5-15: **PASS**; contrato 2.4, integridad determinista, CT-C/E/F, histórico, agenda, asistente, escritorio, móvil, consola y red verificados en la URL pública.
+- Informe post-merge: [phases/05-history-signals-assistant/POSTMERGE_REPORT.md](phases/05-history-signals-assistant/POSTMERGE_REPORT.md).
+- P5-16: resultado preparado en este estado y en `POSTMERGE_REPORT.md` mediante la rama documental `docs/phase-5-postmerge-report`.
+- Estado de ship de Fase 5: P5-15 `PASS`; **`deployed and verified`** oficial si y solo si esta versión fue integrada en `main` mediante el merge humano del PR documental P5-16.
 - Último commit funcional: `8e76b796b1fef3616b5a0b7a5526a72d2f125e2c`; los commits posteriores son P5-13/P5-14 documentales.
 
 ## Próxima acción recomendada
 
-1. Revisar el PR #15 y las trece capturas portables; probar `#activity`, `#assistant` y CT-F.
-2. Marcar el PR `Ready for review` cuando la revisión esté lista y realizar el merge exclusivamente de forma humana.
-3. Después del merge, ejecutar P5-15 read-only; si concluye `PASS`, persistir P5-16 en una rama/PR documental separados.
-4. Realizar un ensayo humano breve antes de presentar la demo al cliente; no es un gate técnico de merge.
+1. Crear desde `docs/phase-5-postmerge-report` el PR documental P5-16; después, revisarlo y fusionarlo exclusivamente de forma humana.
+2. Realizar un ensayo humano breve de `#activity`, `#assistant` y CT-F antes de presentar la demo al cliente; no es un gate técnico de merge.
+3. Definir el alcance y HUMAN-GATE-A de una eventual Fase 6 antes de modificar runtime, datos o UX.
 
 ## Regla para actualizar este archivo
 
