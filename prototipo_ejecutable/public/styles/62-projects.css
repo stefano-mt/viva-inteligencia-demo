@@ -5,6 +5,104 @@
   align-items: start;
 }
 
+.project-catalog-brief {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 18px 28px;
+  align-items: end;
+  border-block: 1px solid var(--line);
+  border-left: 5px solid var(--action);
+  padding: 20px 22px;
+  background: linear-gradient(100deg, var(--teal-soft), #ffffff 62%);
+}
+
+.project-catalog-brief__copy {
+  display: grid;
+  gap: 7px;
+}
+
+.project-catalog-brief__eyebrow {
+  color: var(--action);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.project-catalog-brief h2 {
+  max-width: 760px;
+  font-size: clamp(24px, 2.5vw, 34px);
+  line-height: 1.08;
+}
+
+.project-catalog-brief p {
+  max-width: 760px;
+  color: #31413b;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.project-catalog-brief small {
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.project-catalog-brief__ledger {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-block: 1px solid var(--line);
+}
+
+.project-catalog-brief__ledger > div {
+  min-width: 0;
+  display: grid;
+  gap: 5px;
+  padding: 12px;
+}
+
+.project-catalog-brief__ledger > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.project-catalog-brief__ledger dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.3;
+}
+
+.project-catalog-brief__ledger dd {
+  margin: 0;
+  color: var(--text);
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.project-catalog-brief__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.project-catalog-brief__actions .primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.project-catalog-return {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--action);
+  font-weight: 850;
+  text-underline-offset: 3px;
+}
+
 .local-controls {
   grid-template-columns: repeat(3, minmax(160px, 1fr));
   align-items: end;
@@ -25,6 +123,15 @@
   padding: 15px 16px 16px;
   max-height: calc(100vh - 238px);
   overflow: auto;
+}
+
+.catalog-result-list {
+  display: grid;
+  max-height: max(420px, calc(100vh - 260px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  padding: 6px 16px 10px;
 }
 
 .catalog-footer {
@@ -67,12 +174,17 @@
   padding-block: 6px 10px;
 }
 
+[data-scenario-consumer="catalog"] .catalog-result-list {
+  gap: 0;
+}
+
 [data-scenario-consumer="catalog"] .project-card {
   border: 0;
   border-bottom: 1px solid var(--line);
   border-left: 4px solid transparent;
   border-radius: 0;
-  padding: 14px 12px;
+  gap: 8px;
+  padding: 11px 12px;
   background: #ffffff;
   box-shadow: none;
 }
@@ -127,6 +239,57 @@
 
 .project-card-head strong {
   font-size: 16px;
+}
+
+.project-card-reading {
+  margin: 0;
+  color: #31413b;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.project-row-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-block: 1px solid var(--line);
+}
+
+.project-row-facts > div {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+  padding: 7px 8px;
+}
+
+.project-row-facts > div + div {
+  border-left: 1px solid var(--line);
+}
+
+.project-row-facts dt {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.project-row-facts dd {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 850;
+  overflow-wrap: anywhere;
+}
+
+.project-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.project-card-meta span + span::before {
+  content: "·";
+  margin-right: 12px;
+  color: var(--line-strong);
 }
 
 .project-card-head span,
@@ -185,11 +348,72 @@
   line-height: 1.12;
 }
 
+.project-detail-reading {
+  border-left: 3px solid var(--action);
+  padding-left: 10px;
+  color: #31413b !important;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
 .detail-metrics {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
   padding: 14px 18px;
+}
+
+.detail-metrics .mini-metric {
+  min-height: 0;
+}
+
+.project-detail-disclosure {
+  border-top: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.project-detail-disclosure summary {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 18px;
+  color: var(--text);
+  font-weight: 850;
+  cursor: pointer;
+  list-style: none;
+}
+
+.project-detail-disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.project-detail-disclosure summary::after {
+  content: "+";
+  color: var(--action);
+  font-size: 22px;
+  line-height: 1;
+}
+
+.project-detail-disclosure[open] summary::after {
+  content: "−";
+}
+
+.project-detail-disclosure summary:focus-visible {
+  outline: 3px solid #202022;
+  outline-offset: -4px;
+}
+
+.project-detail-disclosure__body {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding: 16px 18px 18px;
+}
+
+.project-detail-disclosure__body > h3:not(:first-child) {
+  margin-top: 7px;
 }
 
 .project-inspector-entry {
@@ -217,6 +441,50 @@
 }
 
 @media (max-width: 620px) {
+  .project-catalog-brief {
+    grid-template-columns: 1fr;
+    padding: 18px 16px;
+  }
+
+  .project-catalog-brief__ledger,
+  .project-row-facts,
+  .detail-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .project-catalog-brief__ledger > div + div,
+  .project-row-facts > div + div {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+
+  .project-catalog-brief__actions {
+    display: grid;
+    justify-content: stretch;
+  }
+
+  .project-catalog-brief__actions .primary-button,
+  .project-catalog-return {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .catalog-result-list {
+    max-height: none;
+    overflow: visible;
+    padding-inline: 10px;
+  }
+
+  .project-card-meta {
+    display: grid;
+    gap: 4px;
+  }
+
+  .project-card-meta span + span::before {
+    content: none;
+  }
+
   .project-inspector-action {
     width: 100%;
   }

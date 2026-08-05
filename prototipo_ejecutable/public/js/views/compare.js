@@ -83,6 +83,10 @@ function sourceMetadata(summary) {
   };
 }
 
+function safeCount(value) {
+  return Number.isInteger(value) && value >= 0 ? value : null;
+}
+
 function normalizeList(value) {
   if (!Array.isArray(value)) return [];
   return value
@@ -168,6 +172,11 @@ function evidenceDetails(row, value, summary) {
         ${
           source?.capturedAt
             ? `<div><dt>Captura</dt><dd>${escapeHtml(formatDate(source.capturedAt))}</dd></div>`
+            : ""
+        }
+        ${
+          source?.evidenceStatus
+            ? `<div><dt>Estado de evidencia</dt><dd>${escapeHtml(readableAttribute(source.evidenceStatus))}</dd></div>`
             : ""
         }
         ${
@@ -355,6 +364,72 @@ function conclusionMarkup(model, { linksEnabled = true } = {}) {
   `;
 }
 
+function denominatorMarkup(benchmarkContext, model) {
+  const scopeCount = safeCount(benchmarkContext?.scope?.projectCount);
+  const selectedCount = model.selected.filter(({ simulated }) => !simulated).length;
+  const eligibleCount = safeCount(
+    benchmarkContext?.quantitative?.pricePerM2Total?.n,
+  );
+  const orientativeCount = safeCount(
+    benchmarkContext?.quantitative?.pricePerM2Total?.orientative?.n,
+  );
+  const countLabel = (value) =>
+    value === null ? "No disponible" : formatNumber(value);
+
+  return `
+    <section
+      class="comparison-basis"
+      aria-labelledby="comparison-basis-title"
+      data-comparison-denominators
+      data-scope-projects="${scopeCount ?? "unavailable"}"
+      data-selected-projects="${selectedCount}"
+      data-eligible-price-pairs="${eligibleCount ?? "unavailable"}"
+      data-orientative-price-ratios="${orientativeCount ?? "unavailable"}"
+    >
+      <div class="comparison-basis__intro">
+        <span class="comparison-eyebrow">Base de lectura</span>
+        <h2 id="comparison-basis-title">Tres universos, sin mezclar denominadores</h2>
+        <p>La matriz compara una selección del escenario; el precio por m² aplica reglas de elegibilidad distintas.</p>
+      </div>
+      <dl class="comparison-basis__ledger">
+        <div>
+          <dt>Escenario vigente</dt>
+          <dd><strong>${countLabel(scopeCount)}</strong> proyectos comparables</dd>
+        </div>
+        <div>
+          <dt>Matriz visible</dt>
+          <dd><strong>${formatNumber(selectedCount)}</strong> proyectos seleccionados</dd>
+        </div>
+        <div>
+          <dt>Precio por m²</dt>
+          <dd><strong>${countLabel(eligibleCount)}</strong> pares elegibles · ${countLabel(orientativeCount)} cocientes orientativos</dd>
+        </div>
+      </dl>
+      <div class="comparison-basis__references">
+        <p>Estos conteos describen universos distintos y no se suman.</p>
+        <a href="#market">Revisar benchmark y metodología</a>
+      </div>
+    </section>
+  `;
+}
+
+function movementHandoff(model) {
+  const limitation =
+    model.limitations[0] ??
+    "La comparación describe diferencias publicadas; no demuestra precios de cierre ni causas de cambio.";
+  return `
+    <section class="comparison-handoff" aria-labelledby="comparison-handoff-title">
+      <div>
+        <span class="comparison-eyebrow">Siguiente decisión</span>
+        <h2 id="comparison-handoff-title">Comprueba si la diferencia también se mueve en el tiempo</h2>
+        <p>Conserva esta lectura y revisa cambios publicados, vigencia y calidad de la señal en el mismo escenario.</p>
+        <small><strong>Límite que acompaña el handoff:</strong> ${escapeHtml(limitation)}</small>
+      </div>
+      <a class="primary-button comparison-next-action" href="#journey/movement">Revisar movimiento</a>
+    </section>
+  `;
+}
+
 function selectedChips(model) {
   if (!model.selected.length) return "";
   return `
@@ -423,7 +498,9 @@ function selectorMarkup({ benchmarkContext, model, query }) {
 
   return `
     <details class="comparison-selector">
-      <summary class="secondary-button">Cambiar proyectos</summary>
+      <summary class="${model.status === "insufficient" ? "primary-button" : "secondary-button"}">${
+        model.status === "insufficient" ? "Seleccionar proyectos" : "Cambiar proyectos"
+      }</summary>
       <div class="comparison-selector__body">
         <label class="field-control" for="compare-query">
           <span>Buscar dentro del escenario</span>
@@ -483,6 +560,13 @@ function comparisonHeader(benchmarkContext, model) {
         <span>proyectos de mercado</span>
       </div>
     </header>
+    ${
+      model.status === "ready"
+        ? `${denominatorMarkup(benchmarkContext, model)}
+           ${conclusionMarkup(model)}
+           ${movementHandoff(model)}`
+        : denominatorMarkup(benchmarkContext, model)
+    }
     <section class="comparison-command" aria-label="Selección de proyectos">
       <div>
         ${selectedChips(model)}
@@ -499,7 +583,7 @@ function comparisonHeader(benchmarkContext, model) {
           targetAvailable
             ? `<button
                 type="button"
-                class="${targetIncluded ? "secondary-button" : "primary-button"} comparison-target-action"
+                class="secondary-button comparison-target-action"
                 data-compare-target-toggle
                 aria-pressed="${targetIncluded ? "true" : "false"}"
               >${targetIncluded ? "Quitar escenario Viva" : "Incluir escenario Viva"}</button>`
@@ -580,7 +664,6 @@ export function renderCompare() {
       ${
         selectionReady
           ? `
-            ${conclusionMarkup(model)}
             <section class="comparison-priority" aria-labelledby="comparison-priority-title">
               <div class="comparison-section-heading">
                 <div>

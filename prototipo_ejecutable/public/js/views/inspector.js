@@ -969,6 +969,60 @@ function decisionCause(dossier) {
   return "El expediente no cumple todavía las condiciones de elegibilidad de la demo.";
 }
 
+function factByField(dossier, fieldName, valueKind) {
+  return dossier.facts.find(
+    (fact) =>
+      fact.field_name === fieldName &&
+      (!valueKind || fact.value_kind === valueKind),
+  );
+}
+
+function buildTransversalQualityMoment(dossier) {
+  const cardArea = factByField(dossier, "published_area", "observed");
+  const planArea = factByField(dossier, "total_area", "observed");
+  const areaDelta = factByField(
+    dossier,
+    "area_source_delta",
+    "derived",
+  );
+  const district = String(dossier.project.location?.district ?? "").trim();
+  const isTransversalCase =
+    dossier.inspectorCase.provenance_classification === "observed" &&
+    dossier.decision.benchmarkEligible === false &&
+    cardArea?.semantic_type === "area" &&
+    planArea?.semantic_type === "area" &&
+    areaDelta?.semantic_type === "area";
+
+  if (!isTransversalCase) return null;
+
+  return {
+    district: district || "distrito no informado",
+    cardArea: {
+      value: cardArea.normalized_value,
+      label: ledgerValue(cardArea.normalized_value, cardArea.unit),
+      semanticLabel:
+        AREA_TYPE_LABELS[cardArea.area_type] ??
+        AREA_TYPE_LABELS.unknown,
+    },
+    planArea: {
+      value: planArea.normalized_value,
+      label: ledgerValue(planArea.normalized_value, planArea.unit),
+      semanticLabel:
+        AREA_TYPE_LABELS[planArea.area_type] ?? AREA_TYPE_LABELS.unknown,
+    },
+    areaDelta: {
+      value: areaDelta.normalized_value,
+      label: ledgerValue(areaDelta.normalized_value, areaDelta.unit),
+    },
+    benchmarkEligible: dossier.decision.benchmarkEligible,
+    evidenceCount: dossier.evidence.length,
+    evidenceId:
+      dossier.primaryEvidence?.evidence_id ??
+      dossier.evidence[0]?.evidence_id ??
+      null,
+  };
+}
+
 function primaryAction(dossier, presentation) {
   const row = firstBlockingRow(dossier);
   const rowHref = `#inspector-row-${row?.key ?? LEDGER_ROW_KEYS[0]}`;
@@ -1072,6 +1126,7 @@ export function buildInspectorViewModel({
       data.inspector,
     );
     const ledger = buildLedger(dossier, data.inspector);
+    const qualityMoment = buildTransversalQualityMoment(dossier);
 
     return {
       available: true,
@@ -1174,6 +1229,7 @@ export function buildInspectorViewModel({
       },
       evidenceOptions,
       ledger,
+      qualityMoment,
       viewer,
       dialogOpen: Boolean(dialogOpen && viewer?.safe),
       primaryAction: primaryAction(dossier, presentation),
@@ -1184,6 +1240,76 @@ export function buildInspectorViewModel({
       "El expediente seleccionado no pudo validarse con el contrato de evidencia.",
     );
   }
+}
+
+function renderQualityMoment(model) {
+  const moment = model.qualityMoment;
+  if (!moment) return "";
+
+  return `
+    <section
+      class="inspector-quality-moment"
+      aria-labelledby="inspector-quality-moment-title"
+      data-inspector-quality-moment
+      data-card-area="${escapeAttr(moment.cardArea.value)}"
+      data-plan-area="${escapeAttr(moment.planArea.value)}"
+      data-area-delta="${escapeAttr(moment.areaDelta.value)}"
+      data-benchmark-eligible="${moment.benchmarkEligible ? "true" : "false"}"
+    >
+      <div class="inspector-quality-moment__heading">
+        <p class="inspector-quality-moment__eyebrow">
+          Caso demostrativo transversal · ${escapeHtml(moment.district)}
+        </p>
+        <h2 id="inspector-quality-moment-title">
+          ${escapeHtml(model.typology.name)} no debe entrar al benchmark
+        </h2>
+        <p>
+          Este expediente es independiente del escenario activo: no cambia al ajustar distrito o alcance y no alimenta sus agregados.
+        </p>
+      </div>
+      <div class="inspector-quality-equation" aria-label="Contraste de áreas del caso">
+        <div>
+          <span>Tarjeta</span>
+          <strong>${escapeHtml(moment.cardArea.label)}</strong>
+          <small>${escapeHtml(moment.cardArea.semanticLabel)}</small>
+        </div>
+        <span class="inspector-quality-equation__operator" aria-hidden="true">≠</span>
+        <div>
+          <span>Plano</span>
+          <strong>${escapeHtml(moment.planArea.label)}</strong>
+          <small>${escapeHtml(moment.planArea.semanticLabel)}</small>
+        </div>
+        <div class="inspector-quality-equation__delta">
+          <span>Diferencia documentada</span>
+          <strong>${escapeHtml(moment.areaDelta.label)}</strong>
+          <small>Valor derivado existente</small>
+        </div>
+      </div>
+      <div class="inspector-quality-conclusion">
+        <p>
+          <strong>No elegible</strong>
+          La incompatibilidad bloquea esta tipología; ambas fuentes se conservan para auditoría.
+        </p>
+        <div class="inspector-quality-actions">
+          ${renderPrimaryAction(model.primaryAction)}
+          ${
+            moment.evidenceId
+              ? `
+                <button
+                  class="inspector-quality-evidence-link"
+                  type="button"
+                  data-inspector-evidence="${escapeAttr(moment.evidenceId)}"
+                  aria-haspopup="dialog"
+                >
+                  Revisar evidencia permitida (${formatNumber(moment.evidenceCount)})
+                </button>
+              `
+              : ""
+          }
+        </div>
+      </div>
+    </section>
+  `;
 }
 
 function renderOptions(options) {
@@ -1671,6 +1797,8 @@ export function renderInspectorModel(model) {
         aria-atomic="true"
       ></div>
 
+      ${renderQualityMoment(model)}
+
       <div class="inspector-custody">
         <section class="inspector-module inspector-coverage" aria-labelledby="inspector-coverage-title">
           <div class="inspector-module-heading">
@@ -1779,7 +1907,7 @@ export function renderInspectorModel(model) {
                 <time datetime="${escapeAttr(model.verdict.latestDate ?? "")}">${escapeHtml(model.verdict.latestDateLabel)}</time>
               </p>
             </div>
-            ${renderPrimaryAction(model.primaryAction)}
+            ${model.qualityMoment ? "" : renderPrimaryAction(model.primaryAction)}
           </div>
           <details class="inspector-metadata" data-inspector-metadata>
             <summary>Ver metadata del expediente</summary>
