@@ -6,9 +6,9 @@
 
 **Última fase con despliegue técnico verificado:** Fase 5 — histórico, señales y asistente determinista
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. Fase 5 tiene despliegue técnico verificado con `PASS` para `8d4c6de`. **Regla de efectividad:** cuando esta versión de `STATE.md` exista en `main` por el merge humano del PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16), Fase 5 también estará oficialmente `deployed and verified`.
+**Estado:** Fases 0–5 están oficialmente `deployed and verified`. El PR funcional #15, la verificación pública P5-15 y el PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16) quedaron integrados; merge documental `25300b1`. Fase 6 está en planificación y requiere HUMAN-GATE-A antes de modificar runtime.
 
-**Rama activa:** `docs/phase-5-postmerge-report`.
+**Rama activa:** `feat/phase-6-commercial-narrative-qa`.
 
 ## Baseline histórica de Fase 2
 
@@ -254,15 +254,28 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
 - P5-15: **PASS**; contrato 2.4, integridad determinista, CT-C/E/F, histórico, agenda, asistente, escritorio, móvil, consola y red verificados en la URL pública.
 - Informe post-merge: [phases/05-history-signals-assistant/POSTMERGE_REPORT.md](phases/05-history-signals-assistant/POSTMERGE_REPORT.md).
-- P5-16: resultado preparado en este estado y en `POSTMERGE_REPORT.md` mediante la rama documental `docs/phase-5-postmerge-report`; PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16) abierto y pendiente de merge humano.
-- Estado de ship de Fase 5: P5-15 `PASS`; **`deployed and verified`** oficial si y solo si esta versión fue integrada en `main` mediante el merge humano del PR documental P5-16.
+- P5-16: resultado persistido en `POSTMERGE_REPORT.md`; PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16) fusionado el `2026-08-05T13:52:56Z`.
+- Merge documental P5-16 en `main`: `25300b1f7f3669fd1f5cc66567a589b69dcb93c2`.
+- Estado de ship de Fase 5: **`deployed and verified`**.
 - Último commit funcional: `8e76b796b1fef3616b5a0b7a5526a72d2f125e2c`; los commits posteriores son P5-13/P5-14 documentales.
+
+## Fase 6 — planificación vigente
+
+- Contexto: [phases/06-commercial-narrative-qa/CONTEXT.md](phases/06-commercial-narrative-qa/CONTEXT.md).
+- Auditoría UX/UI: [phases/06-commercial-narrative-qa/UX-AUDIT.md](phases/06-commercial-narrative-qa/UX-AUDIT.md).
+- Especificación visual: [phases/06-commercial-narrative-qa/UI-SPEC.md](phases/06-commercial-narrative-qa/UI-SPEC.md).
+- Plan: [phases/06-commercial-narrative-qa/PLAN.md](phases/06-commercial-narrative-qa/PLAN.md).
+- Solicitud de aprobación: [phases/06-commercial-narrative-qa/HUMAN-GATE-A-REQUEST.md](phases/06-commercial-narrative-qa/HUMAN-GATE-A-REQUEST.md).
+- Historias: HU-DEMO-103/104/801–804.
+- Contrato/datos 2.4 protegidos; la fase reorganiza navegación, narrativa, densidad y QA.
+- P6-00A: completado en borrador; P6-00B revisión independiente pendiente.
+- HUMAN-GATE-A: pendiente; runtime bloqueado.
 
 ## Próxima acción recomendada
 
-1. Revisar y fusionar exclusivamente de forma humana el PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16).
-2. Realizar un ensayo humano breve de `#activity`, `#assistant` y CT-F antes de presentar la demo al cliente; no es un gate técnico de merge.
-3. Definir el alcance y HUMAN-GATE-A de una eventual Fase 6 antes de modificar runtime, datos o UX.
+1. Completar P6-00B y corregir cualquier gap P0–P2 del plan.
+2. Revisar A1–A13 y autorizar HUMAN-GATE-A de Fase 6.
+3. Solo después, ejecutar P6-00C/P6-00D y comenzar P6-01.
 
 ## Regla para actualizar este archivo
 

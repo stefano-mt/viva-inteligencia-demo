@@ -169,9 +169,9 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** explicar qué cambió y responder con el mismo escenario y evidencia.
 
-**Estado:** P5-00C/P5-00D y P5-01–P5-14 completados. El dataset público 2.4 materializa 36 eventos explicados (31 certificados, 5 revisables), 72 puntos temporales referenciados y 6 candidatos excluidos, con 52 fingerprints y build determinista. El motor histórico filtra por escenario, resuelve detalle/evidencia y deriva una agenda de máximo tres filas. El asistente integra las siete familias cerradas en una interfaz trazable de seis bloques. P5-13 emitió `PASS` formal sin requerir HUMAN-GATE-B y P5-14 abrió el PR funcional #15 como borrador. Merge humano, P5-15 y P5-16 están pendientes.
+**Estado:** `deployed and verified`. El PR funcional #15 y el PR documental #16 fueron fusionados; P5-15 verificó GitHub Pages con `PASS` para `8d4c6de` y P5-16 quedó integrado en `main` mediante `25300b1`.
 
-**Contrato propuesto:** `2.4.0`, con índices autoritativos `history` y `assistant`, reader compatible con 2.0–2.4 y degradación explícita en payloads anteriores.
+**Contrato implementado:** `2.4.0`, con índices autoritativos `history` y `assistant`, reader compatible con 2.0–2.4 y degradación explícita en payloads anteriores.
 
 ### Olas
 
@@ -188,6 +188,8 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 **Historias:** 104, 801–804 y Should/Could aprobadas.
 
 **Objetivo:** convertir módulos correctos en un recorrido que se entiende y se recuerda.
+
+**Estado:** planificación P6-00A en `feat/phase-6-commercial-narrative-qa`; HUMAN-GATE-A pendiente. No se ha modificado runtime de Fase 6.
 
 ### Olas
 
