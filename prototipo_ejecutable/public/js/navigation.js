@@ -1,7 +1,12 @@
 import { legacyRoutes, views } from "./config.js";
+import {
+  DEFAULT_JOURNEY_STAGE_ID,
+  isJourneyStageId,
+} from "./journey.js";
 import { state } from "./state.js";
 
 const DEFAULT_VIEW = "dashboard";
+const JOURNEY_VIEW = "journey";
 const INSPECTOR_VIEW = "inspector";
 const INSPECTOR_CASE_SEGMENT = "case";
 const INSPECTOR_CASE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -60,9 +65,31 @@ export function inspectorCaseHash(routeSlug) {
     : null;
 }
 
+export function journeyStageHash(stageId) {
+  return isJourneyStageId(stageId)
+    ? `#${JOURNEY_VIEW}/${encodeURIComponent(stageId)}`
+    : null;
+}
+
+function journeyRoute(kind, valid, stageId = DEFAULT_JOURNEY_STAGE_ID) {
+  return {
+    view: JOURNEY_VIEW,
+    kind,
+    stageId,
+    caseSlug: null,
+    anchorId: null,
+    valid,
+    canonicalHash: journeyStageHash(stageId),
+  };
+}
+
 export function parseHashRoute(hash = "") {
   const source = typeof hash === "string" ? hash : "";
   const raw = source.startsWith("#") ? source.slice(1) : source;
+
+  if (raw === "") {
+    return journeyRoute("journey-root", true);
+  }
 
   if (INSPECTOR_ANCHOR_PATTERN.test(raw) || INSPECTOR_ANCHORS.has(raw)) {
     return {
@@ -79,6 +106,17 @@ export function parseHashRoute(hash = "") {
   const head = decodedHead === null
     ? null
     : legacyRoutes[decodedHead] ?? decodedHead;
+
+  if (head === JOURNEY_VIEW) {
+    const decodedStage = decodedHashSegment(segments[1] ?? "");
+    const validStageRoute =
+      segments.length === 2 && isJourneyStageId(decodedStage);
+    return journeyRoute(
+      validStageRoute ? "journey-stage" : "journey-invalid",
+      validStageRoute,
+      validStageRoute ? decodedStage : DEFAULT_JOURNEY_STAGE_ID,
+    );
+  }
 
   if (head === INSPECTOR_VIEW) {
     if (segments.length === 1) {
@@ -116,6 +154,22 @@ export function parseHashRoute(hash = "") {
     anchorId: null,
     valid: validView,
   };
+}
+
+export function journeyStageFromHash(hash = "") {
+  const route = parseHashRoute(hash);
+  return route.view === JOURNEY_VIEW ? route.stageId : null;
+}
+
+export function canonicalHashForRoute(hash = "") {
+  const route = parseHashRoute(hash);
+  if (route.view === JOURNEY_VIEW) return route.canonicalHash;
+  if (route.kind === "view") return `#${route.view}`;
+  if (route.kind === "inspector-base") return `#${INSPECTOR_VIEW}`;
+  if (route.kind === "inspector-case") return inspectorCaseHash(route.caseSlug);
+  if (route.kind === "inspector-anchor") return `#${route.anchorId}`;
+  if (route.kind === "inspector-invalid") return null;
+  return journeyStageHash(DEFAULT_JOURNEY_STAGE_ID);
 }
 
 export function replaceHashPreservingLocation(

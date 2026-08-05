@@ -204,6 +204,72 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     "El descriptor CT-C conserva la versión de origen para probar compatibilidad histórica",
   );
 
+  const journeyScenarioSearch = new URL(page.url()).search;
+  await page.evaluate(() => {
+    window.location.hash = "#journey/scale";
+  });
+  await page.waitForFunction(
+    () => window.location.hash === "#journey/scale",
+    { timeout: interactionTimeout },
+  );
+  assert.equal(
+    new URL(page.url()).search,
+    journeyScenarioSearch,
+    "Entrar al recorrido debe conservar exactamente la query del escenario",
+  );
+
+  await page.evaluate(() => {
+    window.location.hash = "#journey/depth";
+  });
+  await page.waitForFunction(
+    () => window.location.hash === "#journey/depth",
+    { timeout: interactionTimeout },
+  );
+  await page.reload({ waitUntil: "domcontentloaded" });
+  assert.equal(
+    new URL(page.url()).hash,
+    "#journey/depth",
+    "Recargar debe conservar la etapa del recorrido",
+  );
+  assert.equal(
+    new URL(page.url()).search,
+    journeyScenarioSearch,
+    "Recargar el recorrido debe conservar el escenario",
+  );
+
+  await page.evaluate(() => {
+    window.location.hash = "#journey/movement";
+  });
+  await page.waitForFunction(
+    () => window.location.hash === "#journey/movement",
+    { timeout: interactionTimeout },
+  );
+  await page.goBack({ waitUntil: "domcontentloaded" });
+  assert.equal(
+    new URL(page.url()).hash,
+    "#journey/depth",
+    "Atrás debe recuperar la etapa previa",
+  );
+  await page.goForward({ waitUntil: "domcontentloaded" });
+  assert.equal(
+    new URL(page.url()).hash,
+    "#journey/movement",
+    "Adelante debe recuperar la etapa siguiente",
+  );
+  assert.equal(
+    new URL(page.url()).search,
+    journeyScenarioSearch,
+    "Atrás y adelante deben preservar la query del escenario",
+  );
+
+  await openPath(page, baseUrl, descriptor.canonical_path);
+  await assertCurrentPath(
+    page,
+    baseUrl,
+    descriptor.canonical_path,
+    "Volver al dashboard debe conservar la URL CT-C canónica",
+  );
+
   const mapIds = await uniqueAttributeValues(page.locator("[data-geo-point-id]"), "data-geo-point-id");
   const selectIds = sorted(await page.locator("#geo-project-select option").evaluateAll((options) => options.map((option) => option.value)));
   assert.deepEqual(mapIds, sorted(descriptor.expected.display_project_ids), "El mapa debe mostrar el set observado CT-C");
