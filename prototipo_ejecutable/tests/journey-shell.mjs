@@ -43,6 +43,9 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   await page.waitForFunction(
     () => window.location.hash === "#journey/geography",
   );
+  await page
+    .locator('[data-journey-stage="geography"]')
+    .waitFor({ state: "visible" });
   assert.equal(new URL(page.url()).search, scenarioSearch);
   assert.equal(await page.locator("h1").textContent(), stageQuestions.geography);
   assert.equal(await page.locator('[data-journey-step="geography"][aria-current="step"]').count(), 1);
