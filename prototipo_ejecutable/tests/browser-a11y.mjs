@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
-import { createObservedPage, openRoute, routes, viewports, withDemoBrowser } from "./helpers/demo-browser.mjs";
+import { createObservedPage, openPath, openRoute, routes, viewports, withDemoBrowser } from "./helpers/demo-browser.mjs";
+
+const journeyStages = ["scale", "geography", "quality", "depth", "movement", "decision"];
 
 assert.equal(routes.length, 8, "A11y debe cubrir las siete vistas previas y el inspector");
+assert.equal(journeyStages.length, 6, "A11y debe cubrir las seis etapas del recorrido");
 assert.equal(viewports.length, 3, "A11y debe cubrir desktop, laptop y mobile");
 
 await withDemoBrowser(async ({ browser, baseUrl }) => {
@@ -100,6 +103,64 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
       }
     }
 
+    for (const stage of journeyStages) {
+      await openPath(page, baseUrl, `/#journey/${stage}`);
+      const label = `#journey/${stage}`;
+      assert.equal(await page.locator("main").count(), 1, `Debe existir un unico main en ${label}`);
+      assert.equal(await page.locator("h1#journey-title").count(), 1, `Debe existir un unico h1 en ${label}`);
+      assert.equal(
+        await page.locator('.sidebar nav[aria-label="Módulos principales"]').count(),
+        1,
+        `Falta navegacion principal etiquetada en ${label}`,
+      );
+      assert.equal(await page.locator('[data-journey-entry][aria-current="page"]').count(), 1, `Recorrido no activo en ${label}`);
+      assert.equal(
+        await page.locator('[data-expert-navigation][aria-labelledby="nav-expert"]').count(),
+        1,
+        `Falta navegacion experta agrupada en ${label}`,
+      );
+      assert.equal(
+        await page.locator('.journey-rail[aria-label="Etapas del recorrido ejecutivo"]').count(),
+        1,
+        `Falta rail etiquetado en ${label}`,
+      );
+      assert.equal(await page.locator("[data-journey-step]").count(), 6, `Rail incompleto en ${label}`);
+      assert.equal(await page.locator("[data-journey-mobile-step]").count(), 6, `Resumen movil incompleto en ${label}`);
+      assert.equal(
+        await page.locator(`[data-journey-step="${stage}"][aria-current="step"]`).count(),
+        1,
+        `Etapa desktop no identificada en ${label}`,
+      );
+      assert.equal(
+        await page.locator(`[data-journey-mobile-step="${stage}"][aria-current="step"]`).count(),
+        1,
+        `Etapa movil no identificada en ${label}`,
+      );
+
+      const unnamedControls = await page.locator("button, input, select, textarea, summary, a[href]").evaluateAll((controls) =>
+        controls
+          .filter((control) => {
+            const text = control.textContent?.trim();
+            const labelText = control.getAttribute("aria-label");
+            const labelledBy = control.getAttribute("aria-labelledby");
+            const title = control.getAttribute("title");
+            const associated = control.id ? document.querySelector(`label[for="${CSS.escape(control.id)}"]`)?.textContent?.trim() : "";
+            const wrappingLabel = control.closest("label")?.textContent?.trim();
+            const imageAlt = control.querySelector("img[alt]")?.getAttribute("alt");
+            return !text && !labelText && !labelledBy && !title && !associated && !wrappingLabel && !imageAlt;
+          })
+          .map((control) => `${control.tagName.toLowerCase()}#${control.id || "(sin-id)"}.${control.className || "(sin-clase)"}`),
+      );
+      assert.deepEqual(unnamedControls, [], `Controles sin nombre accesible en ${label}: ${unnamedControls.join(", ")}`);
+
+      const duplicateIds = await page.locator("[id]").evaluateAll((elements) => {
+        const counts = new Map();
+        for (const element of elements) counts.set(element.id, (counts.get(element.id) ?? 0) + 1);
+        return [...counts.entries()].filter(([, count]) => count > 1).map(([id, count]) => `${id} (${count})`);
+      });
+      assert.deepEqual(duplicateIds, [], `IDs duplicados en ${label}: ${duplicateIds.join(", ")}`);
+    }
+
     await openRoute(page, baseUrl, "dashboard");
     await page.keyboard.press("Tab");
     assert.equal(await page.evaluate(() => document.activeElement?.classList.contains("skip-link")), true, "El primer Tab debe enfocar el salto al contenido");
@@ -114,5 +175,5 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 });
 
 console.log(
-  `A11y smoke OK: landmarks, nombres accesibles y teclado en ${routes.length} rutas × ${viewports.length} viewports.`,
+  `A11y smoke OK: landmarks, nombres accesibles y teclado en ${routes.length + journeyStages.length} superficies por ${viewports.length} viewports.`,
 );

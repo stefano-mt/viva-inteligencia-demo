@@ -1282,3 +1282,80 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Phase 6: preserve decision readability on short laptop viewports. */
+@media (min-width: 901px) and (max-height: 760px) {
+  .journey-stage {
+    gap: 7px;
+    padding: 12px 22px 14px;
+  }
+
+  .journey-stage__eyebrow,
+  .journey-section-label,
+  .journey-expert-link span {
+    font-size: 14px;
+  }
+
+  .journey-stage__header h1 {
+    font-size: 34px;
+    line-height: 1;
+  }
+
+  .journey-reading {
+    gap: 6px;
+  }
+
+  .journey-reading__ledger section {
+    padding-block: 7px 8px;
+  }
+
+  .journey-reading__ledger p:last-child,
+  .journey-state p {
+    font-size: 16px;
+    line-height: 1.35;
+  }
+
+  .journey-expert {
+    gap: 10px;
+  }
+
+  .journey-expert-link {
+    min-height: 52px;
+    padding-block: 6px;
+  }
+
+  .journey-expert-link strong {
+    font-size: 14px;
+  }
+
+  .journey-primary-action,
+  .journey-previous-action {
+    min-height: 44px;
+  }
+}
+
+/* Phase 6: attribution links remain operable by touch without hiding provenance. */
+.geo-attribution a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+.component-help > summary {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+}
+
+.text-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
+
+.comparison-basis__references a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+}
