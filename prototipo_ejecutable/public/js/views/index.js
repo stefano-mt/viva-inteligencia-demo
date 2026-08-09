@@ -11,5 +11,6 @@ export {
   buildScenarioPresentation,
   loadBoundaryArtifact,
   renderScenarioBar,
+  renderScenarioSidebar,
   renderScenarioSummary,
 } from "./scenario-context.js";

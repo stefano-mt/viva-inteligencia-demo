@@ -1,5 +1,5 @@
 .journey-topbar {
-  grid-template-columns: minmax(210px, 0.85fr) minmax(240px, 1.15fr) auto auto;
+  grid-template-columns: minmax(210px, 1fr) minmax(240px, auto);
   min-height: 76px;
   gap: 14px 22px;
   padding-block: 10px;
@@ -43,10 +43,11 @@
 .journey-topbar__scenario {
   padding-left: 18px;
   border-left: 1px solid var(--line);
+  text-align: right;
 }
 
 .journey-topbar__scenario strong {
-  margin-bottom: 3px;
+  margin-top: 3px;
   color: var(--teal);
   font-size: 15px;
 }

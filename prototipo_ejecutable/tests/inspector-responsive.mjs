@@ -257,13 +257,19 @@ async function assertLayout(page, viewport) {
     true,
     `${viewport.name}: soporte de :has() requerido por la ruta`,
   );
-  const cutoff = page.locator(".scenario-bar__meta span").first();
+  const technical = page.locator(".scenario-technical");
+  assert.equal(
+    await technical.evaluate((element) => element.open),
+    false,
+    `${viewport.name}: detalle técnico cerrado al cargar`,
+  );
+  const cutoff = page.locator(".scenario-technical__facts dd").first();
   assert.equal(
     await cutoff.isVisible(),
-    true,
-    `${viewport.name}: fecha de corte visible`,
+    false,
+    `${viewport.name}: fecha de corte bajo demanda`,
   );
-  assert.match(await cutoff.innerText(), /corte/iu);
+  assert.match(await cutoff.textContent(), /corte/iu);
   await assertNoHorizontalOverflow(page, viewport.name);
   await assertNoHorizontalOverflow(page, viewport.name, ".inspector-view");
   await assertNoHorizontalOverflow(page, viewport.name, ".inspector-ledger");

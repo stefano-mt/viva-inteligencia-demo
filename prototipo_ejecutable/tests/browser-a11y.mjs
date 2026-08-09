@@ -30,6 +30,10 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
         1,
         `Falta la agrupación accesible de análisis experto en #${route.id}`,
       );
+      assert.equal(await page.locator(".sidebar .scenario-sidebar").count(), 1, `Debe existir una sola estación territorial en #${route.id}`);
+      assert.equal(await page.locator("#top-district").count(), 1, `Distrito duplicado o ausente en #${route.id}`);
+      assert.equal(await page.locator("#reset-scenario").count(), 1, `Reset duplicado o ausente en #${route.id}`);
+      assert.equal(await page.locator(".scenario-bar .eyebrow").count(), 0, `La cabecera no debe repetir el eyebrow técnico en #${route.id}`);
 
       const unnamedControls = await page.locator("button, input, select, textarea, summary, a[href]").evaluateAll((controls) =>
         controls
@@ -119,6 +123,10 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
         1,
         `Falta navegacion experta agrupada en ${label}`,
       );
+      assert.equal(await page.locator(".sidebar .scenario-sidebar").count(), 1, `Debe existir una sola estación territorial en ${label}`);
+      assert.equal(await page.locator("#top-district").count(), 1, `Distrito duplicado o ausente en ${label}`);
+      assert.equal(await page.locator("#reset-scenario").count(), 1, `Reset duplicado o ausente en ${label}`);
+      assert.equal(await page.locator(".journey-topbar .eyebrow").count(), 0, `La cabecera no debe repetir el eyebrow técnico en ${label}`);
       assert.equal(
         await page.locator('.journey-rail[aria-label="Etapas del recorrido ejecutivo"]').count(),
         1,

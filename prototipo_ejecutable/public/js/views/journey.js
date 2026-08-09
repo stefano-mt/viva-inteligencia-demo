@@ -239,28 +239,13 @@ export function renderJourneyTopbar(model = {}, stageId = DEFAULT_JOURNEY_STAGE_
           <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
         </button>
         <div>
-          <p class="eyebrow">Viva Inteligencia / Recorrido</p>
           <strong>${escapeHtml(journeyEntry.label)}</strong>
           <span>Etapa ${stage.position} de ${journeyStages.length} · ${escapeHtml(stage.label)}</span>
         </div>
       </div>
       <div class="journey-topbar__scenario" aria-label="Escenario activo">
+        <span>Escenario activo</span>
         <strong>${escapeHtml(model.scopeTitle ?? "Escenario por confirmar")}</strong>
-        <span>${escapeHtml(model.cutoffLabel ?? "Corte no disponible")}</span>
-      </div>
-      <div class="journey-topbar__counts">
-        <span><strong>${escapeHtml(formatNumber(model.comparableCount))}</strong> comparables</span>
-        <span><strong>${escapeHtml(formatNumber(model.reviewCount))}</strong> fuera o por revisar</span>
-      </div>
-      <div class="journey-topbar__actions">
-        <a class="ghost-button" href="#dashboard">Ajustar escenario</a>
-        <button
-          class="ghost-button scenario-reset"
-          id="reset-scenario"
-          type="button"
-          data-scenario-action="reset"
-          ${model.loading ? "disabled" : ""}
-        >Reiniciar</button>
       </div>
     </header>
   `;

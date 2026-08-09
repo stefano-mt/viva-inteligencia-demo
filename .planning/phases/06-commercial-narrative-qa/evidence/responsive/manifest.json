@@ -99,392 +99,392 @@
   "files": [
     {
       "file": "journey-scale-1440x900.png",
-      "sha256": "e8db35b511859beac216d59abbe82c85c65315d6225c21c6a9b6133f7ac688b0",
+      "sha256": "4dc3b9f9a79a94fa6e78696596231978747744557d37b75c39eee66ed18cadda",
       "surface": "journey-scale",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/scale"
     },
     {
       "file": "journey-geography-1440x900.png",
-      "sha256": "756fbd6b6eacebadf71f46c5022f5f655ab6b7adca4f21a395017f358c7b3a42",
+      "sha256": "61351113ba0554020704110977cb2e8a0f0d4fd34a4dec78a45e8f6523e1bb52",
       "surface": "journey-geography",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/geography"
     },
     {
       "file": "journey-quality-1440x900.png",
-      "sha256": "9e3226aec3dfafbf8857ca357f59e4ea2d094862194e996449be9a8c76272bf3",
+      "sha256": "a9741f20766e87bb6077bc870a2eae7cd3e7940de6e65825c5eadd2a015c1e02",
       "surface": "journey-quality",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/quality"
     },
     {
       "file": "journey-depth-1440x900.png",
-      "sha256": "ef27246182317957d0963657d96779b9ff126ebe84e45f5a94b66e445f5063f7",
+      "sha256": "4fc9b98d1980670dec562c32fd9eaccb9c3d22fc10bfaa5fad23619105c874e7",
       "surface": "journey-depth",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/depth"
     },
     {
       "file": "journey-movement-1440x900.png",
-      "sha256": "5ff7128b5f25be090b0e6313e92de23da628f5f156dc93ae8cedf326272a6895",
+      "sha256": "0777e30ffa012425f93f91ca52d8ec63ffa036399f3bede7d4c5f159ca2bcd4c",
       "surface": "journey-movement",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/movement"
     },
     {
       "file": "journey-decision-1440x900.png",
-      "sha256": "56e79751718777f138aacc95867126561a6c1b4a68af18414f72cae315092e7b",
+      "sha256": "f13a4ad151c01ed17eec8cdf8d98404e373fc6f3669fef689f73a1e5d85a6662",
       "surface": "journey-decision",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/decision"
     },
     {
       "file": "expert-dashboard-1440x900.png",
-      "sha256": "6993e943872abdc475412e2ee7fcc9d02b340c7578be9c6417ce06b079334f46",
+      "sha256": "3b9a87ccb19e8518998851ab29e56938dec6fdc99fb8e276634c06be75f3409d",
       "surface": "expert-dashboard",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#dashboard"
     },
     {
       "file": "expert-projects-1440x900.png",
-      "sha256": "408dcdb63e1102e977296c6e56551ee068b15a1438c986328c7178c8d40286cf",
+      "sha256": "c6ada18d4a9a45843054b4ea520d5ed0e068689f16029db701e881a5ff987064",
       "surface": "expert-projects",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#projects"
     },
     {
       "file": "expert-inspector-1440x900.png",
-      "sha256": "1342fdd1068506525857c4378cdeaa06b9a65f98893b904295611ef4d4cdf522",
+      "sha256": "390a94bd1394837d0fa7720aed4d9c52377298255f0b9bb21164e4a9d8c0a3ce",
       "surface": "expert-inspector",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#inspector/case/f3-ct-g-pardo"
     },
     {
       "file": "expert-market-1440x900.png",
-      "sha256": "b8840becfc1dad86ec007575fe621c107ee67b7f8f17622e36cbae8ed59070ef",
+      "sha256": "bd7efdebf7ad024b75486a9ead1beceb45d96a60ee00c2ac8595b06f818b0f22",
       "surface": "expert-market",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#market"
     },
     {
       "file": "expert-compare-1440x900.png",
-      "sha256": "4e26e791a9f288cf6110edff34d0c4eb10117f3816e9f2e4bdb866a7d25b6d9c",
+      "sha256": "cdbf2212cbed97f864c6c32d9dbd406dfbe902db6730f66beafae1f1cf7605eb",
       "surface": "expert-compare",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#compare"
     },
     {
       "file": "expert-trust-1440x900.png",
-      "sha256": "2949dca7e3b85a56f5a7725ac7d36fb250f2f270fb7c8aeb9fdc93e6f3552934",
+      "sha256": "70ed88fd7ede76fa2dc97d02ce1943e1452236b375ca7d6f5aa4d31e76eb3a51",
       "surface": "expert-trust",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#trust"
     },
     {
       "file": "expert-assistant-1440x900.png",
-      "sha256": "26387d1db95abf641a349a02454bf494e2b377ef262c6bb86a047b5a832c5624",
+      "sha256": "2234380df08e12db3e4461b41a4c2e0add65561a8477fc5260cc09b8ea5df003",
       "surface": "expert-assistant",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#assistant"
     },
     {
       "file": "expert-activity-1440x900.png",
-      "sha256": "469a354aea3e8c21152a1ac95951df58c68aae6f998899481f54afedd564a3ac",
+      "sha256": "5a0d61f681a33c5302d77f8412ca3b09ad27a414064ebd3873d5129fbf4d7d61",
       "surface": "expert-activity",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#activity"
     },
     {
       "file": "journey-scale-1280x720.png",
-      "sha256": "e685ed252c31647237343288743d4e64b02c5271817eec54699ead3a9e1e0eb9",
+      "sha256": "327f9c227b4dcad63311b206e52784276ca326275086dbaf330b09bae7f4e8b9",
       "surface": "journey-scale",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/scale"
     },
     {
       "file": "journey-geography-1280x720.png",
-      "sha256": "74e3f83b27e78772d1699b1f6b161fd0f6afcb9a42a13832b3a218515116a97d",
+      "sha256": "16b311b470b30bbf44ebddf60d34f5d9dee848779fe55d8ec21a4b9be1a9d6f3",
       "surface": "journey-geography",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/geography"
     },
     {
       "file": "journey-quality-1280x720.png",
-      "sha256": "c6e80725420841517ed269609255907e1f9841018f0e00e403052ac0b9f9a014",
+      "sha256": "e52ba4cbbb1c28921eba656293c4b82679a4ad2a9af3dd1eed49da0977a8fe7b",
       "surface": "journey-quality",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/quality"
     },
     {
       "file": "journey-depth-1280x720.png",
-      "sha256": "f8f92458b0a95b168cbbb89e6a79e3933902499d63bf5abeee430378b6b5196d",
+      "sha256": "650d5dd5eee04ac51dbadb8726f23514d1b4b43dd57c0534875054fb0173f0d9",
       "surface": "journey-depth",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/depth"
     },
     {
       "file": "journey-movement-1280x720.png",
-      "sha256": "4dff3258ee8379627293a7554f14e81998900558236101b17a2e8b2e6f3a2430",
+      "sha256": "d8e4af8aef4f02e9e04dc959d5dfcdc0e27b10f6e5f35e564d4e46517a5e0f3a",
       "surface": "journey-movement",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/movement"
     },
     {
       "file": "journey-decision-1280x720.png",
-      "sha256": "94d607124bf8d1073de67a853cf7afb3a13bd2ff696370412886707bcf6c1edf",
+      "sha256": "4f789c4a1f6e13b7e10785aef3a30680b276a0158096299a8a4fc939e25387e5",
       "surface": "journey-decision",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/decision"
     },
     {
       "file": "expert-dashboard-1280x720.png",
-      "sha256": "715e60d99a61598b0c16d1f31bb07584b034455f39fc3b156f76c1294bc3df8e",
+      "sha256": "46c0d438a59f2a253699cb4be1caa08644aa912cfe26a434987b3c11a2c66e57",
       "surface": "expert-dashboard",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#dashboard"
     },
     {
       "file": "expert-projects-1280x720.png",
-      "sha256": "c6400f070abbb95368752d906edfaaea20b65c697ed01868648b91a339f4d2d7",
+      "sha256": "615c08994feeebdf159b1971ea5560196e9916f6eeeb01af3df7e8c102960a06",
       "surface": "expert-projects",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#projects"
     },
     {
       "file": "expert-inspector-1280x720.png",
-      "sha256": "75404657b0da6bd40245a8112000ae12c232f69297e34521491e4b2c3ab704c0",
+      "sha256": "f1f7c0e6278de640303f666f05addbbb046da415b5c20a2c79045e0e3e7b5dff",
       "surface": "expert-inspector",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#inspector/case/f3-ct-g-pardo"
     },
     {
       "file": "expert-market-1280x720.png",
-      "sha256": "3b7f7c6cf3a621e751d54127ccab8a24e6ef63ce232e0c7d9a801985fc8ca897",
+      "sha256": "f3dabf0a8f3db933a55725821c5a5b5f632832a5782ed2b4fb907e1e24b4fc50",
       "surface": "expert-market",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#market"
     },
     {
       "file": "expert-compare-1280x720.png",
-      "sha256": "16d6f646f551653891fd295e53eec55be48aeaad7b75f64b5b6fc3d3d8da49a6",
+      "sha256": "7bd51b5a3f83d7fc0ed02876c9fb7ba5a50b145bbbb25db4ff17f1fbe9e3df44",
       "surface": "expert-compare",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#compare"
     },
     {
       "file": "expert-trust-1280x720.png",
-      "sha256": "0a7972dd84c2f0a75cb8897a699e7648db1f5557b9949e76dbae1523a0149e80",
+      "sha256": "349681651647158d6a3b2122b5653fce5f8426308b321eb3d118fd99ebc8b76f",
       "surface": "expert-trust",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#trust"
     },
     {
       "file": "expert-assistant-1280x720.png",
-      "sha256": "ab9b61e12cd5847e797230e8236ebd3d26ca0abc5e389c06bf976b6c086a0651",
+      "sha256": "5baccba1fcb7c732349b615dc6094a1ea045ac41cb4922ca1804af065e374974",
       "surface": "expert-assistant",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#assistant"
     },
     {
       "file": "expert-activity-1280x720.png",
-      "sha256": "b92e746cd82fd140468ada8b1538a7df873f0e88244f00a6d65f5c8657de600e",
+      "sha256": "25b029ce906ce0c3c52efd4490b4191ee3f499f4d4c2640aa3c8685bc444d576",
       "surface": "expert-activity",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#activity"
     },
     {
       "file": "journey-scale-390x844.png",
-      "sha256": "d4907b82efeca76797a33c9667539b90e22298074958f26b0b8252be1088c5e2",
+      "sha256": "e2bf946ac94a0641063a9503850b0d03a26491dad65139917556d0f3194ebfc6",
       "surface": "journey-scale",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/scale"
     },
     {
       "file": "journey-geography-390x844.png",
-      "sha256": "1fa305e9bae1894af86559badadd64ae44a26343872783bb807b0af917cee7d0",
+      "sha256": "33529cffee8418d9628457af76ee7e058e524c457ddd85fd61dddaf0d4443ecd",
       "surface": "journey-geography",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/geography"
     },
     {
       "file": "journey-quality-390x844.png",
-      "sha256": "6deeca0e03f4616e0f691959dc6dd5258c835c69672a3db9daa3dfcee92e8ec0",
+      "sha256": "72f74b50076922230c128a05d8cadeaa726dee201371f0dbbab73d34308a805e",
       "surface": "journey-quality",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/quality"
     },
     {
       "file": "journey-depth-390x844.png",
-      "sha256": "261a3e07d84fa9aa0384df0d227f43345cdd68159738295e3190c1f4872b0528",
+      "sha256": "5c9d9fdda2be72216323d1eb58e6bfca8048d4255b351b970ee4d491afa1022c",
       "surface": "journey-depth",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/depth"
     },
     {
       "file": "journey-movement-390x844.png",
-      "sha256": "45ee6147ae71444a4e7584253a320fcdab553da46d96eafa5afba14f105834d6",
+      "sha256": "8b340c5c51e74dd622410ed6ed447038362b907bdc162ea4c3b30abc98e98ca9",
       "surface": "journey-movement",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/movement"
     },
     {
       "file": "journey-decision-390x844.png",
-      "sha256": "290b012e6441be5453bcb491c402a3efff1015f16ed17c6388ca511d7314b616",
+      "sha256": "e0842c73eea4c73814685c1eb69c5d0104a9304aced38917728d5ec325fbcc06",
       "surface": "journey-decision",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/decision"
     },
     {
       "file": "expert-dashboard-390x844.png",
-      "sha256": "16b2c034d6337d28746048ad7356b988c3a64af9d31fe1dcdb152a309f2619ba",
+      "sha256": "2bc57a9d5ad8554be08b144e42b475c2f0049905d3d4d1e6931a8c218b500681",
       "surface": "expert-dashboard",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#dashboard"
     },
     {
       "file": "expert-projects-390x844.png",
-      "sha256": "9c4f3b9fd28e8865b6cc45295ad03afb89087db59ee2d339ac9bcaf07b45c7e0",
+      "sha256": "ada7f4d7ab3a9d909d9e896fc5cb49de4263f830409c7c95ca1f90fe738e5729",
       "surface": "expert-projects",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#projects"
     },
     {
       "file": "expert-inspector-390x844.png",
-      "sha256": "7874ed803c3944ecff7c27f922868651e825a90611bccf8ee5cef924c1573d75",
+      "sha256": "64138b25d7d49b6c97e385c05f8bdfa92e2c2ecdfe5f792f0cc75035cc300dad",
       "surface": "expert-inspector",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#inspector/case/f3-ct-g-pardo"
     },
     {
       "file": "expert-market-390x844.png",
-      "sha256": "2a948a0063434e946d8e58088406cc59492966550bedfca895321c846ef3de86",
+      "sha256": "0d2ac8bad56a07caca74a45ad0b8c445d5178affcaa056848736c8990e88f25d",
       "surface": "expert-market",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#market"
     },
     {
       "file": "expert-compare-390x844.png",
-      "sha256": "743f20b2f42cf72f7cbde7dc0f015097a26e6dab7fbe7930e6ec22321d7841f1",
+      "sha256": "6bdf01042905fb7cf6e789f87b529eb5a4eec60fe61d1193a2b549a58ac38ea3",
       "surface": "expert-compare",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#compare"
     },
     {
       "file": "expert-trust-390x844.png",
-      "sha256": "b77277b7415bf7730bcc076262b9ce40470bcaa6299d5aa884bdd92857c83a35",
+      "sha256": "a8276d7537bb3d0b74a6188109439f1eb81e5380beda34868fc5800f0e84c7da",
       "surface": "expert-trust",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#trust"
     },
     {
       "file": "expert-assistant-390x844.png",
-      "sha256": "de0555af96b383f61660246506765fd9248544e8a42d4012890edcd7ef1b715a",
+      "sha256": "7d10dbe159e730aa4ff7fa8a3ac6b98db7c4cd4bd373bae7eee407cf2399866c",
       "surface": "expert-assistant",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#assistant"
     },
     {
       "file": "expert-activity-390x844.png",
-      "sha256": "12ac69f1a04dde75f2e2913f1a61ff9d0ce50536c1aa2d3e026447122d82f463",
+      "sha256": "efb1da9082c6856012d4ea5eab651df7949f19798b8a5232de4ac941562dfa3d",
       "surface": "expert-activity",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#activity"
     },
     {
       "file": "journey-scale-zoom-200.png",
-      "sha256": "541737c0179ae0004255a8d4229b2b77a768dbd0d83bf1ac73ab1c4459e60070",
+      "sha256": "fa504696feee152831fe01360f4aa3f3db6f327ece5ad51e67608fc56a0f927c",
       "surface": "journey-scale",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#journey/scale"
     },
     {
       "file": "journey-geography-zoom-200.png",
-      "sha256": "e40697801179dd930f5193d33e42c5ea9d03a9d880e83d346a21c70cac67b7af",
+      "sha256": "7ac68d7ab3eb33fbbc3f0c3201e0ea6aba7c1d2d2e94c7dda81f2b30104b46e7",
       "surface": "journey-geography",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#journey/geography"
     },
     {
       "file": "journey-quality-zoom-200.png",
-      "sha256": "ea7dd72d01ed59ff8e5c2ca3589b83e0a15ee8d65a301da3cb8335d6dec20e5e",
+      "sha256": "95de621ff837e2c355f23bd626d2453c28f9f1ea6c59c16d6120e471b0a17dd5",
       "surface": "journey-quality",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#journey/quality"
     },
     {
       "file": "journey-depth-zoom-200.png",
-      "sha256": "830d4c860be2a9b15997090beb75f4c5f1450cd327f76b93ed4d271a6938e725",
+      "sha256": "f28ef0beb228f667777bbc523d5e7fb4cdbee9b54080656df10ce0bf7175482c",
       "surface": "journey-depth",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#journey/depth"
     },
     {
       "file": "journey-movement-zoom-200.png",
-      "sha256": "29c3be83da717c67915c4ccbfcc099ec16e43f43069530d1455c6ac3af57cba8",
+      "sha256": "e24bae5a3aa7024f5e7019714da36d4935c082cca9d04a5593eba5f625a1341e",
       "surface": "journey-movement",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#journey/movement"
     },
     {
       "file": "journey-decision-zoom-200.png",
-      "sha256": "ecd8bb71af2020d83233f5d87471705b614fd04642e8e57dff49a9e2cc64e096",
+      "sha256": "af4c66ab0c3ca91a21a79144b6d4279161ee5caa55c344d72bfce73d98fe1e55",
       "surface": "journey-decision",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#journey/decision"
     },
     {
       "file": "expert-dashboard-zoom-200.png",
-      "sha256": "0a54044c8da0141ff4ccd69edd9d7a5417e3eac7781ca0d35df0ce145ffe4dbe",
+      "sha256": "630432c38f65b263e2220fd285597542b42e78bc8d9935ee2ad711478bef98da",
       "surface": "expert-dashboard",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#dashboard"
     },
     {
       "file": "expert-projects-zoom-200.png",
-      "sha256": "4fdfc62c36ed9652fcca099a05a62f7bafd390c48fccca403cb39815729b4c5c",
+      "sha256": "1f9614dedc205785cd336b6c41fb468960ad58f97e85143384b92cb0829178eb",
       "surface": "expert-projects",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#projects"
     },
     {
       "file": "expert-inspector-zoom-200.png",
-      "sha256": "4a80d645f0491c6ab1461b2c60606dce8b6258c06589e2ea0156ade3c427c87c",
+      "sha256": "7334ce7fbc9543749bcf71ef1149e0ba5fbc4b04ea5ffc812b73def9b16fc727",
       "surface": "expert-inspector",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#inspector/case/f3-ct-g-pardo"
     },
     {
       "file": "expert-market-zoom-200.png",
-      "sha256": "2c9b858e8c7647dd84dd9af4089b8ce44513c995cc3bbf667d87141e8f925db5",
+      "sha256": "3937619cb1f3ac17a334dcba0e9848942e4876852c0c35f5489fb6f19de9db38",
       "surface": "expert-market",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#market"
     },
     {
       "file": "expert-compare-zoom-200.png",
-      "sha256": "fd1a8a233a862c6caec8602f6a0b2f9f60dda3b45a490e68b8223d4e1109e46b",
+      "sha256": "c2e122a3721b6b2b12d6313c067dfd6683aa042b86be11bb08e09138944dc3b6",
       "surface": "expert-compare",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#compare"
     },
     {
       "file": "expert-trust-zoom-200.png",
-      "sha256": "56299c30fb0268e526e26e6002b5185a8807d2b5f2e6a4670efe39d651693814",
+      "sha256": "74393cd686e911e6c6403aa944b2fbacf19f874e8a30ea96ed99811acfb38eb6",
       "surface": "expert-trust",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#trust"
     },
     {
       "file": "expert-assistant-zoom-200.png",
-      "sha256": "3800b32b1deca75eb33930b8054f687c6f81e17c12614f48c8cb071643044241",
+      "sha256": "0298641e8c62f2c9c8c9eb04ba1106def23de0a0235b8b8419dc7df6bd40b2de",
       "surface": "expert-assistant",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#assistant"
     },
     {
       "file": "expert-activity-zoom-200.png",
-      "sha256": "46945af96556591e937dbb53cb3f6711e89584c5f91e7c1f839c2c6cd0521fd2",
+      "sha256": "2022b96194e140bcfb3408cb8d14ccc38a01c5b5c85c465b23a234ee18997f25",
       "surface": "expert-activity",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#activity"

@@ -94,10 +94,9 @@ assert.equal((topbar.match(/<h1\b/gu) ?? []).length, 0);
 assert.match(topbar, /Recorrido ejecutivo/u);
 assert.match(topbar, /Etapa 3 de 6/u);
 assert.match(topbar, /Miraflores · Distrito completo/u);
-assert.match(topbar, /<strong>85<\/strong> comparables/u);
-assert.match(topbar, /<strong>5<\/strong> fuera o por revisar/u);
 assert.match(topbar, /id="menu-toggle"/u);
-assert.match(topbar, /id="reset-scenario"/u);
+assert.doesNotMatch(topbar, /comparables|fuera o por revisar/u);
+assert.doesNotMatch(topbar, /id="reset-scenario"|Viva Inteligencia/u);
 
 assert.match(manifest, /\.\/styles\/61-journey\.css/u);
 assert.equal((manifest.match(/\.\/styles\/61-journey\.css/gu) ?? []).length, 1);

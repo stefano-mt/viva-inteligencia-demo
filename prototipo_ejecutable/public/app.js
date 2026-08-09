@@ -34,6 +34,7 @@ import {
   renderMarket,
   renderProjects,
   renderScenarioBar,
+  renderScenarioSidebar,
   renderScenarioSummary,
 } from "./js/views/index.js";
 
@@ -418,6 +419,7 @@ function render() {
             ${interfaceIcon("close")}
           </button>
         </div>
+        ${renderScenarioSidebar(scenarioPresentation)}
         ${renderShellNavigation()}
         <div class="sidebar-footer">
           <span>Datos actualizados</span>

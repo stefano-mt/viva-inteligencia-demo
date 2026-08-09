@@ -614,3 +614,316 @@
     animation: none;
   }
 }
+
+/* P6-14A: one territorial station in the sidebar, one quiet module header. */
+.scenario-sidebar {
+  position: relative;
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--teal-line);
+  border-radius: 12px;
+  padding: 12px;
+  background:
+    linear-gradient(180deg, rgba(0, 148, 59, 0.08), transparent 56px),
+    #f8fbfa;
+}
+
+.scenario-sidebar::before {
+  content: "";
+  position: absolute;
+  inset: 14px auto 14px 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--teal-bright);
+}
+
+.scenario-sidebar__heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 8px;
+  align-items: end;
+}
+
+.scenario-sidebar__heading span,
+.scenario-sidebar__heading strong {
+  display: block;
+}
+
+.scenario-sidebar__heading > div > span {
+  color: var(--teal);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.scenario-sidebar__heading strong {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.scenario-sidebar__count {
+  width: max-content;
+  border-radius: 999px;
+  padding: 3px 7px;
+  background: #e5f3ee;
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.scenario-sidebar .field-control,
+.scenario-sidebar .scenario-scope,
+.scenario-sidebar .scenario-dependent {
+  min-width: 0;
+}
+
+.scenario-sidebar .field-control > span,
+.scenario-sidebar .scenario-scope legend,
+.scenario-sidebar .scenario-dependent legend {
+  margin-bottom: 5px;
+  color: #35433e;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.scenario-sidebar select {
+  width: 100%;
+  min-height: 44px;
+  padding-inline: 10px 34px;
+  font-size: 13px;
+}
+
+.scenario-sidebar .scenario-segments--quadrants {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.scenario-sidebar .scenario-segment {
+  min-height: 44px;
+  padding-inline: 5px;
+  font-size: 11px;
+}
+
+.scenario-sidebar .scenario-scope > p,
+.scenario-sidebar .scenario-dependent > p,
+.scenario-sidebar .scenario-dependent-note {
+  font-size: 11px;
+}
+
+.scenario-sidebar #scenario-quadrant-availability,
+.scenario-sidebar .scenario-dependent-note {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+
+.scenario-sidebar__actions {
+  display: grid;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+.scenario-sidebar .scenario-primary-action,
+.scenario-sidebar .scenario-reset {
+  width: 100%;
+  min-height: 44px;
+}
+
+.scenario-sidebar .scenario-primary-action {
+  border-color: #00614f;
+  background: #00614f;
+  color: #ffffff;
+  font-weight: 900;
+  box-shadow: 0 6px 14px rgba(0, 72, 59, 0.16);
+}
+
+.scenario-sidebar .scenario-primary-action:hover:not(:disabled) {
+  border-color: #00483b;
+  background: #00483b;
+}
+
+.scenario-sidebar .scenario-reset {
+  border: 0;
+  background: transparent;
+  color: #34433e;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.scenario-sidebar .scenario-reset:hover:not(:disabled) {
+  color: var(--teal);
+}
+
+.scenario-sidebar select:focus-visible,
+.scenario-sidebar button:focus-visible,
+.scenario-technical summary:focus-visible {
+  outline: 3px solid #ffffff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px #202022;
+}
+
+.scenario-bar {
+  min-height: 76px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  padding: 12px 24px;
+  box-shadow: none;
+}
+
+.scenario-bar__heading {
+  min-height: 0;
+  padding: 0;
+}
+
+.scenario-bar__active {
+  min-width: 190px;
+  padding-left: 18px;
+  border-left: 1px solid var(--line);
+  text-align: right;
+}
+
+.scenario-bar__active span,
+.scenario-bar__active strong {
+  display: block;
+}
+
+.scenario-bar__active span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.scenario-bar__active strong {
+  margin-top: 3px;
+  color: var(--teal);
+  font-size: 14px;
+}
+
+.scenario-summary {
+  padding: 15px 18px;
+}
+
+.scenario-summary__heading {
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.scenario-summary__heading h2 {
+  font-size: clamp(20px, 1.6vw, 25px);
+}
+
+.scenario-summary__metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 0;
+}
+
+.scenario-summary__metrics dd {
+  font-size: 18px;
+}
+
+.scenario-summary__metrics dt {
+  font-size: 14px;
+}
+
+.scenario-technical {
+  margin-top: 8px;
+  border-top: 1px dashed var(--teal-line);
+  padding-top: 4px;
+}
+
+.scenario-technical > summary {
+  min-height: 44px;
+  width: max-content;
+  max-width: 100%;
+  display: flex;
+  align-items: center;
+  color: var(--teal);
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.scenario-technical__body {
+  display: grid;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.scenario-technical__facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+}
+
+.scenario-technical__facts > div {
+  border-left: 2px solid var(--teal-line);
+  padding-left: 9px;
+}
+
+.scenario-technical__facts dt,
+.scenario-technical__facts dd {
+  margin: 0;
+}
+
+.scenario-technical__facts dt {
+  color: #52605b;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.scenario-technical__facts dd {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.scenario-technical .scenario-summary__statuses {
+  padding-top: 0;
+}
+
+.scenario-technical .scenario-share {
+  display: grid;
+  gap: 5px;
+  margin-top: 0;
+  border-top: 0;
+  padding-top: 0;
+}
+
+@media (max-width: 900px) {
+  .scenario-bar {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .scenario-technical__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .scenario-bar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .scenario-bar__active {
+    min-width: 0;
+    padding: 8px 0 0 54px;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+    text-align: left;
+  }
+
+  .scenario-summary__metrics,
+  .scenario-technical__facts {
+    grid-template-columns: 1fr;
+  }
+}

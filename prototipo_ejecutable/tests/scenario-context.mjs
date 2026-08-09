@@ -10,6 +10,7 @@ import {
   buildScenarioPresentation,
   loadBoundaryArtifact,
   renderScenarioBar,
+  renderScenarioSidebar,
   renderScenarioSummary,
 } from "../public/js/views/scenario-context.js";
 
@@ -176,9 +177,20 @@ assert.match(
 );
 
 const readyBar = renderScenarioBar(readyModel);
+const readySidebar = renderScenarioSidebar(readyModel);
 const readySummary = renderScenarioSummary(readyModel);
 for (const expected of [
   'id="scenario-view-title"',
+  "Escenario activo",
+  readyModel.scopeTitle,
+]) {
+  assert.ok(readyBar.includes(expected), `Missing bar contract: ${expected}`);
+}
+assert.doesNotMatch(readyBar, /Viva Inteligencia \/ Análisis/u);
+assert.doesNotMatch(readyBar, /id="top-district"|data-scenario-scope|id="reset-scenario"/u);
+
+for (const expected of [
+  'id="scenario-sidebar-title"',
   'id="top-district"',
   'id="scenario-scope-district"',
   'data-scenario-scope="quadrant"',
@@ -190,21 +202,22 @@ for (const expected of [
   "Ver comparables",
   "Reiniciar",
 ]) {
-  assert.ok(readyBar.includes(expected), `Missing bar contract: ${expected}`);
+  assert.ok(readySidebar.includes(expected), `Missing sidebar contract: ${expected}`);
 }
 assert.match(
-  readyBar,
+  readySidebar,
   /id="scenario-scope-district"[\s\S]*?aria-pressed="true"/,
 );
-assert.doesNotMatch(readyBar, /data-scenario-quadrant="/);
-assert.doesNotMatch(readyBar, /data-scenario-radius="/);
+assert.doesNotMatch(readySidebar, /data-scenario-quadrant="/);
+assert.doesNotMatch(readySidebar, /data-scenario-radius="/);
 assert.match(readyBar, /aria-expanded="false"/);
 
 for (const expected of [
   'id="scenario-summary-title"',
   "90",
-  "85 comparables",
-  "5 fuera o por revisar",
+  "Proyectos comparables",
+  "Fuera o por revisar",
+  "Ver detalle técnico",
   "Cobertura territorial completa",
   "Comparabilidad lista",
   "Referencia de precio no demostrada",
@@ -257,7 +270,7 @@ const quadrantModel = makePresentation({
     comparable_project_ids: canonicalIds.slice(0, 35),
   }),
 });
-const quadrantBar = renderScenarioBar(quadrantModel);
+const quadrantBar = renderScenarioSidebar(quadrantModel);
 assert.equal(quadrantModel.scopeTitle, "Miraflores · Noroeste");
 assert.match(quadrantBar, /data-scenario-quadrant="NW"/);
 assert.match(
@@ -274,7 +287,7 @@ const radiusScenario = makeScenario({
   radius_meters: 1000,
 });
 const radiusModel = makePresentation({ scenario: radiusScenario });
-const radiusBar = renderScenarioBar(radiusModel);
+const radiusBar = renderScenarioSidebar(radiusModel);
 assert.equal(radiusModel.scopeTitle, "Miraflores · Radio 1 km");
 assert.match(radiusBar, /data-scenario-radius="1000"/);
 assert.match(
@@ -367,9 +380,10 @@ const loadingModel = makePresentation({
   },
 });
 const loadingBar = renderScenarioBar(loadingModel);
+const loadingSidebar = renderScenarioSidebar(loadingModel);
 const loadingSummary = renderScenarioSummary(loadingModel);
 assert.match(loadingBar, /aria-busy="true"/);
-assert.match(loadingBar, /id="top-district" disabled/);
+assert.match(loadingSidebar, /id="top-district" disabled/);
 assert.match(loadingSummary, /Preparando escenario geográfico/);
 assert.match(loadingSummary, /aria-busy="true"/);
 
@@ -380,7 +394,7 @@ const syntheticDistrict =
   );
 syntheticDistrict.high_load = false;
 syntheticDistrict.quadrants = [];
-const noQuadrantsBar = renderScenarioBar(
+const noQuadrantsBar = renderScenarioSidebar(
   makePresentation({ dataOverride: districtWithoutQuadrantsData }),
 );
 assert.match(
@@ -574,6 +588,7 @@ assert.doesNotMatch(appSource, /window\.history\.replaceState/);
 assert.match(appSource, /loadBoundaryArtifact\(/);
 assert.match(appSource, /updateBoundaryArtifact\(geographyArtifact\)/);
 assert.match(appSource, /renderScenarioBar\(scenarioPresentation\)/);
+assert.match(appSource, /renderScenarioSidebar\(scenarioPresentation\)/);
 assert.match(appSource, /renderScenarioSummary\(scenarioPresentation\)/);
 assert.doesNotMatch(appSource, /function renderTopbar/);
 const initBlock = appSource.slice(
@@ -587,6 +602,7 @@ assert.ok(
 );
 assert.match(indexSource, /buildScenarioPresentation/);
 assert.match(indexSource, /renderScenarioBar/);
+assert.match(indexSource, /renderScenarioSidebar/);
 assert.match(indexSource, /renderScenarioSummary/);
 const imports = [
   "./styles/20-shell.css",

@@ -551,7 +551,9 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     true,
     "El menú móvil debe abrir",
   );
-  await mobileObserved.page.locator('.sidebar [data-view="projects"]').click();
+  await mobileObserved.page
+    .locator('.sidebar nav[aria-label="Módulos principales"] [data-view="projects"]')
+    .click();
   const mobileProjectsPath = pathForRoute(descriptor.canonical_path, "projects");
   await waitForActiveRoute(mobileObserved.page, "projects", {
     baseUrl,
