@@ -72,7 +72,7 @@ assert.match(
     "u",
   ),
 );
-assert.match(readyHtml, /Estos conteos describen universos distintos y no se suman/u);
+assert.match(readyHtml, /Estos conteos describen grupos distintos y no se suman/u);
 assert.match(readyHtml, /<dt>Fuente<\/dt>/u);
 assert.match(readyHtml, /<dt>Estado de evidencia<\/dt>/u);
 assert.match(readyHtml, /href="#journey\/movement">Revisar movimiento/u);

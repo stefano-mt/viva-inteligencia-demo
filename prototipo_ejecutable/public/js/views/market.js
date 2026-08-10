@@ -59,22 +59,22 @@ function renderScaleLedger() {
     >
       <div class="scale-primer__heading">
         <span class="benchmark-kicker">Regla de escala</span>
-        <h2 id="scale-primer-title">Tres universos, una lectura sin mezclar denominadores</h2>
-        <p>Modelo, piloto y escenario describen alcances distintos. Las cifras no se suman entre sí.</p>
+        <h2 id="scale-primer-title">Tres niveles de cobertura que no deben sumarse</h2>
+        <p>La cobertura general, la muestra revisada y el escenario activo responden preguntas distintas.</p>
       </div>
       <dl class="scale-ledger">
         <div>
-          <dt>Modelo completo</dt>
+          <dt>Cobertura general</dt>
           <dd>${scaleValue(modelAgencyCount, "inmobiliarias")}</dd>
-          <small>Catálogo canónico disponible para la demo.</small>
+          <small>Inmobiliarias normalizadas disponibles en la demo.</small>
         </div>
         <div>
-          <dt>Piloto acumulativo</dt>
+          <dt>Muestra revisada</dt>
           <dd>${scaleValue(pilotBaseCount, "base")} · ${scaleValue(pilotEnrichedCount, "enriquecidas")} · ${scaleValue(pilotDeepCount, "profundas")}</dd>
           <small>Son niveles de cobertura dentro del piloto, no grupos adicionales.</small>
         </div>
         <div>
-          <dt>Escenario activo</dt>
+          <dt>Zona activa</dt>
           <dd>${scaleValue(observedProjectCount, "observados")} · ${scaleValue(comparableProjectCount, "comparables")}</dd>
           <small>Se recalcula con el distrito y los filtros vigentes.</small>
         </div>
@@ -407,8 +407,8 @@ function renderBenchmarkUnavailable(context, district) {
         <span class="status-badge ${meta.tone}">${escapeHtml(meta.label)}</span>
       </header>
       <div class="benchmark-state-copy">
-        <strong>${contractUnavailable ? "Este dataset conserva el análisis territorial, pero no incluye el contrato de benchmark." : "No se pudo construir una referencia de benchmark segura."}</strong>
-        <p>${contractUnavailable ? "Puedes seguir consultando ranking y cuadrantes. Actualiza a un dataset 2.3 para habilitar denominadores, composición y atributos." : "La vista falla cerrada para no mostrar cifras parciales. Revisa el contrato público y vuelve a cargar la demo."}</p>
+        <strong>${contractUnavailable ? "Esta versión de datos conserva el análisis territorial, pero no incluye la información necesaria para comparar el mercado." : "No se pudo construir una referencia de mercado segura."}</strong>
+        <p>${contractUnavailable ? "Puedes seguir consultando distritos y cuadrantes. Usa una versión de datos compatible para ver la base, la composición y los atributos." : "La vista se detuvo para no mostrar cifras parciales. Revisa la versión de datos y vuelve a cargar la demo."}</p>
         ${context?.errorCodes?.length ? `<p class="benchmark-error-code">Código: ${escapeHtml(context.errorCodes.join(", "))}</p>` : ""}
       </div>
     </section>
@@ -432,7 +432,7 @@ function renderEvidenceLine(context) {
     {
       label: "Orientación",
       value: quantitative.orientative.n,
-      copy: "Cocientes de mínimos; no sostienen posicionamiento.",
+      copy: "Cálculos con valores mínimos; no sostienen una recomendación de precio.",
     },
     {
       label: "Atributos informados",
@@ -480,7 +480,7 @@ function renderQuantitative(context) {
     : eligibleOrientative
       ? "La pareja precio–área está demostrada, pero una muestra de uno o dos proyectos no describe una distribución."
       : showNoncomparableOrientation
-        ? "Cociente entre mínimos publicados. No demuestra una tipología y no sustenta una recomendación de precio."
+        ? "Cálculo con precios y áreas mínimos publicados. No demuestra una tipología y no sustenta una recomendación de precio."
         : "No hay parejas precio–área demostradas suficientes para calcular una referencia.";
   const coverage = quantitative.coverage;
   return `
@@ -537,9 +537,9 @@ function renderQuantitative(context) {
       }
       <dl class="benchmark-method-strip">
         <div><dt>Tipo de precio</dt><dd>Precio publicado desde</dd></div>
-        <div><dt>Denominador</dt><dd>Área total</dd></div>
-        <div><dt>Método</dt><dd>Cuantiles R-7</dd></div>
-        <div><dt>Partición elegible</dt><dd>${formatNumber(coverage.inputProjectIds.length)} entrada = ${formatNumber(coverage.usedProjectIds.length)} usados + ${formatNumber(coverage.missingProjectIds.length)} faltantes + ${formatNumber(coverage.excludedProjects.length)} excluidos</dd></div>
+        <div><dt>Base del cálculo</dt><dd>Área total</dd></div>
+        <div><dt>Método</dt><dd>Percentiles R-7</dd></div>
+        <div><dt>Casos considerados</dt><dd>${formatNumber(coverage.inputProjectIds.length)} de entrada = ${formatNumber(coverage.usedProjectIds.length)} usados + ${formatNumber(coverage.missingProjectIds.length)} faltantes + ${formatNumber(coverage.excludedProjects.length)} excluidos</dd></div>
       </dl>
     </section>
   `;
@@ -558,7 +558,7 @@ function renderOfferComposition(context, summaries) {
         <div>
           <span class="benchmark-section__index">03 · Composición</span>
           <h3 id="benchmark-offer-title">Oferta de la muestra</h3>
-          <p>Conteos del mismo universo territorial, sin convertir publicaciones en ventas o stock.</p>
+          <p>Conteos de la misma zona, sin convertir publicaciones en ventas o stock.</p>
         </div>
       </div>
       <dl class="benchmark-ledger">
@@ -776,8 +776,8 @@ function renderTerritorialContext() {
           <div>
             <h2>Ranking distrital por carga observada</h2>
             <p>
-              Los siete distritos de mayor carga del snapshot. Seleccionar una
-              fila actualiza el escenario canónico.
+              Los siete distritos con más proyectos en la muestra. Seleccionar una
+              fila actualiza la zona activa.
             </p>
           </div>
           ${componentHelp(
@@ -817,7 +817,7 @@ function renderTerritorialContext() {
       <section class="panel span-12 market-quadrants">
         <div class="panel-header">
           <div>
-            <h2>Cuadrantes analíticos del snapshot</h2>
+            <h2>Cuadrantes para analizar la muestra</h2>
             <p>
               ${escapeHtml(districtName(district))}: división reproducible por
               las medianas de latitud y longitud de proyectos con geografía
@@ -826,7 +826,7 @@ function renderTerritorialContext() {
           </div>
           ${componentHelp(
             "Qué significa un cuadrante",
-            "Noroeste, noreste, suroeste y sureste son particiones analíticas del snapshot. No representan límites municipales, catastrales ni microzonas oficiales.",
+            "Noroeste, noreste, suroeste y sureste dividen la muestra para facilitar su lectura. No representan límites municipales, catastrales ni microzonas oficiales.",
           )}
         </div>
         ${
@@ -847,7 +847,7 @@ function renderTerritorialContext() {
           <div class="bar-list">
             <p>
               Los proyectos fuera del polígono se excluyen antes de asignar
-              cuadrante; no se trasladan al distrito como fallback. Por eso la
+              cuadrante; no se sustituyen por una lectura distrital. Por eso la
               suma de cuadrantes coincide con la geografía válida, no siempre
               con todos los observados.
             </p>
@@ -859,7 +859,7 @@ function renderTerritorialContext() {
             <p>
               Solo la fila del cuadrante activo muestra comparables y
               diagnóstico del escenario vigente. Las otras
-              filas conservan conteos estáticos del snapshot y no recomponen
+              filas conservan los conteos de la muestra y no recomponen
               escenarios durante el render.
             </p>
           </div>
@@ -892,7 +892,7 @@ export function renderMarket() {
       ? `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables; ${formatNumber(quantitative.n)} sostienen una referencia elegible por m² de área total.`
       : quantitative.orientative.n > 0
         ? `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables; ${formatNumber(quantitative.orientative.n)} permiten un índice orientativo de entrada, pero la pareja precio–área no está demostrada a nivel de unidad.`
-        : `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables, pero no dispone de parejas precio–área demostradas ni cocientes orientativos utilizables.`
+        : `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables, pero no dispone de pares precio–área demostrados ni referencias orientativas utilizables.`
     : null;
 
   return `
@@ -915,12 +915,12 @@ export function renderMarket() {
                 <div class="benchmark-section__heading">
                   <div>
                     <span class="benchmark-section__index">01 · Alcance</span>
-                    <h3 id="benchmark-scope-title">Cómo se transforma esta muestra</h3>
-                    <p>Cada nodo conserva el mismo escenario y muestra qué información puede sostener.</p>
+                    <h3 id="benchmark-scope-title">Cómo se usa esta muestra</h3>
+                    <p>Cada paso conserva la misma zona y muestra qué información puede sostener.</p>
                   </div>
                   ${componentHelp(
                     "Cómo leer la línea de evidencia",
-                    "El alcance territorial no cambia. Cada indicador usa su propia partición de usados, faltantes y excluidos; una orientación de mínimos no se convierte en benchmark elegible.",
+                    "La zona no cambia. Cada indicador distingue proyectos usados, faltantes y excluidos; una referencia basada en mínimos no se convierte en una comparación confiable.",
                   )}
                 </div>
                 ${renderEvidenceLine(benchmark)}
@@ -949,7 +949,7 @@ export function renderMarket() {
         <summary>
           <span>
             <strong>Contexto territorial</strong>
-            Ranking de alta carga y cuadrantes analíticos del snapshot
+            Distritos con más proyectos y cuadrantes de la muestra
           </span>
           <span>${formatNumber(district.polygon_valid_count)}/${formatNumber(district.observed_project_count)} con geografía válida</span>
         </summary>

@@ -116,7 +116,7 @@ assert.match(
   ctGMarkup,
   /104\.15 − 53\.37 = 50\.78 m²[\s\S]*48\.76% · base: tarjeta/u,
 );
-assert.match(ctGMarkup, /Valor derivado · Cálculo documentado/u);
+assert.match(ctGMarkup, /Valor calculado · Operación documentada/u);
 assert.doesNotMatch(ctGMarkup, /área techada|\berror\b|\bfalso\b/iu);
 
 const floorRow = ctG.ledger[1];
@@ -128,7 +128,7 @@ assert.deepEqual(floorRow.reading.floorInference, {
 });
 assert.match(
   ctGMarkup,
-  /Valor derivado · Inferencia de pisos[\s\S]*8–10[\s\S]*Confianza baja/u,
+  /Lectura calculada · Pisos posibles[\s\S]*8–10[\s\S]*Confianza baja/u,
 );
 
 for (const key of ["model", "bedrooms", "bathrooms"]) {

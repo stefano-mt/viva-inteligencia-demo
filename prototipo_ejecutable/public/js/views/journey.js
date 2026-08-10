@@ -7,33 +7,33 @@ import {
 
 const BASE_STAGE_COPY = Object.freeze({
   scale: Object.freeze({
-    reading: "Delimita la muestra observable antes de interpretar el mercado.",
-    known: "El recorrido separa cobertura del modelo, profundidad del piloto y alcance del escenario.",
+    reading: "Primero confirma cuánta información sostiene la lectura.",
+    known: "La demo separa la cobertura general, la muestra revisada y los proyectos de la zona activa.",
     limitation: "La cobertura describe lo observado; no representa la totalidad del mercado inmobiliario.",
   }),
   geography: Object.freeze({
-    reading: "Ubica el escenario y conserva el mismo territorio en todo el análisis.",
-    known: "El alcance territorial determina qué proyectos pueden verse y cuáles son comparables.",
-    limitation: "Los cuadrantes son analíticos y no constituyen microzonas oficiales.",
+    reading: "Ubica el escenario y conserva la misma zona en todo el análisis.",
+    known: "La zona elegida determina qué proyectos pueden verse y cuáles pueden compararse.",
+    limitation: "Los cuadrantes ayudan a ordenar la muestra; no son microzonas oficiales.",
   }),
   quality: Object.freeze({
-    reading: "Contrasta fuentes antes de permitir que un dato alimente una comparación.",
+    reading: "Contrasta las fuentes antes de usar un dato en una comparación.",
     known: "El caso Tipo 7 muestra por qué una discrepancia visible puede exigir exclusión.",
-    limitation: "Caso demostrativo transversal · Miraflores; no pertenece al escenario territorial activo.",
+    limitation: "Es un ejemplo de Miraflores para revisar la calidad del dato; no pertenece a la zona activa.",
   }),
   depth: Object.freeze({
-    reading: "Compara diferencias respaldadas sin confundir publicación con evidencia elegible.",
-    known: "La comparación se organiza por atributos, denominadores y referencias trazables.",
-    limitation: "Un precio publicado no demuestra un precio de cierre ni una pareja precio–área válida.",
+    reading: "Compara diferencias respaldadas sin asumir que todo dato publicado puede usarse.",
+    known: "La comparación organiza atributos, base utilizada y fuente de cada proyecto.",
+    limitation: "Un precio publicado no demuestra el precio de cierre ni que precio y área provengan de la misma unidad.",
   }),
   movement: Object.freeze({
     reading: "Prioriza cambios publicados que requieren seguimiento comercial.",
-    known: "Cada señal conserva valor anterior, valor nuevo, vigencia y evidencia disponible.",
+    known: "Cada señal conserva valor anterior, valor nuevo, fecha y fuente disponible.",
     limitation: "Un cambio observado no permite atribuir una causa que la fuente no declara.",
   }),
   decision: Object.freeze({
     reading: "Cierra el recorrido con una recomendación prudente y una siguiente acción verificable.",
-    known: "La decisión reúne la lectura disponible, sus referencias y el checklist vigente.",
+    known: "La decisión reúne la lectura disponible, sus fuentes y la validación comercial.",
     limitation: "La demo no infiere precios de cierre, causalidad ni exhaustividad del mercado.",
   }),
 });
@@ -113,7 +113,7 @@ function renderExpertLinks(stage) {
     <aside class="journey-expert" aria-labelledby="journey-expert-title">
       <div>
         <p class="journey-section-label">Explorar análisis</p>
-        <h2 id="journey-expert-title">Abrir el respaldo completo</h2>
+        <h2 id="journey-expert-title">Revisar el detalle</h2>
       </div>
       <div class="journey-expert__links">
         ${permittedViews.map((view) => `
@@ -153,7 +153,7 @@ function renderBaseState(stage, status) {
     return `
       <section class="journey-state journey-state--unavailable" role="status">
         <p class="journey-section-label">Lectura no disponible</p>
-        <p>Esta capacidad no está disponible para el escenario o contrato actual. Conservamos la limitación sin sustituir datos.</p>
+        <p>Esta lectura no está disponible para el escenario o la versión de datos actual. Conservamos la limitación sin sustituir información.</p>
       </section>
     `;
   }
@@ -164,12 +164,12 @@ function renderBaseState(stage, status) {
       <p class="journey-reading__lead">${escapeHtml(copy.reading)}</p>
       <div class="journey-reading__ledger">
         <section aria-labelledby="journey-known-title">
-          <p class="journey-section-label">Lectura base</p>
+          <p class="journey-section-label">Lectura principal</p>
           <h2 id="journey-known-title">Qué sabemos</h2>
           <p>${escapeHtml(copy.known)}</p>
         </section>
         <section class="journey-reading__limit" aria-labelledby="journey-limit-title">
-          <p class="journey-section-label">Límite visible</p>
+          <p class="journey-section-label">Límite de la lectura</p>
           <h2 id="journey-limit-title">Qué falta o no puede afirmarse</h2>
           <p>${escapeHtml(copy.limitation)}</p>
         </section>

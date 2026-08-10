@@ -132,19 +132,19 @@ assert.deepEqual(
 assert.deepEqual(views[2], {
   id: "inspector",
   label: "Inspector de evidencia",
-  hint: "Fuentes, tipologías y calidad",
+  hint: "Fuentes y calidad de datos",
   group: "Análisis",
 });
 assert.deepEqual(views[3], {
   id: "market",
   label: "Benchmark de microzona",
-  hint: "Muestra, atributos y exclusiones",
+  hint: "Muestra y referencias",
   group: "Análisis",
 });
 assert.deepEqual(views[4], {
   id: "compare",
   label: "Comparador comercial",
-  hint: "Diferencias y siguiente acción",
+  hint: "Diferencias entre proyectos",
   group: "Análisis",
 });
 assert.equal(sectionGuides.inspector.steps.length, 3);

@@ -379,7 +379,7 @@ function qualityStage({ contractVersion, qualityDossier }) {
       data: available
         ? {
             transversal: true,
-            scopeLabel: "Caso demostrativo transversal de Miraflores",
+            scopeLabel: "Ejemplo de calidad de datos en Miraflores",
             caseId: dossier.inspectorCase.case_id,
             routeSlug: dossier.inspectorCase.route_slug,
             project: {

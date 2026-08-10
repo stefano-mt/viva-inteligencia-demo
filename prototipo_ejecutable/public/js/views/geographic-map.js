@@ -442,7 +442,7 @@ function renderMapSurface(model) {
         ? `
           <div class="geo-map-message" role="status">
             <strong>Sin proyectos visibles en este alcance</strong>
-            <span>Conservamos el límite seleccionado y no usamos un fallback distrital.</span>
+            <span>Conservamos el límite seleccionado y no lo sustituimos por el distrito completo.</span>
           </div>
         `
         : "";

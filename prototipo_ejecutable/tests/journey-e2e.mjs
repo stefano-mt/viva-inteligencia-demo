@@ -199,7 +199,7 @@ await withDemoBrowser(
     for (const value of ["184", "30", "22", "5"]) {
       assert.match(benchmarkText, new RegExp(`(?:^|\\D)${value}(?:\\D|$)`, "u"));
     }
-    assert.match(benchmarkText, /no se suman|universos distintos/iu);
+    assert.match(benchmarkText, /no deben sumarse|grupos distintos/iu);
     assert.equal(
       await visibleText(page.locator("#scenario-summary-title")),
       scenarioLabel,
@@ -322,7 +322,7 @@ await withDemoBrowser(
     await response.waitFor({ state: "visible" });
     assert.equal(await response.locator("[data-assistant-block=limitations]").count(), 1);
     assert.equal(await response.locator("[data-assistant-block=references]").count(), 1);
-    assert.match(await visibleText(response), /reproducible/iu);
+    assert.match(await visibleText(response), /verificable/iu);
     await capture(
       page,
       "06-decision-assistant.png",

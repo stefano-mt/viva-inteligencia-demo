@@ -9,49 +9,49 @@
   "files": [
     {
       "file": "01-scale.png",
-      "sha256": "9cf880e112496215bd704ae9be7477520f2c295318121b413920e588de8ef68e",
+      "sha256": "1e144ad1efb42eed3758ab275ec450e476be69514649145f1daee45305409877",
       "claim": "Entrada canónica al recorrido, etapa Escala y escenario visible.",
       "url": "http://127.0.0.1:4364/#journey/scale"
     },
     {
       "file": "02-geography-map.png",
-      "sha256": "8f618c2ac7b1fa235a851284e79152d62ad9390f3d0a2309c403148121d885e4",
+      "sha256": "b4f420f7d74c5d54c0088fb187c867933a1683438f241f93864fa9deaf90bc94",
       "claim": "Mapa territorial del mismo escenario usado por el recorrido.",
       "url": "http://127.0.0.1:4364/#dashboard"
     },
     {
       "file": "03-quality-type7.png",
-      "sha256": "c490bfe3ae2bda64393c9292cab3720ffb817c3ff0f6ccec10391735d343687d",
+      "sha256": "9be863899c1233b06c9487dd70a542fed053662af36b923020b73f21a0f0912f",
       "claim": "Caso Tipo 7 con discrepancia, exclusión y evidencia autorizada.",
       "url": "http://127.0.0.1:4364/#inspector/case/f3-ct-g-pardo"
     },
     {
       "file": "04-depth-comparator.png",
-      "sha256": "7499bddb8e989d41d1f6330f18ecac26ccae374a4d10011e206c58640c4af37a",
+      "sha256": "9a6964587071866b88bce22855fc3cf07b58c2369be52f043096b964004494e3",
       "claim": "Comparador con conclusión, denominadores y filas de evidencia.",
       "url": "http://127.0.0.1:4364/#compare"
     },
     {
       "file": "05-movement-signal.png",
-      "sha256": "f090d79e7e86d3951c5383a48189ca9e2201c8dd5820237cbcb77698d4901fa7",
+      "sha256": "a82cf0ec557407408ba704035ab7fd78b48c251444fdfa32b7832d8194b57ced",
       "claim": "Señal publicada con anterior/nuevo, vigencia y causa no observada.",
       "url": "http://127.0.0.1:4364/#activity"
     },
     {
       "file": "06-decision-assistant.png",
-      "sha256": "bbe6706169d039b7a42004a3d7d8199138b010cf792fa98b7aa80c1e92d2cc3e",
+      "sha256": "a538f12968743af2bf684c03371ab3ae37a1b7c3416c63d17f1d6edbb3eee84e",
       "claim": "Asistente determinista con lectura, límites y referencias visibles.",
       "url": "http://127.0.0.1:4364/#assistant"
     },
     {
       "file": "07-decision-checklist.png",
-      "sha256": "1382783b77da957101ff5e92cd66c23b27ea24fbb1f3ce2a6447ea7b7506e233",
+      "sha256": "ea9e0e8ce282a34ca8506ceb539ce7621289b5c9c52941e8fc63fd28bfb199cd",
       "claim": "Checklist final con handoff del asistente y cierre prudente.",
       "url": "http://127.0.0.1:4364/#trust"
     },
     {
       "file": "08-decision-return.png",
-      "sha256": "75d4e45067bca6a44c541cd5baa678e5487e3592783f8d9f2cfc898e338e3942",
+      "sha256": "58508d9afdad32ab58e39379cc1b49d7861a67b82505b25f75709ed068c1131b",
       "claim": "Retorno canónico a Decisión después del asistente y checklist.",
       "url": "http://127.0.0.1:4364/#journey/decision"
     }

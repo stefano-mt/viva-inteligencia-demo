@@ -51,7 +51,7 @@ function comparisonState(context) {
     insufficient: {
       label: "Comparables insuficientes",
       tone: "danger",
-      copy: "No hay comparables elegibles; revisa el alcance o los filtros sin aplicar un fallback silencioso.",
+      copy: "No hay proyectos comparables; revisa la zona o los filtros sin sustituir información faltante.",
     },
   };
   return (

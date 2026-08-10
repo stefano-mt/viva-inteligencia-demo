@@ -57,7 +57,7 @@ assert.deepEqual(
 
 const markup = renderInspectorModel(model);
 for (const phrase of [
-  "Caso demostrativo transversal · Miraflores",
+  "Ejemplo de calidad de datos en Miraflores",
   "independiente del escenario activo",
   "Tipo 7 no debe entrar al benchmark",
   "104.15 m²",

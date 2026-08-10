@@ -2,10 +2,10 @@ import { journeyGuides, sectionGuides } from "../config.js";
 
 const GUIDANCE_LABELS = Object.freeze({
   purpose: "Para qué sirve",
-  action: "Qué debes hacer",
-  outcome: "Qué resultado obtienes",
-  limitation: "Qué no puedes concluir",
-  nextStep: "Dónde continuar",
+  action: "Cómo usarla",
+  outcome: "Qué obtienes",
+  limitation: "Qué debes tener en cuenta",
+  nextStep: "Siguiente paso",
 });
 
 function escapeHtml(value) {
@@ -41,10 +41,10 @@ function renderGuidance(guide) {
       <summary>
         <span class="guide-icon" aria-hidden="true">i</span>
         <span class="guide-summary">
-          <strong>Cómo usar esta sección</strong>
+          <strong>Cómo usarla</strong>
           <small>${escapeHtml(guide.purpose)}</small>
         </span>
-        <span class="guide-toggle" aria-hidden="true">Ver orientación</span>
+        <span class="guide-toggle" aria-hidden="true">Abrir guía</span>
       </summary>
       <div class="section-guide-body">
         <dl class="guidance-ledger">

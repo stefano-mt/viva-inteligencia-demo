@@ -216,7 +216,7 @@ function baselineResponse(data, context, input) {
   return {
     tone: priceReady ? "success" : "warning",
     badge: priceReady
-      ? "Lectura trazable"
+      ? "Lectura con fuentes"
       : "Precio insuficiente",
     title: "Lectura del escenario activo",
     summary:
@@ -341,7 +341,7 @@ export function renderAssistantResponse(response) {
         <p>${escapeHtml(response.action)}</p>
       </div>
       <div class="detail-section">
-        <h3>Referencias trazables</h3>
+        <h3>Fuentes utilizadas</h3>
         <div class="chip-list">${renderReferences(
           response.references,
         )}</div>
@@ -371,12 +371,11 @@ function renderAssistantWorkbench() {
     >
       <section class="assistant-intro panel">
         <div class="assistant-intro__copy">
-          <span class="assistant-mode">Lectura determinista · sin IA generativa</span>
-          <h2>Convierte una pregunta en una lectura trazable</h2>
+          <span class="assistant-mode">Respuesta basada en los datos visibles</span>
+          <h2>Convierte una pregunta en una recomendación verificable</h2>
           <p>
-            El asistente usa el mismo escenario, benchmark, histórico,
-            comparador e inspector de la demo. No busca datos externos ni
-            cambia el alcance mientras responde.
+            El asistente usa la zona activa y las fuentes disponibles en la
+            demo. No busca datos externos ni cambia la muestra mientras responde.
           </p>
           ${
             (state.scenarioContext?.comparable_project_ids?.length ?? 0) === 0
@@ -467,10 +466,20 @@ function renderAssistantQuestion(entry) {
       data-assistant-intent="${escapeAttr(entry.intentId ?? "")}"
       aria-pressed="${active ? "true" : "false"}"
     >
-      <span>${escapeHtml(entry.label)}</span>
-      ${escapeHtml(entry.question)}
+      <span>${escapeHtml(displayQuestionLabel(entry.label))}</span>
+      ${escapeHtml(displayQuestion(entry.question))}
     </button>
   `;
+}
+
+function displayQuestionLabel(label) {
+  return label === "Señal prioritaria" ? "Cambio para revisar" : label;
+}
+
+function displayQuestion(question) {
+  return question === "¿Qué señal certificada conviene revisar primero?"
+    ? "¿Qué cambio publicado conviene revisar primero?"
+    : question;
 }
 
 function renderAdditionalQuestions(questions) {
@@ -492,7 +501,7 @@ function renderAssistantEmptyState() {
       <div>
         <p class="assistant-step">Decisión pendiente</p>
         <h2 id="assistant-empty-title">Formula una consulta antes de tomar una decisión</h2>
-        <p>La respuesta aparecerá aquí después de que envíes una consulta. El asistente no elige una intención ni genera una lectura por su cuenta.</p>
+        <p>La respuesta aparecerá aquí después de que envíes una pregunta; no se genera sola.</p>
         <a class="assistant-canonical-return" href="#journey/decision" data-journey-return="decision">Volver al recorrido: Decisión</a>
       </div>
     </section>
@@ -533,7 +542,7 @@ export function renderTraceableAssistantResponse(response) {
       <div class="assistant-response__context">
         <span>${escapeHtml(response.scenario?.scopeText ?? "Escenario no disponible")}</span>
         <span>${formatNumber(response.scenario?.comparableProjectCount ?? 0)} comparables</span>
-        <span>Respuesta reproducible</span>
+        <span>Respuesta verificable</span>
       </div>
       <div class="assistant-decision-lead">
         ${responseBlock ? renderAssistantBlock(responseBlock, blocks.indexOf(responseBlock)) : ""}

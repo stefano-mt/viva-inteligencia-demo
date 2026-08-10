@@ -28,7 +28,7 @@ const VALUE_STATE_DESCRIPTIONS = Object.freeze({
   announced: "Declarado en la publicación; no equivale a verificación física.",
   derived: "Calculado a partir de valores visibles del escenario.",
   excluded: "El dato existe, pero no cumple la política de comparación.",
-  observed: "Dato visible en una fuente autorizada del snapshot.",
+  observed: "Dato visible en una fuente autorizada de la muestra.",
   simulated: "Valor ingresado para el escenario Viva; no es una oferta publicada.",
   unknown: "La fuente pública no informa este dato.",
 });
@@ -305,13 +305,13 @@ function conclusionMarkup(model, { linksEnabled = true } = {}) {
             ? `<div class="comparison-decision-sheet__actions">
                 <a class="primary-button comparison-next-action" href="#journey/movement">Revisar movimiento</a>
                 ${componentHelp(
-                  "Conclusión trazable",
-                  "Cada hallazgo se deriva del motor de benchmark y enlaza el criterio exacto que lo sustenta. No reemplaza la validación comercial.",
+                  "Cómo se construye esta conclusión",
+                  "Cada hallazgo se calcula con la comparación de mercado y enlaza el criterio exacto que lo sustenta. No reemplaza la validación comercial.",
                 )}
               </div>`
             : componentHelp(
-                "Conclusión trazable",
-                "Cada hallazgo se deriva del motor de benchmark y enlaza el criterio exacto que lo sustenta. No reemplaza la validación comercial.",
+                "Cómo se construye esta conclusión",
+                "Cada hallazgo se calcula con la comparación de mercado y enlaza el criterio exacto que lo sustenta. No reemplaza la validación comercial.",
               )
         }
       </div>
@@ -385,16 +385,16 @@ function denominatorMarkup(benchmarkContext, model) {
             selectedCount,
           )} seleccionados · ${countLabel(eligibleCount)} pares de precio elegibles</strong>
         </span>
-        <span>Ver denominadores</span>
+        <span>Ver base de comparación</span>
       </summary>
       <div class="comparison-basis__body">
         <div class="comparison-basis__intro">
-          <h2>Tres universos, sin mezclar denominadores</h2>
-          <p>La matriz compara una selección del escenario; el precio por m² aplica reglas de elegibilidad distintas.</p>
+          <h2>Tres grupos que no deben sumarse</h2>
+          <p>La tabla compara una selección de la zona; el precio por m² requiere que precio y área correspondan a la misma unidad.</p>
         </div>
         <dl class="comparison-basis__ledger">
           <div>
-            <dt>Escenario vigente</dt>
+            <dt>Zona activa</dt>
             <dd><strong>${countLabel(scopeCount)}</strong> proyectos comparables</dd>
           </div>
           <div>
@@ -403,12 +403,12 @@ function denominatorMarkup(benchmarkContext, model) {
           </div>
           <div>
             <dt>Precio por m²</dt>
-            <dd><strong>${countLabel(eligibleCount)}</strong> pares elegibles · ${countLabel(orientativeCount)} cocientes orientativos</dd>
+            <dd><strong>${countLabel(eligibleCount)}</strong> pares comparables · ${countLabel(orientativeCount)} referencias orientativas</dd>
           </div>
         </dl>
         <div class="comparison-basis__references">
-          <p>Estos conteos describen universos distintos y no se suman.</p>
-          <a href="#market">Revisar benchmark y metodología</a>
+          <p>Estos conteos describen grupos distintos y no se suman.</p>
+          <a href="#market">Revisar referencia y metodología</a>
         </div>
       </div>
     </details>
@@ -497,7 +497,7 @@ function selectorMarkup({ benchmarkContext, model, query }) {
           />
         </label>
         <p class="comparison-selector__rule">
-          Elige entre 2 y 3 proyectos del universo vigente. La búsqueda no amplía el alcance.
+          Elige entre 2 y 3 proyectos de la zona activa. La búsqueda no añade proyectos de otra zona.
         </p>
         <div class="comparison-candidate-list">
           ${
@@ -586,12 +586,12 @@ function comparisonHeader(benchmarkContext, model) {
 function unavailableMarkup(status, benchmarkContext) {
   const isLegacy = status === "contract_unavailable";
   const description = isLegacy
-    ? "Este dataset conserva el análisis territorial, pero no contiene el contrato de benchmark 2.3 requerido por el comparador."
+    ? "Esta versión de datos conserva el análisis territorial, pero no incluye la información requerida por el comparador."
     : "La vista se detuvo para no presentar una conclusión sin estructura de evidencia válida.";
   return `
     <section class="comparison-unavailable" data-comparison-status="${escapeAttr(status)}">
       <span class="comparison-eyebrow">Comparador comercial</span>
-      <h1>${isLegacy ? "Comparador no disponible para este contrato" : "No se pudo construir una comparación segura"}</h1>
+      <h1>${isLegacy ? "Comparador no disponible para esta versión de datos" : "No se pudo construir una comparación segura"}</h1>
       <p>${escapeHtml(description)}</p>
       ${
         benchmarkContext?.errorCodes?.length
@@ -652,7 +652,7 @@ export function renderCompare() {
               <div class="comparison-section-heading">
                 <div>
                   <span class="comparison-eyebrow">Evidencia por criterio</span>
-                  <h2 id="comparison-matrix-title">Matriz completa</h2>
+                  <h2 id="comparison-matrix-title">Comparación completa</h2>
                   <p>Precio inicia abierto; despliega otro grupo solo cuando aporte a tu decisión.</p>
                 </div>
                 <span class="comparison-count">${formatNumber(model.groups.length)} grupos · ${formatNumber(
@@ -660,7 +660,7 @@ export function renderCompare() {
                 )} criterios</span>
                 ${componentHelp(
                   "Cómo leer las celdas",
-                  "Cada valor declara si fue observado, derivado, simulado, anunciado, excluido o no informado. Abre sus datos para revisar fuente y fecha cuando estén autorizadas.",
+                  "Cada valor indica si fue observado, calculado, simulado, anunciado, excluido o no informado. Abre sus datos para revisar fuente y fecha cuando estén disponibles.",
                 )}
               </div>
               <div class="comparison-project-head" style="--comparison-columns: ${Math.max(

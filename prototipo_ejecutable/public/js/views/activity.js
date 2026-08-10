@@ -9,7 +9,7 @@ import {
 import { state } from "../state.js";
 
 const STATUS_LABELS = Object.freeze({
-  certified: "Certificada",
+  certified: "Con fuente confirmada",
   reviewable: "Por revisar",
   insufficient: "Insuficiente",
 });
@@ -47,7 +47,7 @@ const REASON_LABELS = Object.freeze({
 const FILTER_OPTIONS = Object.freeze({
   statuses: Object.freeze([
     ["all", "Todos los estados"],
-    ["certified", "Certificadas"],
+    ["certified", "Con fuente confirmada"],
     ["reviewable", "Por revisar"],
     ["insufficient", "Insuficientes"],
   ]),
@@ -226,7 +226,7 @@ function renderCurrentSignalBrief(context) {
           <dd><strong>${escapeHtml(valueLabel(signal.previous_value, signal))}</strong><span aria-hidden="true">→</span><strong>${escapeHtml(valueLabel(signal.current_value, signal))}</strong></dd>
         </div>
         <div>
-          <dt>Frescura</dt>
+          <dt>Actualidad</dt>
           <dd><strong>${escapeHtml(VALIDITY_LABELS[signal.validity] ?? "Vigencia desconocida")}</strong><small>Observado ${escapeHtml(formatDate(signal.current_observed_at))}</small></dd>
         </div>
         <div>
@@ -262,7 +262,7 @@ function renderQualityBand(context) {
         "Cambios compatibles encontrados dentro de los proyectos comparables del escenario activo.",
     },
     {
-      label: "Certificados",
+      label: "Con fuente confirmada",
       value: Number(coverage.by_status?.certified ?? 0),
       explanation:
         "Valores, moneda, fechas, hechos y evidencia cumplen las reglas del histórico.",
@@ -277,7 +277,7 @@ function renderQualityBand(context) {
       label: "Cobertura temporal",
       value: `${temporalCoverage}%`,
       explanation:
-        "Proporción de eventos con una vigencia calculable contra la fecha de corte.",
+        "Proporción de cambios cuya actualidad puede revisarse contra la fecha de corte.",
     },
   ];
   return `
@@ -366,7 +366,7 @@ function renderHistoryTimeline(context) {
         <div>
           <span class="history-section-index">Lectura principal</span>
           <h3 id="history-timeline-title">Línea de tiempo explicable</h3>
-          <p>Calidad y vigencia preceden a la magnitud. Abre una señal para revisar sus observaciones y evidencia.</p>
+          <p>Primero revisa la calidad y la fecha; después, la magnitud. Abre una señal para comprobar sus valores y fuentes.</p>
         </div>
         <details class="history-method">
           <summary>Cómo leer este cuaderno</summary>
@@ -398,7 +398,7 @@ function renderHistoryAgenda(context) {
         <div>
           <span class="history-section-index">Siguiente lectura</span>
           <h3 id="history-agenda-title">Agenda de seguimiento</h3>
-          <p>Orden reproducible · calidad antes que magnitud. Cada acción nace de la muestra y los filtros activos.</p>
+          <p>Orden sugerido: calidad antes que magnitud. Cada acción nace de la muestra y los filtros activos.</p>
         </div>
         <span class="history-agenda__limit">Máximo 3 acciones</span>
       </header>
@@ -443,7 +443,7 @@ function renderAgendaItem(item, index, context) {
             : "Origen · cobertura del escenario"}</span>
           <span>${event
             ? `${escapeHtml(countLabel(factCount, "hecho", "hechos"))} · ${escapeHtml(countLabel(evidenceCount, "evidencia", "evidencias"))}`
-            : `${escapeHtml(formatNumber(context.coverage?.by_status?.certified ?? 0))} certificadas · ${escapeHtml(formatNumber(context.coverage?.scenario_event_count ?? 0))} eventos detectados`}</span>
+            : `${escapeHtml(formatNumber(context.coverage?.by_status?.certified ?? 0))} con fuente confirmada · ${escapeHtml(formatNumber(context.coverage?.scenario_event_count ?? 0))} cambios detectados`}</span>
         </div>
       </div>
       ${event
@@ -643,7 +643,7 @@ function renderUnavailableHistory() {
     <section class="history-state">
       <span class="history-state__icon" aria-hidden="true">i</span>
       <h3>Histórico no disponible</h3>
-      <p>Este dataset es anterior al contrato 2.4. El análisis territorial sigue disponible, pero no se reconstruyen cambios desde campos legacy.</p>
+      <p>Esta versión de datos no incluye el histórico requerido. El análisis territorial sigue disponible, pero no se reconstruyen cambios con campos antiguos.</p>
       <button class="secondary-button" type="button" data-view="projects">Ver comparables</button>
     </section>
   `;
@@ -654,7 +654,7 @@ function renderIntegrityError() {
     <section class="history-state history-state--error">
       <span class="history-state__icon" aria-hidden="true">!</span>
       <h3>No se pudo construir una lectura segura</h3>
-      <p>El histórico no cumple su contrato de integridad. Reinicia el escenario; si el estado continúa, no uses estas señales para decidir.</p>
+      <p>El histórico está incompleto. Reinicia el escenario; si el estado continúa, no uses estas señales para decidir.</p>
       <button class="secondary-button" id="history-reset-scenario" type="button" data-history-reset>Reiniciar escenario</button>
     </section>
   `;

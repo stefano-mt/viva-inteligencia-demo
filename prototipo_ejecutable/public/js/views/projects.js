@@ -393,7 +393,7 @@ function renderCatalogOrientation(catalog) {
         <span class="project-catalog-orientation__eyebrow">Inventario comparable · ${escapeHtml(catalog.scopeText)}</span>
         <h2 id="project-catalog-orientation-title">${formatNumber(catalog.comparableCount)} proyectos para priorizar</h2>
         <p>${escapeHtml(conclusion)}</p>
-        <small>La comparabilidad no convierte todos los campos publicados en evidencia elegible.</small>
+        <small>Que un proyecto sea comparable no significa que todos sus campos puedan usarse.</small>
       </div>
       <div
         class="project-catalog-orientation__status"

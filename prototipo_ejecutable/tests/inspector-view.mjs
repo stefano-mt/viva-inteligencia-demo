@@ -482,7 +482,7 @@ assert.deepEqual(buildInspectorViewModel(), {
   available: false,
   reasonCode: "INSPECTOR_DATA_UNAVAILABLE",
   message:
-    "No hay un dataset de evidencia disponible para construir el inspector.",
+    "No hay datos de evidencia disponibles para abrir el inspector.",
 });
 const invalidSelection = buildInspectorViewModel({
   data: payload,

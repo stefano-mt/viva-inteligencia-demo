@@ -32,7 +32,7 @@ const idleMarkup = renderAssistant();
 assert.equal(JSON.stringify(state), before, "render must remain pure");
 assert.match(idleMarkup, /data-scenario-consumer="assistant"/u);
 assert.match(idleMarkup, /data-assistant-status="idle"/u);
-assert.match(idleMarkup, /Lectura determinista · sin IA generativa/u);
+assert.match(idleMarkup, /Respuesta basada en los datos visibles/u);
 assert.match(idleMarkup, /La consulta no se guarda/u);
 assert.match(idleMarkup, /Ctrl \+ Enter/u);
 assert.match(idleMarkup, /maxlength="500"/u);

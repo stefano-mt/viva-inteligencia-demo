@@ -48,7 +48,7 @@ assert.match(
   new RegExp(`data-price-reference-count="${priceReferenceCount}"`, "u"),
 );
 assert.match(catalogHtml, /proyectos para priorizar/u);
-assert.match(catalogHtml, /La comparabilidad no convierte todos los campos publicados en evidencia elegible/u);
+assert.match(catalogHtml, /Que un proyecto sea comparable no significa que todos sus campos puedan usarse/u);
 assert.match(catalogHtml, /href="#compare"[^>]*data-view="compare"/u);
 assert.match(
   catalogHtml,

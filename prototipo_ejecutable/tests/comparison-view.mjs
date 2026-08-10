@@ -87,7 +87,7 @@ assert.match(defaultMarkup, /data-comparison-status="ready"/u);
 assert.match(defaultMarkup, /Comparador comercial/u);
 assert.match(defaultMarkup, /Qué cambia la decisión/u);
 assert.match(defaultMarkup, /Condición principal/u);
-assert.match(defaultMarkup, /Matriz completa/u);
+assert.match(defaultMarkup, /Comparación completa/u);
 assert.match(defaultMarkup, /comparison-decision-sheet/u);
 assert.match(defaultMarkup, /comparison-basis__summary/u);
 assert.doesNotMatch(defaultMarkup, /comparison-priority/u);
@@ -128,8 +128,8 @@ for (const finding of defaultModel.conclusion) {
 for (const [count, expectedStatus, expectedCopy] of [
   [0, "insufficient", "Selecciona dos proyectos para comenzar"],
   [1, "insufficient", "Selecciona un proyecto más"],
-  [2, "ready", "Matriz completa"],
-  [3, "ready", "Matriz completa"],
+  [2, "ready", "Comparación completa"],
+  [3, "ready", "Comparación completa"],
 ]) {
   state.compareProjectIds = canonicalIds.slice(0, count);
   const model = buildComparisonViewModel();
@@ -236,7 +236,7 @@ for (const contractVersion of ["2.1.0", "2.2.0"]) {
   initializeScenarioData(legacy, { geographyArtifact: geographyArtifact(legacy) });
   const legacyMarkup = renderWithoutMutation(`legacy ${contractVersion}`);
   assert.match(legacyMarkup, /data-comparison-status="contract_unavailable"/u);
-  assert.match(legacyMarkup, /Comparador no disponible para este contrato/u);
+  assert.match(legacyMarkup, /Comparador no disponible para esta versión de datos/u);
   assert.doesNotMatch(legacyMarkup, /comparison-metric-row/u);
 }
 

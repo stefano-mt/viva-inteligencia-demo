@@ -277,7 +277,7 @@ assert.match(
   quadrantBar,
   /id="scenario-quadrant-nw"[\s\S]*?aria-pressed="true"/,
 );
-assert.match(quadrantBar, /División analítica del snapshot/);
+assert.match(quadrantBar, /División creada para analizar la muestra/);
 assert.doesNotMatch(quadrantBar, /data-scenario-radius="/);
 
 const radiusScenario = makeScenario({
@@ -401,7 +401,7 @@ assert.match(
   noQuadrantsBar,
   /data-scenario-scope="quadrant"[\s\S]*?disabled/,
 );
-assert.match(noQuadrantsBar, /no tiene cuadrantes analíticos/);
+assert.match(noQuadrantsBar, /no tiene división por cuadrantes/);
 
 const escapedSummary = renderScenarioSummary(
   makePresentation({

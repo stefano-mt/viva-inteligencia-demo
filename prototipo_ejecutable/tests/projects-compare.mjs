@@ -289,7 +289,7 @@ assert.match(
     `value="${baselineRows[3].projectId}"[\\s\\S]*?disabled`,
   ),
 );
-assert.match(compareMarkup, /Matriz completa/);
+assert.match(compareMarkup, /Comparación completa/);
 assert.match(compareMarkup, /role="rowheader"/);
 for (const row of baselineRows) {
   assert.match(

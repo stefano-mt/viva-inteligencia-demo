@@ -37,7 +37,7 @@ const quality = renderJourney({
   status: "ready",
   announcement: "Ruta corregida <script>alert(1)</script>",
 });
-assert.match(quality, /Caso demostrativo transversal · Miraflores/u);
+assert.match(quality, /ejemplo de Miraflores para revisar la calidad del dato/iu);
 assert.match(quality, /href="#inspector\/case\/f3-ct-g-pardo"/u);
 assert.match(quality, /data-journey-expert="inspector"/u);
 assert.doesNotMatch(quality, /<script>alert/u);

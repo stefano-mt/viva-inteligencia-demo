@@ -30,10 +30,10 @@ const requiredFields = [
 ];
 const requiredLabels = [
   "Para qué sirve",
-  "Qué debes hacer",
-  "Qué resultado obtienes",
-  "Qué no puedes concluir",
-  "Dónde continuar",
+  "Cómo usarla",
+  "Qué obtienes",
+  "Qué debes tener en cuenta",
+  "Siguiente paso",
 ];
 
 assert.deepEqual(Object.keys(journeyGuides), JOURNEY_STAGE_IDS);

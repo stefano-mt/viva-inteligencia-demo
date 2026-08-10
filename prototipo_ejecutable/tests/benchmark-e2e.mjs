@@ -211,7 +211,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   const baselineText = await observed.page.locator("#main-content").innerText();
   assert.match(baselineText, /85 comparables/u);
   assert.match(baselineText, /68 orientativos/u);
-  assert.match(baselineText, /85 entrada = 0 usados \+ 16 faltantes \+ 69 excluidos/u);
+  assert.match(baselineText, /85 de entrada = 0 usados \+ 16 faltantes \+ 69 excluidos/u);
   assert.doesNotMatch(baselineText, /precio de cierre|tasación|promedio transaccional/iu);
 
   const audit = observed.page.locator("details.benchmark-audit");

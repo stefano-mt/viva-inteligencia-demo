@@ -320,6 +320,15 @@
     left: 0;
   }
 
+  .comparison-shell .component-help-popover {
+    right: 0;
+    left: auto;
+  }
+
+  .comparison-shell .component-help {
+    right: 12px;
+  }
+
   .scatter-wrap {
     padding: 14px;
   }

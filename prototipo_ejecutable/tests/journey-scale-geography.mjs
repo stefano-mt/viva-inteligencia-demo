@@ -41,7 +41,7 @@ assert.match(
 assert.match(marketHtml, /data-pilot-base="30"/u);
 assert.match(marketHtml, /data-pilot-enriched="22"/u);
 assert.match(marketHtml, /data-pilot-deep="5"/u);
-assert.match(marketHtml, /Las cifras no se suman/u);
+assert.match(marketHtml, /Tres niveles de cobertura que no deben sumarse/u);
 assert.doesNotMatch(marketHtml, /NaN|Infinity/u);
 
 function assertDashboardMatchesScenario(html, context) {

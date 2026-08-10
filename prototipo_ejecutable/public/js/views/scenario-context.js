@@ -400,7 +400,7 @@ function quadrantControl(model) {
           .join("")}
       </div>
       <p id="scenario-quadrant-method">
-        División analítica del snapshot; no representa una microzona oficial.
+        División creada para analizar la muestra; no representa una microzona oficial.
       </p>
     </fieldset>
   `;
@@ -477,7 +477,7 @@ export function renderScenarioSidebar(model) {
         class="scenario-scope"
         aria-describedby="scenario-quadrant-availability"
       >
-        <legend>Alcance territorial</legend>
+        <legend>Zona de análisis</legend>
         <div class="scenario-segments scenario-segments--scope">
           ${scopeButton(model, "district", "Distrito")}
           ${scopeButton(
@@ -492,7 +492,7 @@ export function renderScenarioSidebar(model) {
           ${
             model.district.high_load && model.district.quadrants.length > 0
               ? "Puedes analizar este distrito por cuadrantes."
-              : "Este distrito no tiene cuadrantes analíticos."
+              : "Este distrito no tiene división por cuadrantes."
           }
         </p>
       </fieldset>

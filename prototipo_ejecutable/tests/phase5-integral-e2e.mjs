@@ -159,7 +159,7 @@ await withDemoBrowser(
     await legacyPage.locator('[data-history-status="contract_unavailable"]').waitFor();
     assert.match(
       await legacyPage.locator("#main-content").innerText(),
-      /contrato 2\.4|no está disponible/iu,
+      /versión de datos no incluye el histórico|no está disponible/iu,
     );
     await legacyPage.locator('[data-view="assistant"]').first().click();
     await legacyPage.locator('[data-view="assistant"][aria-current="page"]').waitFor();
