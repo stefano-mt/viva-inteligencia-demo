@@ -10,7 +10,7 @@
 
 **Baseline:** `605de1f`
 
-**Siguiente paso:** ejecutar P6-14 con una persona lectora nueva e independiente; P6-15 permanece bloqueado hasta obtener un `PASS` humano real.
+**Siguiente paso:** ejecutar P6-15 como verificación técnica independiente. Por D-042, P6-14 permanece `PENDING/DEFERRED` y su sesión se ejecutará en P6-20 sobre la versión pública desplegada.
 
 ## Resultado
 
@@ -86,10 +86,11 @@ El gate integral volvió a comprobar sintaxis, ownership CSS, arquitectura, reco
 
 ## Riesgo residual y condición de continuidad
 
-El único gate pendiente es humano: una persona nueva debe completar el recorrido sin ayuda del maker y dejar evidencia no destructiva. Hasta entonces:
+El único gate pendiente es humano: una persona nueva debe completar el recorrido sin ayuda del maker y dejar evidencia no destructiva. D-042 difiere este gate a P6-20. Hasta entonces:
 
 - P6-14 no puede declararse `PASS` humano;
-- P6-15 no puede cerrarse;
+- P6-15 puede cerrarse como verificación técnica, con un máximo de `PASS WITH RISKS` por `R6-H1`;
+- la fase no puede declararse `ready for client` ni `deployed and verified`;
 - no debe presentarse una plantilla vacía como evidencia de ensayo.
 
 ## Rollback

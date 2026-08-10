@@ -4,7 +4,7 @@
 
 **PENDIENTE DE EJECUCIÓN HUMANA INDEPENDIENTE.**
 
-Este documento prepara el ensayo comercial bloqueante de la Fase 6. No constituye evidencia de ejecución ni autoriza declarar `PASS` sin una sesión real y sus archivos de respaldo.
+Este documento prepara el ensayo comercial que, por D-042, se difiere al testing humano integral final de P6-20. No constituye evidencia de ejecución ni autoriza declarar `PASS` sin una sesión real y sus archivos de respaldo.
 
 ## Candidato bajo prueba
 
@@ -81,7 +81,7 @@ El lector debe recorrer la demo hasta poder formular y justificar una recomendac
 5. Lectura de un cambio observado sin atribuir causalidad.
 6. Cierre de una decisión verificable.
 
-## Rúbrica bloqueante
+## Rúbrica de aceptación final
 
 El ensayo obtiene `PASS` únicamente si satisface todos los criterios:
 
@@ -131,6 +131,6 @@ No se deben subir correos, teléfonos, nombres completos, rostros ni audio sin c
 
 Un `FAIL` o `INVALID` solo puede repetirse con un lector nuevo y una nueva carpeta de evidencia. No se reemplaza, sobrescribe ni elimina la evidencia anterior.
 
-## Cierre pendiente
+## Cierre pendiente y diferido
 
-P6-14 solo se cierra cuando un revisor puede reproducir la decisión a partir de los archivos guardados y confirmar que la rúbrica fue firmada por lector y observador mediante alias o iniciales.
+P6-14 permanece `PENDING/DEFERRED`. P6-20 solo se cierra cuando un revisor puede reproducir la decisión a partir de los archivos guardados y confirmar que la rúbrica fue firmada por lector y observador mediante alias o iniciales. Hasta ese `PASS`, la demo no puede declararse lista para cliente o presentación final.

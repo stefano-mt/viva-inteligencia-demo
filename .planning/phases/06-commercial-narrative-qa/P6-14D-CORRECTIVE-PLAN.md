@@ -158,4 +158,4 @@ Revertir el commit atómico de P6-14D y ejecutar `npm.cmd run verify`. El rollba
 
 ## Condición de cierre
 
-P6-14D termina cuando los criterios 1–15 están demostrados, el gate integral está verde y el handoff declara de forma explícita que el ensayo humano sigue pendiente. El siguiente paso es ejecutar P6-14 con un lector independiente; P6-15 no puede cerrarse antes de un `PASS` real.
+P6-14D termina cuando los criterios 1–15 están demostrados, el gate integral está verde y el handoff declara de forma explícita que el ensayo humano sigue pendiente. D-042 difiere ese ensayo al testing integral final de P6-20: P6-15 puede continuar con verificación técnica, pero no puede emitir un `PASS` absoluto ni habilitar la declaración `ready for client` mientras falte el `PASS` humano real.

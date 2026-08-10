@@ -189,16 +189,19 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** convertir módulos correctos en un recorrido que se entiende y se recuerda.
 
-**Estado:** P6-00A–P6-00D completados; HUMAN-GATE-A aprobada bajo A1–A13 y baseline preimplementación `PASS` en `feat/phase-6-commercial-narrative-qa`. P6-01 habilitado; no se ha modificado runtime de Fase 6.
+**Estado:** P6-01–P6-14D completados y verificados en `feat/phase-6-commercial-narrative-qa`; commit técnico/documental más reciente `4351adc`. P6-14 permanece `PENDING/DEFERRED` por D-042 y P6-15 está habilitado. La secuencia técnica puede llegar a despliegue y persistencia, pero la declaración final queda reservada al `PASS` humano de P6-20.
 
 ### Olas
 
 1. Arquitectura de navegación y recorrido guiado.
 2. Reducción de densidad, contraste y jerarquía.
 3. Responsive, teclado, estados y regresión visual.
-4. Ensayo del guion comercial completo.
+4. Verificación técnica, despliegue y persistencia.
+5. Testing humano integral final sobre Pages.
 
-**Gate de salida:** el recorrido “escala → geografía → calidad → profundidad → movimiento → decisión” se completa sin ayuda externa y con evidencia aprobada.
+**Gate de salida técnica:** el recorrido “escala → geografía → calidad → profundidad → movimiento → decisión” pasa verificación independiente y Pages coincide con el SHA desplegado.
+
+**Gate de aceptación final:** un lector nuevo completa el recorrido público sin ayuda externa, dentro de 10 minutos y con evidencia aprobada en P6-20. Solo entonces F6 queda `deployed and verified` y `ready for client`.
 
 ## Estrategia de PR
 

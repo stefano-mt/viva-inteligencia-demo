@@ -452,3 +452,23 @@ Queda decidido que:
 8. el ensayo humano pre-merge es bloqueante y se repite sobre Pages después del merge.
 
 La aprobación no autoriza modificar contrato, dataset, writer, hashes, elegibilidad o workflow protegido. Tampoco equivale a PASS técnico, merge o despliegue. P6-15 permanece independiente y HUMAN-GATE-B será obligatorio ante `PASS WITH RISKS`.
+
+## D-042 — El ensayo humano de Fase 6 se difiere al testing integral final
+
+**Fecha:** 2026-08-10
+
+**Estado:** aceptada
+
+Stefano declaró exactamente: “Quisiera continuar con el flujo, sin este gate humano. Al final de todo el proceso, se hará un testing humano integral.”
+
+Esta decisión enmienda únicamente el momento de A12 y no aprueba P6-14, no fabrica evidencia y no elimina su protocolo. Queda decidido que:
+
+1. P6-14 permanece `PENDING` y pasa a estado `DEFERRED`;
+2. P6-15–P6-19 pueden continuar con verificación técnica, PR, merge humano, comprobación read-only de Pages y persistencia documental;
+3. mientras el ensayo siga pendiente, P6-15 no puede emitir un `PASS` absoluto: su mejor veredicto posible es `PASS WITH RISKS` por el riesgo conocido `R6-H1 — validación humana diferida`;
+4. la declaración del usuario acepta solo `R6-H1`; cualquier otro riesgo o gap detectado por el checker conserva su gate y requiere tratamiento o aceptación explícita separada;
+5. P6-20 ejecutará el testing humano integral sobre la URL pública y el SHA inmutable desplegado, aplicando el prompt, límites, respuestas esperadas, claims prohibidos y evidencia definidos en `COMMERCIAL_REHEARSAL.md`;
+6. hasta que P6-20 obtenga `PASS`, Fase 6 podrá declararse `deployed and technically verified`, pero no `ready for client`, `deployed and verified` ni lista para presentación final;
+7. un `FAIL` o `INVALID` en P6-20 reabre el ciclo correctivo y bloquea la declaración final, sin borrar ni sobrescribir evidencia previa.
+
+Esta enmienda no autoriza merge automático ni altera datos, contrato 2.4, writer, fingerprints, elegibilidad, motores, workflow protegido o criterios comerciales.

@@ -92,9 +92,9 @@ Para cada vista modificada:
 
 Ejecutar los casos CT-A a CT-I de `.planning/REQUIREMENTS.md`. CT-C, CT-G, CT-H y CT-I bloquean la presentación de la demo vNext.
 
-## Gate de narrativa
+## Gate técnico de narrativa y aceptación humana final
 
-Un verificador que no implementó debe recorrer:
+En P6-15, un verificador técnico que no implementó debe recorrer y contrastar automáticamente:
 
 1. escala de 30 inmobiliarias;
 2. precisión por microzona;
@@ -105,7 +105,9 @@ Un verificador que no implementó debe recorrer:
 7. histórico;
 8. asistente con evidencia.
 
-Debe poder explicar el valor sin consultar el código ni recibir instrucciones del implementador.
+El checker también confirma que el paquete de ensayo conserva estado `PENDING/DEFERRED` y que ningún artefacto simula aprobación humana. Mientras D-042 esté vigente, el máximo veredicto de P6-15 es `PASS WITH RISKS` por `R6-H1`.
+
+En P6-20, una persona nueva ejecuta el mismo recorrido sobre Pages y su SHA desplegado. Debe poder explicar el valor sin consultar el código ni recibir instrucciones del implementador. Solo ese `PASS` habilita `ready for client` y `deployed and verified`.
 
 ## Definition of Done por historia
 

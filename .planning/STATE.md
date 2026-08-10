@@ -1,12 +1,12 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-08-05
+**Actualizado:** 2026-08-10
 
 **Milestone:** demo vNext orientada a venta
 
 **Última fase con despliegue técnico verificado:** Fase 5 — histórico, señales y asistente determinista
 
-**Estado:** Fases 0–5 están oficialmente `deployed and verified`. El PR funcional #15, la verificación pública P5-15 y el PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16) quedaron integrados; merge documental `25300b1`. Fase 6 está en planificación y requiere HUMAN-GATE-A antes de modificar runtime.
+**Estado:** Fases 0–5 están oficialmente `deployed and verified`. Fase 6 completó P6-01–P6-14D; su gate humano P6-14 permanece `PENDING/DEFERRED` por D-042. La verificación técnica P6-15 puede continuar, pero `ready for client` y `deployed and verified` quedan bloqueados hasta el `PASS` humano integral de P6-20.
 
 **Rama activa:** `feat/phase-6-commercial-narrative-qa`.
 
@@ -259,7 +259,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Estado de ship de Fase 5: **`deployed and verified`**.
 - Último commit funcional: `8e76b796b1fef3616b5a0b7a5526a72d2f125e2c`; los commits posteriores son P5-13/P5-14 documentales.
 
-## Fase 6 — planificación vigente
+## Fase 6 — ejecución vigente
 
 - Contexto: [phases/06-commercial-narrative-qa/CONTEXT.md](phases/06-commercial-narrative-qa/CONTEXT.md).
 - Auditoría UX/UI: [phases/06-commercial-narrative-qa/UX-AUDIT.md](phases/06-commercial-narrative-qa/UX-AUDIT.md).
@@ -270,13 +270,19 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Contrato/datos 2.4 protegidos; la fase reorganiza navegación, narrativa, densidad y QA.
 - P6-00A: completado. P6-00B: [revisión independiente](phases/06-commercial-narrative-qa/PLAN_REVIEW.md) `PASS` tras dos ciclos correctivos; sin hallazgos P0–P2.
 - HUMAN-GATE-A: [aprobada](phases/06-commercial-narrative-qa/APPROVAL.md) bajo A1–A13 el `2026-08-05T09:37:27.3408491-05:00`; P6-00C completado.
-- P6-00D: [baseline preimplementación](phases/06-commercial-narrative-qa/BASELINE_BROWSER.md) `PASS`; `npm.cmd run verify`, 8 rutas × 3 viewports, accesibilidad, consola, red y 24 capturas portables verificados sobre `8e760b6`. Runtime F6 continúa sin cambios.
+- P6-00D: [baseline preimplementación](phases/06-commercial-narrative-qa/BASELINE_BROWSER.md) `PASS`; `npm.cmd run verify`, 8 rutas × 3 viewports, accesibilidad, consola, red y 24 capturas portables verificados sobre `8e760b6`.
+- P6-01–P6-13: completados; catálogo, navegación/URL, shell, estado derivado, ayuda, CSS, seis etapas, reinicio, compatibilidad, E2E y matriz responsive/a11y integrados.
+- P6-14A–P6-14D: correcciones de UX, densidad, jerarquía y copy completadas; commit más reciente `4351adc28950`; `npm.cmd run verify`, responsive y accesibilidad terminaron en `PASS`.
+- P6-14: `PENDING/DEFERRED`. No existe `PASS` humano y no se fabricará evidencia.
+- D-042: el usuario difirió el ensayo a P6-20 y aceptó únicamente `R6-H1 — validación humana diferida`; esto habilita P6-15–P6-19, no merge automático ni aceptación final.
+- Estado máximo antes de P6-20: `deployed and technically verified; human acceptance pending`.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P6-01: catálogo puro del recorrido y tests primero.
-2. Preservar los archivos protegidos y los invariantes del baseline.
-3. Repetir gates proporcionales antes de P6-02.
+1. Ejecutar P6-15 con un checker técnico independiente y un máximo de `PASS WITH RISKS` por `R6-H1`.
+2. Si no hay gaps técnicos adicionales, preparar P6-16 y el PR funcional.
+3. Tras merge, verificar y persistir Pages en P6-18/P6-19.
+4. Ejecutar P6-20 con una persona nueva antes de declarar la demo lista para cliente.
 
 ## Regla para actualizar este archivo
 

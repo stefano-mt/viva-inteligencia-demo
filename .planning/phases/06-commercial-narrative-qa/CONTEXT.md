@@ -1,6 +1,6 @@
 # Fase 6 — Contexto de narrativa comercial, accesibilidad y QA
 
-**Estado:** borrador para HUMAN-GATE-A.
+**Estado:** ejecución técnica; P6-14 diferido a P6-20 por D-042.
 
 **Rama:** `feat/phase-6-commercial-narrative-qa`.
 
@@ -27,7 +27,7 @@ La demo ya contiene ocho módulos correctos, ayudas por sección y navegación a
 - varias páginas superan cinco pantallas de laptop y obligan a descubrir el orden mediante scroll;
 - el usuario puede abrir evidencia, pero debe inferir por qué ese hallazgo conduce al siguiente módulo;
 - el reinicio recompone el escenario, pero no existe un contrato explícito para reiniciar el recorrido;
-- el gate narrativo vigente fue automatizado; falta un ensayo humano bloqueante antes de declarar la demo lista para venta.
+- el gate narrativo vigente fue automatizado; falta un ensayo humano integral bloqueante antes de declarar la demo lista para venta.
 
 ## 3. Baseline técnico y de producto
 
@@ -110,7 +110,7 @@ Los Should ya implementados en F3–F5 se conservan. HU-DEMO-505/exportación pe
 6. No cargar una tipografía o librería externa.
 7. No usar hover como única vía de comprensión.
 8. No depender solo del color para etapa, calidad o progreso.
-9. No hacer merge automático; HUMAN-GATE-A precede runtime y el ensayo humano forma parte del gate final.
+9. No hacer merge automático; HUMAN-GATE-A precede runtime y, por D-042, el ensayo humano forma parte del gate final de aceptación en P6-20.
 
 ## 8. Riesgos principales
 
@@ -122,11 +122,11 @@ Los Should ya implementados en F3–F5 se conservan. HU-DEMO-505/exportación pe
 | Cambiar `/` rompe deep-links o tests | Alta | conservar aliases; probar `/`, hashes legacy, atrás/adelante y recarga |
 | Un stepper genérico no mejora la venta | Media | cada etapa codifica una decisión real y produce un resultado específico |
 | Densidad reaparece en móvil/200% | Media | presupuesto de contenido, divulgación progresiva y gate geométrico |
-| El ensayo automatizado oculta confusión humana | Alta | ensayo humano nuevo, cronometrado y bloqueante antes de ship |
+| El ensayo automatizado oculta confusión humana | Alta | ensayo humano nuevo, cronometrado y bloqueante en P6-20 antes de declarar `ready for client` |
 
 ## 9. Criterio de éxito
 
-Un usuario nuevo inicia el recorrido, completa seis etapas, abre mapa e inspector, llega a una decisión prudente y puede explicar:
+La aceptación humana final exige que un usuario nuevo inicie el recorrido, complete seis etapas, abra mapa e inspector, llegue a una decisión prudente y pueda explicar:
 
 1. qué cubre la muestra;
 2. cómo se delimita el escenario;
@@ -134,4 +134,4 @@ Un usuario nuevo inicia el recorrido, completa seis etapas, abre mapa e inspecto
 4. qué diferencias están respaldadas por evidencia;
 5. qué cambió y qué no puede afirmar el asistente.
 
-Debe lograrlo en no más de diez minutos, sin consultar código ni recibir instrucciones del implementador.
+Debe lograrlo en no más de diez minutos, sin consultar código ni recibir instrucciones del implementador. D-042 permite continuar la secuencia técnica antes de esta prueba, pero no permite declarar la demo lista para cliente sin su `PASS`.
