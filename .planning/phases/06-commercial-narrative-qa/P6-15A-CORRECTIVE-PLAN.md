@@ -1,6 +1,6 @@
 # P6-15A — Paridad visible entre Journey y estado autoritativo
 
-**Estado:** propuesta; requiere autorización humana por incluir `public/app.js` en el write set.
+**Estado:** autorizado por D-043; implementación habilitada.
 
 **Origen:** P6-15 `FAIL`, commit `0003ddb`.
 

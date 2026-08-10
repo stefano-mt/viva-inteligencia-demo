@@ -472,3 +472,15 @@ Esta decisión enmienda únicamente el momento de A12 y no aprueba P6-14, no fab
 7. un `FAIL` o `INVALID` en P6-20 reabre el ciclo correctivo y bloquea la declaración final, sin borrar ni sobrescribir evidencia previa.
 
 Esta enmienda no autoriza merge automático ni altera datos, contrato 2.4, writer, fingerprints, elegibilidad, motores, workflow protegido o criterios comerciales.
+
+## D-043 — P6-15A corrige la paridad visible Journey ↔ estado
+
+**Fecha:** 2026-08-10
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Autorizo la enmienda correctiva P6-15A.” con timestamp de sesión `2026-08-10T14:28:27.1410884-05:00`. La autorización acepta `P6-15A-CORRECTIVE-PLAN.md` sobre `e318bdfeaeffa777e7f1660a82de416da1becf9c` y habilita el write set allí definido.
+
+La enmienda permite conectar `public/app.js` y `public/js/views/journey.js` con `state.journeyContext`, añadir la regresión DOM↔estado y actualizar únicamente pruebas, manifiesto, evidencia y estilos condicionados por un fallo demostrado. No permite modificar datos, contrato, writer, fingerprints, motores, navegación, URL, reset, workflow ni la evidencia humana pendiente.
+
+La implementación debe comenzar con una prueba roja, conservar el error global de contrato 2.0, usar los estados y `correctiveAction` autoritativos, mostrar las cifras críticas sin recomputarlas y respetar el presupuesto vertical de densidad. Después del correctivo se repite P6-15 completo con checker independiente; P6-16 continúa bloqueado hasta ese nuevo veredicto.

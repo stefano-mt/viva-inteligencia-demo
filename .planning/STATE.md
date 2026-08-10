@@ -279,12 +279,12 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P6-15: [verificación formal independiente](phases/06-commercial-narrative-qa/VERIFICATION_REPORT.md) `FAIL` sobre `7a08fca`; gate integral automatizado PASS, contraste adversarial DOM↔estado FAIL.
 - G1/G2 P1: `app.js` reduce el estado a loading/ready y `views/journey.js` usa copy estático; los E2E no contrastaban el modelo con la superficie visible.
 - G3 P3: drift documental histórico de write sets; P6-15A lo remedia mediante registro explícito y auditoría `base..HEAD` sin nuevos paths fuera de alcance antes de repetir P6-15. P6-16 conservará su resumen.
-- P6-15A: [plan correctivo propuesto](phases/06-commercial-narrative-qa/P6-15A-CORRECTIVE-PLAN.md); requiere autorización explícita antes de modificar `app.js`.
+- P6-15A: [plan correctivo autorizado](phases/06-commercial-narrative-qa/P6-15A-CORRECTIVE-PLAN.md) por D-043 el `2026-08-10T14:28:27.1410884-05:00`; ejecución test-first habilitada sobre `e318bdf`.
 
 ## Próxima acción recomendada
 
-1. Obtener autorización de P6-15A con su write set exacto.
-2. Implementar primero la regresión DOM↔estado y después el correctivo runtime.
+1. Implementar primero la regresión DOM↔estado y demostrar su fallo contra el baseline.
+2. Conectar la vista al envelope autoritativo dentro del write set P6-15A.
 3. Repetir P6-15 completo con un checker distinto o reiniciado sobre el nuevo SHA.
 4. Solo con cierre técnico continuar P6-16–P6-19; ejecutar P6-20 antes de declarar la demo lista para cliente.
 

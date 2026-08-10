@@ -1,6 +1,6 @@
 # Fase 6 — Plan de narrativa comercial, accesibilidad y QA
 
-**Estado:** P6-15 `FAIL` sobre `7a08fca`; P6-15A propuesto para corregir G1/G2. P6-14 continúa `PENDING/DEFERRED` por D-042.
+**Estado:** P6-15 `FAIL` sobre `7a08fca`; P6-15A autorizado por D-043 para corregir G1/G2. P6-14 continúa `PENDING/DEFERRED` por D-042.
 
 **Rama:** `feat/phase-6-commercial-narrative-qa`.
 
@@ -265,7 +265,7 @@ P6-18 repite el recorrido crítico sobre la URL pública de Pages y verifica que
 
 ### P6-15A — Correctivo de paridad DOM ↔ estado
 
-**Estado:** propuesto; bloqueado hasta autorización explícita del write set ampliado.
+**Estado:** autorizado por D-043; ejecución test-first habilitada.
 
 **Plan vinculante:** `P6-15A-CORRECTIVE-PLAN.md`.
 
