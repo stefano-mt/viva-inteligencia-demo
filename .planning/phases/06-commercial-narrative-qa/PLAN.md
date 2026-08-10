@@ -1,6 +1,6 @@
 # Fase 6 — Plan de narrativa comercial, accesibilidad y QA
 
-**Estado:** ejecución técnica; P6-01–P6-14D completados, P6-14 `PENDING/DEFERRED` por D-042 y P6-15 habilitado.
+**Estado:** P6-15 `FAIL` sobre `7a08fca`; P6-15A propuesto para corregir G1/G2. P6-14 continúa `PENDING/DEFERRED` por D-042.
 
 **Rama:** `feat/phase-6-commercial-narrative-qa`.
 
@@ -262,6 +262,14 @@ P6-18 repite el recorrido crítico sobre la URL pública de Pages y verifica que
 **Checks:** `npm.cmd run verify`, Graphify, diff/write sets, E2E, responsive, paridad, evidencia automática y consistencia del paquete `PENDING/DEFERRED`. No se simula ni sustituye el ensayo humano.
 
 **DoD:** `PASS WITH RISKS` por el riesgo aceptado `R6-H1` si todo lo técnico pasa y el único pendiente es P6-20; `FAIL` si existe cualquier gap técnico. Un riesgo adicional conserva HUMAN-GATE-B separado.
+
+### P6-15A — Correctivo de paridad DOM ↔ estado
+
+**Estado:** propuesto; bloqueado hasta autorización explícita del write set ampliado.
+
+**Plan vinculante:** `P6-15A-CORRECTIVE-PLAN.md`.
+
+**DoD:** la vista consume la etapa materializada de `state.journeyContext`, presenta datos/estados/acciones correctivas sin recomputar y una regresión adversarial impide el split-brain. Después se repite P6-15 completo con checker independiente.
 
 ### P6-16 — Memoria, handoff y PR funcional
 

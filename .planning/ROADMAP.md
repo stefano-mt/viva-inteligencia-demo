@@ -189,7 +189,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** convertir módulos correctos en un recorrido que se entiende y se recuerda.
 
-**Estado:** P6-01–P6-14D completados y verificados en `feat/phase-6-commercial-narrative-qa`; commit técnico/documental más reciente `4351adc`. P6-14 permanece `PENDING/DEFERRED` por D-042 y P6-15 está habilitado. La secuencia técnica puede llegar a despliegue y persistencia, pero la declaración final queda reservada al `PASS` humano de P6-20.
+**Estado:** P6-01–P6-14D completados. P6-15 emitió `FAIL` sobre `7a08fca` por dos gaps P1 de paridad DOM↔estado; P6-16 permanece bloqueado y P6-15A está propuesto. P6-14 continúa `PENDING/DEFERRED` por D-042 y la declaración final queda reservada al `PASS` humano de P6-20.
 
 ### Olas
 
