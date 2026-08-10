@@ -1,10 +1,10 @@
 # P6-15A — Paridad visible entre Journey y estado autoritativo
 
-**Estado:** autorizado por D-043; implementación habilitada.
+**Estado:** completado; implementación `8740182` + cierre G4/G5 `a94f251`; P6-15 final `PASS WITH RISKS`.
 
 **Origen:** P6-15 `FAIL`, commit `0003ddb`.
 
-**Hallazgos tratados:** G1 y G2, severidad P1.
+**Hallazgos tratados:** G1–G5 cerrados; sin gap técnico residual.
 
 ## Objetivo
 

@@ -1,78 +1,68 @@
-# P6-15 — Contraste adversarial entre estado y UI
+# P6-15 final — contraste adversarial de UI y estado
 
-**Fecha:** 2026-08-10
+**Script:** `p6-15-repeat-browser.mjs`
 
-**Método:** navegador Chrome headless mediante el helper versionado `tests/helpers/demo-browser.mjs`; solo lectura, mismo origen, sin modificar runtime ni fixtures.
+**Resultado estructurado:** `browser-repeat/result.json`
 
-## Hallazgo reproducible
+## Paridad y contenido
 
-`state.journeyContext` materializa estado y datos correctos, pero `app.js` no entrega ese modelo a `renderJourney`. La llamada visible en `public/app.js:380-385` solo deriva `loading`/`ready` desde `geographyArtifact.status`. `public/js/views/journey.js:134-176` renderiza `BASE_STAGE_COPY`; `renderJourney` no recibe `stage.data`, `stage.status` ni `correctiveAction`.
+- Las seis etapas cumplen `data-journey-state === state.journeyContext.stages[stageId].status`.
+- Escala canónica muestra `184` y `30 / 22 / 5`.
+- Calidad muestra `104.15`, `53.37`, `50.78` y exclusión.
+- Geografía vacía muestra `empty` y la acción autoritativa `Ajustar escenario → #dashboard`.
+- Contrato 2.1 muestra `capability_unavailable` y `Formular consulta en el asistente → #assistant`.
+- Contrato 2.0 conserva el error global y produce cero nodos Journey.
 
-### Caso 1 — geografía vacía en contrato 2.4
+## G4 — faltantes de Escala
 
-Ruta:
+Se interceptó el payload 2.4 y se eliminaron:
 
-```text
-/?sv=1&scope=radius&lat=-12.000000&lon=-77.000000&radius=500#journey/geography
-```
+- `metadata.counts.canonical_agencies`;
+- `pilot.counts.base_count`.
 
-Resultado observado:
+Resultado:
 
-```json
-{
-  "stage": "geography",
-  "state_status": "empty",
-  "dom_status": "ready"
-}
-```
+- modelo: `insufficient`;
+- DOM: `insufficient`;
+- inmobiliarias modeladas: `No disponible`;
+- piloto: `No disponible / 22 / 5`;
+- no aparece un `0` fabricado.
 
-La pantalla conserva el copy de lectura disponible y el CTA normal, en vez de explicar que no hay proyectos y ofrecer la acción correctiva calculada por el estado.
+## G5 — respuesta real y referencias
 
-### Caso 2 — Decisión no disponible en contrato 2.1
+El navegador abrió `#assistant`, generó una respuesta real y volvió a `#journey/decision`. El estado contenía seis bloques:
 
-Se sirvió una copia en memoria del payload público con `metadata.contract_version = "2.1.0"` y sin índices F3–F5, usando la misma degradación del E2E versionado.
+1. `answer`;
+2. `data`;
+3. `interpretation`;
+4. `limitations`;
+5. `references`;
+6. `next_step`.
 
-Resultado observado:
+Los cinco bloques de lectura quedan visibles en la etapa. `references` se representa mediante divulgación progresiva: inicia cerrada, se abre por click y muestra 4/4 etiquetas autoritativas.
 
-```json
-{
-  "stage": "decision",
-  "state_status": "capability_unavailable",
-  "capability_status": "capability_unavailable",
-  "dom_status": "ready",
-  "ui_explains_unavailable": false,
-  "console_or_network_problems": 0
-}
-```
+Tipografía computada:
 
-La UI afirma `La decisión reúne la lectura disponible...` aun cuando el estado autoritativo declara que la capacidad no existe para esa revisión.
+- límite: `16 px`;
+- `summary`: `16 px`;
+- referencias: `16 px`.
 
-### Caso 3 — datos autoritativos no visibles en las etapas
+Geometría de Decisión con respuesta en 1280×720:
 
-Sobre el payload 2.4 por defecto:
+- límite: `197.30–298.17 px`;
+- CTA: `621.09–665.09 px`;
+- ambos dentro del viewport de `720 px`.
 
-| Etapa | Datos presentes en `state.journeyContext` | Resultado en el texto visible de la etapa |
-|---|---|---|
-| Escala | 184 y piloto 30/22/5 | no aparece `184`; tampoco el desglose 30/22/5 |
-| Calidad | 104.15, 53.37, 50.78 y exclusión | no aparece ninguno de los tres valores |
-| Decisión | checklist y respuesta literal si existe | no se renderiza el checklist ni la respuesta; solo copy genérico |
+## Consola y red
 
-Los datos sí aparecen al abandonar el recorrido y abrir ciertas rutas expertas. Eso no cumple el contrato aprobado de que cada etapa presenta su lectura principal derivada, respaldo, límite y evidencia/profundización.
+- problemas de consola/página: `0`;
+- solicitudes externas: `0`.
 
-## Por qué el gate existente no lo detecta
+## Capturas
 
-- `tests/journey-e2e.mjs:82-111` exige título, rail, CTA y los rótulos genéricos `Qué sabemos` / `Qué falta`; las cifras se verifican después de navegar a las rutas expertas.
-- `tests/phase6-integral-e2e.mjs:75-91` lee `state.journeyContext` directamente mediante `import()`, no el texto/estado visible del recorrido.
-- `tests/phase6-integral-e2e.mjs:189-228` contrasta el `h1`, links expertos y datos internos, pero no exige paridad DOM ↔ `journeyContext`.
-
-Por eso `npm.cmd run verify` puede terminar verde mientras los estados visible y autoritativo divergen.
-
-## Criterios afectados
-
-- HU-DEMO-103: estados vacíos, insuficientes y capacidades 2.0–2.4.
-- HU-DEMO-801: lectura, respaldo, evidencia y CTA por etapa.
-- PLAN §1.2, §2 y §4: paridad visible con el motor autoritativo.
-- CONTEXT §4.1 y §4.2: claim dinámico, fallback y aplicabilidad por etapa.
-- UI-SPEC §6, §7 y §10: anatomía, contenido y estados del recorrido.
-
-**Severidad:** P1 / bloqueante para P6-15 y para crear el PR funcional.
+- `browser-repeat/scale-1280x720.png`;
+- `browser-repeat/scale-missing-counts-1280x720.png`;
+- `browser-repeat/quality-1280x720.png`;
+- `browser-repeat/decision-response-1280x720.png`;
+- `browser-repeat/decision-references-open-1280x720.png`;
+- `browser-repeat/geography-empty-1280x720.png`.

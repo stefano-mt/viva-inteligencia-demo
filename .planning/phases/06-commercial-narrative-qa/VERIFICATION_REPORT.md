@@ -1,143 +1,117 @@
-# P6-15 — Verificación formal independiente de Fase 6
+# P6-15 — Verificación formal independiente final
 
 **Fecha:** 2026-08-10
 
-**Checker:** `/root/p6_15_checker`, sin autoría en los commits de Fase 6
-
 **Rama:** `feat/phase-6-commercial-narrative-qa`
 
-**Base:** `25300b1f7f3669fd1f5cc66567a589b69dcb93c2`
+**Candidato:** `a94f25159fb20770599b97c8fdfa37a2dabe551b`
 
-**HEAD verificado:** `7a08fca`
+**Baseline correctivo auditado:** `8740182bd0ebac64aaf7ea163dd184b5e90b6815`
 
-## Veredicto
+**Veredicto:** **PASS WITH RISKS**
 
-**FAIL**
+## Conclusión
 
-El gate automatizado completo terminó con código `0`, Graphify no encontró un hub nuevo bloqueante y contrato, datos, privacidad, E2E, responsive y accesibilidad permanecen verdes. Sin embargo, la vista del recorrido no consume el `state.journeyContext` autoritativo que Fase 6 construyó.
+P6-15 cierra técnicamente. La repetición independiente verificó que la superficie visible consume el estado autoritativo, que los dos gaps detectados en la repetición anterior quedaron corregidos y que el correctivo final respeta el write set aprobado de P6-15A.
 
-Esto produce una divergencia visible bloqueante: un estado geográfico `empty` y una capacidad Decisión `capability_unavailable` se renderizan como `ready`. Las etapas tampoco muestran sus resultados derivados principales: Escala omite 184 y 30/22/5; Calidad omite 104.15/53.37/50.78 y la decisión de exclusión; Decisión omite checklist/respuesta literal. La UI-only existente valida el shell y abre módulos expertos, pero no prueba paridad DOM ↔ `journeyContext`.
+El único riesgo residual es `R6-H1`: el ensayo humano independiente permanece `PENDING/DEFERRED` por D-042 y debe ejecutarse en P6-20 sobre GitHub Pages. Este veredicto no equivale a aceptación humana, `ready for client`, merge ni despliegue verificado.
 
-El defecto incumple HU-DEMO-103 y HU-DEMO-801, además de CONTEXT §4.1/4.2, PLAN §1/2/4 y UI-SPEC §6/7/10. Por la regla P6-15, cualquier gap técnico impone `FAIL`; `R6-H1` no puede elevar este resultado a `PASS WITH RISKS`.
+## Historias y criterios
 
-**No se habilita P6-16 ni la creación del PR funcional.** Debe volver al maker con una enmienda correctiva acotada y repetir P6-15 completo sobre un nuevo SHA.
+| Historia | Resultado | Evidencia principal |
+|---|---|---|
+| HU-DEMO-103 | PASS | carga/error, 2.0–2.4, vacíos, insuficiencia, CTA correctiva y faltantes sin cifras fabricadas |
+| HU-DEMO-104 | PASS | ayuda para 6 etapas + 8 rutas, teclado y red cerrada |
+| HU-DEMO-801 | PASS | seis etapas, estado DOM=estado autoritativo y recorrido UI-only |
+| HU-DEMO-802 | PASS | primera pantalla 1280×720, máximo tres grupos, divulgación progresiva y tipografía crítica de 16 px |
+| HU-DEMO-803 | PASS | reset, URL, foco, recarga y ausencia de persistencia oculta |
+| HU-DEMO-804 | PASS | handoffs canónicos, rutas expertas y CTA autoritativas |
 
-## Fuentes y método
+## Gate ejecutado
 
-El checker leyó completamente `AGENTS.md`, STATE, PROJECT, ROADMAP, CONTEXT, PLAN, VERIFICATION, GRAPHIFY, REQUIREMENTS, DECISIONS y los documentos vinculantes de Fase 6. Revisó el rango `25300b1..7a08fca`, los write sets por commit, archivos protegidos, imports, manifest de pruebas y evidencia portable.
+### Suite integral
 
-La verificación combinó:
+`npm.cmd run verify` terminó con exit `0` e incluyó:
 
-- `npm.cmd run verify` completo;
-- Graphify `--code-only --no-cluster`, god nodes y dos consultas dirigidas;
-- revisión adversarial del DOM frente a `state.journeyContext`;
-- compatibilidad 2.0–2.4, escenario vacío y rutas críticas;
-- inspección visual representativa en desktop, laptop, móvil y zoom 200 %;
-- hashes de evidencia, privacidad/red y archivos protegidos;
-- reader-test documental de D-042.
+- sintaxis, propiedad de estilos y arquitectura;
+- dominio, navegación, vista, shell, estado, paridad, ayuda y reset del Journey;
+- integración F6, CT-A–I/P, carga/error, contratos 2.0–2.4 y vacíos;
+- contratos, referencias, determinismo, privacidad y compatibilidad 2.0–2.4;
+- Inspector, Benchmark, comparación, histórico y asistente;
+- E2E UI-only, responsive y zoom 200%;
+- smoke de 8 rutas × 3 viewports;
+- accesibilidad de 14 superficies × 3 viewports.
 
-## Checks
+Resultados finales relevantes:
 
-| Capa | Resultado |
-|---|---|
-| `npm.cmd run verify` | PASS, exit 0 |
-| Sintaxis/arquitectura/ownership | PASS |
-| Datos, contrato, determinismo y privacidad | PASS |
-| CT-A–I/P | PASS en motores/fixtures/rutas expertas |
-| Journey state/parity unitarios | PASS |
-| Journey UI-only existente | PASS según su contrato actual, pero cobertura insuficiente |
-| DOM ↔ `journeyContext` | **FAIL** |
-| 14 superficies × 3 viewports + 200 % | PASS |
-| Smoke 8 rutas × 3 viewports | PASS |
-| A11y 14 superficies × 3 viewports | PASS |
-| Hosts externos durante pruebas dirigidas | 0 |
-| Graphify | PASS estructural; confirma frontera sin integración visible |
-| Paquete P6-14 | PASS estructural, `PENDING/DEFERRED` |
+- `Journey DOM parity OK`: seis etapas, faltantes de Escala, respuesta real de seis bloques, vacío geográfico, capacidad 2.1 y error global 2.0;
+- `Phase 6 responsive OK`: 14 superficies × 3 viewports, teclado, foco, objetivos 44×44, AA, reduced motion y cero overflow/truncamiento;
+- `A11y smoke OK`: landmarks, nombres accesibles y teclado en 14 superficies × 3 viewports.
 
-Detalle: [technical-gate.md](evidence/verification/technical-gate.md), [adversarial-ui-state.md](evidence/verification/adversarial-ui-state.md), [graphify.md](evidence/verification/graphify.md) y [write-set-audit.md](evidence/verification/write-set-audit.md).
+### Navegador adversarial independiente
 
-## Hallazgos
+El script de evidencia `p6-15-repeat-browser.mjs` ejecutó una sesión Chromium separada y comprobó:
 
-### G1 — La UI del recorrido ignora estado y datos autoritativos
+1. `data-journey-state === state.journeyContext.stages[stageId].status` en las seis etapas;
+2. Escala canónica: `184` y `30 / 22 / 5`;
+3. Escala con `canonical_agencies` y `pilot.base_count` ausentes: estado `insufficient`, `No disponible / 22 / 5` y ningún `0` fabricado;
+4. Calidad: `104.15 m²`, `53.37 m²`, `50.78 m²` y exclusión del benchmark;
+5. Decisión sin respuesta: checklist autoritativo y CTA a `#assistant`;
+6. Decisión con respuesta real: los seis bloques `answer`, `data`, `interpretation`, `limitations`, `references` y `next_step` quedan representados;
+7. la divulgación de referencias inicia cerrada, abre por interacción real y contiene las 4/4 etiquetas autoritativas;
+8. límite, `summary` y referencias computan `16 px`;
+9. límite y CTA permanecen dentro de `1280×720`; para Decisión con respuesta, el CTA termina en `665.09 px` de un viewport de `720 px`;
+10. geografía vacía usa `empty` y `Ajustar escenario → #dashboard`;
+11. contrato 2.1 usa `capability_unavailable` y `Formular consulta en el asistente → #assistant`;
+12. contrato 2.0 conserva el error global y no renderiza Journey;
+13. cero errores de consola/página y cero solicitudes externas.
 
-**Severidad:** P1 / bloqueante.
+## Cierre de gaps
 
-`public/app.js:380-385` entrega a `renderJourney` solo una reducción `loading`/`ready` basada en geografía. `public/js/views/journey.js:134-217` usa copy estático y no recibe la etapa materializada.
+| Gap | Estado final | Comprobación |
+|---|---|---|
+| G1 — estado reducido antes de llegar a la vista | CERRADO | seis etapas contrastadas DOM↔`journeyContext` |
+| G2 — regresión insuficiente | CERRADO | `journey-dom-parity.mjs` cubre estados, datos y acciones; browser independiente repite los casos |
+| G3 — drift histórico de write sets | CERRADO | `8740182..a94f251` contiene 8 paths y 0 violaciones |
+| G4 — `null` presentado como cero en Escala | CERRADO | `No disponible / 22 / 5`, sin cero fabricado, en test de vista y navegador |
+| G5 — respuesta incompleta en Decisión | CERRADO | seis bloques visibles/representados y 4/4 referencias verificadas tras abrir la divulgación |
 
-Pruebas observadas:
+## Graphify
 
-- radio sin proyectos: estado `empty`, DOM `ready`;
-- contrato 2.1 en Decisión: estado/capacidad `capability_unavailable`, DOM `ready`, sin explicación de indisponibilidad;
-- Escala no muestra 184/30/22/5;
-- Calidad no muestra 104.15/53.37/50.78;
-- Decisión no muestra checklist ni respuesta literal.
+Graphify se ejecutó sobre un snapshot limpio creado desde el SHA candidato, sin incluir archivos no rastreados:
 
-**Tratamiento requerido:** conectar la etapa vigente desde `state.journeyContext` a la vista; renderizar estado, datos, evidencia mínima y `correctiveAction` sin recalcular; mantener una CTA primaria, densidad y fallbacks aprobados.
+- 182 archivos de código;
+- 3,791 nodos;
+- 7,624 aristas;
+- hubs principales estables: `escapeHtml` 95, `formatNumber` 83, `escapeAttr` 81, `scripts` 74 y `state` 39;
+- la consulta alcanzó `state`, `buildJourneyContext`, `decisionStage`, `navigation.js`, vistas y regresiones;
+- no apareció un nuevo god node atribuible al correctivo.
 
-### G2 — Las pruebas de Journey permiten el split-brain
+## Auditoría de alcance
 
-**Severidad:** P1 / bloqueante.
+El diff `8740182..a94f251` contiene exactamente 8 paths y 0 violaciones del write set P6-15A. Los paths protegidos de contrato, datos, writer, dataset público, fuentes relevantes y workflow de Pages no cambiaron. `git diff --check` terminó con exit `0`.
 
-El E2E visible exige estructura y copy genérico; los datos se comprueban importando el estado o abriendo rutas expertas. No hay una aserción que compare `data-journey-state`, contenido visible y CTA contra `state.journeyContext.stages[stageId]` para 2.0–2.4 y vacíos.
+La ejecución de pruebas regeneró temporalmente un artefacto responsive no determinista; el checker lo restauró exactamente a `HEAD` y no lo incluye en su write set.
 
-**Tratamiento requerido:** añadir primero una regresión DOM ↔ estado que falle para los casos demostrados; cubrir las seis etapas, capacidad legacy, vacío/insuficiente/error, cifras críticas, decisión sin consulta implícita y CTA correctiva.
+## Paquete humano y riesgo residual
 
-### G3 — Drift documental de write sets
+`tests/rehearsal-packet.mjs` pasó y confirmó que el paquete continúa pendiente, no destructivo y sin rúbrica inventada. No se abrió, modificó, añadió al stage ni usó como evidencia formal la carpeta no rastreada `evidence/rehearsal/run-2026-08-10-lector01/`.
 
-**Severidad:** P3 / proceso.
+### Riesgo residual aceptado
 
-Tres commits de planificación/baseline actualizaron ROADMAP/STATE u otros documentos fuera del set literal del paso. No afecta el producto, pero debe registrarse/corregirse en la memoria y no está aceptado por R6-H1.
+- `R6-H1 — validación humana diferida`: aceptado únicamente para continuar P6-15–P6-19 por D-042. P6-20 sigue siendo bloqueante para la aceptación final.
 
-## D-042 y paquete humano
+No se identificaron otros gaps técnicos o riesgos residuales nuevos.
 
-**Claridad documental:** PASS.
+## Evidencia escrita
 
-Un lector fresco puede determinar que:
+- `evidence/verification/technical-gate.md`;
+- `evidence/verification/adversarial-ui-state.md`;
+- `evidence/verification/graphify.md`;
+- `evidence/verification/write-set-audit.md`;
+- `evidence/verification/browser-repeat/result.json` y capturas asociadas;
+- `evidence/verification/p6-15-repeat-browser.mjs`.
 
-- P6-14 continúa `PENDING/DEFERRED`;
-- P6-15–P6-19 podían continuar solo si no había gaps técnicos;
-- el veredicto máximo era `PASS WITH RISKS` únicamente por R6-H1;
-- P6-20 conserva prompt, rúbrica, SHA de Pages y cierre final;
-- no puede declararse `ready for client` o `deployed and verified` antes del PASS humano.
+## Decisión de avance
 
-Los textos pre-merge en APPROVAL/PLAN_REVIEW son registros históricos de la decisión original; DECISIONS D-042, STATE, ROADMAP, CONTEXT, PLAN, VERIFICATION y COMMERCIAL_REHEARSAL expresan la enmienda vigente sin fabricar aprobación.
-
-La carpeta de sesión creada por el usuario no se usa para el veredicto. El protocolo versionado y sus plantillas permanecen `PENDING`.
-
-## Graphify y arquitectura
-
-- 3,762 nodos y 7,556 relaciones.
-- Sin clustering y sin nuevo Journey god node entre los 15 primeros.
-- `buildJourneyContext`, `state.js`, `app.js` y `renderJourney` son alcanzables como fronteras; la lectura directa demuestra que el modelo se detiene antes del render.
-- CSS/JSON y SQL permanecen fuera de la cobertura fiel de Graphify; Playwright, hashes, imports y tests compensan esa limitación.
-
-## Evidencia visual, responsive y accesibilidad
-
-Los manifiestos existentes tienen 0 mismatches. Se revisaron capturas de Escala, Calidad, Decisión y Comparador en 1440/1280/móvil/200 %. No se observó overflow, solape o contraste bloqueante. La falla es semántica/funcional: las superficies son legibles, pero muestran una narración genérica separada del estado autoritativo.
-
-## Regresiones preservadas
-
-**PASS.** Contrato 2.4, dataset, writer, fingerprints, elegibilidad, geometría, Inspector, Benchmark, Comparador, Histórico, Asistente, ocho rutas, privacidad, determinismo y red permanecen intactos. No se modificaron archivos protegidos.
-
-## Próximo gate recomendado
-
-1. Crear una enmienda correctiva posterior a P6-15 con write set explícito para `app.js`, `views/journey.js`, tests de Journey y, solo si una prueba visual lo exige, estilos/evidencia F6.
-2. Escribir la regresión DOM ↔ estado antes del runtime.
-3. Renderizar los seis modelos autoritativos y estados correctivos sin duplicar motores.
-4. Ejecutar `npm.cmd run verify`, revisar 14 superficies × 3 viewports y repetir P6-15 con checker independiente sobre el nuevo SHA.
-5. Mantener P6-14/P6-20 `PENDING/DEFERRED`; no solicitar HUMAN-GATE-B para ocultar G1/G2.
-
-## Formato de veredicto
-
-```text
-Veredicto: FAIL
-Historias: HU-DEMO-103 y HU-DEMO-801 fallan en la superficie Journey
-Commit/diff: 25300b1..7a08fca
-Checks: gate integral PASS; contraste DOM↔estado FAIL
-Evidencia visual: íntegra y legible, pero semánticamente desconectada
-Casos de datos: motores/fixtures PASS; presentación empty/legacy FAIL
-Accesibilidad: PASS estructural
-Regresiones: F2–F5 PASS
-Riesgos residuales: R6-H1 sigue aceptado y pendiente; no compensa gaps técnicos
-Gaps: G1 P1, G2 P1, G3 P3
-```
+P6-15 cumple su Definition of Done técnica con **PASS WITH RISKS** exclusivamente por `R6-H1`. P6-16 puede iniciar; el estado máximo antes de P6-20 permanece `deployed and technically verified; human acceptance pending`.

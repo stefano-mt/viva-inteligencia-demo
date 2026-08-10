@@ -6,7 +6,7 @@
 
 **Última fase con despliegue técnico verificado:** Fase 5 — histórico, señales y asistente determinista
 
-**Estado:** Fases 0–5 están oficialmente `deployed and verified`. P6-15 emitió `FAIL` sobre `7a08fca` por divergencia P1 entre `journeyContext` y el DOM; P6-16 permanece bloqueado. P6-14 sigue `PENDING/DEFERRED` por D-042 y la aceptación final continúa reservada a P6-20.
+**Estado:** Fases 0–5 están oficialmente `deployed and verified`. P6-15 cerró `PASS WITH RISKS` sobre `a94f251`; P6-16 está habilitado. El único riesgo residual es `R6-H1`: P6-14 sigue `PENDING/DEFERRED` por D-042 y la aceptación humana final continúa reservada a P6-20.
 
 **Rama activa:** `feat/phase-6-commercial-narrative-qa`.
 
@@ -276,17 +276,17 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P6-14: `PENDING/DEFERRED`. No existe `PASS` humano y no se fabricará evidencia.
 - D-042: el usuario difirió el ensayo a P6-20 y aceptó únicamente `R6-H1 — validación humana diferida`; esto habilita P6-15–P6-19, no merge automático ni aceptación final.
 - Estado máximo antes de P6-20: `deployed and technically verified; human acceptance pending`.
-- P6-15: [verificación formal independiente](phases/06-commercial-narrative-qa/VERIFICATION_REPORT.md) `FAIL` sobre `7a08fca`; gate integral automatizado PASS, contraste adversarial DOM↔estado FAIL.
-- G1/G2 P1: `app.js` reduce el estado a loading/ready y `views/journey.js` usa copy estático; los E2E no contrastaban el modelo con la superficie visible.
-- G3 P3: drift documental histórico de write sets; P6-15A lo remedia mediante registro explícito y auditoría `base..HEAD` sin nuevos paths fuera de alcance antes de repetir P6-15. P6-16 conservará su resumen.
-- P6-15A: [plan correctivo autorizado](phases/06-commercial-narrative-qa/P6-15A-CORRECTIVE-PLAN.md) por D-043 el `2026-08-10T14:28:27.1410884-05:00`; ejecución test-first habilitada sobre `e318bdf`.
+- P6-15: [verificación formal independiente](phases/06-commercial-narrative-qa/VERIFICATION_REPORT.md) `PASS WITH RISKS` sobre `a94f251`; `npm.cmd run verify`, browser adversarial, Graphify, responsive/a11y y write sets en PASS.
+- P6-15A: [plan correctivo](phases/06-commercial-narrative-qa/P6-15A-CORRECTIVE-PLAN.md) completado en `8740182` y `a94f251`; G1–G5 cerrados con paridad DOM↔estado, nulos honestos y respuesta de seis bloques con referencias progresivas.
+- Auditoría P6-15A: `8740182..a94f251` contiene 8 paths y 0 violaciones; contrato, datos, writer, motores, navegación y workflow permanecen intactos.
+- Único riesgo residual: `R6-H1 — validación humana diferida`; no existen gaps técnicos abiertos y P6-16 queda habilitado.
 
 ## Próxima acción recomendada
 
-1. Implementar primero la regresión DOM↔estado y demostrar su fallo contra el baseline.
-2. Conectar la vista al envelope autoritativo dentro del write set P6-15A.
-3. Repetir P6-15 completo con un checker distinto o reiniciado sobre el nuevo SHA.
-4. Solo con cierre técnico continuar P6-16–P6-19; ejecutar P6-20 antes de declarar la demo lista para cliente.
+1. Ejecutar P6-16: memoria, handoff y preparación del pull request funcional.
+2. Mantener merge exclusivamente humano en P6-17.
+3. Ejecutar P6-18 y P6-19 después del merge.
+4. Completar P6-20 antes de declarar la demo lista para cliente.
 
 ## Regla para actualizar este archivo
 

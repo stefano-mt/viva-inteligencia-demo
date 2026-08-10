@@ -1,0 +1,298 @@
+{
+  "head": null,
+  "stages": {
+    "scale": {
+      "modelStatus": "ready",
+      "domStatus": "ready",
+      "modelCorrectiveAction": null,
+      "primaryAction": {
+        "label": "Continuar a geografía",
+        "href": "#journey/geography"
+      },
+      "visibleCorrectiveAction": null
+    },
+    "geography": {
+      "modelStatus": "ready",
+      "domStatus": "ready",
+      "modelCorrectiveAction": null,
+      "primaryAction": {
+        "label": "Validar calidad",
+        "href": "#journey/quality"
+      },
+      "visibleCorrectiveAction": null
+    },
+    "quality": {
+      "modelStatus": "ready",
+      "domStatus": "ready",
+      "modelCorrectiveAction": null,
+      "primaryAction": {
+        "label": "Comparar con evidencia",
+        "href": "#journey/depth"
+      },
+      "visibleCorrectiveAction": null
+    },
+    "depth": {
+      "modelStatus": "insufficient",
+      "domStatus": "insufficient",
+      "modelCorrectiveAction": {
+        "label": "Revisar benchmark",
+        "href": "#market"
+      },
+      "primaryAction": {
+        "label": "Revisar movimiento",
+        "href": "#journey/movement"
+      },
+      "visibleCorrectiveAction": {
+        "label": "Revisar benchmark",
+        "href": "#market"
+      }
+    },
+    "movement": {
+      "modelStatus": "ready",
+      "domStatus": "ready",
+      "modelCorrectiveAction": null,
+      "primaryAction": {
+        "label": "Preparar decisión",
+        "href": "#journey/decision"
+      },
+      "visibleCorrectiveAction": null
+    },
+    "decision": {
+      "modelStatus": "ready",
+      "domStatus": "ready",
+      "modelCorrectiveAction": {
+        "label": "Formular consulta en el asistente",
+        "href": "#assistant"
+      },
+      "primaryAction": {
+        "label": "Formular consulta en el asistente",
+        "href": "#assistant"
+      },
+      "visibleCorrectiveAction": null
+    }
+  },
+  "criticalFacts": {
+    "scale": "Inmobiliarias modeladas 184 Cobertura general del modelo; no equivale al piloto. Piloto por profundidad 30 / 22 / 5 Base / enriquecidas / evidencia profunda. Son niveles anidados y no se suman. Miraflores · Distrito completo 90 observados · 85 comparables La comparación usa solo el subconjunto elegible del escenario.",
+    "quality": "Dos fuentes, una discrepancia Tarjeta · 104.15 m² Plano · 53.37 m² Ambas observaciones se conservan con su fuente. Diferencia derivada 50.78 m² Explica el conflicto; no crea una nueva área certificada. Decisión de uso Excluido del benchmark La inconsistencia bloquea su uso en agregados certificados."
+  },
+  "decision": {
+    "checklist": {
+      "model": {
+        "available": true,
+        "scopeText": "Miraflores · Distrito completo",
+        "comparableCount": 85,
+        "priceReferenceCount": 69,
+        "evidenceCoverage": 30,
+        "cutoffAt": "2026-07-28T01:24:28Z",
+        "comparabilityStatus": "orientative",
+        "priceStatus": "ready"
+      },
+      "text": "Modo de decisión Lista de verificación Miraflores · Distrito completo Base disponible 85 comparables · 69 referencias de precio 30% de cobertura de evidencia. Estado de la lectura Referencia de precio disponible La recomendación final requiere formular una consulta explícita; no se genera automáticamente."
+    },
+    "response": {
+      "modelStatus": "ready",
+      "blockTypes": [
+        "answer",
+        "data",
+        "interpretation",
+        "limitations",
+        "references",
+        "next_step"
+      ],
+      "expectedByBlock": {
+        "answer": [
+          "Miraflores · Distrito completo reúne 85 proyectos comparables y 69 referencias publicadas de precio."
+        ],
+        "data": [
+          "Proyectos comparables: 85 projects",
+          "Referencias publicadas de precio: 69 projects",
+          "Parejas elegibles para precio por m²: 0 projects",
+          "Cocientes orientativos: 68 projects"
+        ],
+        "interpretation": [
+          "La muestra permite revisar oferta visible, pero no afirmar un posicionamiento certificado de precio por m²."
+        ],
+        "limitations": [
+          "Los cocientes orientativos no sustentan posicionamiento de precio porque precio y área no están vinculados a la misma oferta o tipología."
+        ],
+        "references": [
+          "Miraflores · Distrito completo",
+          "Precio publicado por m² · project:nexo-1988",
+          "Precio publicado por m² · project:nexo-2417",
+          "Precio publicado por m² · project:nexo-2490"
+        ],
+        "next_step": [
+          "Revisar benchmark y cobertura"
+        ]
+      },
+      "referenceLabels": [
+        "Miraflores · Distrito completo",
+        "Precio publicado por m² · project:nexo-1988",
+        "Precio publicado por m² · project:nexo-2417",
+        "Precio publicado por m² · project:nexo-2490"
+      ],
+      "visibleReferenceLabels": [
+        "Miraflores · Distrito completo",
+        "Precio publicado por m² · project:nexo-1988",
+        "Precio publicado por m² · project:nexo-2417",
+        "Precio publicado por m² · project:nexo-2490"
+      ],
+      "visibleBlockTypes": [
+        "answer",
+        "data",
+        "interpretation",
+        "limitations",
+        "references",
+        "next_step"
+      ],
+      "disclosureText": "Ver 4 referencias Referencias: Miraflores · Distrito completo Precio publicado por m² · project:nexo-1988 Precio publicado por m² · project:nexo-2417 Precio publicado por m² · project:nexo-2490",
+      "typography": {
+        "limit": 16,
+        "summary": 16,
+        "reference": 16
+      },
+      "geometry": {
+        "viewport": {
+          "width": 1280,
+          "height": 720
+        },
+        "limit": {
+          "top": 197.296875,
+          "bottom": 298.171875,
+          "visible": true
+        },
+        "primaryAction": {
+          "top": 621.09375,
+          "bottom": 665.09375,
+          "visible": true
+        }
+      },
+      "journeyText": "Respuesta breve Miraflores · Distrito completo reúne 85 proyectos comparables y 69 referencias publicadas de precio. La muestra permite revisar oferta visible, pero no afirmar un posicionamiento certificado de precio por m². Datos usados Proyectos comparables: 85 projects Referencias publicadas de precio: 69 projects Parejas elegibles para precio por m²: 0 projects Cocientes orientativos: 68 projects Escenario: Miraflores · Distrito completo Siguiente verificación Revisar benchmark y cobertura Límites: Los cocientes orientativos no sustentan posicionamiento de precio porque precio y área no están vinculados a la misma oferta o tipología. Ver 4 referencias",
+      "expertResponseText": "DECISIÓN Y SIGUIENTE ACCIÓN Lectura del escenario Lectura lista Miraflores · Distrito completo 85 comparables Respuesta verificable 6 Siguiente paso Siguiente verificación Revisar benchmark y cobertura Preparar checklist comercial Volver al recorrido: Decisión 4 Límites Los cocientes orientativos no sustentan posicionamiento de precio porque precio y área no están vinculados a la misma oferta o tipología. 5 Referencias Escenario Miraflores · Distrito completo Válido · Abrir Hecho Precio publicado por m² · project:nexo-1988 orientative · Abrir Hecho Precio publicado por m² · project:nexo-2417 orientative · Abrir Hecho Precio publicado por m² · project:nexo-2490 orientative · Abrir Ver datos usados e interpretación completa"
+    }
+  },
+  "emptyGeography": {
+    "modelStatus": "empty",
+    "domStatus": "empty",
+    "cta": {
+      "label": "Ajustar escenario",
+      "href": "#dashboard"
+    }
+  },
+  "insufficientScale": {
+    "modelStatus": "insufficient",
+    "domStatus": "insufficient",
+    "text": "01 Escala 02 Geografía 03 Calidad 04 Profundidad 05 Movimiento 06 Decisión ETAPA 1 DE 6 · ESCALA ¿Qué mercado observable sostiene la lectura? La evidencia disponible no alcanza para cerrar esta lectura. Revisa el detalle y la acción correctiva antes de continuar. EVIDENCIA INSUFICIENTE Qué sabemos Inmobiliarias modeladas No disponible Cobertura general del modelo; no equivale al piloto. Piloto por profundidad No disponible / 22 / 5 Base / enriquecidas / evidencia profunda. Son niveles anidados y no se suman. Miraflores · Distrito completo 90 observados · 85 comparables La comparación usa solo el subconjunto elegible del escenario. LÍMITE DE LA LECTURA Qué falta o no puede afirmarse La cobertura describe lo observado; no representa la totalidad del mercado inmobiliario. EXPLORAR ANÁLISIS Revisar el detalle Benchmark de microzona Muestra y referencias Reiniciar escenario Continuar a geografía"
+  },
+  "contract21": {
+    "modelStatus": "capability_unavailable",
+    "cta": {
+      "label": "Formular consulta en el asistente",
+      "href": "#assistant"
+    }
+  },
+  "contract20": {
+    "errorText": "No se pudo iniciar la plataforma Scenario domain requires public contract 2.1.0 through 2.4.0",
+    "journeyCount": 0
+  },
+  "laptopFirstViewport": {
+    "scale": {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "limit": {
+        "top": 255.296875,
+        "bottom": 356.171875,
+        "visible": true
+      },
+      "primaryAction": {
+        "top": 556.03125,
+        "bottom": 600.03125,
+        "visible": true
+      }
+    },
+    "geography": {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "limit": {
+        "top": 255.296875,
+        "bottom": 356.171875,
+        "visible": true
+      },
+      "primaryAction": {
+        "top": 534.4375,
+        "bottom": 578.4375,
+        "visible": true
+      }
+    },
+    "quality": {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "limit": {
+        "top": 255.296875,
+        "bottom": 356.171875,
+        "visible": true
+      },
+      "primaryAction": {
+        "top": 534.4375,
+        "bottom": 578.4375,
+        "visible": true
+      }
+    },
+    "depth": {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "limit": {
+        "top": 255.296875,
+        "bottom": 587.015625,
+        "visible": true
+      },
+      "primaryAction": {
+        "top": 662.90625,
+        "bottom": 706.90625,
+        "visible": true
+      }
+    },
+    "movement": {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "limit": {
+        "top": 255.296875,
+        "bottom": 356.171875,
+        "visible": true
+      },
+      "primaryAction": {
+        "top": 534.4375,
+        "bottom": 578.4375,
+        "visible": true
+      }
+    },
+    "decision": {
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "limit": {
+        "top": 255.296875,
+        "bottom": 356.171875,
+        "visible": true
+      },
+      "primaryAction": {
+        "top": 574.921875,
+        "bottom": 618.921875,
+        "visible": true
+      }
+    }
+  },
+  "problems": [],
+  "externalRequests": []
+}

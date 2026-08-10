@@ -1,6 +1,6 @@
 # Fase 6 — Plan de narrativa comercial, accesibilidad y QA
 
-**Estado:** P6-15 `FAIL` sobre `7a08fca`; P6-15A autorizado por D-043 para corregir G1/G2. P6-14 continúa `PENDING/DEFERRED` por D-042.
+**Estado:** P6-15 `PASS WITH RISKS` sobre `a94f251`; P6-15A completado y G1–G5 cerrados. P6-14 continúa `PENDING/DEFERRED` por D-042 y se ejecutará en P6-20.
 
 **Rama:** `feat/phase-6-commercial-narrative-qa`.
 
@@ -257,6 +257,8 @@ P6-18 repite el recorrido crítico sobre la URL pública de Pages y verifica que
 
 ### P6-15 — Verificación formal independiente
 
+**Estado:** `PASS WITH RISKS` sobre `a94f251`; único riesgo residual `R6-H1`, aceptado y diferido a P6-20.
+
 **Write set:** `.planning/phases/06-commercial-narrative-qa/VERIFICATION_REPORT.md`, `.planning/phases/06-commercial-narrative-qa/evidence/verification/*`.
 
 **Checks:** `npm.cmd run verify`, Graphify, diff/write sets, E2E, responsive, paridad, evidencia automática y consistencia del paquete `PENDING/DEFERRED`. No se simula ni sustituye el ensayo humano.
@@ -265,7 +267,7 @@ P6-18 repite el recorrido crítico sobre la URL pública de Pages y verifica que
 
 ### P6-15A — Correctivo de paridad DOM ↔ estado
 
-**Estado:** autorizado por D-043; ejecución test-first habilitada.
+**Estado:** completado en `8740182` y `a94f251`; G1–G5 cerrados, gate integral y contraste adversarial independientes en PASS.
 
 **Plan vinculante:** `P6-15A-CORRECTIVE-PLAN.md`.
 
