@@ -38,7 +38,16 @@ const BASE_STAGE_COPY = Object.freeze({
   }),
 });
 
-const BASE_STATES = new Set(["ready", "loading", "unavailable", "error"]);
+const BASE_STATES = new Set([
+  "ready",
+  "loading",
+  "empty",
+  "insufficient",
+  "error",
+  "capability_unavailable",
+  "contract_unavailable",
+  "unavailable",
+]);
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -54,6 +63,267 @@ function formatNumber(value) {
   return Number.isFinite(number)
     ? new Intl.NumberFormat("es-PE", { maximumFractionDigits: 0 }).format(number)
     : "No disponible";
+}
+
+function finiteNumber(value) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function formatDecimal(value, digits = 2) {
+  const number = finiteNumber(value);
+  return number === null
+    ? "No disponible"
+    : new Intl.NumberFormat("en-US", {
+        minimumFractionDigits: digits,
+        maximumFractionDigits: digits,
+      }).format(number);
+}
+
+function formatCurrency(value) {
+  const number = finiteNumber(value);
+  return number === null
+    ? "No disponible"
+    : new Intl.NumberFormat("es-PE", {
+        style: "currency",
+        currency: "PEN",
+        maximumFractionDigits: 0,
+      }).format(number);
+}
+
+function formatPercent(value) {
+  const number = finiteNumber(value);
+  return number === null ? "No disponible" : `${formatDecimal(number, 2)}%`;
+}
+
+function statusLabel(value) {
+  return {
+    ready: "Referencia de precio disponible",
+    orientative: "Lectura orientativa",
+    insufficient: "Evidencia insuficiente",
+    unavailable: "No disponible",
+    current: "Vigente",
+    aging: "En seguimiento",
+    historical: "Histórico",
+    unknown: "Vigencia no determinada",
+  }[value] ?? String(value ?? "No disponible");
+}
+
+function renderFact(id, label, value, detail = "") {
+  return `
+    <div class="journey-fact" data-journey-fact="${escapeHtml(id)}">
+      <dt>${escapeHtml(label)}</dt>
+      <dd>${escapeHtml(value)}</dd>
+      ${detail ? `<p>${escapeHtml(detail)}</p>` : ""}
+    </div>
+  `;
+}
+
+function renderScaleFacts(data) {
+  const pilot = data?.pilot ?? {};
+  const scenario = data?.scenario ?? {};
+  return [
+    renderFact(
+      "model-agencies",
+      "Inmobiliarias modeladas",
+      formatNumber(data?.modelAgencyCount),
+      "Cobertura general del modelo; no equivale al piloto.",
+    ),
+    renderFact(
+      "pilot-levels",
+      "Piloto por profundidad",
+      `${formatNumber(pilot.baseCount)} / ${formatNumber(pilot.enrichedCount)} / ${formatNumber(pilot.deepCount)}`,
+      "Base / enriquecidas / evidencia profunda. Son niveles anidados y no se suman.",
+    ),
+    renderFact(
+      "scenario-sample",
+      scenario.scopeText ?? "Escenario activo",
+      `${formatNumber(scenario.observedProjectCount)} observados · ${formatNumber(scenario.comparableProjectCount)} comparables`,
+      "La comparación usa solo el subconjunto elegible del escenario.",
+    ),
+  ];
+}
+
+function renderGeographyFacts(data) {
+  return [
+    renderFact(
+      "geography-scope",
+      "Alcance activo",
+      data?.scopeText ?? "No disponible",
+      "Distrito, cuadrante o radio analítico; no es un límite legal oficial.",
+    ),
+    renderFact(
+      "geography-sample",
+      "Muestra del escenario",
+      `${formatNumber(data?.scope?.observed_project_count)} observados · ${formatNumber(data?.comparableProjectCount)} comparables`,
+    ),
+    renderFact(
+      "geography-exclusions",
+      "Fuera o por revisar",
+      formatNumber(data?.excludedProjectCount),
+      "Se conservan como exclusiones; no se reasignan al escenario.",
+    ),
+  ];
+}
+
+function renderQualityFacts(data) {
+  const eligible = data?.decision?.benchmarkEligible === true;
+  return [
+    `
+      <div class="journey-fact journey-fact--sources">
+        <dt>Dos fuentes, una discrepancia</dt>
+        <dd>
+          <span data-journey-fact="card-area">Tarjeta · ${escapeHtml(formatDecimal(data?.cardArea?.normalized_value))} m²</span>
+          <span data-journey-fact="plan-area">Plano · ${escapeHtml(formatDecimal(data?.planArea?.normalized_value))} m²</span>
+        </dd>
+        <p>Ambas observaciones se conservan con su fuente.</p>
+      </div>
+    `,
+    renderFact(
+      "area-delta",
+      "Diferencia derivada",
+      `${formatDecimal(data?.areaDelta?.normalized_value)} m²`,
+      "Explica el conflicto; no crea una nueva área certificada.",
+    ),
+    renderFact(
+      "benchmark-decision",
+      "Decisión de uso",
+      eligible ? "Elegible para benchmark" : "Excluido del benchmark",
+      eligible
+        ? "El expediente cumple las reglas de uso vigentes."
+        : "La inconsistencia bloquea su uso en agregados certificados.",
+    ),
+  ];
+}
+
+function renderDepthFacts(data) {
+  const quantitative = data?.quantitative ?? {};
+  return [
+    renderFact(
+      "depth-scope",
+      "Proyectos en alcance",
+      formatNumber(data?.scope?.projectCount),
+    ),
+    renderFact(
+      "depth-eligible",
+      "Parejas certificadas elegibles",
+      formatNumber(quantitative.n),
+      "Solo precio y área compatibles pueden sostener un indicador certificado.",
+    ),
+    renderFact(
+      "depth-orientative",
+      "Cocientes orientativos",
+      formatNumber(quantitative.orientative?.n),
+      "Se muestran como referencia publicada no comparable; no sustituyen parejas elegibles.",
+    ),
+  ];
+}
+
+function renderMovementFacts(data) {
+  const signal = Array.isArray(data?.timeline) ? data.timeline[0] : null;
+  return [
+    renderFact(
+      "movement-signal",
+      "Señal prioritaria",
+      signal?.project?.canonical_name ?? "Sin señal elegible",
+      signal
+        ? `${formatCurrency(signal.previous_value)} → ${formatCurrency(signal.current_value)}`
+        : "No se observó un cambio elegible.",
+    ),
+    renderFact(
+      "movement-change",
+      "Variación publicada",
+      formatPercent(signal?.delta_pct),
+      signal?.validity
+        ? `Vigencia: ${statusLabel(signal.validity)}.`
+        : "Vigencia no disponible.",
+    ),
+    renderFact(
+      "movement-coverage",
+      "Cobertura visible",
+      `${formatNumber(data?.coverage?.shown_count)} de ${formatNumber(data?.coverage?.scenario_event_count)} señales`,
+      "Describe cambios publicados; la causa no está observada.",
+    ),
+  ];
+}
+
+function responseItemText(item) {
+  if (!item || typeof item !== "object") return "";
+  if (item.text) return String(item.text);
+  if (item.label && item.value !== undefined) {
+    return `${item.label}: ${item.value}${item.unit && item.unit !== "count" ? ` ${item.unit}` : ""}`;
+  }
+  if (item.label) return String(item.label);
+  return "";
+}
+
+function responseBlockText(response, type) {
+  const block = response?.blocks?.find((candidate) => candidate.type === type);
+  return (block?.items ?? [])
+    .map(responseItemText)
+    .filter(Boolean)
+    .join(" ");
+}
+
+function renderDecisionFacts(data) {
+  const response = data?.response ?? null;
+  if (response) {
+    return [
+      renderFact(
+        "decision-mode",
+        "Modo de decisión",
+        "Respuesta verificable",
+        response.scenario?.scopeText ?? "Escenario activo",
+      ),
+      renderFact(
+        "decision-answer",
+        "Lectura",
+        responseBlockText(response, "answer") || "Sin lectura elegible",
+      ),
+      renderFact(
+        "decision-next-step",
+        "Siguiente verificación",
+        responseBlockText(response, "next_step") || "Revisar el checklist comercial",
+        responseBlockText(response, "limitations"),
+      ),
+    ];
+  }
+  const checklist = data?.checklist ?? {};
+  return [
+    renderFact(
+      "decision-mode",
+      "Modo de decisión",
+      "Lista de verificación",
+      checklist.scopeText ?? "Escenario activo",
+    ),
+    renderFact(
+      "decision-checklist",
+      "Base disponible",
+      `${formatNumber(checklist.comparableCount)} comparables · ${formatNumber(checklist.priceReferenceCount)} referencias de precio`,
+      `${formatNumber(checklist.evidenceCoverage)}% de cobertura de evidencia.`,
+    ),
+    renderFact(
+      "decision-status",
+      "Estado de la lectura",
+      statusLabel(checklist.priceStatus),
+      "La recomendación final requiere formular una consulta explícita; no se genera automáticamente.",
+    ),
+  ];
+}
+
+function renderStageFacts(stageId, data) {
+  if (!data) return "";
+  const facts = {
+    scale: renderScaleFacts,
+    geography: renderGeographyFacts,
+    quality: renderQualityFacts,
+    depth: renderDepthFacts,
+    movement: renderMovementFacts,
+    decision: renderDecisionFacts,
+  }[stageId]?.(data);
+  return Array.isArray(facts) && facts.length
+    ? `<dl class="journey-facts" data-journey-stage-data>${facts.join("")}</dl>`
+    : "";
 }
 
 function normalizeStage(stageId) {
@@ -131,7 +401,25 @@ function renderExpertLinks(stage) {
   `;
 }
 
-function renderBaseState(stage, status) {
+function stateMessage(stage, model) {
+  const version = model?.capability?.contractVersion ?? "actual";
+  const minimum = model?.capability?.minimumContractVersion ?? "compatible";
+  if (model.status === "empty") {
+    return stage.id === "geography"
+      ? "No hay proyectos observados para este alcance. Ajusta el escenario sin sustituirlo por datos de otra zona."
+      : "No hay información elegible para esta etapa en el escenario activo. El vacío se conserva como resultado."
+  }
+  if (model.status === "insufficient") {
+    return "La evidencia disponible no alcanza para cerrar esta lectura. Revisa el detalle y la acción correctiva antes de continuar."
+  }
+  if (["capability_unavailable", "contract_unavailable", "unavailable"].includes(model.status)) {
+    return `Esta etapa no está disponible para el contrato ${version}; requiere ${minimum}. No se muestran datos de otra capacidad como sustituto.`;
+  }
+  return "La información necesaria no terminó de cargar. Reinicia el recorrido para volver a verificarla.";
+}
+
+function renderBaseState(stage, model) {
+  const status = model.status;
   if (status === "loading") {
     return `
       <section class="journey-state journey-state--loading" aria-live="polite" aria-busy="true">
@@ -141,20 +429,30 @@ function renderBaseState(stage, status) {
       </section>
     `;
   }
-  if (status === "error") {
+  if (status !== "ready") {
+    const unavailable = [
+      "empty",
+      "insufficient",
+      "capability_unavailable",
+      "contract_unavailable",
+      "unavailable",
+    ].includes(status);
     return `
-      <section class="journey-state journey-state--error" role="alert">
-        <p class="journey-section-label">No pudimos preparar la etapa</p>
-        <p>La información necesaria no terminó de cargar. Reinicia el recorrido para volver a verificarla.</p>
-      </section>
-    `;
-  }
-  if (status === "unavailable") {
-    return `
-      <section class="journey-state journey-state--unavailable" role="status">
-        <p class="journey-section-label">Lectura no disponible</p>
-        <p>Esta lectura no está disponible para el escenario o la versión de datos actual. Conservamos la limitación sin sustituir información.</p>
-      </section>
+      <div class="journey-reading">
+        <p class="journey-reading__lead">${escapeHtml(stateMessage(stage, model))}</p>
+        <div class="journey-reading__ledger">
+          <section class="journey-state ${unavailable ? "journey-state--unavailable" : "journey-state--error"}" ${status === "error" ? 'role="alert"' : 'role="status"'}>
+            <p class="journey-section-label">${status === "empty" ? "Sin proyectos para esta lectura" : status === "insufficient" ? "Evidencia insuficiente" : status === "error" ? "No pudimos preparar la etapa" : "Lectura no disponible"}</p>
+            <h2 id="journey-known-title">Qué sabemos</h2>
+            ${renderStageFacts(stage.id, model.data)}
+          </section>
+          <section class="journey-reading__limit">
+            <p class="journey-section-label">Límite de la lectura</p>
+            <h2 id="journey-limit-title">Qué falta o no puede afirmarse</h2>
+            <p>${escapeHtml(BASE_STAGE_COPY[stage.id].limitation)}</p>
+          </section>
+        </div>
+      </div>
     `;
   }
 
@@ -173,34 +471,56 @@ function renderBaseState(stage, status) {
           <h2 id="journey-limit-title">Qué falta o no puede afirmarse</h2>
           <p>${escapeHtml(copy.limitation)}</p>
         </section>
+        ${renderStageFacts(stage.id, model.data)}
       </div>
     </div>
   `;
 }
 
-function renderJourneyActions(stage, status) {
+function renderJourneyActions(stage, model) {
+  const status = model.status;
   const neighbors = journeyNeighbors(stage.id);
   const nextStageId = neighbors?.nextStageId ?? DEFAULT_JOURNEY_STAGE_ID;
+  const insufficientWithData =
+    status === "insufficient" && model.data && model.correctiveAction;
   const primary = status === "loading"
     ? `<button class="journey-primary-action" type="button" disabled>${escapeHtml(stage.primaryActionLabel)}</button>`
-    : status === "error"
-      ? '<a class="journey-primary-action" href="#journey/scale">Reiniciar recorrido</a>'
-      : status === "unavailable"
-        ? '<a class="journey-primary-action" href="#dashboard">Ajustar escenario</a>'
-        : `<a class="journey-primary-action" href="#journey/${escapeHtml(nextStageId)}">${escapeHtml(stage.primaryActionLabel)}</a>`;
+    : model.correctiveAction?.href && model.correctiveAction?.label && !insufficientWithData
+      ? `<a class="journey-primary-action" href="${escapeHtml(model.correctiveAction.href)}">${escapeHtml(model.correctiveAction.label)}</a>`
+      : status === "error"
+        ? '<a class="journey-primary-action" href="#journey/scale">Reiniciar recorrido</a>'
+        : insufficientWithData
+          ? `<a class="journey-primary-action" href="#journey/${escapeHtml(nextStageId)}">${escapeHtml(stage.primaryActionLabel)}</a>`
+        : status !== "ready"
+          ? '<a class="journey-primary-action" href="#dashboard">Ajustar escenario</a>'
+          : `<a class="journey-primary-action" href="#journey/${escapeHtml(nextStageId)}">${escapeHtml(stage.primaryActionLabel)}</a>`;
   const previous = neighbors?.previousStageId
     ? `<a class="journey-previous-action" href="#journey/${escapeHtml(neighbors.previousStageId)}">Volver a la etapa anterior</a>`
     : "";
-  return `<div class="journey-actions">${previous}${primary}</div>`;
+  const corrective = insufficientWithData
+    ? `<a class="journey-corrective-link" data-journey-corrective-action href="${escapeHtml(model.correctiveAction.href)}">${escapeHtml(model.correctiveAction.label)}</a>`
+    : "";
+  return `<div class="journey-actions">${previous}${corrective}${primary}</div>`;
 }
 
 export function renderJourney({
   stageId = DEFAULT_JOURNEY_STAGE_ID,
   status = "ready",
+  stageModel = null,
   announcement = "",
 } = {}) {
   const stage = normalizeStage(stageId);
-  const normalizedStatus = BASE_STATES.has(status) ? status : "unavailable";
+  const candidateStatus = stageModel?.status ?? status;
+  const normalizedStatus = BASE_STATES.has(candidateStatus)
+    ? candidateStatus
+    : "unavailable";
+  const model = {
+    stageId: stage.id,
+    status: normalizedStatus,
+    capability: stageModel?.capability ?? null,
+    data: stageModel?.data ?? null,
+    correctiveAction: stageModel?.correctiveAction ?? null,
+  };
   return `
     <section
       class="journey-view"
@@ -214,9 +534,9 @@ export function renderJourney({
           <p class="journey-stage__eyebrow">Etapa ${stage.position} de ${journeyStages.length} · ${escapeHtml(stage.label)}</p>
           <h1 id="journey-title" tabindex="-1">${escapeHtml(stage.question)}</h1>
         </header>
-        ${renderBaseState(stage, normalizedStatus)}
+        ${renderBaseState(stage, model)}
         ${renderExpertLinks(stage)}
-        ${renderJourneyActions(stage, normalizedStatus)}
+        ${renderJourneyActions(stage, model)}
       </article>
       <p id="journey-live" class="sr-only" aria-live="polite" aria-atomic="true">${escapeHtml(announcement)}</p>
     </section>

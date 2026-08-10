@@ -49,6 +49,75 @@ assert.match(depth, /href="#market"/u);
 assert.match(depth, /href="#compare"/u);
 assert.match(depth, /href="#projects"/u);
 
+const authoritativeQuality = renderJourney({
+  stageId: "quality",
+  stageModel: {
+    stageId: "quality",
+    status: "ready",
+    data: {
+      cardArea: { normalized_value: 104.15 },
+      planArea: { normalized_value: 53.37 },
+      areaDelta: { normalized_value: 50.78 },
+      decision: { benchmarkEligible: false },
+    },
+    correctiveAction: null,
+  },
+});
+for (const [fact, value] of [
+  ["card-area", "104.15"],
+  ["plan-area", "53.37"],
+  ["area-delta", "50.78"],
+]) {
+  assert.match(
+    authoritativeQuality,
+    new RegExp(`data-journey-fact="${fact}"[\\s\\S]*${value.replace(".", "\\.")}`, "u"),
+  );
+}
+assert.match(authoritativeQuality, /Excluido del benchmark/u);
+
+const decisionResponse = renderJourney({
+  stageId: "decision",
+  stageModel: {
+    stageId: "decision",
+    status: "ready",
+    data: {
+      mode: "assistant_response",
+      response: {
+        scenario: { scopeText: "Miraflores <script>alert(1)</script>" },
+        blocks: [
+          { type: "answer", items: [{ kind: "text", text: "Priorizar evidencia disponible" }] },
+          { type: "limitations", items: [{ kind: "text", text: "Sin precio de cierre" }] },
+          { type: "next_step", items: [{ kind: "action", label: "Preparar checklist" }] },
+        ],
+      },
+      checklist: null,
+    },
+    correctiveAction: null,
+  },
+});
+assert.match(decisionResponse, /Priorizar evidencia disponible/u);
+assert.match(decisionResponse, /Sin precio de cierre/u);
+assert.match(decisionResponse, /Preparar checklist/u);
+assert.doesNotMatch(decisionResponse, /<script>alert/u);
+assert.match(decisionResponse, /&lt;script&gt;alert/u);
+
+const unavailableDecision = renderJourney({
+  stageId: "decision",
+  stageModel: {
+    stageId: "decision",
+    status: "capability_unavailable",
+    capability: {
+      contractVersion: "2.1.0",
+      minimumContractVersion: "2.4.0",
+    },
+    data: null,
+    correctiveAction: { label: "Formular consulta", href: "#assistant" },
+  },
+});
+assert.match(unavailableDecision, /data-journey-state="capability_unavailable"/u);
+assert.match(unavailableDecision, /contrato 2\.1\.0.*requiere 2\.4\.0/iu);
+assert.match(unavailableDecision, /journey-primary-action" href="#assistant">Formular consulta/u);
+
 for (const [status, expected] of [
   ["loading", /Preparando la etapa/u],
   ["unavailable", /Lectura no disponible/u],
@@ -117,5 +186,5 @@ assert.match(styles, /@media\s*\(prefers-reduced-motion:\s*reduce\)/u);
 assert.doesNotMatch(styles, /transition:\s*all/iu);
 
 console.log(
-  "Journey view OK: six stages, one h1, rail, CTA, expert access, base states and ordered CSS verified.",
+  "Journey view OK: six stages, authoritative facts and responses, states, CTA, escaping and ordered CSS verified.",
 );

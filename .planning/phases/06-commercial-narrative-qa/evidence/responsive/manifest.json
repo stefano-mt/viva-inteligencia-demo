@@ -99,42 +99,42 @@
   "files": [
     {
       "file": "journey-scale-1440x900.png",
-      "sha256": "6551e4bd3d14c455625f3aa82f066132ed1db5206a16aa2c81a0adfab16d6487",
+      "sha256": "138634cba10d7a7ebc4fe74643d62f37095e62d1745b9b5984f6ec2ccf605336",
       "surface": "journey-scale",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/scale"
     },
     {
       "file": "journey-geography-1440x900.png",
-      "sha256": "50e182076b9196ecd97e5f658a345c0cd0cae5989eb373b640d83b9da38ff197",
+      "sha256": "c582b3313f1ead3ffb921c77ddf7846a356b104166d577fbc1c70159a904656f",
       "surface": "journey-geography",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/geography"
     },
     {
       "file": "journey-quality-1440x900.png",
-      "sha256": "e1e30027f6dbc46974647f17aedd4116d78b99d09267b062581a3db99cca10a8",
+      "sha256": "c5e8e1be500157c1dd61e11297c27368032beb978d5050ef208138ac3ae5a735",
       "surface": "journey-quality",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/quality"
     },
     {
       "file": "journey-depth-1440x900.png",
-      "sha256": "af31aad68d88be3b5b22b1d63f6e7dedf2bccfdcaed3dc3d30c92e62adbe08c0",
+      "sha256": "1170577494b80fba890b44eebe37f74060631b5a6637e655cb2098d6aff89641",
       "surface": "journey-depth",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/depth"
     },
     {
       "file": "journey-movement-1440x900.png",
-      "sha256": "0603b334ac0a14ebed1a332ed1938bc29af51d10be7dd3d1e4873e1bd7c022e0",
+      "sha256": "cf857590bb7e08c01520d80c6cd9f8302f8f75fe8d505edf96fe74d86a6091f1",
       "surface": "journey-movement",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/movement"
     },
     {
       "file": "journey-decision-1440x900.png",
-      "sha256": "1dad3d098cc4df01f1951107ac0790f76fb6e9131f830346afdb267bba3986fe",
+      "sha256": "6fac80bcce9b6e8c5008ac9285a63f6e5dbf5c6788b99f15df9ee6858cac474d",
       "surface": "journey-decision",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#journey/decision"
@@ -197,42 +197,42 @@
     },
     {
       "file": "journey-scale-1280x720.png",
-      "sha256": "df07b1d63f51bb9df8f9edefb371e165c0d540842a490652acb5a9a4ec6851f5",
+      "sha256": "4f94dc18c8558d7b069420b39ea52c0947fed8c7ddae175f04214c1e0322ffce",
       "surface": "journey-scale",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/scale"
     },
     {
       "file": "journey-geography-1280x720.png",
-      "sha256": "b96525f46da3456c4ca1fba9e39bf0eb7214a6c74ed518206f3bc99a0745ad02",
+      "sha256": "8c493797e74bede0cb88cd84cc40b57cd466f392368ab5fb5c571c88404fb020",
       "surface": "journey-geography",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/geography"
     },
     {
       "file": "journey-quality-1280x720.png",
-      "sha256": "d9b8898eea174ba00787e1d33a497277f4c1af4209310a0ef4943fb0673617b1",
+      "sha256": "f26f13ef817149efb95b1ad5dce4fd5e81558945103ea403ff94ac22151862c9",
       "surface": "journey-quality",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/quality"
     },
     {
       "file": "journey-depth-1280x720.png",
-      "sha256": "30fda5c63297cd469bbc167e98a5b5f562c60ce93a9a60d558766e988e8d257b",
+      "sha256": "92818c399f160e709a64d94560b340b3e4410c1110471d347b69ef78f17a1380",
       "surface": "journey-depth",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/depth"
     },
     {
       "file": "journey-movement-1280x720.png",
-      "sha256": "7eed96db83c300da05a2cf50498cd4da4eaebfe78aa1af496d7767f69460aff1",
+      "sha256": "8a8aa88a6c4ec6a675b8f6222874dc7e1af6d152c0df30d7e65acc6df9ae2ddd",
       "surface": "journey-movement",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/movement"
     },
     {
       "file": "journey-decision-1280x720.png",
-      "sha256": "ab5adebec17378a3445885031b709018aa23ebb9a3c66e69f025b4f4a1693dd8",
+      "sha256": "850ba3676e5961856da67e573d1c52211ccc6f5d6b486fb223de8e9dc763e101",
       "surface": "journey-decision",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#journey/decision"
@@ -295,42 +295,42 @@
     },
     {
       "file": "journey-scale-390x844.png",
-      "sha256": "ccfefa4acabdbf8c208607b99c1a6c2c0ec0676e33a172ac954178ddd8208ea8",
+      "sha256": "334c9ea27cf48bc538f96fd19a131e3dcc488e031e1aee37b962b5d00626c56d",
       "surface": "journey-scale",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/scale"
     },
     {
       "file": "journey-geography-390x844.png",
-      "sha256": "bc71052dd9ca0581b64ef99b9a4b8c149c6dba4fe9f5495b8d089bc578cee115",
+      "sha256": "955b1aa02cd3bc15712b77102d10ee605f823dbbe1da0f947351067f396829d7",
       "surface": "journey-geography",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/geography"
     },
     {
       "file": "journey-quality-390x844.png",
-      "sha256": "fc3ec11a3be8d8eaf152b7ac5d2d9864f9fb8279db5b5eedf02ed7007f2fb9a1",
+      "sha256": "e34b2e7c7169a62745cf978c3a091dd0e27ec6f9e021a6c5c43af2e15f674f29",
       "surface": "journey-quality",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/quality"
     },
     {
       "file": "journey-depth-390x844.png",
-      "sha256": "60bf9764c90afec907d3c799769cf27cef781fc2137618010b9c239112225e1e",
+      "sha256": "0419df893fdc6dd836542dea1fc841db86a02cace33704513dafa21912b4c7b1",
       "surface": "journey-depth",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/depth"
     },
     {
       "file": "journey-movement-390x844.png",
-      "sha256": "4267f85966d4e5cbe93ebcbd15f85d1f8cc4b76a60934cf4d27c0f35d24892a5",
+      "sha256": "456366919a7d4f7013815e7913e1838fc5cd52bcfc116be3e2879955aebefa2f",
       "surface": "journey-movement",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/movement"
     },
     {
       "file": "journey-decision-390x844.png",
-      "sha256": "511ba1d15c3a5bccbd9cc5c21a0eb559c11d446727252fa94b3f30a53341e598",
+      "sha256": "c58ea0f66998b32363f09ab21fc92bbc2511f32987f4fd730ea23d2b7ffae8b7",
       "surface": "journey-decision",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#journey/decision"
@@ -414,7 +414,7 @@
     },
     {
       "file": "journey-depth-zoom-200.png",
-      "sha256": "10b9972d516ebf93ae0d87cd7e3caf3ccf2c00e3e808e47c83215fb0ee3a672c",
+      "sha256": "9f3ee1788be5a3f23d075b7c632e88037f89642ab833def14ed23b954350d4dc",
       "surface": "journey-depth",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#journey/depth"

@@ -9,13 +9,13 @@
   "files": [
     {
       "file": "01-scale.png",
-      "sha256": "1e144ad1efb42eed3758ab275ec450e476be69514649145f1daee45305409877",
+      "sha256": "a964f99a38b9bdced72c3b174ffb4e84ab9ebd4c8c8f228364b91ad1f9bdfb5d",
       "claim": "Entrada canónica al recorrido, etapa Escala y escenario visible.",
       "url": "http://127.0.0.1:4364/#journey/scale"
     },
     {
       "file": "02-geography-map.png",
-      "sha256": "b4f420f7d74c5d54c0088fb187c867933a1683438f241f93864fa9deaf90bc94",
+      "sha256": "22d96b8a5af4efe0ab3d6a14a1e311192734432fe4b197f81d32b80e212ef52d",
       "claim": "Mapa territorial del mismo escenario usado por el recorrido.",
       "url": "http://127.0.0.1:4364/#dashboard"
     },
@@ -27,7 +27,7 @@
     },
     {
       "file": "04-depth-comparator.png",
-      "sha256": "9a6964587071866b88bce22855fc3cf07b58c2369be52f043096b964004494e3",
+      "sha256": "8bf03d12330090840c849c2d9c3bf97c3ddea144fecd26d13456ba3f33ede445",
       "claim": "Comparador con conclusión, denominadores y filas de evidencia.",
       "url": "http://127.0.0.1:4364/#compare"
     },
@@ -39,7 +39,7 @@
     },
     {
       "file": "06-decision-assistant.png",
-      "sha256": "a538f12968743af2bf684c03371ab3ae37a1b7c3416c63d17f1d6edbb3eee84e",
+      "sha256": "90490b34ffd8c0a82eed041c8c9382284dcb523bd31343a9136b5134119c5867",
       "claim": "Asistente determinista con lectura, límites y referencias visibles.",
       "url": "http://127.0.0.1:4364/#assistant"
     },
@@ -51,7 +51,7 @@
     },
     {
       "file": "08-decision-return.png",
-      "sha256": "58508d9afdad32ab58e39379cc1b49d7861a67b82505b25f75709ed068c1131b",
+      "sha256": "30b583b47005547fcb48ae816d882dfbcb7763593a43ebbadb82a23c268ae899",
       "claim": "Retorno canónico a Decisión después del asistente y checklist.",
       "url": "http://127.0.0.1:4364/#journey/decision"
     }

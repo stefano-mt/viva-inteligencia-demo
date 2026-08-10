@@ -380,8 +380,23 @@ function render() {
   const content = isJourney
     ? renderJourney({
         stageId: route.stageId,
-        status:
-          geographyArtifact.status === "loading" ? "loading" : "ready",
+        stageModel:
+          geographyArtifact.status === "loading"
+            ? {
+                stageId: route.stageId,
+                status: "loading",
+                data: null,
+                correctiveAction: null,
+              }
+            : state.journeyContext?.stages?.[route.stageId] ?? {
+                stageId: route.stageId,
+                status: "error",
+                data: null,
+                correctiveAction: {
+                  label: "Reiniciar recorrido",
+                  href: "#journey/scale",
+                },
+              },
         announcement: pendingJourneyAnnouncement,
       })
     : geographyArtifact.status === "loading"

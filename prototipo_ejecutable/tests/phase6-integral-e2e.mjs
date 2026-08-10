@@ -162,6 +162,11 @@ await withDemoBrowser(
       await openPath(observed.page, baseUrl, "/#journey/decision");
       const snapshot = await journeySnapshot(observed.page);
       assert.equal(
+        await observed.page.locator('[data-journey-stage="decision"]').getAttribute("data-journey-state"),
+        snapshot.stages.decision.status,
+        `${version} decision DOM parity`,
+      );
+      assert.equal(
         snapshot.status,
         version === "2.0.0" ? "contract_unavailable" : "ready",
         `${version} global status`,
@@ -178,6 +183,13 @@ await withDemoBrowser(
           `${version} ${stageId} capability status`,
         );
         if (!stage.available) assert.ok(stage.correctiveHref, `${version} ${stageId} corrective action`);
+      }
+      if (!snapshot.stages.decision.available) {
+        assert.equal(
+          await observed.page.locator('.journey-primary-action').getAttribute('href'),
+          snapshot.stages.decision.correctiveHref,
+          `${version} decision corrective CTA`,
+        );
       }
       assert.doesNotMatch(await observed.page.locator("body").innerText(), /NaN|Infinity|∞/u);
       assertClean(observed, `contract ${version}`);
@@ -198,6 +210,13 @@ await withDemoBrowser(
         snapshot.stages[fixture.stage_id].status,
         fixture.expected.public_stage_status,
         `${fixture.case_id} journey status`,
+      );
+      assert.equal(
+        await fixtureObserved.page
+          .locator(`[data-journey-stage="${fixture.stage_id}"]`)
+          .getAttribute("data-journey-state"),
+        snapshot.stages[fixture.stage_id].status,
+        `${fixture.case_id} visible journey status`,
       );
       assert.deepEqual(
         await fixtureObserved.page
@@ -234,10 +253,18 @@ await withDemoBrowser(
     await openPath(emptyObserved.page, baseUrl, `${emptyPath}#journey/geography`);
     let emptySnapshot = await journeySnapshot(emptyObserved.page);
     assert.equal(emptySnapshot.stages.geography.status, "empty");
+    assert.equal(
+      await emptyObserved.page.locator('[data-journey-stage="geography"]').getAttribute("data-journey-state"),
+      "empty",
+    );
     assert.equal(emptySnapshot.stages.geography.correctiveHref, "#dashboard");
     await openPath(emptyObserved.page, baseUrl, `${emptyPath}#journey/movement`);
     emptySnapshot = await journeySnapshot(emptyObserved.page);
     assert.equal(emptySnapshot.stages.movement.status, "empty");
+    assert.equal(
+      await emptyObserved.page.locator('[data-journey-stage="movement"]').getAttribute("data-journey-state"),
+      "empty",
+    );
     assert.equal(emptySnapshot.stages.movement.correctiveHref, "#journey/depth");
     assert.doesNotMatch(await emptyObserved.page.locator("body").innerText(), /NaN|Infinity|∞/u);
     assertClean(emptyObserved, "empty geography and movement");
