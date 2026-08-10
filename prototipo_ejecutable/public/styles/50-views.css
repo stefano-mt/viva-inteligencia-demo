@@ -18,93 +18,88 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.geography-brief {
+.dashboard-grid--radar {
+  align-items: start;
+}
+
+.radar-primary {
+  min-width: 0;
+}
+
+.radar-primary > :is(.geo-panel, .positioning-panel) {
+  min-height: 620px;
+  border-color: var(--teal-line);
+  box-shadow:
+    inset 0 5px 0 var(--teal-bright),
+    0 18px 42px rgba(1, 51, 43, 0.09);
+}
+
+.radar-deep-dive {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.radar-deep-dive > summary {
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  color: var(--text);
+  cursor: pointer;
+  list-style: none;
+}
+
+.radar-deep-dive > summary::-webkit-details-marker {
+  display: none;
+}
+
+.radar-deep-dive > summary::after {
+  content: "+";
+  color: var(--action);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.radar-deep-dive[open] > summary::after {
+  content: "−";
+}
+
+.radar-deep-dive > summary > span {
   display: grid;
-  grid-template-columns: minmax(190px, 0.7fr) minmax(0, 2fr);
-  gap: 20px;
-  margin: 0 16px 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--line);
+  gap: 4px;
 }
 
-.geography-brief__intro {
-  display: grid;
-  gap: 5px;
-  align-content: start;
+.radar-deep-dive > summary strong {
+  font-size: 17px;
 }
 
-.geography-brief__intro strong {
-  color: var(--teal);
-  font-size: 14px;
-}
-
-.geography-brief__intro span,
-.geography-brief__ledger small {
+.radar-deep-dive > summary small {
   color: var(--muted);
-  font-size: 12px;
+  font-size: 13px;
   line-height: 1.4;
 }
 
-.geography-brief__ledger {
+.radar-deep-dive > summary:focus-visible {
+  outline: 3px solid #202022;
+  outline-offset: -4px;
+}
+
+.radar-deep-dive__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0;
+  grid-template-columns: minmax(0, 7fr) minmax(320px, 5fr);
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  padding: 16px;
+  background: var(--surface-soft);
 }
 
-.geography-brief__ledger > div {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 6px;
-  align-content: start;
-  min-width: 0;
-  padding: 0 16px;
-}
-
-.geography-brief__ledger > div + div {
-  border-left: 1px solid var(--line);
-}
-
-.geography-brief__ledger > div:first-child {
-  padding-left: 0;
-}
-
-.geography-brief__ledger > div:last-child {
-  padding-right: 0;
-}
-
-.geography-brief__ledger dt {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 850;
-}
-
-.geography-brief__ledger dd {
-  display: grid;
-  gap: 3px;
-  margin: 0;
-  font-size: 20px;
-  font-weight: 850;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.15;
-}
-
-@media (max-width: 760px) {
-  .geography-brief {
-    grid-template-columns: 1fr;
-  }
-
-  .geography-brief__ledger {
-    grid-template-columns: 1fr;
-  }
-
-  .geography-brief__ledger > div {
-    padding: 12px 0;
-  }
-
-  .geography-brief__ledger > div + div {
-    border-top: 1px solid var(--line);
-    border-left: 0;
-  }
+.radar-deep-dive__grid > .panel {
+  box-shadow: none;
 }
 
 .competitor-card,

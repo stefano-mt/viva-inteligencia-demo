@@ -47,7 +47,7 @@ assert.match(
   catalogHtml,
   new RegExp(`data-price-reference-count="${priceReferenceCount}"`, "u"),
 );
-assert.match(catalogHtml, /Qué proyectos merecen una comparación más profunda/u);
+assert.match(catalogHtml, /proyectos para priorizar/u);
 assert.match(catalogHtml, /La comparabilidad no convierte todos los campos publicados en evidencia elegible/u);
 assert.match(catalogHtml, /href="#compare"[^>]*data-view="compare"/u);
 assert.match(
@@ -60,9 +60,11 @@ assert.equal(
   "Projects exposes one primary action before technical detail",
 );
 assert.equal(
-  (catalogHtml.match(/class="project-catalog-brief__ledger"/gu) ?? []).length,
+  (catalogHtml.match(/class="project-catalog-orientation__status"/gu) ?? []).length,
   1,
 );
+assert.doesNotMatch(catalogHtml, /project-catalog-brief/u);
+assert.doesNotMatch(catalogHtml, /project-card-reading/u);
 assert.doesNotMatch(catalogHtml, /NaN|Infinity|undefined/u);
 
 const rows = buildComparableRows({
@@ -101,11 +103,8 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     const brief = page.locator("[data-projects-conclusion]");
     await brief.waitFor({ state: "visible" });
     assert.equal(await brief.getAttribute("data-comparable-count"), "85");
-    assert.equal(
-      await brief.locator(".project-catalog-brief__ledger > div").count(),
-      3,
-      "The commercial conclusion uses at most three summaries",
-    );
+    assert.equal(await brief.locator(".project-catalog-orientation__status").count(), 1);
+    assert.equal(await brief.locator("dl").count(), 0, "Projects does not repeat a KPI ledger");
     const briefBox = await brief.boundingBox();
     const catalogPanelBox = await page.locator(".catalog-panel").boundingBox();
     const detailPanelBox = await page.locator(".detail-panel").boundingBox();
@@ -126,13 +125,6 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     await disclosureSummary.focus();
     await page.keyboard.press("Enter");
     assert.equal(await disclosure.getAttribute("open"), "");
-
-    const ledgerColumns = await brief
-      .locator(".project-catalog-brief__ledger")
-      .evaluate((element) =>
-        getComputedStyle(element).gridTemplateColumns.split(" ").length,
-      );
-    assert.equal(ledgerColumns, viewport.width <= 620 ? 1 : 3);
 
     const overflow = await page.evaluate(
       () =>

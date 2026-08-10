@@ -217,9 +217,14 @@ await withDemoBrowser(
       /proyecto|alcance|distrito/iu,
     );
     assert.equal(
-      await visibleText(page.locator("#scenario-summary-title")),
+      await page.locator("#scenario-summary-title").count(),
+      0,
+      "Radar no repite el resumen global del escenario",
+    );
+    assert.equal(
+      await visibleText(page.locator("#scenario-sidebar-title")),
       scenarioLabel,
-      "Geografía y recorrido conservan el mismo escenario visible",
+      "Geografía conserva el mismo escenario en la barra lateral",
     );
     await capture(
       page,

@@ -359,6 +359,8 @@ function bindJourneyShellEvents() {
 function render() {
   const route = parseHashRoute(window.location.hash);
   const isJourney = state.view === "journey";
+  const showScenarioSummary =
+    !isJourney && !["dashboard", "projects"].includes(state.view);
   const scenarioPresentation = buildScenarioPresentation({
     data: state.data,
     scenarioState: state.scenarioState,
@@ -434,7 +436,7 @@ function render() {
             : renderScenarioBar(scenarioPresentation)
         }
         <main class="content" id="main-content" tabindex="-1">
-          ${isJourney ? "" : renderScenarioSummary(scenarioPresentation)}
+          ${showScenarioSummary ? renderScenarioSummary(scenarioPresentation) : ""}
           ${
             isJourney
               ? content

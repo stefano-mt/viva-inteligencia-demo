@@ -34,6 +34,11 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
       assert.equal(await page.locator("#top-district").count(), 1, `Distrito duplicado o ausente en #${route.id}`);
       assert.equal(await page.locator("#reset-scenario").count(), 1, `Reset duplicado o ausente en #${route.id}`);
       assert.equal(await page.locator(".scenario-bar .eyebrow").count(), 0, `La cabecera no debe repetir el eyebrow técnico en #${route.id}`);
+      assert.equal(
+        await page.locator(".scenario-summary").count(),
+        ["dashboard", "projects"].includes(route.id) ? 0 : 1,
+        `Resumen global duplicado o ausente en #${route.id}`,
+      );
 
       const unnamedControls = await page.locator("button, input, select, textarea, summary, a[href]").evaluateAll((controls) =>
         controls
@@ -59,6 +64,21 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
       assert.deepEqual(duplicateIds, [], `IDs duplicados en #${route.id}: ${duplicateIds.join(", ")}`);
 
       if (route.id === "dashboard") {
+        assert.equal(
+          await page.locator(".radar-primary > :is(.geo-panel, .positioning-panel)").count(),
+          1,
+          "Radar debe montar una sola visualización completa",
+        );
+        assert.equal(
+          await page.locator("[data-geography-brief]").count(),
+          0,
+          "Radar no debe repetir el resumen territorial global",
+        );
+        assert.equal(
+          await page.locator("details.radar-deep-dive:not([open])").count(),
+          1,
+          "El score secundario debe iniciar bajo demanda",
+        );
         const markers = page.locator("[data-geo-point-id]");
         const markerIds = (await markers.evaluateAll((elements) => elements.map((element) => element.dataset.geoPointId))).sort();
         const optionIds = (await page.locator("#geo-project-select option").evaluateAll((options) => options.map((option) => option.value))).sort();
@@ -80,6 +100,18 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
         );
         assert.equal(await page.locator("#scenario-view-geographic").count(), 1, "El control geográfico debe tener ID estable único");
         assert.equal(await page.locator("#scenario-view-positioning").count(), 1, "El control de posicionamiento debe tener ID estable único");
+      }
+      if (route.id === "projects") {
+        assert.equal(
+          await page.locator(".project-catalog-orientation__status").count(),
+          1,
+          "Proyectos debe usar una orientación compacta",
+        );
+        assert.equal(
+          await page.locator(".project-catalog-brief, .project-card-reading").count(),
+          0,
+          "Proyectos no debe repetir ledger ni explicación por fila",
+        );
       }
       if (route.id === "market") {
         assert.match(

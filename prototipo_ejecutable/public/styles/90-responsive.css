@@ -30,6 +30,10 @@
     grid-template-columns: 1fr;
   }
 
+  .radar-deep-dive__grid {
+    grid-template-columns: 1fr;
+  }
+
   .dashboard-grid > .span-4,
   .dashboard-grid > .span-5,
   .dashboard-grid > .span-6,
@@ -119,6 +123,10 @@
 
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .radar-primary > :is(.geo-panel, .positioning-panel) {
+    min-height: 0;
   }
 
   .span-4,

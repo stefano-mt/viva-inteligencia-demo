@@ -15,25 +15,25 @@
     },
     {
       "file": "02-geography-map.png",
-      "sha256": "2090bce9fc789dcbc1e5beb0e24acc86d7a8ad52b098452ba902a43e7581c67b",
+      "sha256": "8f618c2ac7b1fa235a851284e79152d62ad9390f3d0a2309c403148121d885e4",
       "claim": "Mapa territorial del mismo escenario usado por el recorrido.",
       "url": "http://127.0.0.1:4364/#dashboard"
     },
     {
       "file": "03-quality-type7.png",
-      "sha256": "c490bfe3ae2bda64393c9292cab3720ffb817c3ff0f6ccec10391735d343687d",
+      "sha256": "7f837484c07cf5bf63ffa3760c4d8412d988fbdea724c7492096e7e2000ec6b3",
       "claim": "Caso Tipo 7 con discrepancia, exclusión y evidencia autorizada.",
       "url": "http://127.0.0.1:4364/#inspector/case/f3-ct-g-pardo"
     },
     {
       "file": "04-depth-comparator.png",
-      "sha256": "5fbfe860ed67d143e187335c8143482d433498c8f25a480e3a2ab0c113344e34",
+      "sha256": "c858142e7410613bf8da01a24500164d7585b79f6e279a279325ec6c2098a3b4",
       "claim": "Comparador con conclusión, denominadores y filas de evidencia.",
       "url": "http://127.0.0.1:4364/#compare"
     },
     {
       "file": "05-movement-signal.png",
-      "sha256": "67ad70d8d715071ef22c585bd00216967364540b6160155b7ff42b265f023b33",
+      "sha256": "61641fbad1f1fc9183281a38f22e9f8414d78fe5d811a4080343a74e655b48df",
       "claim": "Señal publicada con anterior/nuevo, vigencia y causa no observada.",
       "url": "http://127.0.0.1:4364/#activity"
     },

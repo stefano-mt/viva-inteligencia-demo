@@ -180,9 +180,9 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   await openPath(page, baseUrl, descriptor.canonical_path);
   await assertCurrentPath(page, baseUrl, descriptor.canonical_path, "La URL CT-C debe ser canónica al cargar");
   assert.equal(
-    await page.locator("#scenario-canonical-url").textContent(),
-    page.url(),
-    "La URL compartible debe reflejar exactamente la URL canónica",
+    await page.locator("#scenario-canonical-url, .scenario-summary").count(),
+    0,
+    "Radar debe usar la URL canónica sin montar un resumen territorial duplicado",
   );
 
   const publicMetadata = await page.evaluate(async () => {
@@ -518,7 +518,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.locator('[data-geo-state="empty-radius"]').count(), 1, "El radio vacío debe ser un estado válido");
   assert.equal(await page.locator("[data-geo-point-id]").count(), 0, "El radio vacío no debe usar fallback");
   assert.match(await page.locator("#main-content").innerText(), /0 comparables dentro de 500 m/i, "Debe explicar el resultado cero");
-  assert.match(await page.locator("#main-content").innerText(), /Comparables insuficientes/i, "Debe degradar comparabilidad con prudencia");
+  assert.equal(await page.locator("details.radar-deep-dive:not([open])").count(), 1, "El score insuficiente permanece disponible bajo demanda");
   assert.match(await page.locator("#main-content").innerText(), /Referencia de precio insuficiente/i, "Debe degradar precio con prudencia");
 
   for (const [routeId, consumer] of [

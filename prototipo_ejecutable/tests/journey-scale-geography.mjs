@@ -45,7 +45,7 @@ assert.match(marketHtml, /Las cifras no se suman/u);
 assert.doesNotMatch(marketHtml, /NaN|Infinity/u);
 
 function assertDashboardMatchesScenario(html, context) {
-  assert.match(html, /data-geography-brief/u);
+  assert.match(html, /data-radar-reading/u);
   assert.match(
     html,
     new RegExp(`data-observed-projects="${context.observed_scope_project_ids.length}"`, "u"),
@@ -128,24 +128,31 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     assert.equal(await scaleLedger.locator(".scale-ledger > div").count(), 3);
 
     await openPath(page, baseUrl, "/#dashboard");
-    const geographyBrief = page.locator("[data-geography-brief]");
-    await geographyBrief.waitFor({ state: "visible" });
+    const radar = page.locator("[data-radar-reading]");
+    await radar.waitFor({ state: "visible" });
     assert.equal(
-      await geographyBrief.locator(".geography-brief__ledger > div").count(),
-      3,
+      await radar.getAttribute("data-observed-projects"),
+      await page.locator("#geo-project-select option").count().then(String),
+      "Radar derives its observed count from the same map universe",
     );
     assert.equal(
       await page.locator(".geo-panel").count(),
       1,
       "The geography map remains part of the scenario",
     );
-
-    const metricsColumns = await geographyBrief
-      .locator(".geography-brief__ledger")
-      .evaluate((element) =>
-        getComputedStyle(element).gridTemplateColumns.split(" ").length,
-      );
-    assert.equal(metricsColumns, viewport.width < 620 ? 1 : 3);
+    assert.equal(
+      await page.locator(".positioning-panel").count(),
+      0,
+      "Only the active visualization is mounted",
+    );
+    assert.equal(
+      await page.locator("[data-geography-brief]").count(),
+      0,
+      "Radar does not repeat the global scenario summary",
+    );
+    const mapBox = await page.locator(".radar-primary").boundingBox();
+    const plannerBox = await page.locator(".planner-panel").boundingBox();
+    assert.ok(mapBox.y < plannerBox.y, `${viewport.name}: map must precede product planning`);
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );

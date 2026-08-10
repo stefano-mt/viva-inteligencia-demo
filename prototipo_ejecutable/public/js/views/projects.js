@@ -346,7 +346,6 @@ function projectListRow(row, selected) {
         </div>
         ${scoreBadge(row)}
       </div>
-      <p class="project-card-reading">${escapeHtml(projectSelectionReading(row))}</p>
       <dl class="project-row-facts">
         <div>
           <dt>Precio / m²</dt>
@@ -371,37 +370,39 @@ function projectListRow(row, selected) {
   `;
 }
 
-function renderCatalogBrief(catalog) {
+function renderCatalogOrientation(catalog) {
   const excludedFromPrice = Math.max(
     0,
     catalog.comparableCount - catalog.priceReferenceCount,
   );
   const hasComparables = catalog.comparableCount > 0;
   const conclusion = hasComparables
-    ? `${formatNumber(catalog.comparableCount)} proyectos sostienen la muestra comparable; ${formatNumber(catalog.priceReferenceCount)} tienen precio publicado provisional elegible. Selecciona candidatos y contrasta sus diferencias antes de decidir.`
+    ? `${formatNumber(catalog.comparableCount)} proyectos sostienen la muestra comparable; ${formatNumber(catalog.priceReferenceCount)} con precio publicado provisional elegible. Selecciona candidatos y contrasta sus diferencias antes de decidir.`
     : "El escenario actual no tiene proyectos comparables. Revisa el alcance antes de intentar una comparación.";
 
   return `
     <section
-      class="project-catalog-brief"
+      class="project-catalog-orientation"
       data-projects-conclusion
       data-comparable-count="${escapeAttr(catalog.comparableCount)}"
       data-filtered-count="${escapeAttr(catalog.rows.length)}"
       data-price-reference-count="${escapeAttr(catalog.priceReferenceCount)}"
-      aria-labelledby="project-catalog-conclusion"
+      aria-labelledby="project-catalog-orientation-title"
     >
-      <div class="project-catalog-brief__copy">
-        <span class="project-catalog-brief__eyebrow">Lectura del escenario</span>
-        <h2 id="project-catalog-conclusion">Qué proyectos merecen una comparación más profunda</h2>
+      <div class="project-catalog-orientation__copy">
+        <span class="project-catalog-orientation__eyebrow">Inventario comparable · ${escapeHtml(catalog.scopeText)}</span>
+        <h2 id="project-catalog-orientation-title">${formatNumber(catalog.comparableCount)} proyectos para priorizar</h2>
         <p>${escapeHtml(conclusion)}</p>
         <small>La comparabilidad no convierte todos los campos publicados en evidencia elegible.</small>
       </div>
-      <dl class="project-catalog-brief__ledger" aria-label="Resumen de comparables">
-        <div><dt>Universo comparable</dt><dd>${formatNumber(catalog.comparableCount)}</dd></div>
-        <div><dt>Vista tras filtros locales</dt><dd>${formatNumber(catalog.rows.length)}</dd></div>
-        <div><dt>Sin precio elegible</dt><dd>${formatNumber(excludedFromPrice)}</dd></div>
-      </dl>
-      <div class="project-catalog-brief__actions">
+      <div
+        class="project-catalog-orientation__status"
+        aria-label="Estado del inventario"
+      >
+        <strong>${formatNumber(catalog.rows.length)}</strong>
+        <span>visibles tras filtros · ${formatNumber(excludedFromPrice)} sin precio elegible</span>
+      </div>
+      <div class="project-catalog-orientation__actions">
         ${
           hasComparables
             ? `<a class="primary-button" href="#compare" data-view="compare">Comparar proyectos con evidencia</a>`
@@ -603,21 +604,14 @@ export function renderProjects() {
       class="catalog-layout"
       data-scenario-consumer="catalog"
     >
-      ${renderCatalogBrief(catalog)}
+      ${renderCatalogOrientation(catalog)}
       <section class="panel catalog-panel">
         <div class="panel-header">
           <div>
-            <h2>Comparables del escenario</h2>
-            <p>
-              ${escapeHtml(catalog.scopeText)} ·
-              ${formatNumber(catalog.comparableCount)} proyectos en el universo canónico.
-            </p>
+            <h2>Ordena y selecciona candidatos</h2>
+            <p>Los filtros de esta lista no modifican el escenario territorial.</p>
           </div>
           <div class="panel-header-actions">
-            <span class="tag success">
-              ${formatNumber(catalog.priceReferenceCount)}
-              con precio provisional elegible
-            </span>
             ${componentHelp(
               "Filtros locales",
               "Buscar, filtrar por fase u ordenar no modifica el distrito, alcance ni filtros de producto del escenario compartido.",

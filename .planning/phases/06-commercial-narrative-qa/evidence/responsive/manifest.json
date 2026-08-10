@@ -141,14 +141,14 @@
     },
     {
       "file": "expert-dashboard-1440x900.png",
-      "sha256": "3b9a87ccb19e8518998851ab29e56938dec6fdc99fb8e276634c06be75f3409d",
+      "sha256": "2588e8104a1a9cc71d070f766d7850bb6cfdf0825bcdfa1e220066ea36ee653c",
       "surface": "expert-dashboard",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#dashboard"
     },
     {
       "file": "expert-projects-1440x900.png",
-      "sha256": "c6ada18d4a9a45843054b4ea520d5ed0e068689f16029db701e881a5ff987064",
+      "sha256": "0e59269ed262c3607432029159cce34c099a4ad3e0a5fda04c4493f4f96f58bb",
       "surface": "expert-projects",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#projects"
@@ -239,14 +239,14 @@
     },
     {
       "file": "expert-dashboard-1280x720.png",
-      "sha256": "46c0d438a59f2a253699cb4be1caa08644aa912cfe26a434987b3c11a2c66e57",
+      "sha256": "d8828bb95423e642d41f748037b591b8ab1c855941294770c62c76231ef7e362",
       "surface": "expert-dashboard",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#dashboard"
     },
     {
       "file": "expert-projects-1280x720.png",
-      "sha256": "615c08994feeebdf159b1971ea5560196e9916f6eeeb01af3df7e8c102960a06",
+      "sha256": "860f47940c1ef359e7e6c19306b6ac69588132fd16668628a3025e2ff399898b",
       "surface": "expert-projects",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#projects"
@@ -337,14 +337,14 @@
     },
     {
       "file": "expert-dashboard-390x844.png",
-      "sha256": "2bc57a9d5ad8554be08b144e42b475c2f0049905d3d4d1e6931a8c218b500681",
+      "sha256": "53ee2955c79a09423ce5cb0cf0f0aba473ff53db569f97dfb6962e2fce978370",
       "surface": "expert-dashboard",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#dashboard"
     },
     {
       "file": "expert-projects-390x844.png",
-      "sha256": "ada7f4d7ab3a9d909d9e896fc5cb49de4263f830409c7c95ca1f90fe738e5729",
+      "sha256": "67c1a833649e9ea32cd6ae8110c74d4745a0a0b6b025b9b1a5e16b7b55926250",
       "surface": "expert-projects",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#projects"
@@ -435,14 +435,14 @@
     },
     {
       "file": "expert-dashboard-zoom-200.png",
-      "sha256": "630432c38f65b263e2220fd285597542b42e78bc8d9935ee2ad711478bef98da",
+      "sha256": "29607a3235f953630f35cc014c6fd75c515413c13d7a4963422a0b9c14eebdc1",
       "surface": "expert-dashboard",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#dashboard"
     },
     {
       "file": "expert-projects-zoom-200.png",
-      "sha256": "1f9614dedc205785cd336b6c41fb468960ad58f97e85143384b92cb0829178eb",
+      "sha256": "898edd795a00777d14bd1866da2ea9d51a61ce17b2f1e1c90c8248388ba382bf",
       "surface": "expert-projects",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#projects"
