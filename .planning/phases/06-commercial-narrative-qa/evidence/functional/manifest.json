@@ -51,7 +51,7 @@
     },
     {
       "file": "08-decision-return.png",
-      "sha256": "30b583b47005547fcb48ae816d882dfbcb7763593a43ebbadb82a23c268ae899",
+      "sha256": "d75e0aeede3c93cd445532e25c61b5874013d2cbc3456e0d69e881ad1854fe43",
       "claim": "Retorno canónico a Decisión después del asistente y checklist.",
       "url": "http://127.0.0.1:4364/#journey/decision"
     }

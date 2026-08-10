@@ -86,7 +86,10 @@ const decisionResponse = renderJourney({
         scenario: { scopeText: "Miraflores <script>alert(1)</script>" },
         blocks: [
           { type: "answer", items: [{ kind: "text", text: "Priorizar evidencia disponible" }] },
+          { type: "data", items: [{ kind: "metric", label: "Comparables elegibles", value: 85, unit: "count" }] },
+          { type: "interpretation", items: [{ kind: "text", text: "La muestra permite contrastar la oferta" }] },
           { type: "limitations", items: [{ kind: "text", text: "Sin precio de cierre" }] },
+          { type: "references", items: [{ id: "scenario:active", type: "scenario", label: "Miraflores <img src=x>" }] },
           { type: "next_step", items: [{ kind: "action", label: "Preparar checklist" }] },
         ],
       },
@@ -96,10 +99,40 @@ const decisionResponse = renderJourney({
   },
 });
 assert.match(decisionResponse, /Priorizar evidencia disponible/u);
+assert.match(decisionResponse, /Comparables elegibles:\s*85/u);
+assert.match(decisionResponse, /La muestra permite contrastar la oferta/u);
 assert.match(decisionResponse, /Sin precio de cierre/u);
+assert.match(decisionResponse, /Miraflores &lt;img src=x&gt;/u);
 assert.match(decisionResponse, /Preparar checklist/u);
 assert.doesNotMatch(decisionResponse, /<script>alert/u);
 assert.match(decisionResponse, /&lt;script&gt;alert/u);
+
+const insufficientScale = renderJourney({
+  stageId: "scale",
+  stageModel: {
+    stageId: "scale",
+    status: "insufficient",
+    data: {
+      modelAgencyCount: null,
+      pilot: { baseCount: null, enrichedCount: 22, deepCount: 5 },
+      scenario: {
+        scopeText: "Miraflores · Distrito completo",
+        observedProjectCount: 90,
+        comparableProjectCount: 85,
+      },
+    },
+    correctiveAction: { label: "Revisar cobertura", href: "#projects" },
+  },
+});
+assert.match(
+  insufficientScale,
+  /data-journey-fact="model-agencies"[\s\S]*No disponible/u,
+);
+assert.match(
+  insufficientScale,
+  /data-journey-fact="pilot-levels"[\s\S]*No disponible\s*\/\s*22\s*\/\s*5/u,
+);
+assert.doesNotMatch(insufficientScale, /Inmobiliarias modeladas[\s\S]{0,120}<dd>0<\/dd>/u);
 
 const unavailableDecision = renderJourney({
   stageId: "decision",

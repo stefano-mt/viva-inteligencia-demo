@@ -115,6 +115,74 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assertClean(observed, "2.4 authoritative Journey");
   await context.close();
 
+  const missingScalePayload = structuredClone(publicData);
+  delete missingScalePayload.metadata.counts.canonical_agencies;
+  delete missingScalePayload.pilot.counts.base_count;
+  const missingScaleContext = await browser.newContext({ viewport: viewports[0] });
+  const missingScaleObserved = await createObservedPage(missingScaleContext, baseUrl);
+  await missingScaleObserved.page.route(
+    "**/demo-data/viva-platform-demo.json",
+    (route) => route.fulfill({
+      status: 200,
+      contentType: "application/json; charset=utf-8",
+      body: JSON.stringify(missingScalePayload),
+    }),
+  );
+  await openPath(missingScaleObserved.page, baseUrl, "/#journey/scale");
+  await assertVisibleStageParity(missingScaleObserved.page, "scale");
+  assert.match(
+    await missingScaleObserved.page
+      .locator('[data-journey-fact="model-agencies"]')
+      .innerText(),
+    /No disponible/u,
+  );
+  assert.match(
+    await missingScaleObserved.page
+      .locator('[data-journey-fact="pilot-levels"]')
+      .innerText(),
+    /No disponible\s*\/\s*22\s*\/\s*5/u,
+  );
+  assertClean(missingScaleObserved, "missing scale counts");
+  await missingScaleContext.close();
+
+  const responseContext = await browser.newContext({ viewport: viewports[0] });
+  const responseObserved = await createObservedPage(responseContext, baseUrl);
+  await openPath(responseObserved.page, baseUrl, "/#assistant");
+  await responseObserved.page.locator(".assistant-question").first().click();
+  await responseObserved.page.locator("#assistant-input").press("Control+Enter");
+  await responseObserved.page.locator('[data-assistant-response="ready"]').waitFor();
+  await openPath(responseObserved.page, baseUrl, "/#journey/decision");
+  const responseStage = await responseObserved.page.evaluate(async () => {
+    const module = await import(new URL("js/state.js", document.baseURI).href);
+    return module.state.journeyContext.stages.decision;
+  });
+  assert.equal(responseStage.data.mode, "assistant_response");
+  const decisionRoot = responseObserved.page.locator('[data-journey-stage="decision"]');
+  for (const block of responseStage.data.response.blocks) {
+    const expected = (block.items ?? [])
+      .map((item) => item.text ?? item.label ?? "")
+      .filter(Boolean);
+    if (!expected.length) continue;
+    const text = await decisionRoot.textContent();
+    for (const value of expected) {
+      assert.ok(text.includes(String(value)), `decision must represent ${block.type}: ${value}`);
+    }
+  }
+  assert.equal(await decisionRoot.locator(".journey-decision-disclosure").count(), 1);
+  const responseGeometry = await responseObserved.page.evaluate(() => {
+    const action = document.querySelector(".journey-primary-action")?.getBoundingClientRect();
+    const limit = document.querySelector(".journey-reading__limit")?.getBoundingClientRect();
+    return {
+      actionBottom: action?.bottom ?? Infinity,
+      limitBottom: limit?.bottom ?? Infinity,
+      viewportHeight: innerHeight,
+    };
+  });
+  assert.ok(responseGeometry.actionBottom <= responseGeometry.viewportHeight);
+  assert.ok(responseGeometry.limitBottom <= responseGeometry.viewportHeight);
+  assertClean(responseObserved, "six-block decision response");
+  await responseContext.close();
+
   const emptyContext = await browser.newContext({ viewport: viewports[0] });
   const emptyObserved = await createObservedPage(emptyContext, baseUrl);
   await openPath(
@@ -177,5 +245,5 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 });
 
 console.log(
-  "Journey DOM parity OK: six stages, authoritative facts, empty/capability states and global 2.0 failure verified.",
+  "Journey DOM parity OK: six stages, missing scale counts, six-block decision response, empty/capability states and global 2.0 failure verified.",
 );

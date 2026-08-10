@@ -59,13 +59,22 @@ function escapeHtml(value) {
 }
 
 function formatNumber(value) {
-  const number = Number(value);
-  return Number.isFinite(number)
+  const number = finiteNumber(value);
+  return number !== null
     ? new Intl.NumberFormat("es-PE", { maximumFractionDigits: 0 }).format(number)
     : "No disponible";
 }
 
 function finiteNumber(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === "" ||
+    typeof value === "boolean" ||
+    (typeof value === "string" && value.trim() === "")
+  ) {
+    return null;
+  }
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
 }
@@ -265,28 +274,68 @@ function responseBlockText(response, type) {
     .join(" ");
 }
 
+function renderDecisionDisclosure(response) {
+  const references =
+    response?.blocks
+      ?.find((candidate) => candidate.type === "references")
+      ?.items?.map(responseItemText)
+      .filter(Boolean) ?? [];
+  if (!references.length) return "";
+  const referenceLabel = references.length === 1
+    ? "1 referencia"
+    : `${formatNumber(references.length)} referencias`;
+  return `
+    <details class="journey-decision-disclosure">
+      <summary>Ver ${escapeHtml(referenceLabel)}</summary>
+      <div>
+        <div data-journey-response-block="references">
+          <strong>Referencias:</strong>
+          <ul>${references.map((label) => `<li>${escapeHtml(label)}</li>`).join("")}</ul>
+        </div>
+      </div>
+    </details>
+  `;
+}
+
+function renderDecisionResponseFacts(response) {
+  const answer = responseBlockText(response, "answer") || "Sin lectura elegible";
+  const data = responseBlockText(response, "data") || "Sin datos elegibles";
+  const interpretation =
+    responseBlockText(response, "interpretation") ||
+    "La interpretación no está disponible.";
+  const nextStep =
+    responseBlockText(response, "next_step") || "Revisar el checklist comercial";
+  const limitations =
+    responseBlockText(response, "limitations") || "Sin límites adicionales registrados.";
+  const scope = response.scenario?.scopeText ?? "Escenario activo";
+  return [
+    renderFact(
+      "decision-answer",
+      "Respuesta breve",
+      answer,
+      interpretation,
+    ),
+    renderFact(
+      "decision-data",
+      "Datos usados",
+      data,
+      `Escenario: ${scope}`,
+    ),
+    `
+      <div class="journey-fact" data-journey-fact="decision-next-step">
+        <dt>Siguiente verificación</dt>
+        <dd>${escapeHtml(nextStep)}</dd>
+        <p data-journey-response-block="limitations"><strong>Límites:</strong> ${escapeHtml(limitations)}</p>
+        ${renderDecisionDisclosure(response)}
+      </div>
+    `,
+  ];
+}
+
 function renderDecisionFacts(data) {
   const response = data?.response ?? null;
   if (response) {
-    return [
-      renderFact(
-        "decision-mode",
-        "Modo de decisión",
-        "Respuesta verificable",
-        response.scenario?.scopeText ?? "Escenario activo",
-      ),
-      renderFact(
-        "decision-answer",
-        "Lectura",
-        responseBlockText(response, "answer") || "Sin lectura elegible",
-      ),
-      renderFact(
-        "decision-next-step",
-        "Siguiente verificación",
-        responseBlockText(response, "next_step") || "Revisar el checklist comercial",
-        responseBlockText(response, "limitations"),
-      ),
-    ];
+    return renderDecisionResponseFacts(response);
   }
   const checklist = data?.checklist ?? {};
   return [
