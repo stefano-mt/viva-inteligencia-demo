@@ -81,18 +81,15 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.locator("[data-comparison-group]").count(), 9);
   assert.equal(await page.locator("[data-comparison-row]").count(), 10);
   assert.equal(await page.locator(".comparison-chip:not(.is-target)").count(), 3);
-  const territorialPriceText = await page
-    .locator(".scenario-summary")
-    .textContent();
-  assert.match(territorialPriceText, /Referencia de precio no demostrada/u);
-  assert.match(
-    territorialPriceText,
-    /69 publicaciones declaran precio y área total; no prueban que ambos valores pertenezcan a la misma oferta/u,
+  assert.equal(
+    await page.locator(".scenario-summary").count(),
+    0,
+    "El comparador no debe repetir el resumen territorial global",
   );
-  assert.doesNotMatch(
-    territorialPriceText,
-    /Referencia de precio lista|precios publicados compatibles/iu,
-    "El shell no debe contradecir la conclusión de precio no elegible",
+  assert.match(
+    await page.locator("#scenario-sidebar-title").textContent(),
+    /Miraflores/iu,
+    "El escenario sigue visible en la estación territorial lateral",
   );
   assert.match(
     await page.locator(".comparison-conclusion").innerText(),

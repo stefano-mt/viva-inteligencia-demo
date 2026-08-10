@@ -257,11 +257,13 @@ async function assertTerritorialTypography(page, label) {
       viewportWidth: window.innerWidth,
     };
   });
-  assert.ok(
-    order.eyebrowBottom <= order.titleTop + 1,
-    `${label}: eyebrow superpuesto al título ${JSON.stringify(order)}`,
-  );
-  if (order.viewportWidth >= 901) {
+  if (Number.isFinite(order.eyebrowBottom)) {
+    assert.ok(
+      order.eyebrowBottom <= order.titleTop + 1,
+      `${label}: eyebrow superpuesto al título ${JSON.stringify(order)}`,
+    );
+  }
+  if (order.viewportWidth >= 901 && Number.isFinite(order.metadataTop)) {
     assert.ok(
       order.titleBottom <= order.metadataTop - 1,
       `${label}: metadata superpuesta al título ${JSON.stringify(order)}`,

@@ -289,7 +289,7 @@ assert.match(
     `value="${baselineRows[3].projectId}"[\\s\\S]*?disabled`,
   ),
 );
-assert.match(compareMarkup, /Matriz agrupada/);
+assert.match(compareMarkup, /Matriz completa/);
 assert.match(compareMarkup, /role="rowheader"/);
 for (const row of baselineRows) {
   assert.match(
@@ -305,7 +305,8 @@ assert.equal(
   (compareMarkup.match(/data-comparison-group=/g) ?? []).length,
   9,
 );
-assert.match(compareMarkup, /Diferencias prioritarias/);
+assert.match(compareMarkup, /Condición principal/);
+assert.doesNotMatch(compareMarkup, /comparison-priority/);
 assert.match(compareMarkup, /Precio publicado desde/);
 assert.doesNotMatch(compareMarkup, /NaN|Infinity|undefined/);
 

@@ -21,25 +21,25 @@
     },
     {
       "file": "03-quality-type7.png",
-      "sha256": "7f837484c07cf5bf63ffa3760c4d8412d988fbdea724c7492096e7e2000ec6b3",
+      "sha256": "c490bfe3ae2bda64393c9292cab3720ffb817c3ff0f6ccec10391735d343687d",
       "claim": "Caso Tipo 7 con discrepancia, exclusión y evidencia autorizada.",
       "url": "http://127.0.0.1:4364/#inspector/case/f3-ct-g-pardo"
     },
     {
       "file": "04-depth-comparator.png",
-      "sha256": "c858142e7410613bf8da01a24500164d7585b79f6e279a279325ec6c2098a3b4",
+      "sha256": "7499bddb8e989d41d1f6330f18ecac26ccae374a4d10011e206c58640c4af37a",
       "claim": "Comparador con conclusión, denominadores y filas de evidencia.",
       "url": "http://127.0.0.1:4364/#compare"
     },
     {
       "file": "05-movement-signal.png",
-      "sha256": "61641fbad1f1fc9183281a38f22e9f8414d78fe5d811a4080343a74e655b48df",
+      "sha256": "f090d79e7e86d3951c5383a48189ca9e2201c8dd5820237cbcb77698d4901fa7",
       "claim": "Señal publicada con anterior/nuevo, vigencia y causa no observada.",
       "url": "http://127.0.0.1:4364/#activity"
     },
     {
       "file": "06-decision-assistant.png",
-      "sha256": "cf4efdfed8935b02a03d873838aef74366b655696665877643b13d9940517865",
+      "sha256": "bbe6706169d039b7a42004a3d7d8199138b010cf792fa98b7aa80c1e92d2cc3e",
       "claim": "Asistente determinista con lectura, límites y referencias visibles.",
       "url": "http://127.0.0.1:4364/#assistant"
     },

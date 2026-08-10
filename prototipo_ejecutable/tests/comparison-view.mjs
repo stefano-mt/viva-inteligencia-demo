@@ -86,8 +86,11 @@ assert.equal(defaultModel.selected.length, 3);
 assert.match(defaultMarkup, /data-comparison-status="ready"/u);
 assert.match(defaultMarkup, /Comparador comercial/u);
 assert.match(defaultMarkup, /Qué cambia la decisión/u);
-assert.match(defaultMarkup, /Diferencias prioritarias/u);
-assert.match(defaultMarkup, /Matriz agrupada/u);
+assert.match(defaultMarkup, /Condición principal/u);
+assert.match(defaultMarkup, /Matriz completa/u);
+assert.match(defaultMarkup, /comparison-decision-sheet/u);
+assert.match(defaultMarkup, /comparison-basis__summary/u);
+assert.doesNotMatch(defaultMarkup, /comparison-priority/u);
 assert.equal(
   (defaultMarkup.match(/data-comparison-group=/gu) ?? []).length,
   9,
@@ -117,16 +120,16 @@ for (const finding of defaultModel.conclusion) {
     ),
   );
   assert.match(defaultMarkup, new RegExp(`id="${rowDomId(finding.rowId)}"`, "u"));
-  assert.match(defaultMarkup, /Implicancia comercial/u);
-  assert.match(defaultMarkup, /Siguiente acción/u);
-  assert.match(defaultMarkup, /Limitación/u);
+  assert.match(defaultMarkup, /Para la decisión/u);
+  assert.match(defaultMarkup, /Qué revisar/u);
+  assert.match(defaultMarkup, /Límite de este hallazgo/u);
 }
 
 for (const [count, expectedStatus, expectedCopy] of [
   [0, "insufficient", "Selecciona dos proyectos para comenzar"],
   [1, "insufficient", "Selecciona un proyecto más"],
-  [2, "ready", "Matriz agrupada"],
-  [3, "ready", "Matriz agrupada"],
+  [2, "ready", "Matriz completa"],
+  [3, "ready", "Matriz completa"],
 ]) {
   state.compareProjectIds = canonicalIds.slice(0, count);
   const model = buildComparisonViewModel();

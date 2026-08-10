@@ -169,7 +169,7 @@
     },
     {
       "file": "expert-compare-1440x900.png",
-      "sha256": "cdbf2212cbed97f864c6c32d9dbd406dfbe902db6730f66beafae1f1cf7605eb",
+      "sha256": "74efa47ce74553eac7cc3e9294b7bdc42f19202dfb7394a01120ad5774a1897f",
       "surface": "expert-compare",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4365/#compare"
@@ -267,7 +267,7 @@
     },
     {
       "file": "expert-compare-1280x720.png",
-      "sha256": "7bd51b5a3f83d7fc0ed02876c9fb7ba5a50b145bbbb25db4ff17f1fbe9e3df44",
+      "sha256": "255ad4688c334cd9f1d5d50cbf94883f9a60af096f925647047a3de32b7b973f",
       "surface": "expert-compare",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4365/#compare"
@@ -365,7 +365,7 @@
     },
     {
       "file": "expert-compare-390x844.png",
-      "sha256": "6bdf01042905fb7cf6e789f87b529eb5a4eec60fe61d1193a2b549a58ac38ea3",
+      "sha256": "c624d48f521f700aeebd68e1362da347921ff2bfe1286e5828ccca434ffb599f",
       "surface": "expert-compare",
       "mode": "390x844",
       "url": "http://127.0.0.1:4365/#compare"
@@ -463,7 +463,7 @@
     },
     {
       "file": "expert-compare-zoom-200.png",
-      "sha256": "c2e122a3721b6b2b12d6313c067dfd6683aa042b86be11bb08e09138944dc3b6",
+      "sha256": "24b6acdc1fc2aa861f73f29d815c18bd681034e2b1fe059bf811a79c7d7ed3a7",
       "surface": "expert-compare",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4366/#compare"

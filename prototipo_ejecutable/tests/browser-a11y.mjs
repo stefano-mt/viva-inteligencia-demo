@@ -36,7 +36,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
       assert.equal(await page.locator(".scenario-bar .eyebrow").count(), 0, `La cabecera no debe repetir el eyebrow técnico en #${route.id}`);
       assert.equal(
         await page.locator(".scenario-summary").count(),
-        ["dashboard", "projects"].includes(route.id) ? 0 : 1,
+        ["dashboard", "projects", "compare"].includes(route.id) ? 0 : 1,
         `Resumen global duplicado o ausente en #${route.id}`,
       );
 

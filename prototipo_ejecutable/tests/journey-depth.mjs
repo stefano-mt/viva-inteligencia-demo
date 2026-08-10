@@ -122,6 +122,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
       await basis.getAttribute("data-scope-projects"),
       String(state.benchmarkContext.scope.projectCount),
     );
+    await basis.locator(":scope > summary").click();
     const ledgerColumns = await basis
       .locator(".comparison-basis__ledger")
       .evaluate((element) =>

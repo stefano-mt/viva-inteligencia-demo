@@ -360,7 +360,7 @@ function render() {
   const route = parseHashRoute(window.location.hash);
   const isJourney = state.view === "journey";
   const showScenarioSummary =
-    !isJourney && !["dashboard", "projects"].includes(state.view);
+    !isJourney && !["dashboard", "projects", "compare"].includes(state.view);
   const scenarioPresentation = buildScenarioPresentation({
     data: state.data,
     scenarioState: state.scenarioState,
@@ -436,7 +436,16 @@ function render() {
             : renderScenarioBar(scenarioPresentation)
         }
         <main class="content" id="main-content" tabindex="-1">
-          ${showScenarioSummary ? renderScenarioSummary(scenarioPresentation) : ""}
+          ${
+            showScenarioSummary
+              ? renderScenarioSummary(scenarioPresentation)
+              : `<p
+                  class="sr-only"
+                  id="scenario-live"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >${escapeHtml(scenarioPresentation.announcement)}</p>`
+          }
           ${
             isJourney
               ? content
