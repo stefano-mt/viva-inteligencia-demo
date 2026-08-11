@@ -189,7 +189,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** convertir módulos correctos en un recorrido que se entiende y se recuerda.
 
-**Estado:** P6-01–P6-16 completados; P6-15A cerró G1–G5 y P6-15 terminó `PASS WITH RISKS` únicamente por `R6-H1`. El PR funcional #17 fue fusionado y P6-18 verificó Pages con `PASS` para el SHA `12cefbf82a4971d75e1578d962f510b06fc0b457`. P6-19 persiste el resultado en un PR documental separado. P6-14 continúa `PENDING/DEFERRED` por D-042 y la declaración final queda reservada al `PASS` humano de P6-20.
+**Estado:** P6-01–P6-19 completados. El PR funcional #17 y el PR documental #18 fueron fusionados; Pages desplegó `1b33bd682b63673e4bcda5c7a8875142ff351b34` con `success`. El paquete de P6-20 está preparado, pero la sesión humana permanece `PENDING`. P6-14 continúa `PENDING/DEFERRED` por D-042 y la declaración final queda reservada al `PASS` humano reproducible de P6-20.
 
 ### Olas
 

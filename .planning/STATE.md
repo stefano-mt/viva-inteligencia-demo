@@ -8,7 +8,7 @@
 
 **Estado:** Fases 0–5 están oficialmente `deployed and verified`. El PR funcional #17 de Fase 6 fue fusionado y P6-18 verificó Pages con `PASS` para el mismo SHA de merge. P6-19 persiste el resultado técnico. El estado máximo de Fase 6 continúa siendo `deployed and technically verified; human acceptance pending` porque `R6-H1` solo puede cerrarse mediante P6-20.
 
-**Rama activa:** `docs/phase-6-postmerge-report`.
+**Rama activa:** `docs/phase-6-final-human-acceptance`.
 
 ## Baseline histórica de Fase 2
 
@@ -285,15 +285,18 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P6-17: PR funcional [#17](https://github.com/stefano-mt/viva-inteligencia-demo/pull/17) fusionado por el usuario; head `cb52acce482b1b6d58fbc386e6898198c69adf0f` y merge `12cefbf82a4971d75e1578d962f510b06fc0b457`.
 - Workflow Pages: [run 31535245095](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/31535245095), `success` para el mismo SHA de merge.
 - P6-18: [verificación post-merge](phases/06-commercial-narrative-qa/POSTMERGE_REPORT.md) `PASS`; 14 superficies × 3 viewports, recorrido crítico, reinicio, consola y recursos verificados sobre Pages.
-- P6-19: resultado técnico persistido en una rama documental separada mediante el PR [#18](https://github.com/stefano-mt/viva-inteligencia-demo/pull/18), abierto y pendiente de merge humano; no modifica runtime, datos, tests, estilos, activos o comportamiento.
+- P6-19: resultado técnico persistido mediante el PR [#18](https://github.com/stefano-mt/viva-inteligencia-demo/pull/18), fusionado por el usuario; merge `1b33bd682b63673e4bcda5c7a8875142ff351b34`.
+- Workflow Pages posterior a P6-19: [run 31540605465](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/31540605465), `success` para `1b33bd682b63673e4bcda5c7a8875142ff351b34`.
+- P6-20: [protocolo público](phases/06-commercial-narrative-qa/COMMERCIAL_REHEARSAL.md) actualizado y [acta final](phases/06-commercial-narrative-qa/FINAL_HUMAN_ACCEPTANCE.md) preparada en `PENDING`; no existe todavía una sesión humana aprobada.
 - Estado técnico de Fase 6: **`deployed and technically verified; human acceptance pending`**.
 - Único riesgo residual: `R6-H1 — validación humana diferida`; no existen gaps técnicos abiertos, pero P6-20 sigue siendo bloqueante para venta.
 
 ## Próxima acción recomendada
 
-1. Publicar y fusionar mediante revisión humana el PR exclusivamente documental de P6-19.
-2. Ejecutar P6-20 con un lector nuevo sobre Pages y el SHA `12cefbf82a4971d75e1578d962f510b06fc0b457`.
-3. Mantener bloqueadas las declaraciones `ready for client` y `deployed and verified` hasta un `PASS` humano reproducible.
+1. Seleccionar un lector nuevo e independiente que no haya participado en la fase.
+2. Ejecutar P6-20 sobre Pages y el SHA `1b33bd682b63673e4bcda5c7a8875142ff351b34` usando el prompt literal y sin ayuda del maker.
+3. Guardar metadata, respuesta literal, rúbrica y evidencia consentida en una carpeta nueva.
+4. Mantener bloqueadas las declaraciones `ready for client` y `deployed and verified` hasta un `PASS` humano reproducible.
 
 ## Regla para actualizar este archivo
 
