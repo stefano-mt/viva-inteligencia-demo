@@ -189,7 +189,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** convertir módulos correctos en un recorrido que se entiende y se recuerda.
 
-**Estado:** P6-01–P6-14D completados. P6-15 emitió `FAIL` sobre `7a08fca` por dos gaps P1 de paridad DOM↔estado; P6-16 permanece bloqueado y P6-15A está propuesto. P6-14 continúa `PENDING/DEFERRED` por D-042 y la declaración final queda reservada al `PASS` humano de P6-20.
+**Estado:** P6-01–P6-16 completados; P6-15A cerró G1–G5 y P6-15 terminó `PASS WITH RISKS` únicamente por `R6-H1`. El PR funcional #17 fue fusionado y P6-18 verificó Pages con `PASS` para el SHA `12cefbf82a4971d75e1578d962f510b06fc0b457`. P6-19 persiste el resultado en un PR documental separado. P6-14 continúa `PENDING/DEFERRED` por D-042 y la declaración final queda reservada al `PASS` humano de P6-20.
 
 ### Olas
 
@@ -200,6 +200,8 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 5. Testing humano integral final sobre Pages.
 
 **Gate de salida técnica:** el recorrido “escala → geografía → calidad → profundidad → movimiento → decisión” pasa verificación independiente y Pages coincide con el SHA desplegado.
+
+**Salida técnica:** `PASS`. Estado máximo: `deployed and technically verified; human acceptance pending`.
 
 **Gate de aceptación final:** un lector nuevo completa el recorrido público sin ayuda externa, dentro de 10 minutos y con evidencia aprobada en P6-20. Solo entonces F6 queda `deployed and verified` y `ready for client`.
 
