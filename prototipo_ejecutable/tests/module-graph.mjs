@@ -25,7 +25,16 @@ import {
   setComparisonTarget,
   setScenarioScope,
 } from "../public/js/controller.js";
-import { sectionGuides, views } from "../public/js/config.js";
+import {
+  journeyEntry,
+  journeyStages,
+  sectionGuides,
+  views,
+} from "../public/js/config.js";
+import {
+  JOURNEY_MODULE_RETURN_STAGE,
+  JOURNEY_STAGE_IDS,
+} from "../public/js/journey.js";
 import {
   inspectorCaseHash,
   parseHashRoute,
@@ -46,6 +55,7 @@ const expectedModules = [
   "domain.js",
   "evidence-inspector.js",
   "history.js",
+  "journey.js",
   "navigation.js",
   "scenario.js",
   "state.js",
@@ -106,22 +116,35 @@ assert.deepEqual(
     "activity",
   ],
 );
+assert.deepEqual(JOURNEY_STAGE_IDS, [
+  "scale",
+  "geography",
+  "quality",
+  "depth",
+  "movement",
+  "decision",
+]);
+assert.strictEqual(journeyStages[0].id, journeyEntry.defaultStageId);
+assert.deepEqual(
+  Object.keys(JOURNEY_MODULE_RETURN_STAGE).sort(),
+  views.map(({ id }) => id).sort(),
+);
 assert.deepEqual(views[2], {
   id: "inspector",
   label: "Inspector de evidencia",
-  hint: "Fuentes, tipologías y calidad",
+  hint: "Fuentes y calidad de datos",
   group: "Análisis",
 });
 assert.deepEqual(views[3], {
   id: "market",
   label: "Benchmark de microzona",
-  hint: "Muestra, atributos y exclusiones",
+  hint: "Muestra y referencias",
   group: "Análisis",
 });
 assert.deepEqual(views[4], {
   id: "compare",
   label: "Comparador comercial",
-  hint: "Diferencias y siguiente acción",
+  hint: "Diferencias entre proyectos",
   group: "Análisis",
 });
 assert.equal(sectionGuides.inspector.steps.length, 3);
@@ -402,7 +425,6 @@ const resetRevision = state.scenarioContextRevision;
 const resetTransition = resetScenario({
   render: false,
   announce: "Escenario reiniciado al preset base.",
-  focusId: "reset-scenario",
 });
 assert.equal(resetTransition.recomputed, true);
 assert.equal(state.scenarioContextRevision, resetRevision + 1);
@@ -412,8 +434,8 @@ assert.equal(
   state.scenarioAnnouncement,
   "Escenario reiniciado al preset base.",
 );
-assert.equal(state.scenarioFocusId, "reset-scenario");
-assert.ok(state.compareProjectIds.every(isComparableProject));
+assert.equal(state.scenarioFocusId, "journey-title");
+assert.deepEqual(state.compareProjectIds, []);
 
 const windowListeners = new Map();
 const documentListeners = new Map();

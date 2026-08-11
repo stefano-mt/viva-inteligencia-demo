@@ -365,7 +365,7 @@ async function assertRouteDensity(page, route, viewport) {
 async function assertScenarioLegibility(page, viewport, label) {
   const result = await page.evaluate(() => {
     const metadata = [...document.querySelectorAll(
-      ".scenario-summary__eligibility, .scenario-summary__metrics dt, .scenario-summary__metrics dd small, .scenario-status strong, .scenario-status small, .scenario-share summary",
+      ".scenario-summary__metrics dt, .scenario-technical:open .scenario-status strong, .scenario-technical:open .scenario-status small, .scenario-technical:open .scenario-share span",
     )]
       .filter((element) => element.getBoundingClientRect().height > 0)
       .map((element) => ({
@@ -374,20 +374,17 @@ async function assertScenarioLegibility(page, viewport, label) {
       }))
       .filter(({ fontSize }) => fontSize < 14);
     const metrics = document.querySelector(".scenario-summary__metrics");
-    const targetValue = [...metrics.querySelectorAll("dd")].find((element) =>
-      /Sin precio objetivo/iu.test(element.textContent ?? ""),
-    );
-    const lineHeight = Number.parseFloat(getComputedStyle(targetValue).lineHeight);
+    const technical = document.querySelector(".scenario-technical");
     return {
       columns: getComputedStyle(metrics).gridTemplateColumns.split(" ").filter(Boolean).length,
       metadata,
-      targetLines: Math.round(targetValue.getBoundingClientRect().height / lineHeight),
+      technicalClosed: technical ? !technical.open : null,
     };
   });
-  const expectedColumns = viewport.width <= 620 ? 1 : viewport.width <= 1320 ? 2 : 4;
+  const expectedColumns = viewport.width <= 620 ? 1 : 3;
   assert.equal(result.columns, expectedColumns, `${label}: densidad de la lente territorial`);
   assert.deepEqual(result.metadata, [], `${label}: metadata territorial por debajo de 14 px`);
-  assert.ok(result.targetLines <= 2, `${label}: “Sin precio objetivo” se fragmentó en ${result.targetLines} líneas`);
+  assert.equal(result.technicalClosed, true, `${label}: detalle técnico cerrado al cargar`);
 }
 
 async function openReadyRoute(page, baseUrl, route) {

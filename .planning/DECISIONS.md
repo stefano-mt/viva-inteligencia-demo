@@ -431,3 +431,56 @@ El motor semántico consume el catálogo `assistant` 2.4 y devuelve siempre seis
 Los guardrails tienen precedencia sobre una intención explícita: precio real de cierre, causalidad, predicción, datos personales y solicitudes externas producen rechazo determinista. Una mención a otro distrito se registra, pero nunca cambia territorio, muestra, corte o filtros. Una intención desconocida muestra el catálogo compatible y no invoca un fallback generativo.
 
 El motor permanece local y puro: no usa DOM, reloj, almacenamiento, red, credenciales ni SDK de IA. P5-10 debe consumir este contrato sin duplicar clasificación, cifras o reglas de evidencia en la vista.
+
+## D-041 — HUMAN-GATE-A habilita Fase 6 bajo A1–A13
+
+**Fecha:** 2026-08-05
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Acepto A1–A13 y autorizo HUMAN-GATE-A de la Fase 6.” con timestamp de sesión `2026-08-05T09:37:27.3408491-05:00`. La aprobación acepta el plan `bb9b5a858f05acbafaa9f3ec55dc9dea48b281e8`, revisado con `PASS`, y habilita P6-00D; P6-01 solo puede comenzar si el baseline preimplementación pasa.
+
+Queda decidido que:
+
+1. `Recorrido ejecutivo` será la entrada principal y conservará las ocho rutas expertas;
+2. las seis etapas reutilizan motores/estado vigentes y prueban paridad, sin recomputar claims;
+3. Tipo 7 es un caso transversal de Miraflores e independiente del escenario activo;
+4. la compatibilidad observable degrada 2.0 globalmente y habilita capacidades acumulativas hasta 2.4;
+5. Decisión no genera consultas implícitas;
+6. reinicio, deep-link, recarga y atrás/adelante son deterministas;
+7. una CTA primaria, divulgación progresiva y presupuestos de densidad gobiernan cada etapa;
+8. el ensayo humano pre-merge es bloqueante y se repite sobre Pages después del merge.
+
+La aprobación no autoriza modificar contrato, dataset, writer, hashes, elegibilidad o workflow protegido. Tampoco equivale a PASS técnico, merge o despliegue. P6-15 permanece independiente y HUMAN-GATE-B será obligatorio ante `PASS WITH RISKS`.
+
+## D-042 — El ensayo humano de Fase 6 se difiere al testing integral final
+
+**Fecha:** 2026-08-10
+
+**Estado:** aceptada
+
+Stefano declaró exactamente: “Quisiera continuar con el flujo, sin este gate humano. Al final de todo el proceso, se hará un testing humano integral.”
+
+Esta decisión enmienda únicamente el momento de A12 y no aprueba P6-14, no fabrica evidencia y no elimina su protocolo. Queda decidido que:
+
+1. P6-14 permanece `PENDING` y pasa a estado `DEFERRED`;
+2. P6-15–P6-19 pueden continuar con verificación técnica, PR, merge humano, comprobación read-only de Pages y persistencia documental;
+3. mientras el ensayo siga pendiente, P6-15 no puede emitir un `PASS` absoluto: su mejor veredicto posible es `PASS WITH RISKS` por el riesgo conocido `R6-H1 — validación humana diferida`;
+4. la declaración del usuario acepta solo `R6-H1`; cualquier otro riesgo o gap detectado por el checker conserva su gate y requiere tratamiento o aceptación explícita separada;
+5. P6-20 ejecutará el testing humano integral sobre la URL pública y el SHA inmutable desplegado, aplicando el prompt, límites, respuestas esperadas, claims prohibidos y evidencia definidos en `COMMERCIAL_REHEARSAL.md`;
+6. hasta que P6-20 obtenga `PASS`, Fase 6 podrá declararse `deployed and technically verified`, pero no `ready for client`, `deployed and verified` ni lista para presentación final;
+7. un `FAIL` o `INVALID` en P6-20 reabre el ciclo correctivo y bloquea la declaración final, sin borrar ni sobrescribir evidencia previa.
+
+Esta enmienda no autoriza merge automático ni altera datos, contrato 2.4, writer, fingerprints, elegibilidad, motores, workflow protegido o criterios comerciales.
+
+## D-043 — P6-15A corrige la paridad visible Journey ↔ estado
+
+**Fecha:** 2026-08-10
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Autorizo la enmienda correctiva P6-15A.” con timestamp de sesión `2026-08-10T14:28:27.1410884-05:00`. La autorización acepta `P6-15A-CORRECTIVE-PLAN.md` sobre `e318bdfeaeffa777e7f1660a82de416da1becf9c` y habilita el write set allí definido.
+
+La enmienda permite conectar `public/app.js` y `public/js/views/journey.js` con `state.journeyContext`, añadir la regresión DOM↔estado y actualizar únicamente pruebas, manifiesto, evidencia y estilos condicionados por un fallo demostrado. No permite modificar datos, contrato, writer, fingerprints, motores, navegación, URL, reset, workflow ni la evidencia humana pendiente.
+
+La implementación debe comenzar con una prueba roja, conservar el error global de contrato 2.0, usar los estados y `correctiveAction` autoritativos, mostrar las cifras críticas sin recomputarlas y respetar el presupuesto vertical de densidad. Después del correctivo se repite P6-15 completo con checker independiente; P6-16 continúa bloqueado hasta ese nuevo veredicto.

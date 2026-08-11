@@ -1,0 +1,493 @@
+{
+  "step": "P6-13",
+  "surfaces": [
+    {
+      "id": "journey-scale",
+      "kind": "journey",
+      "path": "/#journey/scale"
+    },
+    {
+      "id": "journey-geography",
+      "kind": "journey",
+      "path": "/#journey/geography"
+    },
+    {
+      "id": "journey-quality",
+      "kind": "journey",
+      "path": "/#journey/quality"
+    },
+    {
+      "id": "journey-depth",
+      "kind": "journey",
+      "path": "/#journey/depth"
+    },
+    {
+      "id": "journey-movement",
+      "kind": "journey",
+      "path": "/#journey/movement"
+    },
+    {
+      "id": "journey-decision",
+      "kind": "journey",
+      "path": "/#journey/decision"
+    },
+    {
+      "id": "expert-dashboard",
+      "kind": "expert",
+      "path": "/#dashboard"
+    },
+    {
+      "id": "expert-projects",
+      "kind": "expert",
+      "path": "/#projects"
+    },
+    {
+      "id": "expert-inspector",
+      "kind": "expert",
+      "path": "/#inspector/case/f3-ct-g-pardo"
+    },
+    {
+      "id": "expert-market",
+      "kind": "expert",
+      "path": "/#market"
+    },
+    {
+      "id": "expert-compare",
+      "kind": "expert",
+      "path": "/#compare"
+    },
+    {
+      "id": "expert-trust",
+      "kind": "expert",
+      "path": "/#trust"
+    },
+    {
+      "id": "expert-assistant",
+      "kind": "expert",
+      "path": "/#assistant"
+    },
+    {
+      "id": "expert-activity",
+      "kind": "expert",
+      "path": "/#activity"
+    }
+  ],
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "name": "laptop",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "zoom": {
+    "deviceScaleFactor": 2,
+    "viewport": {
+      "width": 720,
+      "height": 450
+    }
+  },
+  "files": [
+    {
+      "file": "journey-scale-1440x900.png",
+      "sha256": "138634cba10d7a7ebc4fe74643d62f37095e62d1745b9b5984f6ec2ccf605336",
+      "surface": "journey-scale",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#journey/scale"
+    },
+    {
+      "file": "journey-geography-1440x900.png",
+      "sha256": "c582b3313f1ead3ffb921c77ddf7846a356b104166d577fbc1c70159a904656f",
+      "surface": "journey-geography",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#journey/geography"
+    },
+    {
+      "file": "journey-quality-1440x900.png",
+      "sha256": "c5e8e1be500157c1dd61e11297c27368032beb978d5050ef208138ac3ae5a735",
+      "surface": "journey-quality",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#journey/quality"
+    },
+    {
+      "file": "journey-depth-1440x900.png",
+      "sha256": "1170577494b80fba890b44eebe37f74060631b5a6637e655cb2098d6aff89641",
+      "surface": "journey-depth",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#journey/depth"
+    },
+    {
+      "file": "journey-movement-1440x900.png",
+      "sha256": "cf857590bb7e08c01520d80c6cd9f8302f8f75fe8d505edf96fe74d86a6091f1",
+      "surface": "journey-movement",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#journey/movement"
+    },
+    {
+      "file": "journey-decision-1440x900.png",
+      "sha256": "6fac80bcce9b6e8c5008ac9285a63f6e5dbf5c6788b99f15df9ee6858cac474d",
+      "surface": "journey-decision",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#journey/decision"
+    },
+    {
+      "file": "expert-dashboard-1440x900.png",
+      "sha256": "f4f3f22e4c2db44026e4998ee025269ba7c37f96dafb69581f1d93c1f251418e",
+      "surface": "expert-dashboard",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#dashboard"
+    },
+    {
+      "file": "expert-projects-1440x900.png",
+      "sha256": "e5193ede66c137385555fd65c5b9ee5eb592e625fdecab95c63f51942ca61288",
+      "surface": "expert-projects",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#projects"
+    },
+    {
+      "file": "expert-inspector-1440x900.png",
+      "sha256": "7806e5adaade715eab0c3e8876dc2b2e60da7b69e3f91897aed733bc5f0f83ed",
+      "surface": "expert-inspector",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#inspector/case/f3-ct-g-pardo"
+    },
+    {
+      "file": "expert-market-1440x900.png",
+      "sha256": "589166d29fd49c1b4ed9819a06796e15912f2e88060add7a2aa14d2b02be5181",
+      "surface": "expert-market",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#market"
+    },
+    {
+      "file": "expert-compare-1440x900.png",
+      "sha256": "7838b2ef1fdd15105741463deb2c249260a654cafe019925137b8610fbecd435",
+      "surface": "expert-compare",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#compare"
+    },
+    {
+      "file": "expert-trust-1440x900.png",
+      "sha256": "7cf1bf62474d466a11b4da87a83de4bc7003324bf6f9ffba2d185d4766d5c7eb",
+      "surface": "expert-trust",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#trust"
+    },
+    {
+      "file": "expert-assistant-1440x900.png",
+      "sha256": "4d1d906727bbce68778f36f580ada718230b0d510f00fcd7e7b53820ae39f5d5",
+      "surface": "expert-assistant",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#assistant"
+    },
+    {
+      "file": "expert-activity-1440x900.png",
+      "sha256": "4ca11ce849a6776dbc340f3b85239d9d8345795f556c03178cd5a7362fea2715",
+      "surface": "expert-activity",
+      "mode": "1440x900",
+      "url": "http://127.0.0.1:4365/#activity"
+    },
+    {
+      "file": "journey-scale-1280x720.png",
+      "sha256": "4f94dc18c8558d7b069420b39ea52c0947fed8c7ddae175f04214c1e0322ffce",
+      "surface": "journey-scale",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#journey/scale"
+    },
+    {
+      "file": "journey-geography-1280x720.png",
+      "sha256": "8c493797e74bede0cb88cd84cc40b57cd466f392368ab5fb5c571c88404fb020",
+      "surface": "journey-geography",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#journey/geography"
+    },
+    {
+      "file": "journey-quality-1280x720.png",
+      "sha256": "f26f13ef817149efb95b1ad5dce4fd5e81558945103ea403ff94ac22151862c9",
+      "surface": "journey-quality",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#journey/quality"
+    },
+    {
+      "file": "journey-depth-1280x720.png",
+      "sha256": "92818c399f160e709a64d94560b340b3e4410c1110471d347b69ef78f17a1380",
+      "surface": "journey-depth",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#journey/depth"
+    },
+    {
+      "file": "journey-movement-1280x720.png",
+      "sha256": "8a8aa88a6c4ec6a675b8f6222874dc7e1af6d152c0df30d7e65acc6df9ae2ddd",
+      "surface": "journey-movement",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#journey/movement"
+    },
+    {
+      "file": "journey-decision-1280x720.png",
+      "sha256": "850ba3676e5961856da67e573d1c52211ccc6f5d6b486fb223de8e9dc763e101",
+      "surface": "journey-decision",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#journey/decision"
+    },
+    {
+      "file": "expert-dashboard-1280x720.png",
+      "sha256": "c4944ee8b5a778d46b3061b03bb0b4c38d113f9c00557cfc0b26d1e3d87f2be6",
+      "surface": "expert-dashboard",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#dashboard"
+    },
+    {
+      "file": "expert-projects-1280x720.png",
+      "sha256": "81f6795ffc47ac7fb477a32bad5d4a3723f0eb5b4a15f3250ba966e82205f140",
+      "surface": "expert-projects",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#projects"
+    },
+    {
+      "file": "expert-inspector-1280x720.png",
+      "sha256": "4b27924d8a5c81f7e33417dfcd6b4a15025ea550647b17b12c30e4c62542eb9c",
+      "surface": "expert-inspector",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#inspector/case/f3-ct-g-pardo"
+    },
+    {
+      "file": "expert-market-1280x720.png",
+      "sha256": "a51ff28954c5eb548b6acbce286a38b622112fbb956ef41de3c38e0162a00a29",
+      "surface": "expert-market",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#market"
+    },
+    {
+      "file": "expert-compare-1280x720.png",
+      "sha256": "a1f7c58ead963109f641f6210cabecc8ddf132897830ab3460121b38e93fe634",
+      "surface": "expert-compare",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#compare"
+    },
+    {
+      "file": "expert-trust-1280x720.png",
+      "sha256": "32a0d4782c30b605fd85f5675d2a2fb243e82487238dd081c46b8aaa6ad266c0",
+      "surface": "expert-trust",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#trust"
+    },
+    {
+      "file": "expert-assistant-1280x720.png",
+      "sha256": "7f2e4e1aa2085cbdabe0a3418d2f37b506cc95bff7afbfb23050b63a52a37b25",
+      "surface": "expert-assistant",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#assistant"
+    },
+    {
+      "file": "expert-activity-1280x720.png",
+      "sha256": "5420c7bb3c32d30ec6876c1162046502ca326cb30d09b0e717b46e1152498216",
+      "surface": "expert-activity",
+      "mode": "1280x720",
+      "url": "http://127.0.0.1:4365/#activity"
+    },
+    {
+      "file": "journey-scale-390x844.png",
+      "sha256": "334c9ea27cf48bc538f96fd19a131e3dcc488e031e1aee37b962b5d00626c56d",
+      "surface": "journey-scale",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#journey/scale"
+    },
+    {
+      "file": "journey-geography-390x844.png",
+      "sha256": "955b1aa02cd3bc15712b77102d10ee605f823dbbe1da0f947351067f396829d7",
+      "surface": "journey-geography",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#journey/geography"
+    },
+    {
+      "file": "journey-quality-390x844.png",
+      "sha256": "e34b2e7c7169a62745cf978c3a091dd0e27ec6f9e021a6c5c43af2e15f674f29",
+      "surface": "journey-quality",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#journey/quality"
+    },
+    {
+      "file": "journey-depth-390x844.png",
+      "sha256": "0419df893fdc6dd836542dea1fc841db86a02cace33704513dafa21912b4c7b1",
+      "surface": "journey-depth",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#journey/depth"
+    },
+    {
+      "file": "journey-movement-390x844.png",
+      "sha256": "456366919a7d4f7013815e7913e1838fc5cd52bcfc116be3e2879955aebefa2f",
+      "surface": "journey-movement",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#journey/movement"
+    },
+    {
+      "file": "journey-decision-390x844.png",
+      "sha256": "c58ea0f66998b32363f09ab21fc92bbc2511f32987f4fd730ea23d2b7ffae8b7",
+      "surface": "journey-decision",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#journey/decision"
+    },
+    {
+      "file": "expert-dashboard-390x844.png",
+      "sha256": "e7200477fcd8c25f48fe9e39021e739fa44aa6ed52ac76745348f0181aaaccdc",
+      "surface": "expert-dashboard",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#dashboard"
+    },
+    {
+      "file": "expert-projects-390x844.png",
+      "sha256": "1e51ec2327cc40665d3d92518cc3b32a83f99a73cf2c5339a488320bb501e651",
+      "surface": "expert-projects",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#projects"
+    },
+    {
+      "file": "expert-inspector-390x844.png",
+      "sha256": "a3f2f8794f3f5ad32a0cb7bdd6c74ace3899831e6d94ddf8754341dab55f89e5",
+      "surface": "expert-inspector",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#inspector/case/f3-ct-g-pardo"
+    },
+    {
+      "file": "expert-market-390x844.png",
+      "sha256": "51d5b0eb7cefdf70ea8dc5ab405f3b7b1a163dae0349dda0d0937310bbae3f6f",
+      "surface": "expert-market",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#market"
+    },
+    {
+      "file": "expert-compare-390x844.png",
+      "sha256": "38ed5a33c8dd0189b247e0814b66f2553c6bef12849a6758d5119e6670eb5f1b",
+      "surface": "expert-compare",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#compare"
+    },
+    {
+      "file": "expert-trust-390x844.png",
+      "sha256": "bd5ace4ebe4c025eeba2cec5cc3f453fa345a3b8b6940119b4234055532d17a9",
+      "surface": "expert-trust",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#trust"
+    },
+    {
+      "file": "expert-assistant-390x844.png",
+      "sha256": "87930a730343714fd2b3ecd0babef7f81ec2924962fc155922e2ee41979a33d5",
+      "surface": "expert-assistant",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#assistant"
+    },
+    {
+      "file": "expert-activity-390x844.png",
+      "sha256": "6beef35960e5336047f7317ed1aa6e771faeec67406c11d5bae934cb9cbfca90",
+      "surface": "expert-activity",
+      "mode": "390x844",
+      "url": "http://127.0.0.1:4365/#activity"
+    },
+    {
+      "file": "journey-scale-zoom-200.png",
+      "sha256": "abba5a3ce2ea682d7f92f6fc8fe19ee472c777ed8a1ea8fe8fcefed9631bfbde",
+      "surface": "journey-scale",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#journey/scale"
+    },
+    {
+      "file": "journey-geography-zoom-200.png",
+      "sha256": "4b83fc94ff169557bea166746c7146afb44034e6d2786dbd1621f81592870ae1",
+      "surface": "journey-geography",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#journey/geography"
+    },
+    {
+      "file": "journey-quality-zoom-200.png",
+      "sha256": "c2b936d371365683e797ef93154217b8e3d2ad68a3badc729635d4f3c15b18ae",
+      "surface": "journey-quality",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#journey/quality"
+    },
+    {
+      "file": "journey-depth-zoom-200.png",
+      "sha256": "9f3ee1788be5a3f23d075b7c632e88037f89642ab833def14ed23b954350d4dc",
+      "surface": "journey-depth",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#journey/depth"
+    },
+    {
+      "file": "journey-movement-zoom-200.png",
+      "sha256": "04837ec55decef1677b0c7021b278b1ef78066b8efed42392d246144547cee13",
+      "surface": "journey-movement",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#journey/movement"
+    },
+    {
+      "file": "journey-decision-zoom-200.png",
+      "sha256": "af4c66ab0c3ca91a21a79144b6d4279161ee5caa55c344d72bfce73d98fe1e55",
+      "surface": "journey-decision",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#journey/decision"
+    },
+    {
+      "file": "expert-dashboard-zoom-200.png",
+      "sha256": "87c631a312233b42a0e66d2ef222cb9a9fcb250f9c2cecdf2adce535c19a5e07",
+      "surface": "expert-dashboard",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#dashboard"
+    },
+    {
+      "file": "expert-projects-zoom-200.png",
+      "sha256": "11f81bebe3b902667eeca3b3e57a2dc3a847719799dbc6899d6d6788d950eb95",
+      "surface": "expert-projects",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#projects"
+    },
+    {
+      "file": "expert-inspector-zoom-200.png",
+      "sha256": "42078c2081fa5d9ef48fcae0fe0716d5b450b4b15561a2184a03b2991e4a8eed",
+      "surface": "expert-inspector",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#inspector/case/f3-ct-g-pardo"
+    },
+    {
+      "file": "expert-market-zoom-200.png",
+      "sha256": "6b0527b98c3be9fa5384c5616acb786eb28122b7bf53745e5703df5f06336724",
+      "surface": "expert-market",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#market"
+    },
+    {
+      "file": "expert-compare-zoom-200.png",
+      "sha256": "4825f07f5368a528bd6ed2dbcef3fab3e58aaa2dd78fc66ba6f361d7ef36f57e",
+      "surface": "expert-compare",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#compare"
+    },
+    {
+      "file": "expert-trust-zoom-200.png",
+      "sha256": "1e2c49a2671437594fd138be9aeaba82c65c139552fd0030a9fd560e012703c9",
+      "surface": "expert-trust",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#trust"
+    },
+    {
+      "file": "expert-assistant-zoom-200.png",
+      "sha256": "b8533ee4ab75485aaa47f0f295b521429e07002c41d45f00b67a651cb4d89492",
+      "surface": "expert-assistant",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#assistant"
+    },
+    {
+      "file": "expert-activity-zoom-200.png",
+      "sha256": "bd1467c0c0549c2e26a72935b2db8f9bb099ba1ecd58a7ecaf6fa567b92c586f",
+      "surface": "expert-activity",
+      "mode": "zoom-200",
+      "url": "http://127.0.0.1:4366/#activity"
+    }
+  ]
+}

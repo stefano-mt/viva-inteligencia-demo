@@ -444,7 +444,7 @@ function ledgerNumber(value) {
 
 function ledgerValue(value, unit, valueKind = "observed") {
   if (value === null || value === undefined) {
-    return valueKind === "derived" ? "Valor derivado" : "No determinado";
+    return valueKind === "derived" ? "Valor calculado" : "No determinado";
   }
   if (value === "unknown") return "No determinado";
   if (typeof value === "boolean") return value ? "Sí" : "No";
@@ -802,8 +802,8 @@ function buildLedgerRow(
     benchmarkBlocking: row.benchmarkBlocking === true,
     benchmarkLabel:
       row.benchmarkBlocking === true
-        ? "Bloquea el benchmark"
-        : "No bloquea el benchmark",
+        ? "Queda fuera de la comparación"
+        : "Puede continuar en la comparación",
     sources,
     reading: {
       areaCalculation,
@@ -969,6 +969,60 @@ function decisionCause(dossier) {
   return "El expediente no cumple todavía las condiciones de elegibilidad de la demo.";
 }
 
+function factByField(dossier, fieldName, valueKind) {
+  return dossier.facts.find(
+    (fact) =>
+      fact.field_name === fieldName &&
+      (!valueKind || fact.value_kind === valueKind),
+  );
+}
+
+function buildTransversalQualityMoment(dossier) {
+  const cardArea = factByField(dossier, "published_area", "observed");
+  const planArea = factByField(dossier, "total_area", "observed");
+  const areaDelta = factByField(
+    dossier,
+    "area_source_delta",
+    "derived",
+  );
+  const district = String(dossier.project.location?.district ?? "").trim();
+  const isTransversalCase =
+    dossier.inspectorCase.provenance_classification === "observed" &&
+    dossier.decision.benchmarkEligible === false &&
+    cardArea?.semantic_type === "area" &&
+    planArea?.semantic_type === "area" &&
+    areaDelta?.semantic_type === "area";
+
+  if (!isTransversalCase) return null;
+
+  return {
+    district: district || "distrito no informado",
+    cardArea: {
+      value: cardArea.normalized_value,
+      label: ledgerValue(cardArea.normalized_value, cardArea.unit),
+      semanticLabel:
+        AREA_TYPE_LABELS[cardArea.area_type] ??
+        AREA_TYPE_LABELS.unknown,
+    },
+    planArea: {
+      value: planArea.normalized_value,
+      label: ledgerValue(planArea.normalized_value, planArea.unit),
+      semanticLabel:
+        AREA_TYPE_LABELS[planArea.area_type] ?? AREA_TYPE_LABELS.unknown,
+    },
+    areaDelta: {
+      value: areaDelta.normalized_value,
+      label: ledgerValue(areaDelta.normalized_value, areaDelta.unit),
+    },
+    benchmarkEligible: dossier.decision.benchmarkEligible,
+    evidenceCount: dossier.evidence.length,
+    evidenceId:
+      dossier.primaryEvidence?.evidence_id ??
+      dossier.evidence[0]?.evidence_id ??
+      null,
+  };
+}
+
 function primaryAction(dossier, presentation) {
   const row = firstBlockingRow(dossier);
   const rowHref = `#inspector-row-${row?.key ?? LEDGER_ROW_KEYS[0]}`;
@@ -1026,7 +1080,7 @@ export function buildInspectorViewModel({
   if (!data?.model || !data?.inspector || !data?.pilot?.counts) {
     return unavailableModel(
       "INSPECTOR_DATA_UNAVAILABLE",
-      "No hay un dataset de evidencia disponible para construir el inspector.",
+      "No hay datos de evidencia disponibles para abrir el inspector.",
     );
   }
   if (!projectId || !typologyId) {
@@ -1060,7 +1114,7 @@ export function buildInspectorViewModel({
     const territorialContinuity =
       selectedCase.provenance_classification === "observed" &&
       !dossier.decision.benchmarkEligible
-        ? "El proyecto permanece en la lectura territorial; esta tipología y sus hechos incompatibles quedan fuera del benchmark certificado."
+        ? "El proyecto permanece en la lectura territorial; esta tipología y sus datos incompatibles quedan fuera de la comparación de mercado."
         : null;
     const viewer = evidenceContext(
       dossier,
@@ -1072,6 +1126,7 @@ export function buildInspectorViewModel({
       data.inspector,
     );
     const ledger = buildLedger(dossier, data.inspector);
+    const qualityMoment = buildTransversalQualityMoment(dossier);
 
     return {
       available: true,
@@ -1174,6 +1229,7 @@ export function buildInspectorViewModel({
       },
       evidenceOptions,
       ledger,
+      qualityMoment,
       viewer,
       dialogOpen: Boolean(dialogOpen && viewer?.safe),
       primaryAction: primaryAction(dossier, presentation),
@@ -1184,6 +1240,76 @@ export function buildInspectorViewModel({
       "El expediente seleccionado no pudo validarse con el contrato de evidencia.",
     );
   }
+}
+
+function renderQualityMoment(model) {
+  const moment = model.qualityMoment;
+  if (!moment) return "";
+
+  return `
+    <section
+      class="inspector-quality-moment"
+      aria-labelledby="inspector-quality-moment-title"
+      data-inspector-quality-moment
+      data-card-area="${escapeAttr(moment.cardArea.value)}"
+      data-plan-area="${escapeAttr(moment.planArea.value)}"
+      data-area-delta="${escapeAttr(moment.areaDelta.value)}"
+      data-benchmark-eligible="${moment.benchmarkEligible ? "true" : "false"}"
+    >
+      <div class="inspector-quality-moment__heading">
+        <p class="inspector-quality-moment__eyebrow">
+          Ejemplo de calidad de datos · ${escapeHtml(moment.district)}
+        </p>
+        <h2 id="inspector-quality-moment-title">
+          ${escapeHtml(model.typology.name)} no debe entrar a la comparación
+        </h2>
+        <p>
+          Este expediente es independiente del escenario activo: no cambia al ajustar distrito o alcance y no alimenta sus agregados.
+        </p>
+      </div>
+      <div class="inspector-quality-equation" aria-label="Contraste de áreas del caso">
+        <div>
+          <span>Tarjeta</span>
+          <strong>${escapeHtml(moment.cardArea.label)}</strong>
+          <small>${escapeHtml(moment.cardArea.semanticLabel)}</small>
+        </div>
+        <span class="inspector-quality-equation__operator" aria-hidden="true">≠</span>
+        <div>
+          <span>Plano</span>
+          <strong>${escapeHtml(moment.planArea.label)}</strong>
+          <small>${escapeHtml(moment.planArea.semanticLabel)}</small>
+        </div>
+        <div class="inspector-quality-equation__delta">
+          <span>Diferencia documentada</span>
+          <strong>${escapeHtml(moment.areaDelta.label)}</strong>
+          <small>Diferencia calculada con ambos valores</small>
+        </div>
+      </div>
+      <div class="inspector-quality-conclusion">
+        <p>
+          <strong>No elegible</strong>
+          La incompatibilidad bloquea esta tipología; ambas fuentes se conservan para auditoría.
+        </p>
+        <div class="inspector-quality-actions">
+          ${renderPrimaryAction(model.primaryAction)}
+          ${
+            moment.evidenceId
+              ? `
+                <button
+                  class="inspector-quality-evidence-link"
+                  type="button"
+                  data-inspector-evidence="${escapeAttr(moment.evidenceId)}"
+                  aria-haspopup="dialog"
+                >
+                  Revisar evidencia permitida (${formatNumber(moment.evidenceCount)})
+                </button>
+              `
+              : ""
+          }
+        </div>
+      </div>
+    </section>
+  `;
 }
 
 function renderOptions(options) {
@@ -1529,7 +1655,7 @@ function renderLedgerReading(row) {
         row.reading.areaCalculation
           ? `
             <p class="inspector-ledger-calculation">
-              <span>Valor derivado · Cálculo documentado</span>
+              <span>Valor calculado · Operación documentada</span>
               <strong>${escapeHtml(row.reading.areaCalculation.expression)}</strong>
               <small>${escapeHtml(row.reading.areaCalculation.relative)}</small>
             </p>
@@ -1540,7 +1666,7 @@ function renderLedgerReading(row) {
         row.reading.floorInference
           ? `
             <p class="inspector-ledger-inference">
-              <span>Valor derivado · Inferencia de pisos</span>
+              <span>Lectura calculada · Pisos posibles</span>
               <strong>${escapeHtml(row.reading.floorInference.value)}</strong>
               <small>Confianza ${escapeHtml(row.reading.floorInference.confidence)}</small>
             </p>
@@ -1622,7 +1748,7 @@ function renderUnavailable(model) {
       <p class="inspector-breadcrumb">Viva Inteligencia / Evidencia</p>
       <span class="inspector-kicker">Custodia de datos</span>
       <h1>Inspector de evidencia</h1>
-      <p>Contrasta fuentes y decide qué datos pueden entrar al benchmark.</p>
+      <p>Contrasta fuentes y decide qué datos pueden usarse en la comparación.</p>
       <div class="inspector-notice" role="status">
         <strong>Inspector no disponible</strong>
         <p>${escapeHtml(model.message)}</p>
@@ -1654,14 +1780,14 @@ export function renderInspectorModel(model) {
           <span class="inspector-kicker">Custodia de datos</span>
           <h1>Inspector de evidencia</h1>
           <p class="inspector-purpose">
-            Contrasta fuentes y decide qué datos pueden entrar al benchmark.
+            Contrasta fuentes y decide qué datos pueden usarse en la comparación.
           </p>
         </div>
         <div class="inspector-journey" aria-label="Cómo usar el inspector">
           <span>Selecciona</span>
           <span>Contrasta</span>
           <span>Decide</span>
-          <p>Resultado: una decisión trazable por tipología.</p>
+          <p>Resultado: una decisión verificable por tipología.</p>
         </div>
       </header>
       <div
@@ -1670,6 +1796,8 @@ export function renderInspectorModel(model) {
         aria-live="polite"
         aria-atomic="true"
       ></div>
+
+      ${renderQualityMoment(model)}
 
       <div class="inspector-custody">
         <section class="inspector-module inspector-coverage" aria-labelledby="inspector-coverage-title">
@@ -1779,10 +1907,10 @@ export function renderInspectorModel(model) {
                 <time datetime="${escapeAttr(model.verdict.latestDate ?? "")}">${escapeHtml(model.verdict.latestDateLabel)}</time>
               </p>
             </div>
-            ${renderPrimaryAction(model.primaryAction)}
+            ${model.qualityMoment ? "" : renderPrimaryAction(model.primaryAction)}
           </div>
           <details class="inspector-metadata" data-inspector-metadata>
-            <summary>Ver metadata del expediente</summary>
+            <summary>Ver datos del expediente</summary>
             <dl>
               <div>
                 <dt>Proyecto</dt>
@@ -1824,14 +1952,14 @@ export function renderInspectorModel(model) {
           <div class="inspector-module-heading">
             <span class="inspector-step" aria-hidden="true">04</span>
             <div>
-              <p class="inspector-section-label">Ledger</p>
-              <h2 id="inspector-ledger-title">Contraste por campo</h2>
+              <p class="inspector-section-label">Detalle</p>
+              <h2 id="inspector-ledger-title">Comparación campo por campo</h2>
               <p class="inspector-module-help">Compara valores fuente por fuente y explica cada incompatibilidad</p>
             </div>
           </div>
           <p class="inspector-ledger-provenance">
-            Procedencia del expediente: <strong>${escapeHtml(model.provenance)}</strong>.
-            Los valores derivados se presentan únicamente en la lectura.
+            Origen del expediente: <strong>${escapeHtml(model.provenance)}</strong>.
+            Los valores calculados aparecen únicamente en esta lectura.
           </p>
           ${renderLedger(model)}
         </section>
@@ -1848,7 +1976,7 @@ export function renderInspectorModel(model) {
           <div class="inspector-viewer-index">
             <p>
               Selecciona una referencia para abrir su representación permitida.
-              Los estados restringidos conservan solo metadata segura.
+              Cuando una fuente está restringida solo se muestran sus datos básicos.
             </p>
             ${renderEvidenceOptions(model.evidenceOptions)}
           </div>
@@ -1859,7 +1987,7 @@ export function renderInspectorModel(model) {
             <span class="inspector-step" aria-hidden="true">06</span>
             <div>
               <p class="inspector-section-label">Decisión</p>
-              <h2 id="inspector-decision-title">Uso en el benchmark</h2>
+              <h2 id="inspector-decision-title">Uso en la comparación</h2>
               <p class="inspector-module-help">Explica qué se usa, qué se excluye y cuál es el siguiente paso</p>
             </div>
           </div>

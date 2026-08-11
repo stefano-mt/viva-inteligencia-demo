@@ -1,0 +1,14 @@
+{
+  "fixture_version": 1,
+  "case_id": "CT-H",
+  "stage_id": "scale",
+  "scenario_path": "/#journey/scale",
+  "source_fixture": null,
+  "story_ids": ["HU-DEMO-103", "HU-DEMO-801"],
+  "expected": {
+    "capability_status": "available",
+    "public_stage_status": "ready",
+    "expert_routes": ["market"],
+    "claim": "184 registros modelados y piloto anidado 30/22/5 permanecen separados"
+  }
+}

@@ -9,7 +9,7 @@ import {
 import { state } from "../state.js";
 
 const STATUS_LABELS = Object.freeze({
-  certified: "Certificada",
+  certified: "Con fuente confirmada",
   reviewable: "Por revisar",
   insufficient: "Insuficiente",
 });
@@ -47,7 +47,7 @@ const REASON_LABELS = Object.freeze({
 const FILTER_OPTIONS = Object.freeze({
   statuses: Object.freeze([
     ["all", "Todos los estados"],
-    ["certified", "Certificadas"],
+    ["certified", "Con fuente confirmada"],
     ["reviewable", "Por revisar"],
     ["insufficient", "Insuficientes"],
   ]),
@@ -99,6 +99,7 @@ export function renderActivity() {
     status,
     header,
     body: `
+      ${renderCurrentSignalBrief(context)}
       ${renderQualityBand(context)}
       ${renderHistoryFilters(context)}
       ${renderHistoryTimeline(context)}
@@ -162,7 +163,7 @@ function renderHistoryHeader(context) {
       <div class="history-hero__actions" aria-label="Acciones principales del histórico">
         ${priority && certified > 0 ? `
           <button
-            class="primary-button history-primary-action"
+            class="secondary-button history-primary-action"
             id="history-priority-action"
             type="button"
             data-history-priority="${escapeAttr(priority.history_event_id)}"
@@ -188,6 +189,59 @@ function scopeLabel(context) {
   return "Distrito completo";
 }
 
+function renderCurrentSignalBrief(context) {
+  const signal = context.timeline?.[0] ?? null;
+  if (!signal) {
+    return `
+      <section class="history-signal-brief is-empty" data-history-signal-brief="empty">
+        <div>
+          <span class="history-eyebrow">Lectura del movimiento</span>
+          <h3>Sin una señal vigente para resumir</h3>
+          <p>La ausencia de dos observaciones compatibles no demuestra estabilidad. Revisa filtros o comparables antes de decidir.</p>
+        </div>
+      </section>
+    `;
+  }
+
+  const causeLabel = signal.cause ?? "Causa no observada";
+  const causeStatus = signal.cause_status ?? "not_observed";
+  return `
+    <section
+      class="history-signal-brief"
+      aria-labelledby="history-signal-brief-title"
+      data-history-signal-brief="ready"
+      data-history-current-event="${escapeAttr(signal.history_event_id)}"
+      data-history-current-validity="${escapeAttr(signal.validity ?? "unknown")}"
+      data-history-current-status="${escapeAttr(signal.effective_status ?? "insufficient")}"
+      data-history-current-cause="${escapeAttr(causeStatus)}"
+    >
+      <div class="history-signal-brief__thesis">
+        <span class="history-eyebrow">Lectura del movimiento</span>
+        <h3 id="history-signal-brief-title">Hay un cambio publicado; su causa no se presume</h3>
+        <p>${escapeHtml(signal.project?.canonical_name ?? "Proyecto sin nombre")} encabeza la agenda vigente. El cambio describe publicaciones observadas, no ventas ni una explicación causal.</p>
+      </div>
+      <dl class="history-signal-brief__ledger">
+        <div>
+          <dt>Anterior → nuevo</dt>
+          <dd><strong>${escapeHtml(valueLabel(signal.previous_value, signal))}</strong><span aria-hidden="true">→</span><strong>${escapeHtml(valueLabel(signal.current_value, signal))}</strong></dd>
+        </div>
+        <div>
+          <dt>Actualidad</dt>
+          <dd><strong>${escapeHtml(VALIDITY_LABELS[signal.validity] ?? "Vigencia desconocida")}</strong><small>Observado ${escapeHtml(formatDate(signal.current_observed_at))}</small></dd>
+        </div>
+        <div>
+          <dt>Uso analítico</dt>
+          <dd><strong>${escapeHtml(STATUS_LABELS[signal.effective_status] ?? "Estado desconocido")}</strong><small>${escapeHtml(causeLabel)}</small></dd>
+        </div>
+      </dl>
+      <div class="history-signal-brief__handoff">
+        <p><strong>Límite:</strong> un cambio publicado no permite afirmar precio de cierre, venta ni motivo comercial.</p>
+        <a class="primary-button history-decision-action" href="#assistant">Preparar decisión</a>
+      </div>
+    </section>
+  `;
+}
+
 function renderQualityBand(context) {
   const coverage = context.coverage ?? {};
   const eventCount = Number(coverage.scenario_event_count ?? 0);
@@ -208,7 +262,7 @@ function renderQualityBand(context) {
         "Cambios compatibles encontrados dentro de los proyectos comparables del escenario activo.",
     },
     {
-      label: "Certificados",
+      label: "Con fuente confirmada",
       value: Number(coverage.by_status?.certified ?? 0),
       explanation:
         "Valores, moneda, fechas, hechos y evidencia cumplen las reglas del histórico.",
@@ -223,7 +277,7 @@ function renderQualityBand(context) {
       label: "Cobertura temporal",
       value: `${temporalCoverage}%`,
       explanation:
-        "Proporción de eventos con una vigencia calculable contra la fecha de corte.",
+        "Proporción de cambios cuya actualidad puede revisarse contra la fecha de corte.",
     },
   ];
   return `
@@ -312,7 +366,7 @@ function renderHistoryTimeline(context) {
         <div>
           <span class="history-section-index">Lectura principal</span>
           <h3 id="history-timeline-title">Línea de tiempo explicable</h3>
-          <p>Calidad y vigencia preceden a la magnitud. Abre una señal para revisar sus observaciones y evidencia.</p>
+          <p>Primero revisa la calidad y la fecha; después, la magnitud. Abre una señal para comprobar sus valores y fuentes.</p>
         </div>
         <details class="history-method">
           <summary>Cómo leer este cuaderno</summary>
@@ -344,7 +398,7 @@ function renderHistoryAgenda(context) {
         <div>
           <span class="history-section-index">Siguiente lectura</span>
           <h3 id="history-agenda-title">Agenda de seguimiento</h3>
-          <p>Orden reproducible · calidad antes que magnitud. Cada acción nace de la muestra y los filtros activos.</p>
+          <p>Orden sugerido: calidad antes que magnitud. Cada acción nace de la muestra y los filtros activos.</p>
         </div>
         <span class="history-agenda__limit">Máximo 3 acciones</span>
       </header>
@@ -389,7 +443,7 @@ function renderAgendaItem(item, index, context) {
             : "Origen · cobertura del escenario"}</span>
           <span>${event
             ? `${escapeHtml(countLabel(factCount, "hecho", "hechos"))} · ${escapeHtml(countLabel(evidenceCount, "evidencia", "evidencias"))}`
-            : `${escapeHtml(formatNumber(context.coverage?.by_status?.certified ?? 0))} certificadas · ${escapeHtml(formatNumber(context.coverage?.scenario_event_count ?? 0))} eventos detectados`}</span>
+            : `${escapeHtml(formatNumber(context.coverage?.by_status?.certified ?? 0))} con fuente confirmada · ${escapeHtml(formatNumber(context.coverage?.scenario_event_count ?? 0))} cambios detectados`}</span>
         </div>
       </div>
       ${event
@@ -589,7 +643,7 @@ function renderUnavailableHistory() {
     <section class="history-state">
       <span class="history-state__icon" aria-hidden="true">i</span>
       <h3>Histórico no disponible</h3>
-      <p>Este dataset es anterior al contrato 2.4. El análisis territorial sigue disponible, pero no se reconstruyen cambios desde campos legacy.</p>
+      <p>Esta versión de datos no incluye el histórico requerido. El análisis territorial sigue disponible, pero no se reconstruyen cambios con campos antiguos.</p>
       <button class="secondary-button" type="button" data-view="projects">Ver comparables</button>
     </section>
   `;
@@ -600,7 +654,7 @@ function renderIntegrityError() {
     <section class="history-state history-state--error">
       <span class="history-state__icon" aria-hidden="true">!</span>
       <h3>No se pudo construir una lectura segura</h3>
-      <p>El histórico no cumple su contrato de integridad. Reinicia el escenario; si el estado continúa, no uses estas señales para decidir.</p>
+      <p>El histórico está incompleto. Reinicia el escenario; si el estado continúa, no uses estas señales para decidir.</p>
       <button class="secondary-button" id="history-reset-scenario" type="button" data-history-reset>Reiniciar escenario</button>
     </section>
   `;

@@ -6,7 +6,6 @@ import {
   escapeHtml,
   findProjectById,
   formatNumber,
-  getScenarioDisplayProjects,
   miniMetric,
   money,
   priceM2,
@@ -22,19 +21,6 @@ const FACTOR_LABELS = Object.freeze({
   typology: "Tipología",
   delivery: "Entrega",
   price_per_m2: "Precio publicado / m²",
-});
-
-const STATUS_LABELS = Object.freeze({
-  geography: {
-    ready: "Cobertura territorial completa",
-    partial: "Cobertura territorial parcial",
-    unavailable: "Geografía no disponible",
-  },
-  comparability: {
-    ready: "Comparabilidad lista",
-    orientative: "Comparabilidad orientativa",
-    insufficient: "Comparables insuficientes",
-  },
 });
 
 export function renderDashboard() {
@@ -60,17 +46,18 @@ export function renderDashboard() {
       : null;
 
   return `
-    <section class="dashboard-grid">
-      ${renderScenarioStrip(context)}
-
-      <div class="span-12">
-        ${renderGeographicMap({
-          scenarioContext: context,
-          data: state.data,
-          boundaryGeoJson,
-          selectedProjectId: state.selectedProjectId,
-          showVisualizationControl: true,
-        })}
+    <section
+      class="dashboard-grid dashboard-grid--radar"
+      data-radar-reading
+      data-observed-projects="${escapeAttr(context.observed_scope_project_ids.length)}"
+      data-geography-included="${escapeAttr(context.geography_coverage?.included ?? 0)}"
+      data-geography-total="${escapeAttr(context.geography_coverage?.total ?? 0)}"
+      data-comparable-projects="${escapeAttr(context.comparable_project_ids.length)}"
+      data-excluded-projects="${escapeAttr(context.excluded_projects?.length ?? 0)}"
+      data-active-visualization="${escapeAttr(context.scenario.visualization ?? "geographic")}"
+    >
+      <div class="radar-primary span-12">
+        ${renderRadarVisualization(context, boundaryGeoJson)}
       </div>
 
       <section class="planner-panel span-5" aria-labelledby="scenario-product-title">
@@ -81,76 +68,43 @@ export function renderDashboard() {
         ${renderPriceDiagnosis(context)}
       </section>
 
-      <section class="panel span-7" aria-labelledby="score-explanation-title">
-        ${renderScoreExplanation(context)}
-      </section>
+      <details class="radar-deep-dive span-12">
+        <summary>
+          <span>
+            <strong>Profundizar en comparabilidad</strong>
+            <small>Revisa el score explicable y los cinco candidatos prioritarios.</small>
+          </span>
+        </summary>
+        <div class="radar-deep-dive__grid">
+          <section class="panel" aria-labelledby="score-explanation-title">
+            ${renderScoreExplanation(context)}
+          </section>
 
-      <section class="panel span-5" aria-labelledby="priority-comparables-title">
-        ${renderPriorityComparables(context)}
-      </section>
-
-      <div class="span-12">
-        ${renderPositioningMap({
-          scenarioContext: context,
-          data: state.data,
-          selectedProjectId: state.selectedProjectId,
-          showVisualizationControl: false,
-        })}
-      </div>
+          <section class="panel" aria-labelledby="priority-comparables-title">
+            ${renderPriorityComparables(context)}
+          </section>
+        </div>
+      </details>
     </section>
   `;
 }
 
-function renderScenarioStrip(context) {
-  const projects = getScenarioDisplayProjects();
-  const agencyCount = new Set(
-    projects
-      .map((project) => String(project.agency_name ?? "").trim())
-      .filter(Boolean),
-  ).size;
-  const coverage = context.geography_coverage ?? {};
-  const targetPricePerM2 = scenarioTargetPricePerM2(context.scenario);
-  const geographyStatus =
-    STATUS_LABELS.geography[context.geography_status] ??
-    "Cobertura territorial por revisar";
-  const comparabilityStatus =
-    STATUS_LABELS.comparability[context.comparability_status] ??
-    "Comparabilidad por revisar";
-  const comparabilityDetail =
-    context.comparability_status === "orientative"
-      ? ` · ${formatNumber(context.evidence_coverage_pct, 1)}% evidencia`
-      : "";
+function renderRadarVisualization(context, boundaryGeoJson) {
+  const shared = {
+    scenarioContext: context,
+    data: state.data,
+    selectedProjectId: state.selectedProjectId,
+    showVisualizationControl: true,
+  };
 
-  return `
-    <section class="panel span-12" aria-labelledby="dashboard-scope-title">
-      <div class="panel-header">
-        <div>
-          <span class="section-kicker">Escenario activo</span>
-          <h2 id="dashboard-scope-title">${escapeHtml(context.scope_text)}</h2>
-          <p>La misma selección alimenta el mapa, el score y la referencia publicada.</p>
-        </div>
-        <div class="panel-header-actions" aria-label="Estado del escenario">
-          <span class="status-badge ${statusTone(context.geography_status)}">${escapeHtml(geographyStatus)}</span>
-          <span class="status-badge ${statusTone(context.comparability_status)}">${escapeHtml(`${comparabilityStatus}${comparabilityDetail}`)}</span>
-        </div>
-      </div>
-      <div class="planner-results">
-        ${miniMetric(
-          "Proyectos / cobertura geográfica",
-          `${formatNumber(context.observed_scope_project_ids.length)} · ${formatNumber(coverage.included)}/${formatNumber(coverage.total)}`,
-        )}
-        ${miniMetric(
-          "Comparables elegibles",
-          formatNumber(context.comparable_project_ids.length),
-        )}
-        ${miniMetric("Inmobiliarias visibles", formatNumber(agencyCount))}
-        ${miniMetric(
-          "Escenario Viva / m²",
-          targetPricePerM2 ? priceM2(targetPricePerM2) : "Por definir",
-        )}
-      </div>
-    </section>
-  `;
+  if (context.scenario.visualization === "positioning") {
+    return renderPositioningMap(shared);
+  }
+
+  return renderGeographicMap({
+    ...shared,
+    boundaryGeoJson,
+  });
 }
 
 function renderProductPlanner(context) {
@@ -533,12 +487,6 @@ function renderNumberField({
       <small id="${escapeAttr(errorId)}" data-product-error="${escapeAttr(name)}" hidden></small>
     </label>
   `;
-}
-
-function statusTone(status) {
-  if (status === "ready") return "success";
-  if (status === "partial" || status === "orientative") return "warning";
-  return "danger";
 }
 
 function typologyLabel(value) {

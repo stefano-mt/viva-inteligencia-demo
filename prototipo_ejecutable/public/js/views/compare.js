@@ -28,7 +28,7 @@ const VALUE_STATE_DESCRIPTIONS = Object.freeze({
   announced: "Declarado en la publicación; no equivale a verificación física.",
   derived: "Calculado a partir de valores visibles del escenario.",
   excluded: "El dato existe, pero no cumple la política de comparación.",
-  observed: "Dato visible en una fuente autorizada del snapshot.",
+  observed: "Dato visible en una fuente autorizada de la muestra.",
   simulated: "Valor ingresado para el escenario Viva; no es una oferta publicada.",
   unknown: "La fuente pública no informa este dato.",
 });
@@ -81,6 +81,10 @@ function sourceMetadata(summary) {
     capturedAt: summary.source.capturedAt ?? null,
     evidenceStatus: summary.source.evidenceStatus ?? null,
   };
+}
+
+function safeCount(value) {
+  return Number.isInteger(value) && value >= 0 ? value : null;
 }
 
 function normalizeList(value) {
@@ -171,6 +175,11 @@ function evidenceDetails(row, value, summary) {
             : ""
         }
         ${
+          source?.evidenceStatus
+            ? `<div><dt>Estado de evidencia</dt><dd>${escapeHtml(readableAttribute(source.evidenceStatus))}</dd></div>`
+            : ""
+        }
+        ${
           value?.confidence !== null && value?.confidence !== undefined
             ? `<div><dt>Confianza</dt><dd>${escapeHtml(formatNumber(value.confidence, 2))}</dd></div>`
             : ""
@@ -252,9 +261,7 @@ function comparisonRow(row, selected, summaries, priorityRows) {
 
 function comparisonGroup(group, model, summaries) {
   const priorityRows = new Set(model.priorityRows);
-  const startsOpen =
-    ["price", "areas"].includes(group.id) ||
-    group.rows.some(({ id }) => priorityRows.has(id));
+  const startsOpen = group.id === "price";
   return `
     <details
       class="comparison-group"
@@ -280,71 +287,65 @@ function comparisonGroup(group, model, summaries) {
   `;
 }
 
-function priorityIndex(model) {
-  if (!model.priorityRows.length) {
-    return `<p class="comparison-priority-empty">No se detectan diferencias prioritarias en los criterios informados.</p>`;
-  }
-  const rows = new Map(
-    model.groups.flatMap(({ rows }) => rows.map((row) => [row.id, row])),
-  );
-  return `
-    <nav class="comparison-priority-index" aria-label="Diferencias prioritarias">
-      ${model.priorityRows
-        .map((rowId, index) => {
-          const row = rows.get(rowId);
-          return `
-            <button
-              type="button"
-              class="comparison-row-link"
-              data-comparison-row-target="${escapeAttr(rowId)}"
-              aria-controls="${escapeAttr(rowDomId(rowId))}"
-            >
-              <span>${String(index + 1).padStart(2, "0")}</span>
-              ${escapeHtml(row?.label ?? rowId)}
-            </button>
-          `;
-        })
-        .join("")}
-    </nav>
-  `;
-}
-
 function conclusionMarkup(model, { linksEnabled = true } = {}) {
   return `
-    <section class="comparison-conclusion" aria-labelledby="comparison-conclusion-title">
-      <div class="comparison-section-heading">
+    <section
+      class="comparison-conclusion"
+      aria-labelledby="comparison-conclusion-title"
+      data-comparison-findings="${formatNumber(model.conclusion.length)}"
+    >
+      <div class="comparison-decision-sheet">
         <div>
-          <span class="comparison-eyebrow">Lectura ejecutiva derivada</span>
+          <span class="comparison-eyebrow">Decisión sustentada</span>
           <h2 id="comparison-conclusion-title">Qué cambia la decisión</h2>
+          <p>Lee primero la condición principal; abre la matriz solo para comprobar el criterio y su evidencia.</p>
         </div>
-        ${componentHelp(
-          "Conclusión trazable",
-          "Cada hallazgo se deriva del motor de benchmark y enlaza el criterio exacto que lo sustenta. No reemplaza la validación comercial.",
-        )}
+        ${
+          linksEnabled
+            ? `<div class="comparison-decision-sheet__actions">
+                <a class="primary-button comparison-next-action" href="#journey/movement">Revisar movimiento</a>
+                ${componentHelp(
+                  "Cómo se construye esta conclusión",
+                  "Cada hallazgo se calcula con la comparación de mercado y enlaza el criterio exacto que lo sustenta. No reemplaza la validación comercial.",
+                )}
+              </div>`
+            : componentHelp(
+                "Cómo se construye esta conclusión",
+                "Cada hallazgo se calcula con la comparación de mercado y enlaza el criterio exacto que lo sustenta. No reemplaza la validación comercial.",
+              )
+        }
       </div>
       <ol class="comparison-findings">
         ${model.conclusion
           .map(
             (finding, index) => `
-              <li>
+              <li class="comparison-finding${index === 0 ? " is-lead" : ""}">
                 <div class="comparison-finding__number">${String(index + 1).padStart(2, "0")}</div>
                 <div class="comparison-finding__content">
+                  <span class="comparison-finding__role">${
+                    index === 0 ? "Condición principal" : "Diferencia de apoyo"
+                  }</span>
                   <strong>${escapeHtml(finding.finding)}</strong>
-                  <dl>
-                    <div><dt>Implicancia comercial</dt><dd>${escapeHtml(finding.implication)}</dd></div>
-                    <div><dt>Siguiente acción</dt><dd>${escapeHtml(finding.nextAction)}</dd></div>
-                    <div><dt>Limitación</dt><dd>${escapeHtml(finding.limitation)}</dd></div>
-                  </dl>
-                  ${
-                    linksEnabled
-                      ? `<button
-                          type="button"
-                          class="comparison-row-link"
-                          data-comparison-row-target="${escapeAttr(finding.rowId)}"
-                          aria-controls="${escapeAttr(rowDomId(finding.rowId))}"
-                        >Ver criterio que sustenta este hallazgo</button>`
-                      : ""
-                  }
+                  <div class="comparison-finding__decision">
+                    <p><b>Para la decisión</b><span>${escapeHtml(finding.implication)}</span></p>
+                    <p><b>Qué revisar</b><span>${escapeHtml(finding.nextAction)}</span></p>
+                  </div>
+                  <div class="comparison-finding__actions">
+                    <details class="comparison-finding__limit">
+                      <summary>Límite de este hallazgo</summary>
+                      <p>${escapeHtml(finding.limitation)}</p>
+                    </details>
+                    ${
+                      linksEnabled
+                        ? `<button
+                            type="button"
+                            class="comparison-row-link"
+                            data-comparison-row-target="${escapeAttr(finding.rowId)}"
+                            aria-controls="${escapeAttr(rowDomId(finding.rowId))}"
+                          >Ver criterio y evidencia</button>`
+                        : ""
+                    }
+                  </div>
                 </div>
               </li>
             `,
@@ -352,6 +353,65 @@ function conclusionMarkup(model, { linksEnabled = true } = {}) {
           .join("")}
       </ol>
     </section>
+  `;
+}
+
+function denominatorMarkup(benchmarkContext, model) {
+  const scopeCount = safeCount(benchmarkContext?.scope?.projectCount);
+  const selectedCount = model.selected.filter(({ simulated }) => !simulated).length;
+  const eligibleCount = safeCount(
+    benchmarkContext?.quantitative?.pricePerM2Total?.n,
+  );
+  const orientativeCount = safeCount(
+    benchmarkContext?.quantitative?.pricePerM2Total?.orientative?.n,
+  );
+  const countLabel = (value) =>
+    value === null ? "No disponible" : formatNumber(value);
+
+  return `
+    <details
+      class="comparison-basis"
+      aria-labelledby="comparison-basis-title"
+      data-comparison-denominators
+      data-scope-projects="${scopeCount ?? "unavailable"}"
+      data-selected-projects="${selectedCount}"
+      data-eligible-price-pairs="${eligibleCount ?? "unavailable"}"
+      data-orientative-price-ratios="${orientativeCount ?? "unavailable"}"
+    >
+      <summary class="comparison-basis__summary">
+        <span>
+          <span class="comparison-eyebrow">Base de lectura</span>
+          <strong id="comparison-basis-title">${countLabel(scopeCount)} comparables · ${formatNumber(
+            selectedCount,
+          )} seleccionados · ${countLabel(eligibleCount)} pares de precio elegibles</strong>
+        </span>
+        <span>Ver base de comparación</span>
+      </summary>
+      <div class="comparison-basis__body">
+        <div class="comparison-basis__intro">
+          <h2>Tres grupos que no deben sumarse</h2>
+          <p>La tabla compara una selección de la zona; el precio por m² requiere que precio y área correspondan a la misma unidad.</p>
+        </div>
+        <dl class="comparison-basis__ledger">
+          <div>
+            <dt>Zona activa</dt>
+            <dd><strong>${countLabel(scopeCount)}</strong> proyectos comparables</dd>
+          </div>
+          <div>
+            <dt>Matriz visible</dt>
+            <dd><strong>${formatNumber(selectedCount)}</strong> proyectos seleccionados</dd>
+          </div>
+          <div>
+            <dt>Precio por m²</dt>
+            <dd><strong>${countLabel(eligibleCount)}</strong> pares comparables · ${countLabel(orientativeCount)} referencias orientativas</dd>
+          </div>
+        </dl>
+        <div class="comparison-basis__references">
+          <p>Estos conteos describen grupos distintos y no se suman.</p>
+          <a href="#market">Revisar referencia y metodología</a>
+        </div>
+      </div>
+    </details>
   `;
 }
 
@@ -423,7 +483,9 @@ function selectorMarkup({ benchmarkContext, model, query }) {
 
   return `
     <details class="comparison-selector">
-      <summary class="secondary-button">Cambiar proyectos</summary>
+      <summary class="${model.status === "insufficient" ? "primary-button" : "secondary-button"}">${
+        model.status === "insufficient" ? "Seleccionar proyectos" : "Cambiar proyectos"
+      }</summary>
       <div class="comparison-selector__body">
         <label class="field-control" for="compare-query">
           <span>Buscar dentro del escenario</span>
@@ -435,7 +497,7 @@ function selectorMarkup({ benchmarkContext, model, query }) {
           />
         </label>
         <p class="comparison-selector__rule">
-          Elige entre 2 y 3 proyectos del universo vigente. La búsqueda no amplía el alcance.
+          Elige entre 2 y 3 proyectos de la zona activa. La búsqueda no añade proyectos de otra zona.
         </p>
         <div class="comparison-candidate-list">
           ${
@@ -472,10 +534,10 @@ function comparisonHeader(benchmarkContext, model) {
   return `
     <header class="comparison-hero">
       <div>
-        <span class="comparison-eyebrow">Benchmark de microzona</span>
+        <span class="comparison-eyebrow">Decisión entre comparables</span>
         <h1>Comparador comercial</h1>
         <p>
-          Contrasta proyectos del mismo escenario, separa lo observado de lo simulado y llega a una siguiente acción defendible.
+          Contrasta diferencias respaldadas del mismo escenario y separa lo observado de lo simulado.
         </p>
       </div>
       <div class="comparison-hero__status" aria-label="Estado de la selección">
@@ -483,6 +545,11 @@ function comparisonHeader(benchmarkContext, model) {
         <span>proyectos de mercado</span>
       </div>
     </header>
+    ${
+      model.status === "ready"
+        ? conclusionMarkup(model)
+        : ""
+    }
     <section class="comparison-command" aria-label="Selección de proyectos">
       <div>
         ${selectedChips(model)}
@@ -499,7 +566,7 @@ function comparisonHeader(benchmarkContext, model) {
           targetAvailable
             ? `<button
                 type="button"
-                class="${targetIncluded ? "secondary-button" : "primary-button"} comparison-target-action"
+                class="secondary-button comparison-target-action"
                 data-compare-target-toggle
                 aria-pressed="${targetIncluded ? "true" : "false"}"
               >${targetIncluded ? "Quitar escenario Viva" : "Incluir escenario Viva"}</button>`
@@ -512,18 +579,19 @@ function comparisonHeader(benchmarkContext, model) {
         })}
       </div>
     </section>
+    ${denominatorMarkup(benchmarkContext, model)}
   `;
 }
 
 function unavailableMarkup(status, benchmarkContext) {
   const isLegacy = status === "contract_unavailable";
   const description = isLegacy
-    ? "Este dataset conserva el análisis territorial, pero no contiene el contrato de benchmark 2.3 requerido por el comparador."
+    ? "Esta versión de datos conserva el análisis territorial, pero no incluye la información requerida por el comparador."
     : "La vista se detuvo para no presentar una conclusión sin estructura de evidencia válida.";
   return `
     <section class="comparison-unavailable" data-comparison-status="${escapeAttr(status)}">
       <span class="comparison-eyebrow">Comparador comercial</span>
-      <h1>${isLegacy ? "Comparador no disponible para este contrato" : "No se pudo construir una comparación segura"}</h1>
+      <h1>${isLegacy ? "Comparador no disponible para esta versión de datos" : "No se pudo construir una comparación segura"}</h1>
       <p>${escapeHtml(description)}</p>
       ${
         benchmarkContext?.errorCodes?.length
@@ -580,28 +648,19 @@ export function renderCompare() {
       ${
         selectionReady
           ? `
-            ${conclusionMarkup(model)}
-            <section class="comparison-priority" aria-labelledby="comparison-priority-title">
-              <div class="comparison-section-heading">
-                <div>
-                  <span class="comparison-eyebrow">Atajo de lectura</span>
-                  <h2 id="comparison-priority-title">Diferencias prioritarias</h2>
-                </div>
-                <span class="comparison-count">${formatNumber(model.priorityRows.length)} criterios</span>
-              </div>
-              ${priorityIndex(model)}
-            </section>
-
             <section class="comparison-matrix" aria-labelledby="comparison-matrix-title">
               <div class="comparison-section-heading">
                 <div>
                   <span class="comparison-eyebrow">Evidencia por criterio</span>
-                  <h2 id="comparison-matrix-title">Matriz agrupada</h2>
-                  <p>Precio y áreas se muestran primero; abre el resto solo cuando aporte a tu decisión.</p>
+                  <h2 id="comparison-matrix-title">Comparación completa</h2>
+                  <p>Precio inicia abierto; despliega otro grupo solo cuando aporte a tu decisión.</p>
                 </div>
+                <span class="comparison-count">${formatNumber(model.groups.length)} grupos · ${formatNumber(
+                  model.groups.reduce((total, group) => total + group.rows.length, 0),
+                )} criterios</span>
                 ${componentHelp(
                   "Cómo leer las celdas",
-                  "Cada valor declara si fue observado, derivado, simulado, anunciado, excluido o no informado. Abre sus datos para revisar fuente y fecha cuando estén autorizadas.",
+                  "Cada valor indica si fue observado, calculado, simulado, anunciado, excluido o no informado. Abre sus datos para revisar fuente y fecha cuando estén disponibles.",
                 )}
               </div>
               <div class="comparison-project-head" style="--comparison-columns: ${Math.max(

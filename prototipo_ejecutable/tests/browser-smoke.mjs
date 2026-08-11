@@ -43,6 +43,38 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
         `La navegación no marca #${route.id} como activa`,
       );
       assert.ok((await page.locator("#main-content").innerText()).trim().length > 80, `Contenido vacío en #${route.id}`);
+      assert.equal(
+        await page.locator("[data-journey-entry]").count(),
+        1,
+        `#${route.id} debe conservar una entrada única al recorrido`,
+      );
+      assert.equal(
+        await page.locator("[data-expert-navigation]").count(),
+        1,
+        `#${route.id} debe conservar la agrupación de análisis experto`,
+      );
+      assert.doesNotMatch(
+        await page.locator("body").innerText(),
+        /NaN|Infinity|∞/u,
+        `#${route.id} no debe mostrar valores no finitos`,
+      );
+
+      const ownerStyles = await page.evaluate(() => {
+        const imports = [...document.styleSheets].flatMap((sheet) =>
+          [...sheet.cssRules]
+            .filter((rule) => rule.type === CSSRule.IMPORT_RULE)
+            .map((rule) => new URL(rule.href, document.baseURI).pathname),
+        );
+        return {
+          projects: imports.filter((pathname) => pathname.endsWith("/styles/62-projects.css")).length,
+          checklist: imports.filter((pathname) => pathname.endsWith("/styles/63-checklist.css")).length,
+        };
+      });
+      assert.deepEqual(
+        ownerStyles,
+        { projects: 1, checklist: 1 },
+        `Los estilos propietarios no cargan exactamente una vez en #${route.id}`,
+      );
 
       if (route.id === "market") {
         assert.equal(
@@ -61,6 +93,13 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 
       if (evidenceDir) {
         await fs.mkdir(evidenceDir, { recursive: true });
+        await page.evaluate(() => {
+          document.activeElement?.blur();
+          const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+          document.documentElement.style.scrollBehavior = "auto";
+          window.scrollTo(0, 0);
+          document.documentElement.style.scrollBehavior = previousScrollBehavior;
+        });
         const filename = `${viewport.name}-${route.id}.png`;
         const screenshot = await page.screenshot({
           path: path.join(evidenceDir, filename),

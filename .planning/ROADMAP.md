@@ -169,9 +169,9 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** explicar qué cambió y responder con el mismo escenario y evidencia.
 
-**Estado:** P5-00C/P5-00D y P5-01–P5-14 completados. El dataset público 2.4 materializa 36 eventos explicados (31 certificados, 5 revisables), 72 puntos temporales referenciados y 6 candidatos excluidos, con 52 fingerprints y build determinista. El motor histórico filtra por escenario, resuelve detalle/evidencia y deriva una agenda de máximo tres filas. El asistente integra las siete familias cerradas en una interfaz trazable de seis bloques. P5-13 emitió `PASS` formal sin requerir HUMAN-GATE-B y P5-14 abrió el PR funcional #15 como borrador. Merge humano, P5-15 y P5-16 están pendientes.
+**Estado:** `deployed and verified`. El PR funcional #15 y el PR documental #16 fueron fusionados; P5-15 verificó GitHub Pages con `PASS` para `8d4c6de` y P5-16 quedó integrado en `main` mediante `25300b1`.
 
-**Contrato propuesto:** `2.4.0`, con índices autoritativos `history` y `assistant`, reader compatible con 2.0–2.4 y degradación explícita en payloads anteriores.
+**Contrato implementado:** `2.4.0`, con índices autoritativos `history` y `assistant`, reader compatible con 2.0–2.4 y degradación explícita en payloads anteriores.
 
 ### Olas
 
@@ -189,14 +189,19 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** convertir módulos correctos en un recorrido que se entiende y se recuerda.
 
+**Estado:** P6-01–P6-14D completados. P6-15 emitió `FAIL` sobre `7a08fca` por dos gaps P1 de paridad DOM↔estado; P6-16 permanece bloqueado y P6-15A está propuesto. P6-14 continúa `PENDING/DEFERRED` por D-042 y la declaración final queda reservada al `PASS` humano de P6-20.
+
 ### Olas
 
 1. Arquitectura de navegación y recorrido guiado.
 2. Reducción de densidad, contraste y jerarquía.
 3. Responsive, teclado, estados y regresión visual.
-4. Ensayo del guion comercial completo.
+4. Verificación técnica, despliegue y persistencia.
+5. Testing humano integral final sobre Pages.
 
-**Gate de salida:** el recorrido “escala → geografía → calidad → profundidad → movimiento → decisión” se completa sin ayuda externa y con evidencia aprobada.
+**Gate de salida técnica:** el recorrido “escala → geografía → calidad → profundidad → movimiento → decisión” pasa verificación independiente y Pages coincide con el SHA desplegado.
+
+**Gate de aceptación final:** un lector nuevo completa el recorrido público sin ayuda externa, dentro de 10 minutos y con evidencia aprobada en P6-20. Solo entonces F6 queda `deployed and verified` y `ready for client`.
 
 ## Estrategia de PR
 

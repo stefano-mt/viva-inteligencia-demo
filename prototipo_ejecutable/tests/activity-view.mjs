@@ -87,7 +87,7 @@ assert.equal(
   "quality summary must be a single four-value band",
 );
 assert.match(markup, /Eventos detectados/u);
-assert.match(markup, /Certificados/u);
+assert.match(markup, /Con fuente confirmada/u);
 assert.match(markup, /Por revisar/u);
 assert.match(markup, /Cobertura temporal/u);
 assert.match(markup, /id="history-status-filter"/u);
@@ -104,13 +104,13 @@ assert.match(markup, /Precio publicado desde/u);
 assert.match(markup, /Anterior/u);
 assert.match(markup, /Nuevo/u);
 assert.match(markup, /disminuyó/u);
-assert.match(markup, /Certificada/u);
+assert.match(markup, /Con fuente confirmada/u);
 assert.match(markup, /En seguimiento/u);
 assert.match(markup, /Ver evidencia/u);
 assert.match(markup, /Ver proyecto/u);
 assert.doesNotMatch(markup, /Jesús María|Santiago de Surco|La Molina|San Isidro/u);
 assert.match(markup, /Agenda de seguimiento/u);
-assert.match(markup, /Orden reproducible · calidad antes que magnitud/u);
+assert.match(markup, /Orden sugerido: calidad antes que magnitud/u);
 assert.equal(
   (markup.match(/class="history-agenda__item"/gu) ?? []).length,
   3,

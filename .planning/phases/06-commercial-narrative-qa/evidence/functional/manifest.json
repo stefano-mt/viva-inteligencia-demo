@@ -1,0 +1,59 @@
+{
+  "step": "P6-12",
+  "mode": "UI-only",
+  "viewport": {
+    "name": "desktop",
+    "width": 1440,
+    "height": 900
+  },
+  "files": [
+    {
+      "file": "01-scale.png",
+      "sha256": "a964f99a38b9bdced72c3b174ffb4e84ab9ebd4c8c8f228364b91ad1f9bdfb5d",
+      "claim": "Entrada canónica al recorrido, etapa Escala y escenario visible.",
+      "url": "http://127.0.0.1:4364/#journey/scale"
+    },
+    {
+      "file": "02-geography-map.png",
+      "sha256": "22d96b8a5af4efe0ab3d6a14a1e311192734432fe4b197f81d32b80e212ef52d",
+      "claim": "Mapa territorial del mismo escenario usado por el recorrido.",
+      "url": "http://127.0.0.1:4364/#dashboard"
+    },
+    {
+      "file": "03-quality-type7.png",
+      "sha256": "9be863899c1233b06c9487dd70a542fed053662af36b923020b73f21a0f0912f",
+      "claim": "Caso Tipo 7 con discrepancia, exclusión y evidencia autorizada.",
+      "url": "http://127.0.0.1:4364/#inspector/case/f3-ct-g-pardo"
+    },
+    {
+      "file": "04-depth-comparator.png",
+      "sha256": "8bf03d12330090840c849c2d9c3bf97c3ddea144fecd26d13456ba3f33ede445",
+      "claim": "Comparador con conclusión, denominadores y filas de evidencia.",
+      "url": "http://127.0.0.1:4364/#compare"
+    },
+    {
+      "file": "05-movement-signal.png",
+      "sha256": "a82cf0ec557407408ba704035ab7fd78b48c251444fdfa32b7832d8194b57ced",
+      "claim": "Señal publicada con anterior/nuevo, vigencia y causa no observada.",
+      "url": "http://127.0.0.1:4364/#activity"
+    },
+    {
+      "file": "06-decision-assistant.png",
+      "sha256": "90490b34ffd8c0a82eed041c8c9382284dcb523bd31343a9136b5134119c5867",
+      "claim": "Asistente determinista con lectura, límites y referencias visibles.",
+      "url": "http://127.0.0.1:4364/#assistant"
+    },
+    {
+      "file": "07-decision-checklist.png",
+      "sha256": "ea9e0e8ce282a34ca8506ceb539ce7621289b5c9c52941e8fc63fd28bfb199cd",
+      "claim": "Checklist final con handoff del asistente y cierre prudente.",
+      "url": "http://127.0.0.1:4364/#trust"
+    },
+    {
+      "file": "08-decision-return.png",
+      "sha256": "d75e0aeede3c93cd445532e25c61b5874013d2cbc3456e0d69e881ad1854fe43",
+      "claim": "Retorno canónico a Decisión después del asistente y checklist.",
+      "url": "http://127.0.0.1:4364/#journey/decision"
+    }
+  ]
+}

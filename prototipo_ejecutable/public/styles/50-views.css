@@ -1,7 +1,6 @@
 
 .competitor-grid,
 .signal-cards,
-.risk-list,
 .weekly-list,
 .compare-candidates,
 .suggestion-list,
@@ -19,11 +18,93 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.dashboard-grid--radar {
+  align-items: start;
+}
+
+.radar-primary {
+  min-width: 0;
+}
+
+.radar-primary > :is(.geo-panel, .positioning-panel) {
+  min-height: 620px;
+  border-color: var(--teal-line);
+  box-shadow:
+    inset 0 5px 0 var(--teal-bright),
+    0 18px 42px rgba(1, 51, 43, 0.09);
+}
+
+.radar-deep-dive {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.radar-deep-dive > summary {
+  min-height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 18px;
+  color: var(--text);
+  cursor: pointer;
+  list-style: none;
+}
+
+.radar-deep-dive > summary::-webkit-details-marker {
+  display: none;
+}
+
+.radar-deep-dive > summary::after {
+  content: "+";
+  color: var(--action);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.radar-deep-dive[open] > summary::after {
+  content: "−";
+}
+
+.radar-deep-dive > summary > span {
+  display: grid;
+  gap: 4px;
+}
+
+.radar-deep-dive > summary strong {
+  font-size: 17px;
+}
+
+.radar-deep-dive > summary small {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.radar-deep-dive > summary:focus-visible {
+  outline: 3px solid #202022;
+  outline-offset: -4px;
+}
+
+.radar-deep-dive__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(320px, 5fr);
+  gap: 16px;
+  border-top: 1px solid var(--line);
+  padding: 16px;
+  background: var(--surface-soft);
+}
+
+.radar-deep-dive__grid > .panel {
+  box-shadow: none;
+}
+
 .competitor-card,
 .signal-card,
-.weekly-card,
-.check-item,
-.next-action-card {
+.weekly-card {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
@@ -38,7 +119,6 @@
 .competitor-card span,
 .competitor-card p,
 .weekly-card p,
-.check-item span,
 .signal-card p {
   color: var(--muted);
 }
@@ -51,9 +131,7 @@
 
 .competitor-card p,
 .signal-card p,
-.weekly-card p,
-.check-item p,
-.next-action-card p {
+.weekly-card p {
   font-size: 13px;
 }
 
@@ -77,20 +155,17 @@
   box-shadow: none;
 }
 
-.signal-card.success,
-.check-item.success {
+.signal-card.success {
   border-color: #b8ddc7;
   background: var(--green-soft);
 }
 
-.signal-card.warning,
-.check-item.warning {
+.signal-card.warning {
   border-color: #f1d0a4;
   background: var(--amber-soft);
 }
 
-.signal-card.neutral,
-.check-item.neutral {
+.signal-card.neutral {
   border-color: #c8d4ea;
   background: var(--blue-soft);
 }
@@ -101,16 +176,11 @@
   font-weight: 900;
 }
 
-.catalog-layout,
 .assistant-layout,
 .compare-layout {
   display: grid;
   gap: 16px;
   align-items: start;
-}
-
-.catalog-layout {
-  grid-template-columns: minmax(0, 1fr) minmax(340px, 430px);
 }
 
 .compare-layout {
@@ -121,109 +191,6 @@
   grid-template-columns: 1fr;
 }
 
-.local-controls {
-  grid-template-columns: repeat(3, minmax(160px, 1fr));
-  align-items: end;
-  border-bottom: 1px solid var(--line);
-}
-
-.local-controls .search-control {
-  grid-column: span 2;
-}
-
-.local-controls.single-row {
-  grid-template-columns: 1fr;
-}
-
-.project-card-list {
-  display: grid;
-  gap: 10px;
-  padding: 15px 16px 16px;
-  max-height: calc(100vh - 238px);
-  overflow: auto;
-}
-
-.catalog-footer {
-  min-height: 62px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  justify-content: space-between;
-  border-top: 1px solid var(--line);
-  padding: 10px 16px;
-  background: #f8faf9;
-}
-
-.catalog-footer span {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.project-card {
-  width: 100%;
-  min-width: 0;
-  display: grid;
-  gap: 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 13px;
-  background: var(--surface);
-  color: var(--text);
-  text-align: left;
-}
-
-.project-card:hover,
-.project-card.selected {
-  border-color: #a9d1c7;
-  background: #f2fbf7;
-}
-
-[data-scenario-consumer="catalog"] .project-card-list {
-  gap: 0;
-  padding-block: 6px 10px;
-}
-
-[data-scenario-consumer="catalog"] .project-card {
-  border: 0;
-  border-bottom: 1px solid var(--line);
-  border-left: 4px solid transparent;
-  border-radius: 0;
-  padding: 14px 12px;
-  background: #ffffff;
-  box-shadow: none;
-}
-
-[data-scenario-consumer="catalog"] .project-card:hover {
-  border-left-color: #73827c;
-  background: #f7faf8;
-}
-
-[data-scenario-consumer="catalog"] .project-card.selected,
-[data-scenario-consumer="catalog"] .project-card[aria-pressed="true"] {
-  border-left-color: #00614f;
-  background: var(--teal-soft);
-  box-shadow: inset 1px 0 0 #00614f;
-}
-
-[data-scenario-consumer="catalog"] .project-metrics {
-  gap: 0;
-  border-block: 1px solid var(--line);
-}
-
-[data-scenario-consumer="catalog"] .project-metrics .mini-metric {
-  min-height: 0;
-  border: 0;
-  border-radius: 0;
-  padding: 8px;
-  background: transparent;
-  box-shadow: none;
-}
-
-[data-scenario-consumer="catalog"] .project-metrics .mini-metric:nth-child(odd) {
-  border-right: 1px solid var(--line);
-}
-
-[data-scenario-consumer="catalog"] .project-card:focus-visible,
 [data-scenario-consumer="compare"] .compare-candidate:focus-within,
 .market-reading .bar-row.as-button:focus-visible,
 .dashboard-grid .bar-row.as-button:focus-visible {
@@ -232,54 +199,6 @@
   box-shadow: 0 0 0 6px #202022;
 }
 
-.project-card-head {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.project-card-head strong,
-.project-card-head span {
-  display: block;
-}
-
-.project-card-head strong {
-  font-size: 16px;
-}
-
-.project-card-head span,
-.project-card p,
-.card-badges span {
-  color: var(--muted);
-}
-
-.project-metrics {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
-.project-metrics .mini-metric {
-  min-height: 62px;
-  padding: 9px;
-}
-
-.card-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.card-badges span {
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 4px 8px;
-  background: var(--surface-soft);
-  font-size: 12px;
-}
-
-.detail-panel,
 .answer-panel {
   position: sticky;
   top: 104px;
@@ -287,7 +206,6 @@
   overflow: hidden;
 }
 
-.detail-header,
 .answer-header {
   display: grid;
   gap: 9px;
@@ -295,19 +213,11 @@
   border-bottom: 1px solid var(--line);
 }
 
-.detail-kicker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-}
-
-.detail-header h2,
 .answer-header h2 {
   font-size: 24px;
   line-height: 1.12;
 }
 
-.detail-metrics,
 .answer-metrics {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -324,30 +234,6 @@
 
 .highlight-section {
   background: var(--surface-warm);
-}
-
-.project-inspector-entry {
-  align-content: start;
-  border-left: 4px solid var(--action);
-  background: var(--teal-soft);
-}
-
-.project-inspector-entry.is-unavailable {
-  border-left-color: var(--line-strong);
-  background: var(--surface-soft);
-}
-
-.project-inspector-entry p {
-  color: var(--muted);
-}
-
-.project-inspector-action {
-  display: inline-flex;
-  width: fit-content;
-  min-height: 44px;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
 }
 
 .subtle-note {
@@ -747,67 +633,6 @@ dd {
   font-weight: 900;
 }
 
-.check-block {
-  display: grid;
-  align-content: start;
-  gap: 10px;
-  padding: 16px;
-}
-
-.check-block h2 {
-  margin-bottom: 3px;
-}
-
-.workflow-step {
-  position: relative;
-  padding-left: 76px;
-}
-
-.workflow-step::before {
-  content: "";
-  position: absolute;
-  left: 38px;
-  top: 54px;
-  bottom: -18px;
-  width: 2px;
-  background: #b9d7ce;
-}
-
-.workflow-step.final-step::before {
-  display: none;
-}
-
-.check-block-title {
-  align-items: flex-start;
-}
-
-.step-label {
-  display: block;
-  margin-bottom: 4px;
-  color: var(--action);
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.check-item {
-  display: grid;
-  gap: 6px;
-}
-
-.check-item span {
-  font-size: 13px;
-  font-weight: 900;
-}
-
-.next-action-card {
-  display: grid;
-  gap: 8px;
-  border-color: #b7dcd2;
-  background: var(--teal-soft);
-}
-
 .assistant-composer {
   display: grid;
   gap: 12px;
@@ -913,10 +738,4 @@ dd {
 
 .management-panel .weekly-list {
   grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-@media (max-width: 620px) {
-  .project-inspector-action {
-    width: 100%;
-  }
 }

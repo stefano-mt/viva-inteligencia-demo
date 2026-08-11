@@ -216,7 +216,7 @@ function baselineResponse(data, context, input) {
   return {
     tone: priceReady ? "success" : "warning",
     badge: priceReady
-      ? "Lectura trazable"
+      ? "Lectura con fuentes"
       : "Precio insuficiente",
     title: "Lectura del escenario activo",
     summary:
@@ -341,7 +341,7 @@ export function renderAssistantResponse(response) {
         <p>${escapeHtml(response.action)}</p>
       </div>
       <div class="detail-section">
-        <h3>Referencias trazables</h3>
+        <h3>Fuentes utilizadas</h3>
         <div class="chip-list">${renderReferences(
           response.references,
         )}</div>
@@ -371,12 +371,11 @@ function renderAssistantWorkbench() {
     >
       <section class="assistant-intro panel">
         <div class="assistant-intro__copy">
-          <span class="assistant-mode">Lectura determinista · sin IA generativa</span>
-          <h2>Convierte una pregunta en una lectura trazable</h2>
+          <span class="assistant-mode">Respuesta basada en los datos visibles</span>
+          <h2>Convierte una pregunta en una recomendación verificable</h2>
           <p>
-            El asistente usa el mismo escenario, benchmark, histórico,
-            comparador e inspector de la demo. No busca datos externos ni
-            cambia el alcance mientras responde.
+            El asistente usa la zona activa y las fuentes disponibles en la
+            demo. No busca datos externos ni cambia la muestra mientras responde.
           </p>
           ${
             (state.scenarioContext?.comparable_project_ids?.length ?? 0) === 0
@@ -390,6 +389,8 @@ function renderAssistantWorkbench() {
           <div><dt>Corte</dt><dd>${escapeHtml(formatAssistantDate(state.scenarioContext?.cutoff_at))}</dd></div>
         </dl>
       </section>
+
+      ${response ? renderTraceableAssistantResponse(response) : renderAssistantEmptyState()}
 
       <section class="assistant-query panel" aria-labelledby="assistant-query-title">
         <div class="assistant-question-bank">
@@ -424,13 +425,12 @@ function renderAssistantWorkbench() {
           </div>
           <p class="assistant-input-error" id="assistant-input-error" hidden></p>
           <div class="assistant-composer__actions">
-            <button class="primary-button assistant-submit" type="submit">Generar lectura</button>
+            <button class="${response ? "secondary-button" : "primary-button"} assistant-submit" type="submit">Generar lectura</button>
             ${response ? '<button class="secondary-button" type="button" data-assistant-clear>Nueva pregunta</button>' : ""}
           </div>
         </form>
       </section>
 
-      ${response ? renderTraceableAssistantResponse(response) : renderAssistantEmptyState()}
       <p class="sr-only" id="assistant-live" aria-live="polite" aria-atomic="true"></p>
     </section>
   `;
@@ -466,10 +466,20 @@ function renderAssistantQuestion(entry) {
       data-assistant-intent="${escapeAttr(entry.intentId ?? "")}"
       aria-pressed="${active ? "true" : "false"}"
     >
-      <span>${escapeHtml(entry.label)}</span>
-      ${escapeHtml(entry.question)}
+      <span>${escapeHtml(displayQuestionLabel(entry.label))}</span>
+      ${escapeHtml(displayQuestion(entry.question))}
     </button>
   `;
+}
+
+function displayQuestionLabel(label) {
+  return label === "Señal prioritaria" ? "Cambio para revisar" : label;
+}
+
+function displayQuestion(question) {
+  return question === "¿Qué señal certificada conviene revisar primero?"
+    ? "¿Qué cambio publicado conviene revisar primero?"
+    : question;
 }
 
 function renderAdditionalQuestions(questions) {
@@ -486,12 +496,13 @@ function renderAdditionalQuestions(questions) {
 
 function renderAssistantEmptyState() {
   return `
-    <section class="assistant-empty panel" aria-labelledby="assistant-empty-title">
+    <section class="assistant-empty panel" aria-labelledby="assistant-empty-title" data-assistant-decision="idle">
       <div class="assistant-empty__marker" aria-hidden="true">↳</div>
       <div>
-        <p class="assistant-step">3 · Contrasta la lectura</p>
-        <h2 id="assistant-empty-title">La respuesta aparecerá aquí</h2>
-        <p>Verás una respuesta breve, los datos usados, la interpretación, los límites, las referencias navegables y un siguiente paso.</p>
+        <p class="assistant-step">Decisión pendiente</p>
+        <h2 id="assistant-empty-title">Formula una consulta antes de tomar una decisión</h2>
+        <p>La respuesta aparecerá aquí después de que envíes una pregunta; no se genera sola.</p>
+        <a class="assistant-canonical-return" href="#journey/decision" data-journey-return="decision">Volver al recorrido: Decisión</a>
       </div>
     </section>
   `;
@@ -499,24 +510,70 @@ function renderAssistantEmptyState() {
 
 export function renderTraceableAssistantResponse(response) {
   const meta = assistantStatusMeta(response.status);
+  const blocks = Array.isArray(response.blocks) ? response.blocks : [];
+  const responseBlock = blocks.find(({ type }) => type === "response");
+  const nextStepBlock = blocks.find(({ type }) => type === "next_step");
+  const referencesBlock = blocks.find(({ type }) => type === "references");
+  const limitationsBlock = blocks.find(({ type }) => type === "limitations");
+  const detailBlocks = blocks.filter(
+    ({ type }) =>
+      type !== "response" &&
+      type !== "next_step" &&
+      type !== "references" &&
+      type !== "limitations",
+  );
+  const canCloseDecision = ["ready", "insufficient"].includes(response.status);
+  const shouldReformulate = [
+    "refused",
+    "unknown_intent",
+    "invalid_input",
+  ].includes(response.status);
   return `
     <section
       class="assistant-response panel assistant-response--${escapeAttr(meta.tone)}"
       aria-labelledby="assistant-response-title"
       data-assistant-response="${escapeAttr(response.status)}"
+      data-assistant-decision="${escapeAttr(response.status)}"
     >
       <header class="assistant-response__header">
-        <div><p class="assistant-step">3 · Lectura trazable</p><h2 id="assistant-response-title" tabindex="-1">${escapeHtml(meta.title)}</h2></div>
+        <div><p class="assistant-step">Decisión y siguiente acción</p><h2 id="assistant-response-title" tabindex="-1">${escapeHtml(meta.title)}</h2></div>
         <span class="assistant-response__status">${escapeHtml(meta.label)}</span>
       </header>
       <div class="assistant-response__context">
         <span>${escapeHtml(response.scenario?.scopeText ?? "Escenario no disponible")}</span>
         <span>${formatNumber(response.scenario?.comparableProjectCount ?? 0)} comparables</span>
-        <span>Respuesta reproducible</span>
+        <span>Respuesta verificable</span>
       </div>
-      <div class="assistant-ledger">
-        ${(response.blocks ?? []).map(renderAssistantBlock).join("")}
+      <div class="assistant-decision-lead">
+        ${responseBlock ? renderAssistantBlock(responseBlock, blocks.indexOf(responseBlock)) : ""}
+        ${nextStepBlock ? renderAssistantBlock(nextStepBlock, blocks.indexOf(nextStepBlock)) : ""}
+        <div class="assistant-decision-handoff" aria-label="Continuar la decisión">
+          ${
+            canCloseDecision
+              ? '<a class="primary-button" href="#trust" data-view="trust">Preparar checklist comercial</a>'
+              : shouldReformulate
+                ? '<button class="primary-button" type="button" data-assistant-clear>Formular otra consulta</button>'
+                : '<a class="primary-button" href="#journey/decision" data-journey-return="decision">Volver a Decisión</a>'
+          }
+          <a class="assistant-canonical-return" href="#journey/decision" data-journey-return="decision">Volver al recorrido: Decisión</a>
+        </div>
       </div>
+      ${
+        limitationsBlock
+          ? `<div class="assistant-limit-access">${renderAssistantBlock(limitationsBlock, blocks.indexOf(limitationsBlock))}</div>`
+          : ""
+      }
+      ${
+        referencesBlock
+          ? `<div class="assistant-reference-access">${renderAssistantBlock(referencesBlock, blocks.indexOf(referencesBlock))}</div>`
+          : ""
+      }
+      <details class="assistant-evidence-disclosure">
+        <summary>Ver datos usados e interpretación completa</summary>
+        <div class="assistant-ledger">
+          ${detailBlocks.map((block) => renderAssistantBlock(block, blocks.indexOf(block))).join("")}
+        </div>
+      </details>
     </section>
   `;
 }

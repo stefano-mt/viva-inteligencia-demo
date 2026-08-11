@@ -1,0 +1,14 @@
+{
+  "fixture_version": 1,
+  "case_id": "CT-I",
+  "stage_id": "geography",
+  "scenario_path": "/#journey/geography",
+  "source_fixture": "ct-i-benchmark.json",
+  "story_ids": ["HU-DEMO-103", "HU-DEMO-801", "HU-DEMO-804"],
+  "expected": {
+    "capability_status": "available",
+    "public_stage_status": "ready",
+    "expert_routes": ["dashboard", "projects"],
+    "claim": "Miraflores conserva 90 observados y 85 comparables"
+  }
+}

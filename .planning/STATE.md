@@ -1,14 +1,14 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-08-05
+**Actualizado:** 2026-08-11
 
 **Milestone:** demo vNext orientada a venta
 
 **Última fase con despliegue técnico verificado:** Fase 5 — histórico, señales y asistente determinista
 
-**Estado:** Fases 0–4 están oficialmente `deployed and verified`. Fase 5 tiene despliegue técnico verificado con `PASS` para `8d4c6de`. **Regla de efectividad:** cuando esta versión de `STATE.md` exista en `main` por el merge humano del PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16), Fase 5 también estará oficialmente `deployed and verified`.
+**Estado:** Fases 0–5 están oficialmente `deployed and verified`. P6-16 completó memoria, handoff y preparación del PR funcional tras el `PASS WITH RISKS` técnico de P6-15. El único riesgo residual es `R6-H1`: P6-14 sigue `PENDING/DEFERRED` por D-042 y la aceptación humana final continúa reservada a P6-20.
 
-**Rama activa:** `docs/phase-5-postmerge-report`.
+**Rama activa:** `feat/phase-6-commercial-narrative-qa`.
 
 ## Baseline histórica de Fase 2
 
@@ -254,15 +254,42 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200.
 - P5-15: **PASS**; contrato 2.4, integridad determinista, CT-C/E/F, histórico, agenda, asistente, escritorio, móvil, consola y red verificados en la URL pública.
 - Informe post-merge: [phases/05-history-signals-assistant/POSTMERGE_REPORT.md](phases/05-history-signals-assistant/POSTMERGE_REPORT.md).
-- P5-16: resultado preparado en este estado y en `POSTMERGE_REPORT.md` mediante la rama documental `docs/phase-5-postmerge-report`; PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16) abierto y pendiente de merge humano.
-- Estado de ship de Fase 5: P5-15 `PASS`; **`deployed and verified`** oficial si y solo si esta versión fue integrada en `main` mediante el merge humano del PR documental P5-16.
+- P5-16: resultado persistido en `POSTMERGE_REPORT.md`; PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16) fusionado el `2026-08-05T13:52:56Z`.
+- Merge documental P5-16 en `main`: `25300b1f7f3669fd1f5cc66567a589b69dcb93c2`.
+- Estado de ship de Fase 5: **`deployed and verified`**.
 - Último commit funcional: `8e76b796b1fef3616b5a0b7a5526a72d2f125e2c`; los commits posteriores son P5-13/P5-14 documentales.
+
+## Fase 6 — ejecución vigente
+
+- Contexto: [phases/06-commercial-narrative-qa/CONTEXT.md](phases/06-commercial-narrative-qa/CONTEXT.md).
+- Auditoría UX/UI: [phases/06-commercial-narrative-qa/UX-AUDIT.md](phases/06-commercial-narrative-qa/UX-AUDIT.md).
+- Especificación visual: [phases/06-commercial-narrative-qa/UI-SPEC.md](phases/06-commercial-narrative-qa/UI-SPEC.md).
+- Plan: [phases/06-commercial-narrative-qa/PLAN.md](phases/06-commercial-narrative-qa/PLAN.md).
+- Solicitud de aprobación: [phases/06-commercial-narrative-qa/HUMAN-GATE-A-REQUEST.md](phases/06-commercial-narrative-qa/HUMAN-GATE-A-REQUEST.md).
+- Historias: HU-DEMO-103/104/801–804.
+- Contrato/datos 2.4 protegidos; la fase reorganiza navegación, narrativa, densidad y QA.
+- P6-00A: completado. P6-00B: [revisión independiente](phases/06-commercial-narrative-qa/PLAN_REVIEW.md) `PASS` tras dos ciclos correctivos; sin hallazgos P0–P2.
+- HUMAN-GATE-A: [aprobada](phases/06-commercial-narrative-qa/APPROVAL.md) bajo A1–A13 el `2026-08-05T09:37:27.3408491-05:00`; P6-00C completado.
+- P6-00D: [baseline preimplementación](phases/06-commercial-narrative-qa/BASELINE_BROWSER.md) `PASS`; `npm.cmd run verify`, 8 rutas × 3 viewports, accesibilidad, consola, red y 24 capturas portables verificados sobre `8e760b6`.
+- P6-01–P6-13: completados; catálogo, navegación/URL, shell, estado derivado, ayuda, CSS, seis etapas, reinicio, compatibilidad, E2E y matriz responsive/a11y integrados.
+- P6-14A–P6-14D: correcciones de UX, densidad, jerarquía y copy completadas; commit más reciente `4351adc28950`; `npm.cmd run verify`, responsive y accesibilidad terminaron en `PASS`.
+- P6-14: `PENDING/DEFERRED`. No existe `PASS` humano y no se fabricará evidencia.
+- D-042: el usuario difirió el ensayo a P6-20 y aceptó únicamente `R6-H1 — validación humana diferida`; esto habilita P6-15–P6-19, no merge automático ni aceptación final.
+- Estado máximo antes de P6-20: `deployed and technically verified; human acceptance pending`.
+- P6-15: [verificación formal independiente](phases/06-commercial-narrative-qa/VERIFICATION_REPORT.md) `PASS WITH RISKS` sobre `a94f251`; `npm.cmd run verify`, browser adversarial, Graphify, responsive/a11y y write sets en PASS.
+- P6-15A: [plan correctivo](phases/06-commercial-narrative-qa/P6-15A-CORRECTIVE-PLAN.md) completado en `8740182` y `a94f251`; G1–G5 cerrados con paridad DOM↔estado, nulos honestos y respuesta de seis bloques con referencias progresivas.
+- Auditoría P6-15A: `8740182..a94f251` contiene 8 paths y 0 violaciones; contrato, datos, writer, motores, navegación y workflow permanecen intactos.
+- Resumen de cierre técnico: [phases/06-commercial-narrative-qa/SUMMARY.md](phases/06-commercial-narrative-qa/SUMMARY.md).
+- Handoff y cuerpo del PR: [phases/06-commercial-narrative-qa/HANDOFF.md](phases/06-commercial-narrative-qa/HANDOFF.md).
+- P6-16: memoria y preparación del PR funcional completadas; no modificó runtime, datos, tests, estilos, activos o comportamiento.
+- Único riesgo residual: `R6-H1 — validación humana diferida`; no existen gaps técnicos abiertos y P6-17 queda habilitado.
 
 ## Próxima acción recomendada
 
-1. Revisar y fusionar exclusivamente de forma humana el PR documental [#16](https://github.com/stefano-mt/viva-inteligencia-demo/pull/16).
-2. Realizar un ensayo humano breve de `#activity`, `#assistant` y CT-F antes de presentar la demo al cliente; no es un gate técnico de merge.
-3. Definir el alcance y HUMAN-GATE-A de una eventual Fase 6 antes de modificar runtime, datos o UX.
+1. Publicar el commit documental de P6-16 y abrir/revisar el pull request funcional contra `main`.
+2. Mantener el merge exclusivamente humano en P6-17.
+3. Ejecutar P6-18 y P6-19 después del merge.
+4. Completar P6-20 antes de declarar la demo lista para cliente.
 
 ## Regla para actualizar este archivo
 

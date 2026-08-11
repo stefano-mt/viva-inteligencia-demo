@@ -180,9 +180,9 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   await openPath(page, baseUrl, descriptor.canonical_path);
   await assertCurrentPath(page, baseUrl, descriptor.canonical_path, "La URL CT-C debe ser canónica al cargar");
   assert.equal(
-    await page.locator("#scenario-canonical-url").textContent(),
-    page.url(),
-    "La URL compartible debe reflejar exactamente la URL canónica",
+    await page.locator("#scenario-canonical-url, .scenario-summary").count(),
+    0,
+    "Radar debe usar la URL canónica sin montar un resumen territorial duplicado",
   );
 
   const publicMetadata = await page.evaluate(async () => {
@@ -202,6 +202,72 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     descriptor.contract_version,
     "2.2.0",
     "El descriptor CT-C conserva la versión de origen para probar compatibilidad histórica",
+  );
+
+  const journeyScenarioSearch = new URL(page.url()).search;
+  await page.evaluate(() => {
+    window.location.hash = "#journey/scale";
+  });
+  await page.waitForFunction(
+    () => window.location.hash === "#journey/scale",
+    { timeout: interactionTimeout },
+  );
+  assert.equal(
+    new URL(page.url()).search,
+    journeyScenarioSearch,
+    "Entrar al recorrido debe conservar exactamente la query del escenario",
+  );
+
+  await page.evaluate(() => {
+    window.location.hash = "#journey/depth";
+  });
+  await page.waitForFunction(
+    () => window.location.hash === "#journey/depth",
+    { timeout: interactionTimeout },
+  );
+  await page.reload({ waitUntil: "domcontentloaded" });
+  assert.equal(
+    new URL(page.url()).hash,
+    "#journey/depth",
+    "Recargar debe conservar la etapa del recorrido",
+  );
+  assert.equal(
+    new URL(page.url()).search,
+    journeyScenarioSearch,
+    "Recargar el recorrido debe conservar el escenario",
+  );
+
+  await page.evaluate(() => {
+    window.location.hash = "#journey/movement";
+  });
+  await page.waitForFunction(
+    () => window.location.hash === "#journey/movement",
+    { timeout: interactionTimeout },
+  );
+  await page.goBack({ waitUntil: "domcontentloaded" });
+  assert.equal(
+    new URL(page.url()).hash,
+    "#journey/depth",
+    "Atrás debe recuperar la etapa previa",
+  );
+  await page.goForward({ waitUntil: "domcontentloaded" });
+  assert.equal(
+    new URL(page.url()).hash,
+    "#journey/movement",
+    "Adelante debe recuperar la etapa siguiente",
+  );
+  assert.equal(
+    new URL(page.url()).search,
+    journeyScenarioSearch,
+    "Atrás y adelante deben preservar la query del escenario",
+  );
+
+  await openPath(page, baseUrl, descriptor.canonical_path);
+  await assertCurrentPath(
+    page,
+    baseUrl,
+    descriptor.canonical_path,
+    "Volver al dashboard debe conservar la URL CT-C canónica",
   );
 
   const mapIds = await uniqueAttributeValues(page.locator("[data-geo-point-id]"), "data-geo-point-id");
@@ -337,8 +403,18 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
 
   await openPath(page, baseUrl, descriptor.canonical_path);
   await page.locator("#reset-scenario").click();
-  await assertCurrentPath(page, baseUrl, "/#dashboard", "Reset debe restaurar el preset CT-I");
-  assert.equal(await page.evaluate(() => document.activeElement?.id), "reset-scenario", "Reset debe recuperar foco");
+  await assertCurrentPath(page, baseUrl, "/#journey/scale", "Reset debe restaurar CT-I en Escala");
+  assert.equal(await page.evaluate(() => document.activeElement?.id), "journey-title", "Reset debe mover foco al h1 de Escala");
+  assert.deepEqual(
+    await page.evaluate(async () => {
+      const module = await import(new URL("js/state.js", document.baseURI).href);
+      return module.state.compareProjectIds;
+    }),
+    [],
+    "Reset debe vaciar la selección del comparador",
+  );
+  await page.locator('[data-view="dashboard"]').first().click();
+  await waitForActiveRoute(page, "dashboard");
   assert.equal(await page.locator("[data-geo-point-id]").count(), 90, "CT-I debe mostrar 90 observaciones");
   assert.equal(await page.locator("#geo-project-select option").count(), 90, "CT-I debe ofrecer 90 observaciones por teclado");
 
@@ -416,8 +492,17 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   }
 
   await page.locator("#reset-scenario").click();
-  await waitForFocus(page, "reset-scenario");
-  assert.equal(await page.evaluate(() => document.activeElement?.id), "reset-scenario", "Reset debe recuperar foco fuera del dashboard");
+  await assertCurrentPath(page, baseUrl, "/#journey/scale", "Reset fuera del dashboard debe volver a Escala");
+  await waitForFocus(page, "journey-title");
+  assert.equal(await page.evaluate(() => document.activeElement?.id), "journey-title", "Reset fuera del dashboard debe enfocar el h1");
+  assert.deepEqual(
+    await page.evaluate(async () => {
+      const module = await import(new URL("js/state.js", document.baseURI).href);
+      return module.state.compareProjectIds;
+    }),
+    [],
+    "Reset posterior al cuadrante debe vaciar la comparación",
+  );
   await page.locator('[data-view="dashboard"]').first().click();
   await waitForActiveRoute(page, "dashboard");
   assert.equal(await page.locator("[data-geo-point-id]").count(), 90, "Reset posterior al cuadrante debe volver a 90 observaciones");
@@ -433,7 +518,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.locator('[data-geo-state="empty-radius"]').count(), 1, "El radio vacío debe ser un estado válido");
   assert.equal(await page.locator("[data-geo-point-id]").count(), 0, "El radio vacío no debe usar fallback");
   assert.match(await page.locator("#main-content").innerText(), /0 comparables dentro de 500 m/i, "Debe explicar el resultado cero");
-  assert.match(await page.locator("#main-content").innerText(), /Comparables insuficientes/i, "Debe degradar comparabilidad con prudencia");
+  assert.equal(await page.locator("details.radar-deep-dive:not([open])").count(), 1, "El score insuficiente permanece disponible bajo demanda");
   assert.match(await page.locator("#main-content").innerText(), /Referencia de precio insuficiente/i, "Debe degradar precio con prudencia");
 
   for (const [routeId, consumer] of [
@@ -466,7 +551,9 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     true,
     "El menú móvil debe abrir",
   );
-  await mobileObserved.page.locator('.sidebar [data-view="projects"]').click();
+  await mobileObserved.page
+    .locator('.sidebar nav[aria-label="Módulos principales"] [data-view="projects"]')
+    .click();
   const mobileProjectsPath = pathForRoute(descriptor.canonical_path, "projects");
   await waitForActiveRoute(mobileObserved.page, "projects", {
     baseUrl,

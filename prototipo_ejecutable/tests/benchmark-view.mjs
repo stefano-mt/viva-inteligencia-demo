@@ -76,7 +76,7 @@ assert.match(
 );
 assert.match(markup, /Benchmark de microzona/u);
 assert.match(markup, /01 · Alcance/u);
-assert.match(markup, /Cómo se transforma esta muestra/u);
+assert.match(markup, /Cómo se usa esta muestra/u);
 assert.equal(
   (markup.match(/benchmark-evidence-line__node/gu) ?? []).length,
   4,
@@ -87,11 +87,11 @@ assert.match(markup, /Índice orientativo de entrada/u);
 assert.match(markup, /P25/u);
 assert.match(markup, /Mediana/u);
 assert.match(markup, /P75/u);
-assert.match(markup, /Cociente entre mínimos publicados/u);
+assert.match(markup, /Cálculo con precios y áreas mínimos publicados/u);
 assert.match(markup, /Precio publicado desde/u);
 assert.match(markup, /Área total/u);
-assert.match(markup, /Cuantiles R-7/u);
-assert.match(markup, /85 entrada = 0 usados \+ 16 faltantes \+ 69 excluidos/u);
+assert.match(markup, /Percentiles R-7/u);
+assert.match(markup, /85 de entrada = 0 usados \+ 16 faltantes \+ 69 excluidos/u);
 assert.match(markup, /Oferta de la muestra/u);
 assert.match(markup, /Unidades reportadas por la publicación/u);
 assert.match(markup, /Ver composición de la muestra/u);
@@ -115,7 +115,7 @@ assert.doesNotMatch(
   "territorial context must start contracted",
 );
 assert.match(markup, /Ranking distrital por carga observada/u);
-assert.match(markup, /Cuadrantes analíticos del snapshot/u);
+assert.match(markup, /Cuadrantes para analizar la muestra/u);
 assert.doesNotMatch(markup, /precio real(?!es de cierre)/iu);
 assert.doesNotMatch(markup, /amenities verificados/iu);
 
@@ -185,7 +185,7 @@ function quantitativeCase({ status, values, orientationValues = [] }) {
 
 const n0Markup = quantitativeCase({ status: "insufficient", values: [] });
 assert.match(n0Markup, /Información insuficiente/u);
-assert.match(n0Markup, /ni cocientes orientativos utilizables/u);
+assert.match(n0Markup, /ni referencias orientativas utilizables/u);
 assert.doesNotMatch(n0Markup, /0 orientativos/u);
 
 for (const [values, expected] of [
@@ -259,7 +259,7 @@ for (const contractVersion of ["2.1.0", "2.2.0"]) {
   });
   const legacyMarkup = renderWithoutMutation(`legacy contract ${contractVersion}`);
   assert.match(legacyMarkup, /data-benchmark-status="contract_unavailable"/u);
-  assert.match(legacyMarkup, /Este dataset conserva el análisis territorial/u);
+  assert.match(legacyMarkup, /Esta versión de datos conserva el análisis territorial/u);
   assert.match(legacyMarkup, /Contexto territorial/u);
   assert.doesNotMatch(legacyMarkup, /benchmark-primary-action/u);
 }
@@ -271,7 +271,7 @@ initializeScenarioData(malformed, {
 });
 const errorMarkup = renderWithoutMutation("invalid 2.3 contract");
 assert.match(errorMarkup, /data-benchmark-status="error"/u);
-assert.match(errorMarkup, /No se pudo construir una referencia de benchmark segura/u);
+assert.match(errorMarkup, /No se pudo construir una referencia de mercado segura/u);
 assert.match(errorMarkup, /DUPLICATE_OR_INVALID_MODEL_IDS/u);
 assert.match(errorMarkup, /Contexto territorial/u);
 

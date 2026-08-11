@@ -1,5 +1,10 @@
 import * as domain from "./domain.js";
-import { viewFromHash } from "./navigation.js";
+import {
+  parseHashRoute,
+  replaceCanonicalJourneyLocation,
+  viewFromHash,
+} from "./navigation.js";
+import { JOURNEY_STAGES, journeyStageById } from "./journey.js";
 import {
   INSPECTOR_ACTIONS,
   canonicalScenarioSearch,
@@ -8,6 +13,7 @@ import {
   dispatchScenario,
   generateAssistantResponse,
   recomputeAssistantResponse,
+  resetApplicationState,
   resolveDistrictId,
   selectHistoryEvent,
   setAssistantDraft,
@@ -155,6 +161,7 @@ let scenarioHistorySearch = null;
 let inspectorDocumentEventsBound = false;
 let comparisonDocumentEventsBound = false;
 let inspectorRestoreFocusId = null;
+let lastJourneyRoute = null;
 const inspectorBoundElements = new WeakSet();
 const inspectorDialogBoundElements = new WeakSet();
 
@@ -198,10 +205,7 @@ export function bindEvents(render) {
     changeDistrict(event.target.value);
   });
   document.getElementById("reset-scenario")?.addEventListener("click", () => {
-    resetScenario({
-      announce: "Escenario reiniciado al preset base.",
-      focusId: "reset-scenario",
-    });
+    resetScenario();
   });
   document.querySelectorAll("[data-district-chip]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -306,6 +310,59 @@ export function bindEvents(render) {
   bindHistoryElementEvents();
 
   bindInspectorElementEvents();
+  bindJourneyRouteEffects();
+}
+
+export function applyJourneyRouteEffects({
+  route,
+  previousRoute = null,
+  documentRef = globalThis.document,
+} = {}) {
+  const stage =
+    route?.view === "journey" ? journeyStageById(route.stageId) : null;
+  if (!stage) {
+    state.journeyAnnouncement = "";
+    return { changed: false, focused: false, announcement: "" };
+  }
+
+  const changed = Boolean(
+    previousRoute &&
+      (previousRoute.view !== route.view ||
+        previousRoute.stageId !== route.stageId),
+  );
+  if (!changed) {
+    return {
+      changed: false,
+      focused: false,
+      announcement: state.journeyAnnouncement,
+    };
+  }
+
+  const stageAnnouncement = `Etapa ${stage.position} de ${JOURNEY_STAGES.length}: ${stage.label}`;
+  const liveRegion = documentRef?.getElementById?.("journey-live");
+  const existingAnnouncement = String(liveRegion?.textContent ?? "").trim();
+  const announcement = existingAnnouncement || stageAnnouncement;
+  state.journeyAnnouncement = announcement;
+  if (liveRegion) liveRegion.textContent = announcement;
+  const title = documentRef?.getElementById?.("journey-title");
+  if (title) {
+    title.setAttribute?.("tabindex", "-1");
+    title.focus?.({ preventScroll: true });
+  }
+  return {
+    changed: true,
+    focused: Boolean(title),
+    announcement,
+  };
+}
+
+function bindJourneyRouteEffects() {
+  const route = parseHashRoute(globalThis.window?.location?.hash ?? "");
+  applyJourneyRouteEffects({ route, previousRoute: lastJourneyRoute });
+  lastJourneyRoute = {
+    view: route.view,
+    stageId: route.stageId ?? null,
+  };
 }
 
 function bindHistoryElementEvents() {
@@ -678,26 +735,32 @@ export function selectScenarioProject(
 }
 
 export function resetScenario(options = {}) {
-  const transition = runScenarioAction(
-    { type: "RESET" },
-    {
-      render: false,
-      ...options,
-    },
-  );
-  const district = state.selectedDistrict || defaultDistrict();
-  state.projectFilters = {
-    district,
-    typology: "Todos",
-    phase: "Todos",
-    query: "",
-    sort: "direct",
-  };
-  state.compareQuery = "";
-  state.projectLimit = 18;
-  seedSelectionsForScenario();
-  clearAssistantResponse();
-  if (options.render !== false) renderApp?.();
+  const announcement =
+    options.announce ??
+    "Escenario y recorrido reiniciados. Etapa 1 de 6: Escala.";
+  const transition = resetApplicationState({
+    announce: announcement,
+    focusId: "journey-title",
+  });
+  const competitors = getCompetitors(state.strategy, 6);
+  const displayProjects = getScenarioDisplayProjects();
+  state.selectedProjectId =
+    competitors[0]?.id ?? displayProjects[0]?.id ?? null;
+  state.compareProjectIds = [];
+  replaceCanonicalJourneyLocation({
+    search: canonicalScenarioSearch(),
+    stageId: "scale",
+  });
+  scenarioHistorySearch = canonicalScenarioSearch();
+  lastJourneyRoute = null;
+  if (options.render !== false) {
+    renderApp?.();
+    const liveRegion = document.getElementById("journey-live");
+    if (liveRegion) liveRegion.textContent = announcement;
+    const title = document.getElementById("journey-title");
+    title?.setAttribute("tabindex", "-1");
+    title?.focus({ preventScroll: true });
+  }
   return transition;
 }
 

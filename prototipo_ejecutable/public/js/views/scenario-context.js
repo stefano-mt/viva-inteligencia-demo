@@ -400,7 +400,7 @@ function quadrantControl(model) {
           .join("")}
       </div>
       <p id="scenario-quadrant-method">
-        División analítica del snapshot; no representa una microzona oficial.
+        División creada para analizar la muestra; no representa una microzona oficial.
       </p>
     </fieldset>
   `;
@@ -451,6 +451,76 @@ function dependentControl(model) {
   `;
 }
 
+export function renderScenarioSidebar(model) {
+  return `
+    <section
+      class="scenario-sidebar"
+      aria-labelledby="scenario-sidebar-title"
+      ${model.loading ? 'aria-busy="true"' : ""}
+    >
+      <div class="scenario-sidebar__heading">
+        <div>
+          <span>Escenario</span>
+          <strong id="scenario-sidebar-title">${escapeHtml(model.scopeTitle)}</strong>
+        </div>
+        <span class="scenario-sidebar__count">${formatNumber(model.comparableCount)} comparables</span>
+      </div>
+
+      <label class="field-control scenario-district" for="top-district">
+        <span>Distrito objetivo</span>
+        <select id="top-district" ${model.loading ? "disabled" : ""}>
+          ${districtOptions(model)}
+        </select>
+      </label>
+
+      <fieldset
+        class="scenario-scope"
+        aria-describedby="scenario-quadrant-availability"
+      >
+        <legend>Zona de análisis</legend>
+        <div class="scenario-segments scenario-segments--scope">
+          ${scopeButton(model, "district", "Distrito")}
+          ${scopeButton(
+            model,
+            "quadrant",
+            "Cuadrante",
+            "scenario-quadrant-availability",
+          )}
+          ${scopeButton(model, "radius", "Radio")}
+        </div>
+        <p id="scenario-quadrant-availability">
+          ${
+            model.district.high_load && model.district.quadrants.length > 0
+              ? "Puedes analizar este distrito por cuadrantes."
+              : "Este distrito no tiene división por cuadrantes."
+          }
+        </p>
+      </fieldset>
+
+      ${dependentControl(model)}
+
+      <div class="scenario-sidebar__actions">
+        <button
+          class="primary-button scenario-primary-action"
+          id="scenario-view-comparables"
+          type="button"
+          data-view="projects"
+          data-scenario-action="view-comparables"
+          data-focus-target="main-content"
+          ${model.loading ? "disabled" : ""}
+        >Ver comparables</button>
+        <button
+          class="scenario-reset"
+          id="reset-scenario"
+          type="button"
+          data-scenario-action="reset"
+          ${model.loading ? "disabled" : ""}
+        >Reiniciar escenario</button>
+      </div>
+    </section>
+  `;
+}
+
 export function renderScenarioBar(model) {
   return `
     <header
@@ -472,7 +542,6 @@ export function renderScenarioBar(model) {
           </svg>
         </button>
         <div>
-          <p class="eyebrow">Viva Inteligencia / ${escapeHtml(model.view.group)}</p>
           <div class="title-row">
             <h1 id="scenario-view-title">${escapeHtml(model.view.label)}</h1>
             <span class="view-context">${escapeHtml(model.view.hint)}</span>
@@ -480,66 +549,9 @@ export function renderScenarioBar(model) {
         </div>
       </div>
 
-      <div class="scenario-bar__controls">
-        <label class="field-control scenario-district" for="top-district">
-          <span>Distrito objetivo</span>
-          <select id="top-district" ${model.loading ? "disabled" : ""}>
-            ${districtOptions(model)}
-          </select>
-        </label>
-
-        <fieldset
-          class="scenario-scope"
-          aria-describedby="scenario-quadrant-availability"
-        >
-          <legend>Alcance territorial</legend>
-          <div class="scenario-segments scenario-segments--scope">
-            ${scopeButton(model, "district", "Distrito")}
-            ${scopeButton(
-              model,
-              "quadrant",
-              "Cuadrante",
-              "scenario-quadrant-availability",
-            )}
-            ${scopeButton(model, "radius", "Radio")}
-          </div>
-          <p id="scenario-quadrant-availability">
-            ${
-              model.district.high_load &&
-              model.district.quadrants.length > 0
-                ? "Cuadrantes analíticos disponibles."
-                : "Este distrito no tiene cuadrantes analíticos."
-            }
-          </p>
-        </fieldset>
-
-        ${dependentControl(model)}
-      </div>
-
-      <div class="scenario-bar__actions">
-        <div class="scenario-bar__meta" aria-label="Estado del escenario">
-          <span>${escapeHtml(model.cutoffLabel)}</span>
-          <span>${escapeHtml(model.statuses.geography.label)}</span>
-          <span>${escapeHtml(model.statuses.comparability.label)}</span>
-        </div>
-        <div class="scenario-bar__buttons">
-          <button
-            class="primary-button scenario-primary-action"
-            id="scenario-view-comparables"
-            type="button"
-            data-view="projects"
-            data-scenario-action="view-comparables"
-            data-focus-target="main-content"
-            ${model.loading ? "disabled" : ""}
-          >Ver comparables</button>
-          <button
-            class="ghost-button scenario-reset"
-            id="reset-scenario"
-            type="button"
-            data-scenario-action="reset"
-            ${model.loading ? "disabled" : ""}
-          >Reiniciar</button>
-        </div>
+      <div class="scenario-bar__active" aria-label="Escenario activo">
+        <span>Escenario activo</span>
+        <strong>${escapeHtml(model.scopeTitle)}</strong>
       </div>
     </header>
   `;
@@ -614,48 +626,47 @@ export function renderScenarioSummary(model) {
       ${correctionAlert(model)}
       <div class="scenario-summary__heading">
         <div>
-          <p class="scenario-summary__kicker">Lente territorial</p>
+          <p class="scenario-summary__kicker">Lectura del escenario</p>
           <h2 id="scenario-summary-title">${escapeHtml(model.scopeTitle)}</h2>
         </div>
-        <p class="scenario-summary__eligibility">
-          <strong>${formatNumber(model.comparableCount)} comparables</strong>
-          <span>· ${formatNumber(model.reviewCount)} fuera o por revisar</span>
-        </p>
       </div>
 
       <dl class="scenario-summary__metrics">
         <div>
-          <dt>Proyectos incluidos</dt>
+          <dt>Oferta observada</dt>
           <dd>${formatNumber(model.observedCount)}</dd>
         </div>
         <div>
-          <dt>Inmobiliarias observadas</dt>
-          <dd>${formatNumber(model.agencyCount)}</dd>
+          <dt>Proyectos comparables</dt>
+          <dd>${formatNumber(model.comparableCount)}</dd>
         </div>
         <div>
-          <dt>Cobertura geográfica</dt>
-          <dd>
-            ${formatNumber(coverage.included)}/${formatNumber(coverage.total)}
-            <small>${formatNumber(coverage.pct, 1)}%</small>
-          </dd>
-        </div>
-        <div>
-          <dt>Precio objetivo / m²</dt>
-          <dd>${escapeHtml(model.targetPricePerM2)}</dd>
+          <dt>Fuera o por revisar</dt>
+          <dd>${formatNumber(model.reviewCount)}</dd>
         </div>
       </dl>
 
-      <div class="scenario-summary__statuses" aria-label="Calidad del escenario">
-        ${statusMarkup(model.statuses.geography, "geografía")}
-        ${statusMarkup(model.statuses.comparability, "comparabilidad")}
-        ${statusMarkup(model.statuses.price, "precio")}
-      </div>
-
-      <details class="scenario-share">
-        <summary>Ver enlace reproducible</summary>
-        <div>
-          <span>URL canónica del escenario</span>
-          <output id="scenario-canonical-url">${escapeHtml(model.canonicalUrl)}</output>
+      <details class="scenario-technical">
+        <summary>Ver detalle técnico</summary>
+        <div class="scenario-technical__body">
+          <dl class="scenario-technical__facts">
+            <div><dt>Corte de datos</dt><dd>${escapeHtml(model.cutoffLabel)}</dd></div>
+            <div><dt>Inmobiliarias observadas</dt><dd>${formatNumber(model.agencyCount)}</dd></div>
+            <div>
+              <dt>Cobertura geográfica</dt>
+              <dd>${formatNumber(coverage.included)}/${formatNumber(coverage.total)} · ${formatNumber(coverage.pct, 1)}%</dd>
+            </div>
+            <div><dt>Precio objetivo / m²</dt><dd>${escapeHtml(model.targetPricePerM2)}</dd></div>
+          </dl>
+          <div class="scenario-summary__statuses" aria-label="Calidad del escenario">
+            ${statusMarkup(model.statuses.geography, "geografía")}
+            ${statusMarkup(model.statuses.comparability, "comparabilidad")}
+            ${statusMarkup(model.statuses.price, "precio")}
+          </div>
+          <div class="scenario-share">
+            <span>URL reproducible del escenario</span>
+            <output id="scenario-canonical-url">${escapeHtml(model.canonicalUrl)}</output>
+          </div>
         </div>
       </details>
 

@@ -1,4 +1,4 @@
-import { views } from "./js/config.js";
+import { journeyEntry, views } from "./js/config.js";
 import {
   bindEvents,
   initializeScenarioFromLocation,
@@ -8,11 +8,11 @@ import {
 import * as domain from "./js/domain.js";
 import {
   activeView,
+  canonicalHashForRoute,
   inspectorCaseHash,
   interfaceIcon,
   parseHashRoute,
   replaceHashPreservingLocation,
-  viewFromHash,
   viewIcon,
 } from "./js/navigation.js";
 import {
@@ -29,9 +29,12 @@ import {
   renderCompare,
   renderDashboard,
   renderInspector,
+  renderJourney,
+  renderJourneyTopbar,
   renderMarket,
   renderProjects,
   renderScenarioBar,
+  renderScenarioSidebar,
   renderScenarioSummary,
 } from "./js/views/index.js";
 
@@ -103,7 +106,6 @@ const {
   toArray,
   unique,
   clamp,
-  normalizeSearch,
   shortText,
   safeUrl,
   optionList,
@@ -137,6 +139,7 @@ let geographyArtifact = {
 };
 let pendingInspectorAnnouncement = "";
 let pendingInspectorAnchorId = null;
+let pendingJourneyAnnouncement = "";
 
 init();
 
@@ -147,12 +150,17 @@ async function init() {
     initializeScenarioData(data, {
       boundaryArtifactStatus: "missing",
     });
-    state.view = viewFromHash();
+    const initialRoute = canonicalizeJourneyRoute(
+      parseHashRoute(window.location.hash),
+    );
+    state.view = initialRoute.view;
     initializeScenarioFromLocation();
     initializeScenario();
-    hydrateInspectorRoute();
+    hydrateInspectorRoute(initialRoute);
     window.addEventListener("hashchange", () => {
-      const route = parseHashRoute(window.location.hash);
+      const route = canonicalizeJourneyRoute(
+        parseHashRoute(window.location.hash),
+      );
       const previousView = state.view;
       const sameInspectorAnchor =
         previousView === "inspector" &&
@@ -213,6 +221,19 @@ function initializeScenario() {
 
 function getCanonicalScenarioUrl() {
   return window.location.href;
+}
+
+function canonicalizeJourneyRoute(route) {
+  if (route.view !== "journey") return route;
+  const canonicalHash = canonicalHashForRoute(window.location.hash);
+  if (canonicalHash && canonicalHash !== window.location.hash) {
+    replaceHashPreservingLocation(canonicalHash);
+  }
+  if (route.kind === "journey-invalid") {
+    pendingJourneyAnnouncement =
+      "La etapa solicitada no estaba disponible; abrimos Escala para conservar un recorrido válido.";
+  }
+  return route;
 }
 
 function defaultInspectorCase() {
@@ -282,7 +303,64 @@ function restoreInspectorRouteEffects() {
   }
 }
 
+function renderShellNavigation() {
+  const journeyIsActive = state.view === "journey";
+  return `
+    <nav class="nav-list" aria-label="Módulos principales">
+      <section class="nav-section nav-section--journey" aria-labelledby="nav-journey">
+        <p class="nav-section-label" id="nav-journey">Recorrido</p>
+        <button
+          class="nav-item nav-item--journey ${journeyIsActive ? "active" : ""}"
+          type="button"
+          data-journey-entry
+          ${journeyIsActive ? 'aria-current="page"' : ""}
+        >
+          <span class="nav-icon journey-entry-mark" aria-hidden="true">01→06</span>
+          <span class="nav-copy">
+            <strong>${escapeHtml(journeyEntry.label)}</strong>
+            <small>${escapeHtml(journeyEntry.hint)}</small>
+          </span>
+        </button>
+      </section>
+      <section
+        class="nav-section nav-section--expert"
+        aria-labelledby="nav-expert"
+        data-expert-navigation
+      >
+        <p class="nav-section-label" id="nav-expert">Explorar análisis</p>
+        ${views.map((view) => `
+          <button
+            class="nav-item ${state.view === view.id ? "active" : ""}"
+            type="button"
+            data-view="${escapeAttr(view.id)}"
+            ${state.view === view.id ? 'aria-current="page"' : ""}
+          >
+            <span class="nav-icon" aria-hidden="true">${viewIcon(view.id)}</span>
+            <span class="nav-copy">
+              <strong>${escapeHtml(view.label)}</strong>
+              <small>${escapeHtml(view.hint)}</small>
+            </span>
+          </button>
+        `).join("")}
+      </section>
+    </nav>
+  `;
+}
+
+function bindJourneyShellEvents() {
+  document.querySelector("[data-journey-entry]")?.addEventListener("click", () => {
+    state.mobileNavOpen = false;
+    const targetHash = `#journey/${journeyEntry.defaultStageId}`;
+    if (window.location.hash === targetHash) render();
+    else window.location.hash = targetHash;
+  });
+}
+
 function render() {
+  const route = parseHashRoute(window.location.hash);
+  const isJourney = state.view === "journey";
+  const showScenarioSummary =
+    !isJourney && !["dashboard", "projects", "compare"].includes(state.view);
   const scenarioPresentation = buildScenarioPresentation({
     data: state.data,
     scenarioState: state.scenarioState,
@@ -290,11 +368,38 @@ function render() {
     geographyArtifact,
     canonicalUrl: getCanonicalScenarioUrl(),
     announcement: state.scenarioAnnouncement,
-    activeView: activeView(),
+    activeView: isJourney
+      ? {
+          group: "Recorrido",
+          label: journeyEntry.label,
+          hint: journeyEntry.hint,
+        }
+      : activeView(),
     mobileNavOpen: state.mobileNavOpen,
   });
-  const content =
-    geographyArtifact.status === "loading"
+  const content = isJourney
+    ? renderJourney({
+        stageId: route.stageId,
+        stageModel:
+          geographyArtifact.status === "loading"
+            ? {
+                stageId: route.stageId,
+                status: "loading",
+                data: null,
+                correctiveAction: null,
+              }
+            : state.journeyContext?.stages?.[route.stageId] ?? {
+                stageId: route.stageId,
+                status: "error",
+                data: null,
+                correctiveAction: {
+                  label: "Reiniciar recorrido",
+                  href: "#journey/scale",
+                },
+              },
+        announcement: pendingJourneyAnnouncement,
+      })
+    : geographyArtifact.status === "loading"
       ? ""
       : ({
           dashboard: renderDashboard,
@@ -331,27 +436,8 @@ function render() {
             ${interfaceIcon("close")}
           </button>
         </div>
-        <nav class="nav-list" aria-label="Módulos principales">
-          ${["Análisis", "Decisión"].map((group) => `
-            <section class="nav-section" aria-labelledby="nav-${escapeAttr(normalizeSearch(group))}">
-              <p class="nav-section-label" id="nav-${escapeAttr(normalizeSearch(group))}">${escapeHtml(group)}</p>
-              ${views.filter((view) => view.group === group).map((view) => `
-                <button
-                  class="nav-item ${state.view === view.id ? "active" : ""}"
-                  type="button"
-                  data-view="${escapeAttr(view.id)}"
-                  ${state.view === view.id ? 'aria-current="page"' : ""}
-                >
-                  <span class="nav-icon" aria-hidden="true">${viewIcon(view.id)}</span>
-                  <span class="nav-copy">
-                    <strong>${escapeHtml(view.label)}</strong>
-                    <small>${escapeHtml(view.hint)}</small>
-                  </span>
-                </button>
-              `).join("")}
-            </section>
-          `).join("")}
-        </nav>
+        ${renderScenarioSidebar(scenarioPresentation)}
+        ${renderShellNavigation()}
         <div class="sidebar-footer">
           <span>Datos actualizados</span>
           <strong>${escapeHtml(formatDate(metadataDate()))}</strong>
@@ -359,11 +445,26 @@ function render() {
         </div>
       </aside>
       <div class="workspace">
-        ${renderScenarioBar(scenarioPresentation)}
+        ${
+          isJourney
+            ? renderJourneyTopbar(scenarioPresentation, route.stageId)
+            : renderScenarioBar(scenarioPresentation)
+        }
         <main class="content" id="main-content" tabindex="-1">
-          ${renderScenarioSummary(scenarioPresentation)}
           ${
-            geographyArtifact.status === "loading"
+            showScenarioSummary
+              ? renderScenarioSummary(scenarioPresentation)
+              : `<p
+                  class="sr-only"
+                  id="scenario-live"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >${escapeHtml(scenarioPresentation.announcement)}</p>`
+          }
+          ${
+            isJourney
+              ? content
+              : geographyArtifact.status === "loading"
               ? ""
               : `${renderSectionGuide(state.view)}${content}`
           }
@@ -373,6 +474,8 @@ function render() {
   `;
 
   bindEvents(render);
+  bindJourneyShellEvents();
   restoreActiveInput();
   restoreInspectorRouteEffects();
+  pendingJourneyAnnouncement = "";
 }
