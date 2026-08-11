@@ -1,12 +1,12 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-08-10
+**Actualizado:** 2026-08-11
 
 **Milestone:** demo vNext orientada a venta
 
 **Última fase con despliegue técnico verificado:** Fase 5 — histórico, señales y asistente determinista
 
-**Estado:** Fases 0–5 están oficialmente `deployed and verified`. P6-15 cerró `PASS WITH RISKS` sobre `a94f251`; P6-16 está habilitado. El único riesgo residual es `R6-H1`: P6-14 sigue `PENDING/DEFERRED` por D-042 y la aceptación humana final continúa reservada a P6-20.
+**Estado:** Fases 0–5 están oficialmente `deployed and verified`. P6-16 completó memoria, handoff y preparación del PR funcional tras el `PASS WITH RISKS` técnico de P6-15. El único riesgo residual es `R6-H1`: P6-14 sigue `PENDING/DEFERRED` por D-042 y la aceptación humana final continúa reservada a P6-20.
 
 **Rama activa:** `feat/phase-6-commercial-narrative-qa`.
 
@@ -279,12 +279,15 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P6-15: [verificación formal independiente](phases/06-commercial-narrative-qa/VERIFICATION_REPORT.md) `PASS WITH RISKS` sobre `a94f251`; `npm.cmd run verify`, browser adversarial, Graphify, responsive/a11y y write sets en PASS.
 - P6-15A: [plan correctivo](phases/06-commercial-narrative-qa/P6-15A-CORRECTIVE-PLAN.md) completado en `8740182` y `a94f251`; G1–G5 cerrados con paridad DOM↔estado, nulos honestos y respuesta de seis bloques con referencias progresivas.
 - Auditoría P6-15A: `8740182..a94f251` contiene 8 paths y 0 violaciones; contrato, datos, writer, motores, navegación y workflow permanecen intactos.
-- Único riesgo residual: `R6-H1 — validación humana diferida`; no existen gaps técnicos abiertos y P6-16 queda habilitado.
+- Resumen de cierre técnico: [phases/06-commercial-narrative-qa/SUMMARY.md](phases/06-commercial-narrative-qa/SUMMARY.md).
+- Handoff y cuerpo del PR: [phases/06-commercial-narrative-qa/HANDOFF.md](phases/06-commercial-narrative-qa/HANDOFF.md).
+- P6-16: memoria y preparación del PR funcional completadas; no modificó runtime, datos, tests, estilos, activos o comportamiento.
+- Único riesgo residual: `R6-H1 — validación humana diferida`; no existen gaps técnicos abiertos y P6-17 queda habilitado.
 
 ## Próxima acción recomendada
 
-1. Ejecutar P6-16: memoria, handoff y preparación del pull request funcional.
-2. Mantener merge exclusivamente humano en P6-17.
+1. Publicar el commit documental de P6-16 y abrir/revisar el pull request funcional contra `main`.
+2. Mantener el merge exclusivamente humano en P6-17.
 3. Ejecutar P6-18 y P6-19 después del merge.
 4. Completar P6-20 antes de declarar la demo lista para cliente.
 
