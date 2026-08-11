@@ -4,11 +4,11 @@
 
 **Milestone:** demo vNext orientada a venta
 
-**Última fase con despliegue técnico verificado:** Fase 5 — histórico, señales y asistente determinista
+**Última fase con despliegue técnico verificado:** Fase 6 — narrativa comercial, accesibilidad y QA
 
-**Estado:** Fases 0–5 están oficialmente `deployed and verified`. P6-16 completó memoria, handoff y preparación del PR funcional tras el `PASS WITH RISKS` técnico de P6-15. El único riesgo residual es `R6-H1`: P6-14 sigue `PENDING/DEFERRED` por D-042 y la aceptación humana final continúa reservada a P6-20.
+**Estado:** Fases 0–5 están oficialmente `deployed and verified`. El PR funcional #17 de Fase 6 fue fusionado y P6-18 verificó Pages con `PASS` para el mismo SHA de merge. P6-19 persiste el resultado técnico. El estado máximo de Fase 6 continúa siendo `deployed and technically verified; human acceptance pending` porque `R6-H1` solo puede cerrarse mediante P6-20.
 
-**Rama activa:** `feat/phase-6-commercial-narrative-qa`.
+**Rama activa:** `docs/phase-6-postmerge-report`.
 
 ## Baseline histórica de Fase 2
 
@@ -282,14 +282,18 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Resumen de cierre técnico: [phases/06-commercial-narrative-qa/SUMMARY.md](phases/06-commercial-narrative-qa/SUMMARY.md).
 - Handoff y cuerpo del PR: [phases/06-commercial-narrative-qa/HANDOFF.md](phases/06-commercial-narrative-qa/HANDOFF.md).
 - P6-16: memoria y preparación del PR funcional completadas; no modificó runtime, datos, tests, estilos, activos o comportamiento.
-- Único riesgo residual: `R6-H1 — validación humana diferida`; no existen gaps técnicos abiertos y P6-17 queda habilitado.
+- P6-17: PR funcional [#17](https://github.com/stefano-mt/viva-inteligencia-demo/pull/17) fusionado por el usuario; head `cb52acce482b1b6d58fbc386e6898198c69adf0f` y merge `12cefbf82a4971d75e1578d962f510b06fc0b457`.
+- Workflow Pages: [run 31535245095](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/31535245095), `success` para el mismo SHA de merge.
+- P6-18: [verificación post-merge](phases/06-commercial-narrative-qa/POSTMERGE_REPORT.md) `PASS`; 14 superficies × 3 viewports, recorrido crítico, reinicio, consola y recursos verificados sobre Pages.
+- P6-19: resultado técnico persistido en una rama documental separada mediante el PR [#18](https://github.com/stefano-mt/viva-inteligencia-demo/pull/18), abierto y pendiente de merge humano; no modifica runtime, datos, tests, estilos, activos o comportamiento.
+- Estado técnico de Fase 6: **`deployed and technically verified; human acceptance pending`**.
+- Único riesgo residual: `R6-H1 — validación humana diferida`; no existen gaps técnicos abiertos, pero P6-20 sigue siendo bloqueante para venta.
 
 ## Próxima acción recomendada
 
-1. Publicar el commit documental de P6-16 y abrir/revisar el pull request funcional contra `main`.
-2. Mantener el merge exclusivamente humano en P6-17.
-3. Ejecutar P6-18 y P6-19 después del merge.
-4. Completar P6-20 antes de declarar la demo lista para cliente.
+1. Publicar y fusionar mediante revisión humana el PR exclusivamente documental de P6-19.
+2. Ejecutar P6-20 con un lector nuevo sobre Pages y el SHA `12cefbf82a4971d75e1578d962f510b06fc0b457`.
+3. Mantener bloqueadas las declaraciones `ready for client` y `deployed and verified` hasta un `PASS` humano reproducible.
 
 ## Regla para actualizar este archivo
 
