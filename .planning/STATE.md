@@ -285,7 +285,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P6-17: PR funcional [#17](https://github.com/stefano-mt/viva-inteligencia-demo/pull/17) fusionado por el usuario; head `cb52acce482b1b6d58fbc386e6898198c69adf0f` y merge `12cefbf82a4971d75e1578d962f510b06fc0b457`.
 - Workflow Pages: [run 31535245095](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/31535245095), `success` para el mismo SHA de merge.
 - P6-18: [verificación post-merge](phases/06-commercial-narrative-qa/POSTMERGE_REPORT.md) `PASS`; 14 superficies × 3 viewports, recorrido crítico, reinicio, consola y recursos verificados sobre Pages.
-- P6-19: resultado técnico persistido en una rama documental separada; no modifica runtime, datos, tests, estilos, activos o comportamiento.
+- P6-19: resultado técnico persistido en una rama documental separada mediante el PR [#18](https://github.com/stefano-mt/viva-inteligencia-demo/pull/18), abierto y pendiente de merge humano; no modifica runtime, datos, tests, estilos, activos o comportamiento.
 - Estado técnico de Fase 6: **`deployed and technically verified; human acceptance pending`**.
 - Único riesgo residual: `R6-H1 — validación humana diferida`; no existen gaps técnicos abiertos, pero P6-20 sigue siendo bloqueante para venta.
 

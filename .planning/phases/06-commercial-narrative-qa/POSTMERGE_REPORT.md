@@ -33,6 +33,7 @@ No modifica runtime, contrato, dataset, writer, tests, estilos, activos o config
 
 | Evidencia | Resultado |
 |---|---|
+| PR documental P6-19 | [#18 — docs: record phase 6 postmerge technical verification](https://github.com/stefano-mt/viva-inteligencia-demo/pull/18), abierto y pendiente de merge humano |
 | PR funcional | [#17](https://github.com/stefano-mt/viva-inteligencia-demo/pull/17), `MERGED` |
 | Head final del PR #17 | `cb52acce482b1b6d58fbc386e6898198c69adf0f` |
 | Último commit funcional verificado | `a94f25159fb20770599b97c8fdfa37a2dabe551b` |
@@ -167,6 +168,6 @@ Hasta el `PASS` de P6-20:
 
 ## Cierre y siguiente paso
 
-P6-18 concluye `PASS`. P6-19 persiste ese resultado en una rama y PR documentales separados. Tras el merge humano de P6-19, el estado técnico de la Fase 6 queda registrado como `deployed and technically verified; human acceptance pending`.
+P6-18 concluye `PASS`. P6-19 persiste ese resultado mediante el [PR documental #18](https://github.com/stefano-mt/viva-inteligencia-demo/pull/18). Tras su merge humano, el estado técnico de la Fase 6 queda registrado como `deployed and technically verified; human acceptance pending`.
 
 El siguiente y último paso de la fase es P6-20: un lector nuevo debe ejecutar el protocolo público, lograr 5/5 respuestas correctas, 0 claims prohibidos y una duración máxima de 10 minutos, sin ayuda del maker. Solo su `PASS` habilita `ready for client` y `deployed and verified`.
