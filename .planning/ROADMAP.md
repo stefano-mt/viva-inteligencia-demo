@@ -189,7 +189,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** convertir módulos correctos en un recorrido que se entiende y se recuerda.
 
-**Estado:** P6-01–P6-19 completados. El PR funcional #17 y el PR documental #18 fueron fusionados; Pages desplegó `1b33bd682b63673e4bcda5c7a8875142ff351b34` con `success`. El paquete de P6-20 está preparado, pero la sesión humana permanece `PENDING`. P6-14 continúa `PENDING/DEFERRED` por D-042 y la declaración final queda reservada al `PASS` humano reproducible de P6-20.
+**Estado:** `CLOSED`. P6-01–P6-19 completados; PR funcional #17 y PR documental #18 fusionados; Pages desplegó `1b33bd682b63673e4bcda5c7a8875142ff351b34` con `success`. D-044 cerró P6-14/P6-20 como `WAIVED / NOT RUN` y aceptó la ausencia de validación humana como riesgo residual de producto.
 
 ### Olas
 
@@ -197,13 +197,13 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 2. Reducción de densidad, contraste y jerarquía.
 3. Responsive, teclado, estados y regresión visual.
 4. Verificación técnica, despliegue y persistencia.
-5. Testing humano integral final sobre Pages.
+5. Testing humano integral final sobre Pages — eximido por D-044; protocolo archivado para una UAT futura.
 
 **Gate de salida técnica:** el recorrido “escala → geografía → calidad → profundidad → movimiento → decisión” pasa verificación independiente y Pages coincide con el SHA desplegado.
 
-**Salida técnica:** `PASS`. Estado máximo: `deployed and technically verified; human acceptance pending`.
+**Salida técnica:** `PASS`. Estado final: `FINAL — deployed and technically verified; human acceptance waived by Product Owner`.
 
-**Gate de aceptación final:** un lector nuevo completa el recorrido público sin ayuda externa, dentro de 10 minutos y con evidencia aprobada en P6-20. Solo entonces F6 queda `deployed and verified` y `ready for client`.
+**Gate humano original:** no ejecutado. D-044 lo exime sin convertirlo en `PASS`; cualquier evaluación humana posterior será una UAT independiente. La versión queda cerrada como entrega final técnica y no debe describirse como validada por usuarios.
 
 ## Estrategia de PR
 

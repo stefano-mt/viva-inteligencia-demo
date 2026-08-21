@@ -1,5 +1,9 @@
 # Handoff — P6-16
 
+> **Addendum de cierre (2026-08-21):** este handoff conserva el estado histórico de P6-16. P6-17–P6-19 ya fueron completados y D-044 cerró P6-20 como `WAIVED / NOT RUN`. El estado vigente está en `STATE.md`, `SUMMARY.md` y `FINAL_HUMAN_ACCEPTANCE.md`: `FINAL — deployed and technically verified; human acceptance waived by Product Owner`.
+
+> Todo el contenido restante es el snapshot operativo emitido en P6-16 y se conserva para trazabilidad; sus instrucciones pendientes fueron reemplazadas por los merges #17/#18 y D-044.
+
 ## Estado
 
 `P6-16 done — PASS WITH RISKS técnico; memoria y cuerpo del PR funcional preparados; revisión humana, merge, verificación pública y aceptación humana final pendientes`

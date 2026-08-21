@@ -1,12 +1,12 @@
-# P6-20 — Testing humano integral final
+# P6-20 — Protocolo archivado de testing humano integral
 
 ## Estado
 
-**PAQUETE PREPARADO; SESIÓN HUMANA INDEPENDIENTE PENDIENTE.**
+**WAIVED / NOT RUN por D-044.**
 
-Este documento es el protocolo vinculante de P6-20. No constituye evidencia de ejecución y no autoriza declarar `PASS`, `ready for client` o `deployed and verified` hasta que exista una sesión real, completa y reproducible.
+Este documento conserva el protocolo que habría gobernado P6-20. No constituye evidencia de ejecución y no autoriza declarar `PASS` ni aceptación humana.
 
-P6-14 permanece `PENDING/DEFERRED` por D-042. P6-20 es la única vía aprobada para cerrar `R6-H1 — validación humana diferida`.
+P6-14 y P6-20 quedaron `WAIVED / NOT RUN` por D-044. `R6-H1 — validación humana diferida` fue aceptado por el Product Owner como riesgo residual externo al cierre del plan. Una eventual aplicación futura de este protocolo será una UAT nueva y separada.
 
 ## Artefacto público bajo prueba
 
@@ -92,9 +92,9 @@ El lector decide cómo navegar. Para que la sesión sea aprobable, su recorrido 
 
 El observador no comparte esta lista antes ni durante la sesión.
 
-## Rúbrica de aceptación final
+## Rúbrica archivada para una UAT futura
 
-P6-20 obtiene `PASS` únicamente si todos los criterios pasan:
+Si este protocolo se reutiliza en una UAT futura, esa sesión obtiene `PASS` únicamente si todos los criterios pasan:
 
 | Criterio | Umbral | Evidencia requerida |
 |---|---|---|
@@ -150,5 +150,5 @@ Después de la sesión:
 1. lector y observador rubrican mediante alias o iniciales;
 2. un revisor contrasta metadata, respuesta, rúbrica y evidencia;
 3. `FINAL_HUMAN_ACCEPTANCE.md` registra `PASS`, `FAIL` o `INVALID` sin reinterpretar la respuesta;
-4. solo un `PASS` reproducible cierra `R6-H1` y habilita `ready for client` y `deployed and verified`;
+4. el `PASS` de una UAT futura complementa el cierre técnico con evidencia humana; D-044 ya cerró este plan mediante exención y no debe reescribirse;
 5. el resultado se integra mediante una rama y PR documentales separados, con merge humano.
