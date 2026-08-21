@@ -6,9 +6,9 @@
 
 **Última fase con despliegue técnico verificado:** Fase 6 — narrativa comercial, accesibilidad y QA
 
-**Estado:** plan de desarrollo vNext cerrado. Fases 0–5 están `deployed and verified`; Fase 6 está `FINAL — deployed and technically verified; human acceptance waived by Product Owner`. P6-20 no fue ejecutado y no tiene `PASS`; D-044 acepta `R6-H1` como riesgo residual de producto.
+**Estado:** Fase 7 abierta en planificación para simplificar el workspace comercial. Fases 0–5 están `deployed and verified`; Fase 6 está `FINAL — deployed and technically verified; human acceptance waived by Product Owner`. P7-00A no modifica runtime y HUMAN-GATE-A está pendiente.
 
-**Rama activa:** `docs/phase-6-final-human-acceptance`.
+**Rama activa:** `feat/phase-7-commercial-workspace`.
 
 ## Baseline histórica de Fase 2
 
@@ -290,12 +290,28 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Estado final de Fase 6: **`FINAL — deployed and technically verified; human acceptance waived by Product Owner`**.
 - Riesgo residual aceptado: `R6-H1 — validación humana diferida`. No existen gaps técnicos abiertos; cualquier prueba humana futura será una UAT separada.
 
+## Fase 7 — planificación vigente
+
+- Contexto: [phases/07-commercial-workspace/CONTEXT.md](phases/07-commercial-workspace/CONTEXT.md).
+- Auditoría UX/UI: [phases/07-commercial-workspace/UX-AUDIT.md](phases/07-commercial-workspace/UX-AUDIT.md).
+- Especificación visual: [phases/07-commercial-workspace/UI-SPEC.md](phases/07-commercial-workspace/UI-SPEC.md).
+- Plan: [phases/07-commercial-workspace/PLAN.md](phases/07-commercial-workspace/PLAN.md).
+- Solicitud de aprobación: [phases/07-commercial-workspace/HUMAN-GATE-A-REQUEST.md](phases/07-commercial-workspace/HUMAN-GATE-A-REQUEST.md).
+- Historias: HU-DEMO-805–810.
+- Referencias: rail persistente, filas operativas, comando local y acciones contextuales; identidad y composición propias de Viva.
+- Dirección: `Viva Decision Desk`, con línea de decisión verde y menor dependencia de cards.
+- Contrato, datos, motores, rutas, claims y reset permanecen protegidos.
+- P7-00A: contexto, auditoría, especificación, plan y solicitud de gate completados; runtime sin cambios.
+- P7-00B: revisión estructural independiente pendiente.
+- P7-00C: HUMAN-GATE-A pendiente; no se inicia implementación antes.
+
 ## Próxima acción recomendada
 
-1. Revisar y fusionar el PR documental de cierre final.
-2. Presentar la URL pública como versión final técnica, conservando los límites de datos y evidencia visibles.
-3. No afirmar que hubo validación de usuarios o aceptación humana.
-4. Si se decide probar con usuarios posteriormente, abrir una UAT nueva y usar el protocolo archivado sin reescribir D-044.
+1. Completar y revisar P7-00A.
+2. Ejecutar P7-00B con checker independiente.
+3. Resolver cualquier hallazgo P0–P2.
+4. Solicitar aceptación de A1–A14 para HUMAN-GATE-A.
+5. Solo entonces capturar baseline e iniciar P7-01.
 
 ## Regla para actualizar este archivo
 

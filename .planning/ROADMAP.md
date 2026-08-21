@@ -205,6 +205,27 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Gate humano original:** no ejecutado. D-044 lo exime sin convertirlo en `PASS`; cualquier evaluación humana posterior será una UAT independiente. La versión queda cerrada como entrega final técnica y no debe describirse como validada por usuarios.
 
+---
+
+## Fase 7 — Workspace comercial simplificado
+
+**Historias:** 805–810.
+
+**Objetivo:** reducir el tiempo de orientación y escaneo sin alterar datos, evidencia o decisiones.
+
+**Estado:** `PLANNED`; P7-00A completado, revisión estructural y HUMAN-GATE-A pendientes.
+
+### Olas
+
+1. Auditoría, presupuesto visual, revisión y baseline.
+2. Shell compacto, escenario bajo demanda y navegación rápida.
+3. Recorrido y ocho rutas convertidos a lectura principal + filas + detalle progresivo.
+4. Paridad, responsive, accesibilidad, verificación y ship.
+
+**Gate de salida:** cinco destinos primarios, cuatro herramientas expertas en máximo dos interacciones, una acción primaria por viewport, trabajo principal visible en 1280×720, cero pérdida de claims y suite 6+8/CT-A–I/P en `PASS`.
+
+**Protegidos:** contrato 2.4, dataset, writer, fingerprints, motores, elegibilidad, histórico, asistente y workflow.
+
 ## Estrategia de PR
 
 - PR 0: harness y documentación.
