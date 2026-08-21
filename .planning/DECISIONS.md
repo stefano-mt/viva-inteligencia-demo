@@ -484,3 +484,23 @@ Stefano declaró exactamente “Autorizo la enmienda correctiva P6-15A.” con t
 La enmienda permite conectar `public/app.js` y `public/js/views/journey.js` con `state.journeyContext`, añadir la regresión DOM↔estado y actualizar únicamente pruebas, manifiesto, evidencia y estilos condicionados por un fallo demostrado. No permite modificar datos, contrato, writer, fingerprints, motores, navegación, URL, reset, workflow ni la evidencia humana pendiente.
 
 La implementación debe comenzar con una prueba roja, conservar el error global de contrato 2.0, usar los estados y `correctiveAction` autoritativos, mostrar las cifras críticas sin recomputarlas y respetar el presupuesto vertical de densidad. Después del correctivo se repite P6-15 completo con checker independiente; P6-16 continúa bloqueado hasta ese nuevo veredicto.
+
+## D-044 — El Product Owner exime P6-20 y cierra el plan de desarrollo
+
+**Fecha:** 2026-08-21
+
+**Estado:** aceptada
+
+Stefano declaró exactamente: “Te estoy diciendo que, no ejecutemos esa etapa. Pasemosla.” Esta instrucción explícita y posterior reemplaza el compromiso de ejecutar P6-20 dentro del plan vigente.
+
+Queda decidido que:
+
+1. P6-20 se registra como `WAIVED / NOT RUN`; no se presenta como `PASS`, `FAIL` ni `INVALID` y no se crea evidencia humana ficticia;
+2. P6-14 permanece `NOT RUN / WAIVED` y su protocolo se conserva únicamente como referencia para una eventual UAT futura;
+3. `R6-H1 — validación humana diferida` se acepta como riesgo residual de producto y deja de ser una tarea bloqueante del plan de desarrollo;
+4. Fase 6 y el plan vNext se cierran como `FINAL — deployed and technically verified; human acceptance waived by Product Owner`;
+5. la versión puede entregarse como versión final técnica y usarse en una presentación controlada, pero no debe describirse como “validada por usuarios”, “humanamente aceptada” o equivalente;
+6. una futura prueba humana integral será una actividad nueva de UAT, fuera del alcance de este plan, y su resultado deberá documentarse sin reescribir este cierre;
+7. esta exención no modifica código, contrato 2.4, dataset, writer, fingerprints, elegibilidad, motores, workflow ni los resultados técnicos de P6-15/P6-18.
+
+La decisión cierra la secuencia de desarrollo sin debilitar ni reinterpretar los gates técnicos ya ejecutados.

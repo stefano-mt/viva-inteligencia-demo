@@ -2,11 +2,11 @@
 
 **Fecha de cierre técnico:** 2026-08-11
 
-**Estado:** implementación y verificación técnica independiente completadas; P6-16 preparada para el pull request funcional; revisión humana, merge, verificación de GitHub Pages y aceptación humana final pendientes
+**Estado:** `CLOSED`; implementación, merge y verificación pública completados. P6-20 quedó `WAIVED / NOT RUN` por D-044.
 
 **Veredicto independiente:** `PASS WITH RISKS`
 
-**Único riesgo residual:** `R6-H1 — validación humana diferida`
+**Riesgo residual aceptado:** `R6-H1 — validación humana diferida`; no es un gap técnico ni una tarea abierta del plan.
 
 ## Resultado
 
@@ -156,7 +156,7 @@ El diff correctivo `8740182..a94f251` contiene ocho paths y cero violaciones. Co
 - Graphify: [evidence/verification/graphify.md](evidence/verification/graphify.md).
 - Auditoría de alcance: [evidence/verification/write-set-audit.md](evidence/verification/write-set-audit.md).
 
-La carpeta de ensayo humano conserva plantillas versionadas, pero su resultado sigue `PENDING/DEFERRED`. Ningún archivo preliminar no rastreado se usa como evidencia de aceptación.
+La carpeta de ensayo humano conserva plantillas versionadas, pero P6-20 quedó `WAIVED / NOT RUN`. Ningún archivo preliminar no rastreado se usa como evidencia de aceptación.
 
 ## Commits de la fase
 
@@ -177,16 +177,17 @@ La carpeta de ensayo humano conserva plantillas versionadas, pero su resultado s
 - D-041: HUMAN-GATE-A bajo A1–A13.
 - D-042: el ensayo humano se difiere a P6-20; solo se acepta `R6-H1` para continuar P6-15–P6-19.
 - D-043: P6-15A corrige la paridad visible Journey ↔ estado dentro de un write set cerrado.
+- D-044: el Product Owner exime P6-20, acepta `R6-H1` como riesgo residual y cierra el plan como versión final técnica.
 
 ## Riesgo residual y límites del veredicto
 
-El veredicto es `PASS WITH RISKS` únicamente por `R6-H1`. P6-14 no tiene `PASS` humano y no se sustituyó por automatización. Por tanto:
+El veredicto técnico permanece `PASS WITH RISKS` únicamente por `R6-H1`. P6-14/P6-20 no tienen `PASS` humano y no se sustituyeron por automatización. D-044 cambia la condición de cierre, no el resultado histórico del checker. Por tanto:
 
-- el PR funcional puede revisarse y fusionarse manualmente;
-- P6-18 puede verificar Pages y P6-19 persistir el resultado técnico;
-- antes de P6-20, el estado máximo es `deployed and technically verified; human acceptance pending`;
-- no se puede declarar `ready for client`, `deployed and verified` ni lista para presentación final;
-- un `FAIL` o `INVALID` en P6-20 reabre el ciclo correctivo.
+- el runtime está fusionado, desplegado y técnicamente verificado;
+- P6-20 se registra como `WAIVED / NOT RUN`, nunca como `PASS`;
+- el plan queda cerrado como `FINAL — deployed and technically verified; human acceptance waived by Product Owner`;
+- la versión puede usarse como entrega final técnica o presentación controlada;
+- no se puede afirmar que fue validada por usuarios o que obtuvo aceptación humana.
 
 No existen gaps técnicos abiertos adicionales.
 
@@ -194,10 +195,8 @@ No existen gaps técnicos abiertos adicionales.
 
 - P6-01–P6-13: implementación completada.
 - P6-14A–P6-14D: correctivos de experiencia y copy completados.
-- P6-14: `PENDING/DEFERRED` a P6-20.
+- P6-14: `WAIVED / NOT RUN`.
 - P6-15/P6-15A: verificación independiente cerrada como `PASS WITH RISKS`; G1–G5 cerrados.
-- P6-16: memoria y handoff preparados para el PR funcional.
-- P6-17: revisión y merge exclusivamente humanos, pendientes.
-- P6-18: verificación read-only de Pages, bloqueada hasta el merge.
-- P6-19: persistencia post-merge en rama/PR documental separados, pendiente.
-- P6-20: testing humano integral final, pendiente y bloqueante para `ready for client`.
+- P6-16–P6-19: completados; PR funcional #17 y PR documental #18 fusionados, Pages verificado.
+- P6-20: `WAIVED / NOT RUN` por D-044.
+- Plan de desarrollo: `CLOSED`.

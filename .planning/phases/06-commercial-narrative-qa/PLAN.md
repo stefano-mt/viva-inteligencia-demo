@@ -1,6 +1,6 @@
 # Fase 6 — Plan de narrativa comercial, accesibilidad y QA
 
-**Estado:** P6-15 `PASS WITH RISKS` sobre `a94f251`; P6-15A completado y G1–G5 cerrados. P6-14 continúa `PENDING/DEFERRED` por D-042 y se ejecutará en P6-20.
+**Estado:** `CLOSED` por D-044. P6-15/P6-18 pasaron técnicamente; P6-14 y P6-20 quedaron `WAIVED / NOT RUN` por decisión explícita del Product Owner.
 
 **Rama:** `feat/phase-6-commercial-narrative-qa`.
 
@@ -22,8 +22,8 @@ La fase termina solo si:
 8. zoom 200%, teclado, contraste, densidad y red externa pasan;
 9. un checker independiente emite un veredicto técnico; mientras el ensayo esté diferido, su máximo es `PASS WITH RISKS` por `R6-H1`;
 10. Pages se verifica después del merge y el resultado se persiste en PR documental separado;
-11. en P6-20, un lector humano nuevo completa el guion en ≤10 minutos y explica los cinco claims de `CONTEXT.md`;
-12. solo el `PASS` de P6-20 habilita `ready for client` y `deployed and verified`.
+11. Pages coincide con el SHA desplegado y la verificación post-merge está persistida;
+12. D-044 registra de forma explícita la exención de P6-20, sin fabricar un `PASS`, y cierra la entrega como versión final técnica con aceptación humana eximida.
 
 ## 2. Historias y criterios de aceptación
 
@@ -89,7 +89,7 @@ La fase termina solo si:
 | A9 | Los ocho módulos permanecen disponibles y no pierden evidencia ni controles. |
 | A10 | Se preservan paleta Viva, logo y tipografías locales; sin librería visual nueva. |
 | A11 | HU-DEMO-505/exportación continúa fuera de alcance. |
-| A12 | El ensayo humano nuevo de ≤10 minutos es bloqueante para aceptación final; D-042 lo difiere a P6-20 y permite continuar P6-15–P6-19. |
+| A12 | Criterio original: ensayo humano nuevo de ≤10 minutos bloqueante. D-044 lo reemplaza por una exención explícita y acepta `R6-H1` como riesgo residual de producto. |
 | A13 | HUMAN-GATE-B no puede aceptar un claim falso o una regresión Must. |
 
 ## 4. Autoridad, compatibilidad y paridad
@@ -125,7 +125,7 @@ Modificar un protegido exige enmienda técnica y aprobación humana. `domain.js`
 - **Wave 6.1:** P6-01–05, catálogo, URL, shell, estado y ayuda.
 - **Wave 6.2:** P6-06–09, extracción CSS serial y vistas con propietarios disjuntos.
 - **Wave 6.3:** P6-10–15, reset, integración, E2E, responsive, preparación del ensayo y checker técnico; P6-14 queda `DEFERRED` por D-042.
-- **Wave 6.4:** P6-16–20, handoff, merge, post-merge, persistencia y testing humano integral final.
+- **Wave 6.4:** P6-16–19 completados; P6-20 cerrado como `WAIVED / NOT RUN` por D-044.
 
 ## 7. Secuencia atómica y write sets cerrados
 
@@ -241,11 +241,11 @@ Todos los paths se resuelven bajo `prototipo_ejecutable/`.
 
 **DoD:** 14 superficies × 3 viewports, 200%, teclado, foco, 44×44, AA, reduced motion, cero overflow/solape/truncamiento.
 
-### P6-14 — Ensayo comercial humano (`PENDING/DEFERRED` por D-042)
+### P6-14 — Ensayo comercial humano (`WAIVED / NOT RUN` por D-044)
 
 **Write set:** `.planning/phases/06-commercial-narrative-qa/COMMERCIAL_REHEARSAL.md`, `.planning/phases/06-commercial-narrative-qa/evidence/rehearsal/*`.
 
-**Protocolo conservado:** lector que no participó en implementación; copia limpia del SHA candidato; registrar SHA, comando, origen limpio y URL exacta. Prompt: `Explora la demo y prepara una recomendación comercial prudente para el escenario visible. Avísame cuando puedas justificarla.` El maker no explica controles ni contenido. D-042 traslada la ejecución a P6-20 sobre Pages y su SHA desplegado; no convierte este paso en `PASS`.
+**Protocolo archivado:** lector que no participó en implementación; copia limpia del SHA candidato; registrar SHA, comando, origen limpio y URL exacta. Prompt: `Explora la demo y prepara una recomendación comercial prudente para el escenario visible. Avísame cuando puedas justificarla.` D-044 exime su ejecución dentro de este plan y no convierte el paso en `PASS`.
 
 **Respuestas esperadas:** cobertura/denominadores; alcance geográfico; exclusión Tipo 7; diferencia respaldada; cambio observado y límite de causalidad.
 
@@ -289,13 +289,13 @@ P6-18 repite el recorrido crítico sobre la URL pública de Pages y verifica que
 
 **Write set en rama documental separada:** `POSTMERGE_REPORT.md`, `.planning/STATE.md`, `.planning/ROADMAP.md`, evidencia post-merge. Tras merge humano de ese PR, F6 queda `deployed and technically verified; human acceptance pending`.
 
-### P6-20 — Testing humano integral final
+### P6-20 — Testing humano integral final (`WAIVED / NOT RUN`)
 
 **Write set en rama documental separada:** `COMMERCIAL_REHEARSAL.md`, `evidence/rehearsal/run-AAAA-MM-DD-alias/*`, `FINAL_HUMAN_ACCEPTANCE.md`, `.planning/STATE.md`, `.planning/ROADMAP.md`.
 
-**Protocolo:** lector nuevo e independiente; URL pública de Pages; SHA completo idéntico al merge desplegado; prompt y rúbrica de `COMMERCIAL_REHEARSAL.md`; sin ayuda del maker; evidencia consentida, mínima y no destructiva.
+**Decisión:** D-044 cancela su ejecución dentro de este plan. El protocolo queda archivado en `COMMERCIAL_REHEARSAL.md`; no se crea ni reutiliza evidencia humana.
 
-**DoD:** `PASS` humano reproducible. `FAIL` o `INVALID` reabre el ciclo correctivo y mantiene bloqueadas las declaraciones `ready for client` y `deployed and verified`.
+**Cierre:** `WAIVED / NOT RUN`, nunca `PASS`. Fase 6 queda `FINAL — deployed and technically verified; human acceptance waived by Product Owner`. Una futura UAT será un trabajo nuevo.
 
 ## 8. Matriz de verificación
 
@@ -306,7 +306,7 @@ P6-18 repite el recorrido crítico sobre la URL pública de Pages y verifica que
 | Compatibilidad | carga/error, 2.0–2.4 y vacíos por etapa | fixtures/resultados |
 | Integración | 6 etapas + 8 rutas + CT-A–I/P | E2E UI-only |
 | Narrativa técnica | cinco claims, límites, prohibiciones y paquete pendiente íntegro | P6-15 |
-| Aceptación humana | recorrido público, cinco claims, límites y prohibiciones | P6-20 |
+| Aceptación humana | no ejecutada; exención explícita y riesgo residual aceptado | D-044 y `FINAL_HUMAN_ACCEPTANCE.md` |
 | Visual | 1440×900, 1280×720, 390×844, 200% | capturas portables |
 | Accesibilidad | teclado, foco, landmarks, AA, reduced motion | pruebas + revisión |
 | Privacidad/red | consultas en memoria, 0 hosts externos | scanner y navegador |
@@ -332,5 +332,5 @@ Ningún rollback puede ocultar evidencia, relajar tests o conservar enlaces roto
 - pérdida de un deep-link existente;
 - claim comercial sin evidencia;
 - colisión de write sets;
-- ensayo humano final fallido o inválido sin hipótesis correctiva;
+- una futura UAT abierta formalmente falla o resulta inválida sin hipótesis correctiva;
 - tres fallos consecutivos del mismo gate sin causa nueva.

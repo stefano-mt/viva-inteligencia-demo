@@ -1,14 +1,14 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-08-11
+**Actualizado:** 2026-08-21
 
 **Milestone:** demo vNext orientada a venta
 
 **Última fase con despliegue técnico verificado:** Fase 6 — narrativa comercial, accesibilidad y QA
 
-**Estado:** Fases 0–5 están oficialmente `deployed and verified`. El PR funcional #17 de Fase 6 fue fusionado y P6-18 verificó Pages con `PASS` para el mismo SHA de merge. P6-19 persiste el resultado técnico. El estado máximo de Fase 6 continúa siendo `deployed and technically verified; human acceptance pending` porque `R6-H1` solo puede cerrarse mediante P6-20.
+**Estado:** plan de desarrollo vNext cerrado. Fases 0–5 están `deployed and verified`; Fase 6 está `FINAL — deployed and technically verified; human acceptance waived by Product Owner`. P6-20 no fue ejecutado y no tiene `PASS`; D-044 acepta `R6-H1` como riesgo residual de producto.
 
-**Rama activa:** `docs/phase-6-postmerge-report`.
+**Rama activa:** `docs/phase-6-final-human-acceptance`.
 
 ## Baseline histórica de Fase 2
 
@@ -273,9 +273,8 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P6-00D: [baseline preimplementación](phases/06-commercial-narrative-qa/BASELINE_BROWSER.md) `PASS`; `npm.cmd run verify`, 8 rutas × 3 viewports, accesibilidad, consola, red y 24 capturas portables verificados sobre `8e760b6`.
 - P6-01–P6-13: completados; catálogo, navegación/URL, shell, estado derivado, ayuda, CSS, seis etapas, reinicio, compatibilidad, E2E y matriz responsive/a11y integrados.
 - P6-14A–P6-14D: correcciones de UX, densidad, jerarquía y copy completadas; commit más reciente `4351adc28950`; `npm.cmd run verify`, responsive y accesibilidad terminaron en `PASS`.
-- P6-14: `PENDING/DEFERRED`. No existe `PASS` humano y no se fabricará evidencia.
-- D-042: el usuario difirió el ensayo a P6-20 y aceptó únicamente `R6-H1 — validación humana diferida`; esto habilita P6-15–P6-19, no merge automático ni aceptación final.
-- Estado máximo antes de P6-20: `deployed and technically verified; human acceptance pending`.
+- P6-14: `WAIVED / NOT RUN`. No existe `PASS` humano y no se fabricó evidencia.
+- D-042 difirió inicialmente el ensayo a P6-20; D-044 reemplaza esa obligación y acepta `R6-H1 — validación humana diferida` como riesgo residual fuera del cierre del plan.
 - P6-15: [verificación formal independiente](phases/06-commercial-narrative-qa/VERIFICATION_REPORT.md) `PASS WITH RISKS` sobre `a94f251`; `npm.cmd run verify`, browser adversarial, Graphify, responsive/a11y y write sets en PASS.
 - P6-15A: [plan correctivo](phases/06-commercial-narrative-qa/P6-15A-CORRECTIVE-PLAN.md) completado en `8740182` y `a94f251`; G1–G5 cerrados con paridad DOM↔estado, nulos honestos y respuesta de seis bloques con referencias progresivas.
 - Auditoría P6-15A: `8740182..a94f251` contiene 8 paths y 0 violaciones; contrato, datos, writer, motores, navegación y workflow permanecen intactos.
@@ -285,15 +284,18 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P6-17: PR funcional [#17](https://github.com/stefano-mt/viva-inteligencia-demo/pull/17) fusionado por el usuario; head `cb52acce482b1b6d58fbc386e6898198c69adf0f` y merge `12cefbf82a4971d75e1578d962f510b06fc0b457`.
 - Workflow Pages: [run 31535245095](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/31535245095), `success` para el mismo SHA de merge.
 - P6-18: [verificación post-merge](phases/06-commercial-narrative-qa/POSTMERGE_REPORT.md) `PASS`; 14 superficies × 3 viewports, recorrido crítico, reinicio, consola y recursos verificados sobre Pages.
-- P6-19: resultado técnico persistido en una rama documental separada mediante el PR [#18](https://github.com/stefano-mt/viva-inteligencia-demo/pull/18), abierto y pendiente de merge humano; no modifica runtime, datos, tests, estilos, activos o comportamiento.
-- Estado técnico de Fase 6: **`deployed and technically verified; human acceptance pending`**.
-- Único riesgo residual: `R6-H1 — validación humana diferida`; no existen gaps técnicos abiertos, pero P6-20 sigue siendo bloqueante para venta.
+- P6-19: resultado técnico persistido mediante el PR [#18](https://github.com/stefano-mt/viva-inteligencia-demo/pull/18), fusionado por el usuario; merge `1b33bd682b63673e4bcda5c7a8875142ff351b34`.
+- Workflow Pages posterior a P6-19: [run 31540605465](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/31540605465), `success` para `1b33bd682b63673e4bcda5c7a8875142ff351b34`.
+- P6-20: [protocolo](phases/06-commercial-narrative-qa/COMMERCIAL_REHEARSAL.md) archivado y [acta final](phases/06-commercial-narrative-qa/FINAL_HUMAN_ACCEPTANCE.md) cerrada como `WAIVED / NOT RUN` por D-044.
+- Estado final de Fase 6: **`FINAL — deployed and technically verified; human acceptance waived by Product Owner`**.
+- Riesgo residual aceptado: `R6-H1 — validación humana diferida`. No existen gaps técnicos abiertos; cualquier prueba humana futura será una UAT separada.
 
 ## Próxima acción recomendada
 
-1. Publicar y fusionar mediante revisión humana el PR exclusivamente documental de P6-19.
-2. Ejecutar P6-20 con un lector nuevo sobre Pages y el SHA `12cefbf82a4971d75e1578d962f510b06fc0b457`.
-3. Mantener bloqueadas las declaraciones `ready for client` y `deployed and verified` hasta un `PASS` humano reproducible.
+1. Revisar y fusionar el PR documental de cierre final.
+2. Presentar la URL pública como versión final técnica, conservando los límites de datos y evidencia visibles.
+3. No afirmar que hubo validación de usuarios o aceptación humana.
+4. Si se decide probar con usuarios posteriormente, abrir una UAT nueva y usar el protocolo archivado sin reescribir D-044.
 
 ## Regla para actualizar este archivo
 

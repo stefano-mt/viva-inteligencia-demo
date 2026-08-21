@@ -1,6 +1,6 @@
 # Fase 6 — Contexto de narrativa comercial, accesibilidad y QA
 
-**Estado:** ejecución técnica; P6-14 diferido a P6-20 por D-042.
+**Estado:** cerrado por D-044; P6-14 y P6-20 `WAIVED / NOT RUN`.
 
 **Rama:** `feat/phase-6-commercial-narrative-qa`.
 
@@ -27,7 +27,7 @@ La demo ya contiene ocho módulos correctos, ayudas por sección y navegación a
 - varias páginas superan cinco pantallas de laptop y obligan a descubrir el orden mediante scroll;
 - el usuario puede abrir evidencia, pero debe inferir por qué ese hallazgo conduce al siguiente módulo;
 - el reinicio recompone el escenario, pero no existe un contrato explícito para reiniciar el recorrido;
-- el gate narrativo vigente fue automatizado; falta un ensayo humano integral bloqueante antes de declarar la demo lista para venta.
+- al inicio de la fase, el gate narrativo vigente era automatizado y el plan exigía un ensayo humano integral; D-044 eximió posteriormente ese gate y aceptó el riesgo residual.
 
 ## 3. Baseline técnico y de producto
 
@@ -110,7 +110,7 @@ Los Should ya implementados en F3–F5 se conservan. HU-DEMO-505/exportación pe
 6. No cargar una tipografía o librería externa.
 7. No usar hover como única vía de comprensión.
 8. No depender solo del color para etapa, calidad o progreso.
-9. No hacer merge automático; HUMAN-GATE-A precede runtime y, por D-042, el ensayo humano forma parte del gate final de aceptación en P6-20.
+9. No hacer merge automático; HUMAN-GATE-A precede runtime. D-044 exime el ensayo P6-20 y conserva su ausencia como riesgo residual explícito.
 
 ## 8. Riesgos principales
 
@@ -122,9 +122,9 @@ Los Should ya implementados en F3–F5 se conservan. HU-DEMO-505/exportación pe
 | Cambiar `/` rompe deep-links o tests | Alta | conservar aliases; probar `/`, hashes legacy, atrás/adelante y recarga |
 | Un stepper genérico no mejora la venta | Media | cada etapa codifica una decisión real y produce un resultado específico |
 | Densidad reaparece en móvil/200% | Media | presupuesto de contenido, divulgación progresiva y gate geométrico |
-| El ensayo automatizado oculta confusión humana | Alta | ensayo humano nuevo, cronometrado y bloqueante en P6-20 antes de declarar `ready for client` |
+| El ensayo automatizado puede ocultar confusión humana | Alta | D-044 acepta el riesgo y traslada cualquier ensayo real a una UAT futura fuera de este plan |
 
-## 9. Criterio de éxito
+## 9. Criterio de éxito original y cierre aprobado
 
 La aceptación humana final exige que un usuario nuevo inicie el recorrido, complete seis etapas, abra mapa e inspector, llegue a una decisión prudente y pueda explicar:
 
@@ -134,4 +134,4 @@ La aceptación humana final exige que un usuario nuevo inicie el recorrido, comp
 4. qué diferencias están respaldadas por evidencia;
 5. qué cambió y qué no puede afirmar el asistente.
 
-Debe lograrlo en no más de diez minutos, sin consultar código ni recibir instrucciones del implementador. D-042 permite continuar la secuencia técnica antes de esta prueba, pero no permite declarar la demo lista para cliente sin su `PASS`.
+Debía lograrlo en no más de diez minutos, sin consultar código ni recibir instrucciones del implementador. Este criterio humano no fue ejecutado: D-044 lo exime explícitamente y cierra la versión como final técnica, sin afirmar validación humana. Una prueba posterior será UAT nueva y no una reapertura implícita del desarrollo concluido.
