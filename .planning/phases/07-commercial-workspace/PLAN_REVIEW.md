@@ -1,102 +1,100 @@
 # Fase 7 — Revisión estructural independiente del plan
 
-**Paso:** P7-00B.
+**Paso:** P7-00B, segunda ejecución.
 
 **Checker:** `/root/p7_00b_plan_checker`.
 
 **Fecha:** 2026-08-21.
 
-**Commit revisado:** `3907f274a3ce8bb9966a5c5e9e174c0d85973fd8`.
+**HEAD revisado:** `9ecf1d79186c11a78fc7af2970d1b1d297d45eb8`.
 
 **Veredicto:** `FAIL`.
 
-P7-00C permanece bloqueado. No se encontraron hallazgos P0 o P1, pero tres hallazgos P2 impiden afirmar que el plan sea delegable sin ambigüedad y que la promesa de cero pérdida de claims sea verificable.
+P7-00C permanece bloqueado. El correctivo cerró DAG, rutas y catálogo de sinónimos, pero `CLAIMS-INVENTORY.md` aún contiene dos P2 que impiden materializar C01–C16 “sin reinterpretación” y podrían convertir una limitación de datos en un claim incorrecto.
 
 ## Alcance y método
 
-Se leyeron completos `AGENTS.md`, `.planning/STATE.md`, `.planning/PROJECT.md`, `.planning/ROADMAP.md`, `.planning/VERIFICATION.md` y los seis documentos vigentes de Fase 7: `CONTEXT.md`, `UX-AUDIT.md`, `UI-SPEC.md`, `PLAN.md`, `HUMAN-GATE-A-REQUEST.md` y la reserva previa de este informe.
+Se releyeron completos los documentos modificados de Fase 7: `CONTEXT.md`, `UI-SPEC.md`, `PLAN.md` y `CLAIMS-INVENTORY.md`. Se contrastaron sus cambios con las fuentes de verdad ya leídas en la primera ejecución, con la compatibilidad aprobada de Fase 6 y con la semántica geográfica de Fase 2.
 
-También se ejecutaron inspecciones read-only de Git:
+Inspecciones read-only ejecutadas:
 
 ```text
-git show --stat --name-status 3907f27
-git diff-tree --no-commit-id --name-only -r 3907f27
-git ls-files <rutas dirigidas de vistas, estilos y tests>
-rg -n <tareas, write sets, claims y rutas de Fase 7>
+git status --short --branch
+git show --stat --name-status 9ecf1d7
+git diff-tree --no-commit-id --name-only -r 9ecf1d7
+git diff --check 9ecf1d7^ 9ecf1d7
+Test-Path sobre todos los write_set de P7-01–P7-09
+rg dirigido sobre DAG, rutas, marcadores (nuevo), C01–C16 y autoridades F2/F6
 ```
 
-No se ejecutaron tests de runtime porque P7-00B revisa el plan y el commit no contiene implementación. No se leyó ni tocó el directorio no rastreado de evidencia de Fase 6.
+No se ejecutaron tests de runtime: esta repetición revisa planificación y el commit no contiene implementación. No se leyó ni tocó el directorio no rastreado de evidencia de Fase 6.
+
+## Estado de los hallazgos iniciales
+
+| Hallazgo de la primera ejecución | Estado en `9ecf1d7` | Evidencia |
+|---|---|---|
+| Colisiones sin DAG/serialización | CERRADO | `PLAN.md` §5 declara secuencia estricta y autoriza paralelismo solo entre P7-06A/B/C y P7-07A/B/C. |
+| Rutas de write set ambiguas | CERRADO | P7-01–P7-09 usan rutas repo-relative completas; los archivos inexistentes están marcados `(nuevo)`. La comprobación dirigida no encontró marcador falso ni archivo existente marcado como nuevo. |
+| Falta de inventario de claims | PARCIAL | Existe `CLAIMS-INVENTORY.md`, P7-01 lo materializa y P7-02/P7-04–P7-10 declaran consumo; quedan inconsistencias de contenido/esquema detalladas abajo. |
+| Sinónimos de `Ir a…` abiertos | CERRADO | `UI-SPEC.md` fija nueve destinos, términos admitidos y exclusión explícita de valores de datos; P7-03 materializa exactamente ese catálogo. |
 
 ## Resultado por área
 
-| Área | Resultado | Evidencia |
-|---|---|---|
-| Coherencia de objetivo | PASS | `CONTEXT.md`, `UX-AUDIT.md` y `UI-SPEC.md` convergen en lectura principal, filas, detalle progresivo y una acción primaria. |
-| HU-DEMO-805–810 | PASS condicionado | Las seis historias tienen criterios observables en `PLAN.md`; la trazabilidad de claims y los sinónimos de HU-810 requieren los cierres indicados abajo. |
-| Contrato, datos y motores | PASS | A1/A12 y §4 de `PLAN.md` protegen contrato 2.4, dataset, writer, fingerprints, engines, elegibilidad y workflow. |
-| Rutas y recorrido | PASS | Se enumeran los ocho deep-links, las seis etapas, `/` → `#journey/scale` y el reset canónico. |
-| Accesibilidad | PASS | Se especifican foco atrapado/retorno, Escape, teclado, 44×44 px, AA, `aria-current`, reflow 200% y reduced motion. |
-| Responsive y pruebas | PASS condicionado | La matriz cubre 14 superficies, tres viewports, 200%, CT-A–I/P, privacidad, red y paridad; falta cerrar el contrato exacto de claims. |
-| Rollback | PASS | §8 define reversión por tarea y del PR completo sin relajar pruebas ni conservar imports huérfanos. |
-| Referencias visuales | PASS | `CONTEXT.md` §3 y `UI-SPEC.md` adoptan patrones, conservan identidad Viva y prohíben copiar marca, colores, iconografía o composición de Attio. |
-| Commit de planificación | PASS | `3907f27` cambia únicamente nueve archivos bajo `.planning/`; no modifica runtime, tests, datos, estilos ni workflow. |
+| Área | Resultado |
+|---|---|
+| HU-DEMO-805–810 y A1–A14 | PASS condicionado al cierre del inventario |
+| DAG y colisiones | PASS |
+| Rutas repo-relative y marcadores `(nuevo)` | PASS |
+| Contrato/datos/motores/workflow protegidos | PASS |
+| Ocho deep-links, seis etapas y reset | PASS |
+| Accesibilidad, responsive, rollback y pruebas | PASS condicionado a C01–C16 |
+| Referencias visuales sin copiar identidad | PASS |
+| Cero runtime en el correctivo | PASS |
+| Inventario/materialización C01–C16 | FAIL |
 
-## Hallazgos
+## Hallazgos vigentes
 
-### P2 — Las olas no resuelven colisiones reales de `write_set`
+### P2 — C02 contradice la semántica geográfica autoritativa
 
-`PLAN.md` agrupa P7-01–03 en Wave 7.1, P7-04–07 en Wave 7.2 y P7-08–10 en Wave 7.3, pero no declara un DAG ni orden obligatorio dentro de cada ola. Existen colisiones concretas:
+`CLAIMS-INVENTORY.md` C02 define “90 observados, 85 comparables, 5 fuera/por revisar”. La fuente de verdad de Fase 2 establece cinco proyectos **observados no reconciliados**, visibles y excluidos de comparabilidad; incluso documenta un observado dentro del alcance pero no reconciliado. No son cinco proyectos “fuera”.
 
-- P7-01, P7-02 y P7-03 escriben `package.json`; P7-01/P7-03 escriben el manifiesto `public/styles.css`; P7-02/P7-03 escriben `public/app.js`.
-- P7-04 y P7-05 escriben `package.json` dentro de la misma Wave 7.2.
-- P7-08 y P7-09 escriben `tests/browser-a11y.mjs` y `package.json` dentro de la misma Wave 7.3.
+La expresión actual mezcla exclusión territorial con reconciliación de identidad. Si P7-01 la materializa, una prueba podría obligar a publicar una explicación geográfica falsa.
 
-La frase “secuencia atómica” no indica si una ola habilita paralelismo. Esto contradice la regla de `AGENTS.md`: dos tareas que declaran el mismo archivo no pueden ejecutarse en paralelo.
+**Condición de cierre:** sustituir “5 fuera/por revisar” por “5 observados no reconciliados/por revisar” y hacer que autoridad/assertion comprueben explícitamente que permanecen visibles como cobertura excluida de comparabilidad, sin llamarlos fuera del distrito o polígono.
 
-**Condición de cierre:** añadir dependencias explícitas —por ejemplo P7-01 → P7-02 → P7-03 y P7-08 → P7-09— y serializar P7-04/P7-05, o asignar los archivos compartidos a un integrador único posterior. La tabla de olas debe distinguir tareas seriales de subtareas realmente paralelizables.
+### P2 — El contrato del fixture no puede representar varias entradas C01–C16 sin reinterpretación
 
-### P2 — Varios `write_set` no usan rutas canónicas e inequívocas
+El contrato exige un `route` singular y un `visibility` con exactamente `mandatory` o `reachable`, mientras que la matriz contiene:
 
-Los write sets combinan rutas completas con abreviadas. Ejemplos:
+- C04 con dos rutas escritas como `#dashboard/#projects`, sin sintaxis de patrón definida;
+- C12 con dos niveles de visibilidad, `mandatory/reachable`, en una sola entrada;
+- C14 sin hash/patrón de ruta y sin afirmar que 2.0 falla globalmente, no como capacidad interna por etapa;
+- C15 para cuatro contratos y “CTA por ruta” sin matriz de rutas/capacidades;
+- C16 para múltiples estados en “cada ruta” sin fixtures ni rutas enumerados.
 
-- P7-01 declara `public/styles/00-tokens.css` y luego `10-base.css`, `30-components.css`, `styles.css`.
-- P7-02 declara `public/styles/20-shell.css` y luego `25-scenario-context.css`.
-- P7-04 declara `public/styles/50-views.css` y luego `61-journey.css`.
-- P7-06/P7-07 declaran `views/inspector.js`, `styles/55-inspector.css`, etc.; los archivos rastreados reales viven bajo `prototipo_ejecutable/public/js/views/` y `prototipo_ejecutable/public/styles/`.
+Esto contradice P7-01, que promete materializar C01–C16 “sin reinterpretación”. También deja abierta una regresión ya cerrada en Fase 6: contrato 2.0 debe conservar el error global y no convertirse en `capability_unavailable` interno.
 
-La nota “bajo `prototipo_ejecutable/`” solo aparece en P7-01 y no resuelve las demás tareas. Un delegado no puede distinguir de forma contractual entre una ruta abreviada, un archivo nuevo y un error.
+**Condición de cierre:** normalizar el contrato antes de P7-01. Puede hacerse definiendo arrays tipados de `routes`/`assertions`, o dividiendo entradas en casos estables —por ejemplo C04a/C04b y C12a/C12b—, pero cada caso debe fijar ruta o patrón válido, versión/fixture, autoridad, assertion y una sola visibilidad. C14 debe exigir `global load error` para 2.0; C15 debe enumerar la capacidad esperada por versión/ruta; C16 debe enumerar los estados/fixtures mínimos que realmente se ejecutarán.
 
-**Condición de cierre:** expresar cada ruta de P7-01–P7-09 en forma repo-relative completa, incluida `prototipo_ejecutable/`, y declarar explícitamente cuáles archivos son nuevos.
+## Confirmaciones adicionales
 
-### P2 — La protección de claims carece del inventario y contrato ejecutable prometidos
+- El DAG elimina las colisiones de `package.json`, `public/app.js`, `public/styles.css` y `tests/browser-a11y.mjs`.
+- Las seis subtareas paralelas P7-06A/B/C y P7-07A/B/C tienen write sets disjuntos.
+- Todos los paths P7-01–P7-09 existen o están correctamente marcados `(nuevo)`; P7-08 consume, pero no recrea, `commercial-claims.mjs`.
+- `9ecf1d7` modifica solo siete archivos bajo `.planning/`; no toca runtime, tests, datos, estilos, assets ni workflow.
+- No aparecieron contradicciones nuevas en A1–A14, rutas, accesibilidad, rollback o identidad visual. Las únicas contradicciones nuevas están acotadas al inventario descrito.
 
-`CONTEXT.md` §11 trata la pérdida de contexto como riesgo alto y propone “inventario de claims protegidos y pruebas DOM↔modelo”. `PLAN.md` exige cero pérdida de claim, denominador, exclusión o referencia y P7-08/P7-10 mencionan tests de claims, pero ninguna tarea crea o posee ese inventario.
+## Historial de P7-00B
 
-El caso Tipo 7 sí está concretado (`104.15 m²`, `53.37 m²`, `50.78 m²` y exclusión), pero no existe una matriz equivalente por ruta para otros límites decisivos: naturaleza publicada/orientativa/simulada, denominadores de benchmark, pairing no demostrado, causa histórica nula, referencias autorizadas y degradación legacy.
+- Primera ejecución sobre `3907f27`: `FAIL` por tres P2 y un P3.
+- Acta inicial persistida en `cb0af8e` (`docs: record phase 7 plan review findings`).
+- Correctivo documental `9ecf1d7`: cerró DAG, rutas y sinónimos; la segunda ejecución permanece en `FAIL` por dos P2 del contrato C01–C16.
 
-Sin una fuente explícita, un test DOM↔estado puede preservar cifras y aun perder una advertencia cualitativa que cambia su interpretación.
+## Condiciones para una tercera ejecución
 
-**Condición de cierre:** incorporar antes de P7-04 un inventario versionado o fixture ejecutable con `ruta → escenario/fixture → claim/valor/límite → origen autoritativo → selector/assertion → visibilidad obligatoria o alcanzable`. Asignar su `write_set` y hacer que P7-04–P7-10 lo consuman. Debe cubrir como mínimo Tipo 7, denominadores/exclusiones del benchmark, comparación vacía, causa nula del histórico, carácter simulado del escenario, referencias del asistente y degradación 2.0–2.4.
+1. Corregir C02 y normalizar C04/C12/C14/C15/C16.
+2. Mantener P7-01 como único writer del fixture y P7-02/P7-04–P7-10 como consumidores/auditores según el plan.
+3. Mantener cero runtime hasta HUMAN-GATE-A.
+4. Entregar el nuevo SHA documental y repetir coherencia, materialización, cobertura C01–C16 y diff de runtime.
 
-### P3 — El catálogo de sinónimos de `Ir a…` aún no está cerrado
-
-HU-DEMO-810 exige “sinónimos aprobados”, pero `UI-SPEC.md` solo enumera los nueve destinos. Esto no bloquea por sí solo la arquitectura, aunque deja un criterio abierto a interpretación del implementador.
-
-**Recomendación:** fijar el pequeño catálogo de sinónimos en `UI-SPEC.md`, `PLAN.md` o un fixture de P7-03 y verificar que no incluya nombres de proyectos/datos que hagan parecer global a la paleta.
-
-## Auditoría de historias y supuestos
-
-- HU-DEMO-805/806/807/808/809 tienen criterio, tarea propietaria, prueba prevista y rollback proporcional.
-- HU-DEMO-810 tiene interacción y accesibilidad definidas; queda pendiente cerrar sus sinónimos.
-- A1–A14 son consistentes con el alcance, el cierre de Fase 6 y la autoridad humana sobre merge. Ningún supuesto autoriza cambios de datos, motores, contrato o workflow.
-- A13 preserva correctamente que una UAT humana no forma parte de esta fase; no convierte la exención histórica de Fase 6 en aceptación de usuario.
-
-## Condiciones para repetir P7-00B
-
-1. Corregir los tres P2 en `PLAN.md` y, donde corresponda, `CONTEXT.md`/`UI-SPEC.md`.
-2. Mantener el runtime sin cambios hasta HUMAN-GATE-A.
-3. Entregar al checker el nuevo SHA y diff documental.
-4. Repetir la auditoría de write sets y verificar que no queden colisiones simultáneas.
-5. Verificar trazabilidad HU-DEMO-805–810 y que el inventario de claims sea consumible por P7-04–P7-10.
-
-Hasta entonces, no corresponde solicitar la aceptación de A1–A14 ni iniciar P7-00D/P7-01.
+Hasta obtener `PASS`, no corresponde solicitar A1–A14 ni iniciar P7-00D/P7-01.
