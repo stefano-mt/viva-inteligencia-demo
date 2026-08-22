@@ -162,7 +162,7 @@ P7-00A → P7-00B PASS → P7-00C APPROVED → P7-00D
 
 **Write set:** `prototipo_ejecutable/public/styles/00-tokens.css`, `prototipo_ejecutable/public/styles/10-base.css`, `prototipo_ejecutable/public/styles/30-components.css`, `prototipo_ejecutable/public/styles.css`, `prototipo_ejecutable/tests/fixtures/commercial-claims.json` (nuevo), `prototipo_ejecutable/tests/commercial-claims.mjs` (nuevo), `prototipo_ejecutable/tests/commercial-density.mjs` (nuevo), `prototipo_ejecutable/tests/style-ownership.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** tipografía, spacing, filas, toolbar, decision-line, disclosures y action hierarchy disponibles; `CLAIMS-INVENTORY.md` se materializa sin reinterpretación como fixture C01–C16 y prueba base; no cambia una vista todavía; ownership CSS y sintaxis pasan.
+**DoD:** tipografía, spacing, filas, toolbar, decision-line, disclosures y action hierarchy disponibles; `CLAIMS-INVENTORY.md` se materializa sin reinterpretación como fixture C01–C23 y prueba base; `all_surfaces` se expande literalmente a 14 rutas; no cambia una vista todavía; ownership CSS y sintaxis pasan.
 
 ### P7-02 — Shell y escenario compacto
 
@@ -180,13 +180,13 @@ P7-00A → P7-00B PASS → P7-00C APPROVED → P7-00D
 
 **Write set:** `prototipo_ejecutable/public/js/views/journey.js`, `prototipo_ejecutable/public/js/views/dashboard.js`, `prototipo_ejecutable/public/styles/50-views.css`, `prototipo_ejecutable/public/styles/61-journey.css`, `prototipo_ejecutable/tests/commercial-journey-dashboard.mjs` (nuevo), `prototipo_ejecutable/package.json`.
 
-**DoD:** pregunta/lectura/límite/CTA y mapa aparecen antes del detalle; paridad de seis etapas y Radar intacta; formulario y metodología progresivos; C01–C04/C14–C16 pasan contra el fixture read-only.
+**DoD:** pregunta/lectura/límite/CTA y mapa aparecen antes del detalle; paridad de seis etapas y Radar intacta; formulario y metodología progresivos; C01–C04/C15–C23 pasan contra el fixture read-only.
 
 ### P7-05 — Proyectos por filas
 
 **Write set:** `prototipo_ejecutable/public/js/views/projects.js`, `prototipo_ejecutable/public/styles/62-projects.css`, `prototipo_ejecutable/tests/commercial-projects.mjs` (nuevo), `prototipo_ejecutable/tests/journey-projects-handoff.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** toolbar compacta, lista semántica, selección y detalle; precio/área/estado/score legibles; filtros, límite, orden y deep-link preservados; C04–C05/C14–C16 pasan contra el fixture read-only.
+**DoD:** toolbar compacta, lista semántica, selección y detalle; precio/área/estado/score legibles; filtros, límite, orden y deep-link preservados; C04–C05/C15–C23 pasan contra el fixture read-only.
 
 ### P7-06 — Inspector, Benchmark y Comparador
 
@@ -196,7 +196,7 @@ Subtareas separables solo con write sets disjuntos:
 - **B Benchmark:** `prototipo_ejecutable/public/js/views/market.js`, `prototipo_ejecutable/public/styles/56-benchmark.css`, `prototipo_ejecutable/tests/commercial-benchmark.mjs` (nuevo).
 - **C Comparador:** `prototipo_ejecutable/public/js/views/compare.js`, `prototipo_ejecutable/public/styles/57-comparison.css`, `prototipo_ejecutable/tests/commercial-compare.mjs` (nuevo).
 
-**DoD:** conclusión primero, ledgers por filas, evidencia progresiva; C06–C10/C14–C16 pasan contra el fixture read-only.
+**DoD:** conclusión primero, ledgers por filas, evidencia progresiva; C06–C10/C15–C23 pasan contra el fixture read-only.
 
 ### P7-07 — Asistente, Checklist y Señales
 
@@ -206,25 +206,25 @@ Subtareas separables solo con write sets disjuntos:
 - **B Checklist:** `prototipo_ejecutable/public/js/views/checklist.js`, `prototipo_ejecutable/public/styles/63-checklist.css`, `prototipo_ejecutable/tests/commercial-checklist.mjs` (nuevo).
 - **C Señales:** `prototipo_ejecutable/public/js/views/activity.js`, `prototipo_ejecutable/public/styles/58-history-signals.css`, `prototipo_ejecutable/tests/commercial-activity.mjs` (nuevo).
 
-**DoD:** consulta primero, requisitos/señales en filas, agenda antes del detalle; C11–C13/C14–C16 pasan contra el fixture read-only.
+**DoD:** consulta primero, requisitos/señales en filas, agenda antes del detalle; C11–C14/C15–C23 pasan contra el fixture read-only.
 
 ### P7-08 — Integración y regresiones
 
 **Write set:** `prototipo_ejecutable/tests/commercial-workspace-e2e.mjs` (nuevo), `prototipo_ejecutable/tests/browser-smoke.mjs`, `prototipo_ejecutable/tests/browser-a11y.mjs`, `prototipo_ejecutable/tests/journey-dom-parity.mjs`, `prototipo_ejecutable/tests/commercial-claims.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** C01–C16, 6+8 rutas, 2.0–2.4, CT-A–I/P, deep-link, reset, historial, asistente, escenario y paleta pasan; cero `NaN`, infinito, red o persistencia. El fixture de claims es read-only.
+**DoD:** C01–C23, 6+8 rutas, 2.0–2.4, CT-A–I/P, deep-link, reset, historial, asistente, escenario y paleta pasan; cero `NaN`, infinito, red o persistencia. El fixture de claims es read-only.
 
 ### P7-09 — Responsive, contraste y zoom 200%
 
 **Write set:** `prototipo_ejecutable/public/styles/90-responsive.css`, `prototipo_ejecutable/tests/phase7-responsive.mjs` (nuevo), `prototipo_ejecutable/tests/browser-a11y.mjs`, `.planning/phases/07-commercial-workspace/evidence/responsive/*` (nuevo), `prototipo_ejecutable/package.json`.
 
-**DoD:** 14 superficies × 3 viewports, 200%, teclado, foco, 44×44, AA, reduced motion, cero overflow/solape/truncamiento crítico; C01–C16 permanecen visibles/alcanzables según fixture read-only; criterios visuales de `UI-SPEC.md` medidos.
+**DoD:** 14 superficies × 3 viewports, 200%, teclado, foco, 44×44, AA, reduced motion, cero overflow/solape/truncamiento crítico; C01–C23 permanecen visibles/alcanzables según fixture read-only; criterios visuales de `UI-SPEC.md` medidos.
 
 ### P7-10 — Verificación formal independiente
 
 **Write set:** `.planning/phases/07-commercial-workspace/VERIFICATION_REPORT.md` (nuevo), `.planning/phases/07-commercial-workspace/evidence/verification/*` (nuevo).
 
-**Checks:** suite integral, browser adversarial, Graphify, diff/write sets/DAG, paridad DOM↔estado, cobertura C01–C16 contra autoridades, responsive y evidencia. El checker no modifica el fixture.
+**Checks:** suite integral, browser adversarial, Graphify, diff/write sets/DAG, paridad DOM↔estado, cobertura C01–C23 contra autoridades, responsive y evidencia. El checker no modifica el fixture.
 
 **DoD:** `PASS`; `PASS WITH RISKS` requiere HUMAN-GATE-B; `FAIL` reabre correctivo.
 

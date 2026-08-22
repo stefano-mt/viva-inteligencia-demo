@@ -22,55 +22,75 @@ P7-04–P7-09 consumen el fixture como lectura; solo P7-01 puede escribirlo. P7-
 
 ## 2. Contrato del fixture
 
-Cada entrada debe contener:
+Cada entrada materializada debe contener exactamente:
 
-| Campo | Regla |
+| Campo | Tipo/regla |
 |---|---|
-| `id` | identificador estable |
-| `route` | hash o patrón de etapa |
-| `fixture` | escenario/contrato/caso necesario |
-| `claim` | valor o estado que debe preservar la UI |
+| `id` | string estable `C01`–`C23` |
+| `routes` | array no vacío de hashes exactos o nombre de route set definido abajo |
+| `fixture` | un único escenario/contrato/caso ejecutable |
+| `claim` | un único valor o estado que debe preservar la UI |
 | `qualifier` | límite/procedencia inseparable del claim |
 | `authority` | selector, motor o bloque autoritativo |
-| `assertion` | texto/atributo/relación DOM a verificar |
-| `visibility` | `mandatory` o `reachable` |
-| `corrective_action` | acción requerida en estados no listos, si aplica |
+| `assertions` | array no vacío de aserciones DOM/modelo concretas |
+| `visibility` | exactamente `mandatory` o `reachable` |
+| `corrective_action` | string o `null`; acción requerida en estados no listos |
 
 `mandatory` significa visible sin abrir ayuda o metodología. `reachable` admite divulgación accesible en máximo una interacción. Una entrada no puede aprobarse solo porque el texto exista oculto por CSS o fuera del árbol accesible.
 
-## 3. Matriz mínima
+Route set permitido:
 
-| ID | Ruta/fixture | Claim protegido | Calificador inseparable | Autoridad | Assertion/visibilidad |
-|---|---|---|---|---|---|
-| C01 | `#journey/scale`, 2.4 default | 184 agencias modeladas | 30/22/5 son niveles anidados del piloto; no se suman | `metadata.counts`, `pilot.counts`, `journeyContext.scale` | valores + diferencia de denominadores, `mandatory` |
-| C02 | `#journey/geography`, Miraflores distrito | 90 observados, 85 comparables, 5 fuera/por revisar | los conteos pertenecen al escenario activo | `scenarioContext`, `geographyArtifact` | escenario + conteos, `mandatory` |
-| C03 | `#dashboard`, escenario con objetivo | diagnóstico del escenario Viva | objetivo/resultado Viva es simulado, no precio observado ni de cierre | `scenarioState`, modelo de diagnóstico vigente | lectura + etiqueta `simulado`, `mandatory` |
-| C04 | `#dashboard`/`#projects`, Miraflores | publicaciones de precio/área disponibles | no existe pairing certificado por unidad; no producir precio/m² elegible | `scenarioContext`, elegibilidad vigente | límite junto a lectura o toolbar, `mandatory` |
-| C05 | `#projects`, default | 85 comparables por escenario | comparable no implica que todos sus campos sean utilizables | `scenarioContext`, catálogo vigente | conteo + límite alcanzable en una interacción, `reachable` |
-| C06 | `#inspector/case/f3-ct-g-pardo` | 104.15 m² tarjeta, 53.37 m² plano, diferencia 50.78 m² | fuentes incompatibles; registro excluido del precio/m² certificado | caso F3 `case:f3-ct-g-pardo` | tres valores + exclusión, `mandatory` |
-| C07 | `#market`, default 2.4 | denominadores del benchmark | distinguir usadas, faltantes y excluidas; naturaleza orientativa cuando aplique | `benchmarkContext` | `n` y partición/estado, `mandatory` |
-| C08 | `#market`, Miraflores | 69 publicaciones raw, 68 cocientes orientativos y 0 parejas elegibles | cociente orientativo no es benchmark certificado ni precio de cierre | `benchmarkContext`, dataset 2.4 | valores + `orientativo`/`0 elegibles`, `mandatory` |
-| C09 | `#compare`, selección vacía | comparación no disponible todavía | no generar conclusión ni proyecto implícito | `comparisonContext`/selección vigente | estado vacío + CTA, `mandatory` |
-| C10 | `#compare`, proyectos seleccionados | diferencias por atributos | referencias y denominadores permanecen asociados a cada diferencia | motor de comparación vigente | conclusión + referencia alcanzable, `reachable` |
-| C11 | `#activity`, evento con `cause=null` | cambio publicado anterior/nuevo y vigencia | causa no observada; no atribuir causalidad | `historyContext` | cambio + fecha/estado + causa no observada, `mandatory` |
-| C12 | `#assistant`, respuesta vigente | seis bloques autoritativos y referencias autorizadas | no cierre, predicción o causalidad; consulta en memoria y sin red | `state.assistantResponse`, catálogo 2.4 | conclusión/límite visibles y referencias alcanzables, `mandatory`/`reachable` |
-| C13 | `#trust`, escenario bloqueado | condición de avance y requisitos pendientes | progreso no equivale a certificación ni readiness comercial | checklist vigente | estado + condición, `mandatory` |
-| C14 | contrato 2.0 | capacidad global no disponible | no mezclar fragmentos de contratos posteriores | validación/compatibilidad vigente | mensaje + acción correctiva, `mandatory` |
-| C15 | contratos 2.1–2.4 | capacidades según versión | ausencia técnica no se presenta como vacío de negocio | matriz de compatibilidad F6 | estado `capability_unavailable` + CTA por ruta, `mandatory` |
-| C16 | loading/error/insufficient | nulo honesto | nunca `0`, `NaN`, infinito o dato obsoleto para un valor ausente | contexto autoritativo de cada ruta | fallback + acción correctiva, `mandatory` |
+```text
+all_surfaces = [
+  #journey/scale, #journey/geography, #journey/quality,
+  #journey/depth, #journey/movement, #journey/decision,
+  #dashboard, #projects, #inspector, #market,
+  #compare, #trust, #assistant, #activity
+]
+```
+
+P7-01 expande `all_surfaces` al array literal anterior dentro del JSON; ninguna otra wildcard o ruta implícita está permitida.
+
+## 3. Matriz mínima normalizada
+
+| ID | Rutas exactas/route set | Fixture único | Claim + calificador | Autoridad | Assertions | Visibilidad / CTA |
+|---|---|---|---|---|---|---|
+| C01 | `["#journey/scale"]` | `contract-2.4-default` | 184 agencias modeladas; 30/22/5 son niveles anidados del piloto y no se suman | `metadata.counts`, `pilot.counts`, `journeyContext.scale` | 184, 30, 22 y 5; etiqueta de denominadores | `mandatory` / `null` |
+| C02 | `["#journey/geography"]` | `miraflores-district-default` | 90 observados, 85 comparables y 5 observados no reconciliados/por revisar; permanecen visibles como cobertura excluida de comparabilidad y no se llaman fuera del distrito/polígono | `scenarioContext`, `geographyArtifact` | escenario; 90/85/5; texto `no reconciliados` | `mandatory` / `null` |
+| C03 | `["#dashboard"]` | `scenario-with-target` | diagnóstico Viva simulado; no es precio observado ni de cierre | `scenarioState`, diagnóstico vigente | lectura; etiqueta `simulado` | `mandatory` / `null` |
+| C04 | `["#dashboard", "#projects"]` | `miraflores-district-default` | hay publicaciones de precio/área, pero no pairing certificado por unidad ni precio/m² elegible | `scenarioContext`, elegibilidad vigente | límite de pairing; ausencia de precio/m² elegible | `mandatory` / `null` |
+| C05 | `["#projects"]` | `miraflores-district-default` | 85 comparables; comparable no implica que todos sus campos sean utilizables | `scenarioContext`, catálogo vigente | conteo 85; límite en ayuda asociada | `reachable` / `null` |
+| C06 | `["#inspector/case/f3-ct-g-pardo"]` | `case:f3-ct-g-pardo` | 104.15 m², 53.37 m² y 50.78 m²; fuentes incompatibles y exclusión del precio/m² certificado | caso F3 | tres valores; estado de exclusión | `mandatory` / `null` |
+| C07 | `["#market"]` | `benchmark-2.4-default` | partición del benchmark distingue usadas, faltantes y excluidas; naturaleza orientativa cuando corresponda | `benchmarkContext` | `n`; usadas; faltantes; excluidas; estado | `mandatory` / `null` |
+| C08 | `["#market"]` | `benchmark-miraflores-default` | 69 publicaciones raw, 68 cocientes orientativos y 0 parejas elegibles; no son benchmark certificado ni precio de cierre | `benchmarkContext`, dataset 2.4 | 69/68/0; `orientativo`; `0 elegibles` | `mandatory` / `null` |
+| C09 | `["#compare"]` | `comparison-empty` | comparación vacía; no generar conclusión ni proyecto implícito | `comparisonContext` | estado vacío; CTA | `mandatory` / `Seleccionar proyectos` |
+| C10 | `["#compare"]` | `comparison-selected` | diferencias con denominadores y referencias asociados | motor de comparación vigente | conclusión; referencias tras una divulgación | `reachable` / `null` |
+| C11 | `["#activity"]` | `history-event-null-cause` | cambio publicado anterior/nuevo y vigencia; causa no observada y sin causalidad atribuida | `historyContext` | cambio; fecha/estado; causa no observada | `mandatory` / `null` |
+| C12 | `["#assistant"]` | `assistant-six-block-response` | conclusión y limitación de respuesta autoritativa; no cierre, predicción ni causalidad | `state.assistantResponse`, catálogo 2.4 | bloque `answer`; bloque `limitations` | `mandatory` / `null` |
+| C13 | `["#assistant"]` | `assistant-six-block-response` | referencias autorizadas de la misma respuesta | `state.assistantResponse.references` | conteo; 100% de etiquetas tras una divulgación | `reachable` / `null` |
+| C14 | `["#trust"]` | `checklist-blocked` | condición de avance y pendientes; progreso no equivale a certificación/readiness | checklist vigente | estado; condición | `mandatory` / `null` |
+| C15 | `all_surfaces` | `contract-2.0-global-error` | contrato 2.0 produce error global de carga; nunca `capability_unavailable` interno ni fragmentos 2.1+ | validación global/compatibilidad F6 | shell con error global uniforme en 14 rutas + acción correctiva; ningún contenido parcial | `mandatory` / `Reintentar` |
+| C16 | `["#journey/quality"]` | `contract-2.1` | Calidad no disponible por contrato; ausencia técnica no es vacío de negocio | matriz F6 | `capability_unavailable`; límite 2.1 | `mandatory` / `Volver a geografía` |
+| C17 | `["#journey/depth"]` | `contract-2.2` | Profundidad no disponible por contrato | matriz F6 | `capability_unavailable`; límite 2.2 | `mandatory` / `Revisar benchmark` |
+| C18 | `["#journey/movement"]` | `contract-2.3` | Movimiento no disponible por contrato | matriz F6 | `capability_unavailable`; límite 2.3 | `mandatory` / `Volver a profundidad` |
+| C19 | `["#journey/decision"]` | `contract-2.4-decision-without-response` | checklist prudente disponible y ninguna consulta implícita | `journeyContext.decision` | modo `checklist`; respuesta nula; ausencia de consulta generada | `mandatory` / `Formular consulta en el asistente` |
+| C20 | `["#journey/scale"]` | `phase6-scale-missing-counts` | conteo faltante se muestra `No disponible`; nunca cero, `NaN`, infinito o dato obsoleto | `journeyContext.scale` | `No disponible`; 22; 5; ausencia de cero fabricado | `mandatory` / `null` |
+| C21 | `["#journey/geography"]` | `phase6-geography-empty` | escenario vacío se distingue de error/capacidad ausente | `journeyContext.geography` | estado `empty`; límite | `mandatory` / `Ajustar escenario` |
+| C22 | `["#assistant"]` | `ct-f-insufficient-evidence` | evidencia insuficiente no produce precio real de cierre ni respuesta inventada | motor/asistente CT-F | limitación; siguiente acción; ausencia de claim prohibido | `mandatory` / `null` |
+| C23 | `all_surfaces` | `global-fetch-error` | fallo de carga global no conserva cifras obsoletas ni contenido parcial | estado global de carga/error | error global uniforme + ausencia de valores previos | `mandatory` / `Reintentar` |
 
 ## 4. Cobertura por tarea
 
 | Tarea | Claims mínimos |
 |---|---|
-| P7-02 | C02, C14–C16 en shell/escenario |
-| P7-04 | C01–C04, C14–C16 |
-| P7-05 | C04–C05, C14–C16 |
-| P7-06 | C06–C10, C14–C16 |
-| P7-07 | C11–C13, C14–C16 |
-| P7-08 | C01–C16 en E2E/paridad |
-| P7-09 | C01–C16 visibles/alcanzables en la matriz responsive |
-| P7-10 | auditoría de cobertura C01–C16 y diff contra autoridades |
+| P7-02 | C02, C15–C23 en shell/escenario |
+| P7-04 | C01–C04, C15–C23 |
+| P7-05 | C04–C05, C15–C23 |
+| P7-06 | C06–C10, C15–C23 |
+| P7-07 | C11–C14, C15–C23 |
+| P7-08 | C01–C23 en E2E/paridad |
+| P7-09 | C01–C23 visibles/alcanzables en la matriz responsive |
+| P7-10 | auditoría de cobertura C01–C23 y diff contra autoridades |
 
 ## 5. Regla de cambio
 
