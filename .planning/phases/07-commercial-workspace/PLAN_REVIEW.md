@@ -1,100 +1,126 @@
 # Fase 7 — Revisión estructural independiente del plan
 
-**Paso:** P7-00B, segunda ejecución.
+**Paso:** P7-00B, tercera ejecución.
 
 **Checker:** `/root/p7_00b_plan_checker`.
 
 **Fecha:** 2026-08-21.
 
-**HEAD revisado:** `9ecf1d79186c11a78fc7af2970d1b1d297d45eb8`.
+**HEAD revisado:** `83bb0a526535b14d6008483576d07dcccced4209`.
 
-**Veredicto:** `FAIL`.
+**Veredicto:** `PASS`.
 
-P7-00C permanece bloqueado. El correctivo cerró DAG, rutas y catálogo de sinónimos, pero `CLAIMS-INVENTORY.md` aún contiene dos P2 que impiden materializar C01–C16 “sin reinterpretación” y podrían convertir una limitación de datos en un claim incorrecto.
+No quedan hallazgos P0–P2. P7-00B queda cerrado y puede iniciarse P7-00C para solicitar HUMAN-GATE-A. Este `PASS` aprueba la estructura del plan; no autoriza por sí mismo cambios de runtime.
 
 ## Alcance y método
 
-Se releyeron completos los documentos modificados de Fase 7: `CONTEXT.md`, `UI-SPEC.md`, `PLAN.md` y `CLAIMS-INVENTORY.md`. Se contrastaron sus cambios con las fuentes de verdad ya leídas en la primera ejecución, con la compatibilidad aprobada de Fase 6 y con la semántica geográfica de Fase 2.
+Se leyó completo `CLAIMS-INVENTORY.md` normalizado y se revisaron las modificaciones de `PLAN.md`. Se contrastaron C01–C23 con las fuentes de verdad ya leídas en las dos ejecuciones anteriores y, de forma dirigida, con:
+
+- semántica geográfica y CT-I de Fase 2;
+- matriz de compatibilidad 2.0–2.4 de Fase 6;
+- acciones correctivas de `public/js/journey.js`;
+- fixtures y paridad DOM de Fase 6;
+- CT-F y estados globales de error;
+- estado vacío vigente del Comparador.
 
 Inspecciones read-only ejecutadas:
 
 ```text
 git status --short --branch
-git show --stat --name-status 9ecf1d7
-git diff-tree --no-commit-id --name-only -r 9ecf1d7
-git diff --check 9ecf1d7^ 9ecf1d7
-Test-Path sobre todos los write_set de P7-01–P7-09
-rg dirigido sobre DAG, rutas, marcadores (nuevo), C01–C16 y autoridades F2/F6
+git show --stat --name-status 83bb0a5
+git diff-tree --no-commit-id --name-only -r 83bb0a5
+git diff --check 83bb0a5^ 83bb0a5
+rg dirigido sobre C01–C23, CT-F, compatibilidad y corrective actions
+auditoría dirigida de DAG, write sets, rutas y catálogo de sinónimos
 ```
 
-No se ejecutaron tests de runtime: esta repetición revisa planificación y el commit no contiene implementación. No se leyó ni tocó el directorio no rastreado de evidencia de Fase 6.
+No se ejecutaron tests de runtime: P7-00B revisa planificación y `83bb0a5` solo modifica documentos. No se leyó ni tocó el directorio no rastreado de evidencia de Fase 6.
 
-## Estado de los hallazgos iniciales
+## Resultado
 
-| Hallazgo de la primera ejecución | Estado en `9ecf1d7` | Evidencia |
+| Área | Veredicto | Evidencia |
 |---|---|---|
-| Colisiones sin DAG/serialización | CERRADO | `PLAN.md` §5 declara secuencia estricta y autoriza paralelismo solo entre P7-06A/B/C y P7-07A/B/C. |
-| Rutas de write set ambiguas | CERRADO | P7-01–P7-09 usan rutas repo-relative completas; los archivos inexistentes están marcados `(nuevo)`. La comprobación dirigida no encontró marcador falso ni archivo existente marcado como nuevo. |
-| Falta de inventario de claims | PARCIAL | Existe `CLAIMS-INVENTORY.md`, P7-01 lo materializa y P7-02/P7-04–P7-10 declaran consumo; quedan inconsistencias de contenido/esquema detalladas abajo. |
-| Sinónimos de `Ir a…` abiertos | CERRADO | `UI-SPEC.md` fija nueve destinos, términos admitidos y exclusión explícita de valores de datos; P7-03 materializa exactamente ese catálogo. |
+| Coherencia CONTEXT/UI-SPEC/PLAN | PASS | Objetivo, alcance, presupuesto visual, historias, riesgos, tareas y gate convergen sin ampliar producto o datos. |
+| HU-DEMO-805–810 | PASS | Cada historia tiene criterios observables, tarea propietaria, verificación y rollback. |
+| A1–A14 | PASS | Son compatibles con el alcance, las protecciones y la autoridad humana sobre merge. |
+| DAG y paralelismo | PASS | Solo P7-06A/B/C y P7-07A/B/C pueden ejecutarse en paralelo; sus write sets son disjuntos. |
+| Rutas/write sets | PASS | P7-01–P7-09 usan paths repo-relative completos y marcan archivos nuevos. |
+| Navegación/sinónimos | PASS | Nueve destinos y catálogo cerrado; se excluyen valores de datos y búsqueda global implícita. |
+| Contrato/datos/motores | PASS | Contrato 2.4, compatibilidad, dataset, writer, engines, elegibilidad y workflow permanecen protegidos. |
+| Accesibilidad/responsive | PASS | Foco, teclado, Escape, 44×44, AA, 200%, reduced motion y 14 superficies están especificados. |
+| Pruebas/rollback | PASS | C01–C23, CT-A–I/P, DOM↔autoridad, privacidad, cero red, responsive y reversión por tarea están cubiertos. |
+| Referencias visuales | PASS | Se reutilizan patrones de organización sin copiar identidad, color, iconografía o composición de Attio. |
+| Cero runtime | PASS | `83bb0a5` modifica únicamente `CLAIMS-INVENTORY.md` y `PLAN.md` bajo `.planning/`. |
 
-## Resultado por área
+## Auditoría del contrato C01–C23
 
-| Área | Resultado |
+### Schema y materialización
+
+Cada entrada posee:
+
+- `id` estable C01–C23;
+- `routes` como array explícito o `all_surfaces`;
+- un `fixture` ejecutable;
+- un claim con calificador;
+- autoridad identificada;
+- assertions concretas;
+- una única visibilidad `mandatory` o `reachable`;
+- `corrective_action` literal o `null`.
+
+`all_surfaces` está definido como las seis etapas y ocho rutas expertas, y P7-01 debe expandirlo literalmente en el JSON. No quedan wildcards, rutas implícitas ni visibilidades combinadas. P7-01 es el único writer; P7-02/P7-04–P7-09 consumen el fixture y P7-10 lo audita.
+
+### Semántica y autoridades
+
+- C02 conserva 90 observados, 85 comparables y cinco **observados no reconciliados**; exige que no se llamen fuera del distrito/polígono.
+- C04 separa publicaciones de precio/área de pairing certificado y precio/m² elegible.
+- C06 conserva 104.15, 53.37 y 50.78 m² más la exclusión del caso Tipo 7.
+- C08 conserva 69 raw, 68 cocientes orientativos y cero parejas elegibles.
+- C11 preserva `cause=null` como causa no observada.
+- C12/C13 separan contenido obligatorio y referencias alcanzables del asistente.
+- C15 exige error global uniforme para 2.0 y prohíbe transformarlo en `capability_unavailable` interno.
+- C20 protege `No disponible / 22 / 5` sin cero fabricado.
+- C22 protege CT-F contra precio real de cierre o respuesta inventada.
+- C23 separa error global de fetch de cifras obsoletas o contenido parcial.
+
+### Acciones correctivas
+
+Las etiquetas coinciden literalmente con las autoridades vigentes:
+
+| Claim | Acción |
 |---|---|
-| HU-DEMO-805–810 y A1–A14 | PASS condicionado al cierre del inventario |
-| DAG y colisiones | PASS |
-| Rutas repo-relative y marcadores `(nuevo)` | PASS |
-| Contrato/datos/motores/workflow protegidos | PASS |
-| Ocho deep-links, seis etapas y reset | PASS |
-| Accesibilidad, responsive, rollback y pruebas | PASS condicionado a C01–C16 |
-| Referencias visuales sin copiar identidad | PASS |
-| Cero runtime en el correctivo | PASS |
-| Inventario/materialización C01–C16 | FAIL |
+| C09 comparación vacía | `Seleccionar proyectos` |
+| C15 contrato 2.0 global | `Reintentar` |
+| C16 Calidad no disponible en 2.1 | `Volver a geografía` |
+| C17 Profundidad no disponible en 2.2 | `Revisar benchmark` |
+| C18 Movimiento no disponible en 2.3 | `Volver a profundidad` |
+| C19 Decisión 2.4 sin respuesta | `Formular consulta en el asistente` |
+| C21 Geografía vacía | `Ajustar escenario` |
+| C23 error global de fetch | `Reintentar` |
 
-## Hallazgos vigentes
+C16–C19 prueban los límites de incorporación por versión; P7-08 mantiene además la matriz completa 2.0–2.4 ya cubierta por los tests vigentes.
 
-### P2 — C02 contradice la semántica geográfica autoritativa
+## Hallazgos
 
-`CLAIMS-INVENTORY.md` C02 define “90 observados, 85 comparables, 5 fuera/por revisar”. La fuente de verdad de Fase 2 establece cinco proyectos **observados no reconciliados**, visibles y excluidos de comparabilidad; incluso documenta un observado dentro del alcance pero no reconciliado. No son cinco proyectos “fuera”.
+### P0–P2
 
-La expresión actual mezcla exclusión territorial con reconciliación de identidad. Si P7-01 la materializa, una prueba podría obligar a publicar una explicación geográfica falsa.
+Ninguno.
 
-**Condición de cierre:** sustituir “5 fuera/por revisar” por “5 observados no reconciliados/por revisar” y hacer que autoridad/assertion comprueben explícitamente que permanecen visibles como cobertura excluida de comparabilidad, sin llamarlos fuera del distrito o polígono.
+### P3 — disciplina de implementación
 
-### P2 — El contrato del fixture no puede representar varias entradas C01–C16 sin reinterpretación
-
-El contrato exige un `route` singular y un `visibility` con exactamente `mandatory` o `reachable`, mientras que la matriz contiene:
-
-- C04 con dos rutas escritas como `#dashboard/#projects`, sin sintaxis de patrón definida;
-- C12 con dos niveles de visibilidad, `mandatory/reachable`, en una sola entrada;
-- C14 sin hash/patrón de ruta y sin afirmar que 2.0 falla globalmente, no como capacidad interna por etapa;
-- C15 para cuatro contratos y “CTA por ruta” sin matriz de rutas/capacidades;
-- C16 para múltiples estados en “cada ruta” sin fixtures ni rutas enumerados.
-
-Esto contradice P7-01, que promete materializar C01–C16 “sin reinterpretación”. También deja abierta una regresión ya cerrada en Fase 6: contrato 2.0 debe conservar el error global y no convertirse en `capability_unavailable` interno.
-
-**Condición de cierre:** normalizar el contrato antes de P7-01. Puede hacerse definiendo arrays tipados de `routes`/`assertions`, o dividiendo entradas en casos estables —por ejemplo C04a/C04b y C12a/C12b—, pero cada caso debe fijar ruta o patrón válido, versión/fixture, autoridad, assertion y una sola visibilidad. C14 debe exigir `global load error` para 2.0; C15 debe enumerar la capacidad esperada por versión/ruta; C16 debe enumerar los estados/fixtures mínimos que realmente se ejecutarán.
-
-## Confirmaciones adicionales
-
-- El DAG elimina las colisiones de `package.json`, `public/app.js`, `public/styles.css` y `tests/browser-a11y.mjs`.
-- Las seis subtareas paralelas P7-06A/B/C y P7-07A/B/C tienen write sets disjuntos.
-- Todos los paths P7-01–P7-09 existen o están correctamente marcados `(nuevo)`; P7-08 consume, pero no recrea, `commercial-claims.mjs`.
-- `9ecf1d7` modifica solo siete archivos bajo `.planning/`; no toca runtime, tests, datos, estilos, assets ni workflow.
-- No aparecieron contradicciones nuevas en A1–A14, rutas, accesibilidad, rollback o identidad visual. Las únicas contradicciones nuevas están acotadas al inventario descrito.
+El fixture de C01–C23 será una copia ejecutable del inventario, no una nueva autoridad. Si durante P7-01 una assertion no coincide con el motor/selector vigente, se corrige el fixture contra la autoridad y se registra el drift; nunca se modifica el runtime o el dato para satisfacer el documento. Esta regla ya está expresada en `CLAIMS-INVENTORY.md` y debe permanecer en el handoff.
 
 ## Historial de P7-00B
 
-- Primera ejecución sobre `3907f27`: `FAIL` por tres P2 y un P3.
-- Acta inicial persistida en `cb0af8e` (`docs: record phase 7 plan review findings`).
-- Correctivo documental `9ecf1d7`: cerró DAG, rutas y sinónimos; la segunda ejecución permanece en `FAIL` por dos P2 del contrato C01–C16.
+1. Primera ejecución sobre `3907f27`: `FAIL` por tres P2 y un P3; acta persistida en `cb0af8e`.
+2. Segunda ejecución sobre `9ecf1d7`: `FAIL` por semántica C02 y schema no materializable de C04/C12/C14–C16; acta persistida en `dde4f88`.
+3. Tercera ejecución sobre `83bb0a5`: `PASS`; los correctivos normalizan C01–C23 sin introducir cambios de runtime.
 
-## Condiciones para una tercera ejecución
+## Condiciones para HUMAN-GATE-A
 
-1. Corregir C02 y normalizar C04/C12/C14/C15/C16.
-2. Mantener P7-01 como único writer del fixture y P7-02/P7-04–P7-10 como consumidores/auditores según el plan.
-3. Mantener cero runtime hasta HUMAN-GATE-A.
-4. Entregar el nuevo SHA documental y repetir coherencia, materialización, cobertura C01–C16 y diff de runtime.
+1. Presentar al usuario A1–A14 sin omitir que la fase reorganiza las nueve superficies y añade navegación local `Ir a…`.
+2. Registrar una aceptación o enmienda textual en `APPROVAL.md`, `.planning/DECISIONS.md` y `.planning/STATE.md`.
+3. No modificar runtime antes de esa aprobación.
+4. Tras HUMAN-GATE-A, ejecutar P7-00D y vincular el baseline al SHA aprobado antes de P7-01.
+5. Toda relajación de C01–C23, cambio `mandatory → reachable` o modificación de contrato/datos/motores exige enmienda técnica y nueva aprobación.
 
-Hasta obtener `PASS`, no corresponde solicitar A1–A14 ni iniciar P7-00D/P7-01.
+Cumplidas estas condiciones, el plan queda habilitado para ejecución según su DAG.
