@@ -135,6 +135,7 @@ Como usuario frecuente, quiero abrir una paleta local de destinos y navegar por 
 7. Texto de contenido normal ≥16 px; metadata ≥13 px; objetivos táctiles ≥44×44 px.
 8. La simplificación no puede depender únicamente de hover, color o truncamiento.
 9. El runtime no se modifica antes de la aprobación del plan.
+10. `CLAIMS-INVENTORY.md` es el contrato de preservación semántica; P7-01 lo materializa y P7-04–P7-10 lo consumen.
 
 ## 10. Criterio de éxito
 

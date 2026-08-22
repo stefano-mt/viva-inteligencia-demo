@@ -213,7 +213,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** reducir el tiempo de orientación y escaneo sin alterar datos, evidencia o decisiones.
 
-**Estado:** `PLANNED`; P7-00A completado, revisión estructural y HUMAN-GATE-A pendientes.
+**Estado:** `PLANNED`; P7-00A completado, P7-00B inicial en `FAIL` con correctivo documental preparado y HUMAN-GATE-A pendiente.
 
 ### Olas
 

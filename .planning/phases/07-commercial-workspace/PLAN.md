@@ -111,115 +111,126 @@ Modificar un protegido exige enmienda técnica, justificación, aprobación expl
 
 ## 5. Olas
 
-- **Wave 7.0:** P7-00A–D — diagnóstico, especificación, revisión, aprobación y baseline.
-- **Wave 7.1:** P7-01–03 — primitives, shell/escenario y navegación rápida.
-- **Wave 7.2:** P7-04–07 — simplificación de recorrido y ocho rutas.
-- **Wave 7.3:** P7-08–10 — integración, responsive/a11y y verificación independiente.
-- **Wave 7.4:** P7-11–14 — memoria, PR, merge y post-merge.
+- **Wave 7.0, estrictamente serial:** P7-00A → P7-00B → P7-00C → P7-00D.
+- **Wave 7.1, estrictamente serial:** P7-01 → P7-02 → P7-03; comparten manifiesto, shell y `package.json`.
+- **Wave 7.2:** P7-04 → P7-05 son seriales. Después, P7-06A/B/C y P7-07A/B/C pueden ejecutarse en paralelo únicamente por subtarea y con sus write sets disjuntos.
+- **Wave 7.3, estrictamente serial:** P7-08 → P7-09 → P7-10; integración precede responsive y el checker solo inicia sobre un candidato cerrado.
+- **Wave 7.4, estrictamente serial:** P7-11 → P7-12 → P7-13 → P7-14.
+
+DAG vinculante:
+
+```text
+P7-00A → P7-00B PASS → P7-00C APPROVED → P7-00D
+  → P7-01 → P7-02 → P7-03 → P7-04 → P7-05
+    → {P7-06A || P7-06B || P7-06C || P7-07A || P7-07B || P7-07C}
+      → P7-08 → P7-09 → P7-10 PASS → P7-11 → P7-12 → P7-13 → P7-14
+```
+
+`||` autoriza paralelismo solo entre las seis subtareas listadas. Ninguna otra proximidad dentro de una wave implica paralelismo.
 
 ## 6. Secuencia atómica y write sets
 
 ### P7-00A — Contexto, auditoría y diseño
 
-**Write set:** `CONTEXT.md`, `UX-AUDIT.md`, `UI-SPEC.md`, `PLAN.md`, `HUMAN-GATE-A-REQUEST.md`, `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`.
+**Write set:** `.planning/phases/07-commercial-workspace/CONTEXT.md`, `.planning/phases/07-commercial-workspace/UX-AUDIT.md`, `.planning/phases/07-commercial-workspace/UI-SPEC.md`, `.planning/phases/07-commercial-workspace/CLAIMS-INVENTORY.md`, `.planning/phases/07-commercial-workspace/PLAN.md`, `.planning/phases/07-commercial-workspace/HUMAN-GATE-A-REQUEST.md`, `.planning/REQUIREMENTS.md`, `.planning/ROADMAP.md`, `.planning/STATE.md`.
 
 **DoD:** diagnóstico visual/DOM, presupuesto, dirección, historias, riesgos y tareas explícitos; cero runtime modificado.
 
 ### P7-00B — Revisión estructural independiente
 
-**Write set:** `PLAN_REVIEW.md`.
+**Write set:** `.planning/phases/07-commercial-workspace/PLAN_REVIEW.md`.
 
-**Checks:** alcance, claims protegidos, rutas, accesibilidad, write sets, pruebas, rollback y coherencia con Fase 6.
+**Checks:** alcance, inventario de claims protegidos, rutas, accesibilidad, write sets/DAG, pruebas, rollback y coherencia con Fase 6.
 
 **DoD:** `PASS`; cualquier P0–P2 corrige plan y repite revisión.
 
 ### P7-00C — HUMAN-GATE-A
 
-**Write set posterior a la aprobación:** `APPROVAL.md`, `.planning/DECISIONS.md`, `.planning/STATE.md`.
+**Write set posterior a la aprobación:** `.planning/phases/07-commercial-workspace/APPROVAL.md` (nuevo), `.planning/DECISIONS.md`, `.planning/STATE.md`.
 
 **DoD:** A1–A14 aceptados o enmendados textualmente. Ningún runtime cambia antes.
 
 ### P7-00D — Baseline reproducible
 
-**Write set:** `BASELINE_BROWSER.md`, `evidence/baseline/*`.
+**Write set:** `.planning/phases/07-commercial-workspace/BASELINE_BROWSER.md` (nuevo), `.planning/phases/07-commercial-workspace/evidence/baseline/*` (nuevo).
 
 **Checks:** `npm.cmd run verify`; 14 superficies en 1440/1280/390; screenshot, DOM, consola, red, foco, orden de lectura y conteo de acciones.
 
 **DoD:** baseline vinculada al SHA, métricas y evidencia portable.
 
-### P7-01 — Primitives y presupuestos visuales
+### P7-01 — Primitives, presupuestos y contrato ejecutable de claims
 
-**Write set:** `public/styles/00-tokens.css`, `10-base.css`, `30-components.css`, `styles.css`, `tests/commercial-density.mjs`, `tests/style-ownership.mjs`, `package.json` bajo `prototipo_ejecutable/`.
+**Write set:** `prototipo_ejecutable/public/styles/00-tokens.css`, `prototipo_ejecutable/public/styles/10-base.css`, `prototipo_ejecutable/public/styles/30-components.css`, `prototipo_ejecutable/public/styles.css`, `prototipo_ejecutable/tests/fixtures/commercial-claims.json` (nuevo), `prototipo_ejecutable/tests/commercial-claims.mjs` (nuevo), `prototipo_ejecutable/tests/commercial-density.mjs` (nuevo), `prototipo_ejecutable/tests/style-ownership.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** tipografía, spacing, filas, toolbar, decision-line, disclosures y action hierarchy disponibles; no cambia una vista todavía; ownership CSS y sintaxis pasan.
+**DoD:** tipografía, spacing, filas, toolbar, decision-line, disclosures y action hierarchy disponibles; `CLAIMS-INVENTORY.md` se materializa sin reinterpretación como fixture C01–C16 y prueba base; no cambia una vista todavía; ownership CSS y sintaxis pasan.
 
 ### P7-02 — Shell y escenario compacto
 
-**Write set:** `public/app.js`, `public/js/views/scenario-context.js`, `public/styles/20-shell.css`, `25-scenario-context.css`, `tests/commercial-shell.mjs`, `tests/scenario-e2e.mjs`, `package.json`.
+**Write set:** `prototipo_ejecutable/public/app.js`, `prototipo_ejecutable/public/js/views/scenario-context.js`, `prototipo_ejecutable/public/styles/20-shell.css`, `prototipo_ejecutable/public/styles/25-scenario-context.css`, `prototipo_ejecutable/tests/commercial-shell.mjs` (nuevo), `prototipo_ejecutable/tests/scenario-e2e.mjs`, `prototipo_ejecutable/package.json`.
 
 **DoD:** rail ≤248 px, topbar ≤72 px, cinco destinos, grupo Profundizar, escenario resumido/editor, móvil/foco/reset/deep-links verificados.
 
 ### P7-03 — Paleta local `Ir a…`
 
-**Write set:** `public/app.js`, `public/js/config.js`, `public/js/controller.js`, `public/js/views/command-menu.js`, `public/js/views/index.js`, `public/styles.css`, `public/styles/64-command-menu.css`, `tests/command-menu.mjs`, `tests/module-graph.mjs`, `package.json`.
+**Write set:** `prototipo_ejecutable/public/app.js`, `prototipo_ejecutable/public/js/config.js`, `prototipo_ejecutable/public/js/controller.js`, `prototipo_ejecutable/public/js/views/command-menu.js` (nuevo), `prototipo_ejecutable/public/js/views/index.js`, `prototipo_ejecutable/public/styles.css`, `prototipo_ejecutable/public/styles/64-command-menu.css` (nuevo), `prototipo_ejecutable/tests/command-menu.mjs` (nuevo), `prototipo_ejecutable/tests/module-graph.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** catálogo cerrado, filtro local, teclado, diálogo, retorno de foco, cero persistencia/red; si falla accesibilidad se retira atómicamente.
+**DoD:** materializa exactamente los nueve destinos y términos de `UI-SPEC.md`; filtro local, teclado, diálogo, retorno de foco, cero persistencia/red; si falla accesibilidad se retira atómicamente.
 
 ### P7-04 — Recorrido y Panorama
 
-**Write set:** `public/js/views/journey.js`, `public/js/views/dashboard.js`, `public/styles/50-views.css`, `61-journey.css`, `tests/commercial-journey-dashboard.mjs`, `package.json`.
+**Write set:** `prototipo_ejecutable/public/js/views/journey.js`, `prototipo_ejecutable/public/js/views/dashboard.js`, `prototipo_ejecutable/public/styles/50-views.css`, `prototipo_ejecutable/public/styles/61-journey.css`, `prototipo_ejecutable/tests/commercial-journey-dashboard.mjs` (nuevo), `prototipo_ejecutable/package.json`.
 
-**DoD:** pregunta/lectura/límite/CTA y mapa aparecen antes del detalle; paridad de seis etapas y Radar intacta; formulario y metodología progresivos.
+**DoD:** pregunta/lectura/límite/CTA y mapa aparecen antes del detalle; paridad de seis etapas y Radar intacta; formulario y metodología progresivos; C01–C04/C14–C16 pasan contra el fixture read-only.
 
 ### P7-05 — Proyectos por filas
 
-**Write set:** `public/js/views/projects.js`, `public/styles/62-projects.css`, `tests/commercial-projects.mjs`, `tests/projects-browser.mjs`, `package.json`.
+**Write set:** `prototipo_ejecutable/public/js/views/projects.js`, `prototipo_ejecutable/public/styles/62-projects.css`, `prototipo_ejecutable/tests/commercial-projects.mjs` (nuevo), `prototipo_ejecutable/tests/journey-projects-handoff.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** toolbar compacta, lista semántica, selección y detalle; precio/área/estado/score legibles; filtros, límite, orden y deep-link preservados.
+**DoD:** toolbar compacta, lista semántica, selección y detalle; precio/área/estado/score legibles; filtros, límite, orden y deep-link preservados; C04–C05/C14–C16 pasan contra el fixture read-only.
 
 ### P7-06 — Inspector, Benchmark y Comparador
 
 Subtareas separables solo con write sets disjuntos:
 
-- **A Inspector:** `views/inspector.js`, `styles/55-inspector.css`, `tests/commercial-inspector.mjs`.
-- **B Benchmark:** `views/market.js`, `styles/56-benchmark.css`, `tests/commercial-benchmark.mjs`.
-- **C Comparador:** `views/compare.js`, `styles/57-comparison.css`, `tests/commercial-compare.mjs`.
+- **A Inspector:** `prototipo_ejecutable/public/js/views/inspector.js`, `prototipo_ejecutable/public/styles/55-inspector.css`, `prototipo_ejecutable/tests/commercial-inspector.mjs` (nuevo).
+- **B Benchmark:** `prototipo_ejecutable/public/js/views/market.js`, `prototipo_ejecutable/public/styles/56-benchmark.css`, `prototipo_ejecutable/tests/commercial-benchmark.mjs` (nuevo).
+- **C Comparador:** `prototipo_ejecutable/public/js/views/compare.js`, `prototipo_ejecutable/public/styles/57-comparison.css`, `prototipo_ejecutable/tests/commercial-compare.mjs` (nuevo).
 
-**DoD:** conclusión primero, ledgers por filas, evidencia progresiva; Tipo 7, denominadores, referencias y comparación vacía sin cambios.
+**DoD:** conclusión primero, ledgers por filas, evidencia progresiva; C06–C10/C14–C16 pasan contra el fixture read-only.
 
 ### P7-07 — Asistente, Checklist y Señales
 
 Subtareas separables solo con write sets disjuntos:
 
-- **A Asistente:** `views/assistant.js`, `styles/59-assistant.css`, `tests/commercial-assistant.mjs`.
-- **B Checklist:** `views/checklist.js`, `styles/63-checklist.css`, `tests/commercial-checklist.mjs`.
-- **C Señales:** `views/activity.js`, `styles/58-history-signals.css`, `tests/commercial-activity.mjs`.
+- **A Asistente:** `prototipo_ejecutable/public/js/views/assistant.js`, `prototipo_ejecutable/public/styles/59-assistant.css`, `prototipo_ejecutable/tests/commercial-assistant.mjs` (nuevo).
+- **B Checklist:** `prototipo_ejecutable/public/js/views/checklist.js`, `prototipo_ejecutable/public/styles/63-checklist.css`, `prototipo_ejecutable/tests/commercial-checklist.mjs` (nuevo).
+- **C Señales:** `prototipo_ejecutable/public/js/views/activity.js`, `prototipo_ejecutable/public/styles/58-history-signals.css`, `prototipo_ejecutable/tests/commercial-activity.mjs` (nuevo).
 
-**DoD:** consulta primero, requisitos/señales en filas, agenda antes del detalle; seis bloques, causa nula, privacidad y CT-E/F sin cambios.
+**DoD:** consulta primero, requisitos/señales en filas, agenda antes del detalle; C11–C13/C14–C16 pasan contra el fixture read-only.
 
 ### P7-08 — Integración y regresiones
 
-**Write set:** `tests/commercial-workspace-e2e.mjs`, `tests/browser-smoke.mjs`, `tests/browser-a11y.mjs`, `tests/journey-dom-parity.mjs`, `package.json`.
+**Write set:** `prototipo_ejecutable/tests/commercial-workspace-e2e.mjs` (nuevo), `prototipo_ejecutable/tests/browser-smoke.mjs`, `prototipo_ejecutable/tests/browser-a11y.mjs`, `prototipo_ejecutable/tests/journey-dom-parity.mjs`, `prototipo_ejecutable/tests/commercial-claims.mjs`, `prototipo_ejecutable/package.json`.
 
-**DoD:** 6+8 rutas, 2.0–2.4, CT-A–I/P, deep-link, reset, historial, asistente, escenario y paleta pasan; cero `NaN`, infinito, red o persistencia.
+**DoD:** C01–C16, 6+8 rutas, 2.0–2.4, CT-A–I/P, deep-link, reset, historial, asistente, escenario y paleta pasan; cero `NaN`, infinito, red o persistencia. El fixture de claims es read-only.
 
 ### P7-09 — Responsive, contraste y zoom 200%
 
-**Write set:** `public/styles/90-responsive.css`, `tests/phase7-responsive.mjs`, `tests/browser-a11y.mjs`, `evidence/responsive/*`, `package.json`.
+**Write set:** `prototipo_ejecutable/public/styles/90-responsive.css`, `prototipo_ejecutable/tests/phase7-responsive.mjs` (nuevo), `prototipo_ejecutable/tests/browser-a11y.mjs`, `.planning/phases/07-commercial-workspace/evidence/responsive/*` (nuevo), `prototipo_ejecutable/package.json`.
 
-**DoD:** 14 superficies × 3 viewports, 200%, teclado, foco, 44×44, AA, reduced motion, cero overflow/solape/truncamiento crítico; criterios visuales de `UI-SPEC.md` medidos.
+**DoD:** 14 superficies × 3 viewports, 200%, teclado, foco, 44×44, AA, reduced motion, cero overflow/solape/truncamiento crítico; C01–C16 permanecen visibles/alcanzables según fixture read-only; criterios visuales de `UI-SPEC.md` medidos.
 
 ### P7-10 — Verificación formal independiente
 
-**Write set:** `VERIFICATION_REPORT.md`, `evidence/verification/*`.
+**Write set:** `.planning/phases/07-commercial-workspace/VERIFICATION_REPORT.md` (nuevo), `.planning/phases/07-commercial-workspace/evidence/verification/*` (nuevo).
 
-**Checks:** suite integral, browser adversarial, Graphify, diff/write sets, paridad DOM↔estado, datos/claims protegidos, responsive y evidencia.
+**Checks:** suite integral, browser adversarial, Graphify, diff/write sets/DAG, paridad DOM↔estado, cobertura C01–C16 contra autoridades, responsive y evidencia. El checker no modifica el fixture.
 
 **DoD:** `PASS`; `PASS WITH RISKS` requiere HUMAN-GATE-B; `FAIL` reabre correctivo.
 
 ### P7-11 — Memoria y PR funcional
 
-**Write set:** `SUMMARY.md`, `HANDOFF.md`, `.planning/STATE.md`.
+**Write set:** `.planning/phases/07-commercial-workspace/SUMMARY.md` (nuevo), `.planning/phases/07-commercial-workspace/HANDOFF.md` (nuevo), `.planning/STATE.md`.
 
 **DoD:** commits atómicos, rama publicada, PR con alcance, pruebas, capturas, riesgos y rollback.
 
@@ -235,7 +246,7 @@ Subtareas separables solo con write sets disjuntos:
 
 ### P7-14 — Persistencia post-merge
 
-**Write set en rama documental separada:** `POSTMERGE_REPORT.md`, `.planning/STATE.md`, `.planning/ROADMAP.md`, `evidence/postmerge/*`.
+**Write set en rama documental separada:** `.planning/phases/07-commercial-workspace/POSTMERGE_REPORT.md` (nuevo), `.planning/STATE.md`, `.planning/ROADMAP.md`, `.planning/phases/07-commercial-workspace/evidence/postmerge/*` (nuevo).
 
 **DoD:** resultado read-only persistido y PR documental fusionado por el usuario.
 

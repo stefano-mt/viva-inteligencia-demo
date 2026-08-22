@@ -295,6 +295,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Contexto: [phases/07-commercial-workspace/CONTEXT.md](phases/07-commercial-workspace/CONTEXT.md).
 - Auditoría UX/UI: [phases/07-commercial-workspace/UX-AUDIT.md](phases/07-commercial-workspace/UX-AUDIT.md).
 - Especificación visual: [phases/07-commercial-workspace/UI-SPEC.md](phases/07-commercial-workspace/UI-SPEC.md).
+- Inventario de claims: [phases/07-commercial-workspace/CLAIMS-INVENTORY.md](phases/07-commercial-workspace/CLAIMS-INVENTORY.md).
 - Plan: [phases/07-commercial-workspace/PLAN.md](phases/07-commercial-workspace/PLAN.md).
 - Solicitud de aprobación: [phases/07-commercial-workspace/HUMAN-GATE-A-REQUEST.md](phases/07-commercial-workspace/HUMAN-GATE-A-REQUEST.md).
 - Historias: HU-DEMO-805–810.
@@ -302,7 +303,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Dirección: `Viva Decision Desk`, con línea de decisión verde y menor dependencia de cards.
 - Contrato, datos, motores, rutas, claims y reset permanecen protegidos.
 - P7-00A: contexto, auditoría, especificación, plan y solicitud de gate completados; runtime sin cambios.
-- P7-00B: revisión estructural independiente pendiente.
+- P7-00B inicial: `FAIL` por tres P2 documentados; correctivo documental preparado para repetir la revisión.
 - P7-00C: HUMAN-GATE-A pendiente; no se inicia implementación antes.
 
 ## Próxima acción recomendada

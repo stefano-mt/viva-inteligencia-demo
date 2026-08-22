@@ -84,6 +84,22 @@ El grupo recuerda su apertura solo en memoria de la sesión; no usa `localStorag
 - no muestra proyectos, documentos ni respuestas del asistente;
 - copy explícito: `Navega por la demo`; nunca `Buscar en todos los datos`.
 
+Catálogo cerrado de términos:
+
+| Destino | Términos admitidos |
+|---|---|
+| Recorrido | recorrido, guía, demo, etapas |
+| Panorama | panorama, radar, mapa, geografía |
+| Proyectos | proyectos, comparables, competidores, inventario |
+| Decidir | decidir, asistente, recomendación, estrategia |
+| Seguimiento | seguimiento, señales, cambios, histórico |
+| Inspector | inspector, evidencia, fuentes, calidad |
+| Benchmark | benchmark, microzona, referencias, atributos |
+| Comparador | comparador, comparar, diferencias |
+| Checklist | checklist, preparación, campaña, validación |
+
+No se aceptan distritos, proyectos, inmobiliarias, IDs, precios u otros valores de datos como sinónimos. P7-03 materializa exactamente este catálogo en una constante/fixture local y lo prueba.
+
 ## 3. Shell
 
 ### Rail desktop
