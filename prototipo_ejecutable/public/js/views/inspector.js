@@ -1800,6 +1800,38 @@ export function renderInspectorModel(model) {
       ${renderQualityMoment(model)}
 
       <div class="inspector-custody">
+        <section
+          class="inspector-module inspector-decision"
+          id="inspector-limitations"
+          aria-labelledby="inspector-decision-title"
+          data-commercial-inspector-summary
+          data-eligible-facts="${escapeAttr(model.decision.eligibleFactCount)}"
+          data-excluded-facts="${escapeAttr(model.decision.excludedFactCount)}"
+        >
+          <div class="inspector-module-heading">
+            <span class="inspector-step" aria-hidden="true">Decisión</span>
+            <div>
+              <p class="inspector-section-label">Uso comercial</p>
+              <h2 id="inspector-decision-title">Decisión de elegibilidad</h2>
+              <p class="inspector-module-help">Explica qué se usa, qué se excluye y cuál es el siguiente paso</p>
+            </div>
+          </div>
+          <div class="inspector-decision-summary">
+            <p>
+              <strong>${formatNumber(model.decision.eligibleFactCount)}</strong>
+              hechos elegibles ·
+              <strong>${formatNumber(model.decision.excludedFactCount)}</strong>
+              hechos excluidos.
+            </p>
+            ${
+              model.decision.territorialContinuity
+                ? `<p>${escapeHtml(model.decision.territorialContinuity)}</p>`
+                : ""
+            }
+            <p>Siguiente paso: ${escapeHtml(model.primaryAction.label)}.</p>
+          </div>
+        </section>
+
         <section class="inspector-module inspector-coverage" aria-labelledby="inspector-coverage-title">
           <div class="inspector-module-heading">
             <span class="inspector-step" aria-hidden="true">01</span>
@@ -1982,30 +2014,6 @@ export function renderInspectorModel(model) {
           </div>
         </section>
 
-        <section class="inspector-module inspector-decision" id="inspector-limitations" aria-labelledby="inspector-decision-title">
-          <div class="inspector-module-heading">
-            <span class="inspector-step" aria-hidden="true">06</span>
-            <div>
-              <p class="inspector-section-label">Decisión</p>
-              <h2 id="inspector-decision-title">Uso en la comparación</h2>
-              <p class="inspector-module-help">Explica qué se usa, qué se excluye y cuál es el siguiente paso</p>
-            </div>
-          </div>
-          <div class="inspector-decision-summary">
-            <p>
-              <strong>${formatNumber(model.decision.eligibleFactCount)}</strong>
-              hechos elegibles ·
-              <strong>${formatNumber(model.decision.excludedFactCount)}</strong>
-              hechos excluidos.
-            </p>
-            ${
-              model.decision.territorialContinuity
-                ? `<p>${escapeHtml(model.decision.territorialContinuity)}</p>`
-                : ""
-            }
-            <p>Siguiente paso: ${escapeHtml(model.primaryAction.label)}.</p>
-          </div>
-        </section>
       </div>
       ${renderEvidenceDialog(model)}
     </article>

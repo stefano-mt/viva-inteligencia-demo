@@ -293,6 +293,7 @@ function conclusionMarkup(model, { linksEnabled = true } = {}) {
       class="comparison-conclusion"
       aria-labelledby="comparison-conclusion-title"
       data-comparison-findings="${formatNumber(model.conclusion.length)}"
+      data-commercial-comparison-summary
     >
       <div class="comparison-decision-sheet">
         <div>
@@ -315,7 +316,7 @@ function conclusionMarkup(model, { linksEnabled = true } = {}) {
               )
         }
       </div>
-      <ol class="comparison-findings">
+      <ol class="comparison-findings comparison-row-ledger">
         ${model.conclusion
           .map(
             (finding, index) => `
@@ -377,6 +378,7 @@ function denominatorMarkup(benchmarkContext, model) {
       data-selected-projects="${selectedCount}"
       data-eligible-price-pairs="${eligibleCount ?? "unavailable"}"
       data-orientative-price-ratios="${orientativeCount ?? "unavailable"}"
+      data-commercial-comparison-basis
     >
       <summary class="comparison-basis__summary">
         <span>
@@ -648,7 +650,7 @@ export function renderCompare() {
       ${
         selectionReady
           ? `
-            <section class="comparison-matrix" aria-labelledby="comparison-matrix-title">
+            <section class="comparison-matrix" aria-labelledby="comparison-matrix-title" data-commercial-comparison-matrix>
               <div class="comparison-section-heading">
                 <div>
                   <span class="comparison-eyebrow">Evidencia por criterio</span>
@@ -693,7 +695,6 @@ export function renderCompare() {
                   : "Selecciona dos proyectos para comenzar",
                 "El comparador admite hasta tres proyectos del escenario y, opcionalmente, el escenario Viva.",
               )}
-              ${conclusionMarkup(model, { linksEnabled: false })}
             </section>`
       }
 

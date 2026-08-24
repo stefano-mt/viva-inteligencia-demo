@@ -441,7 +441,7 @@ function renderEvidenceLine(context) {
     },
   ];
   return `
-    <ol class="benchmark-evidence-line" aria-label="Transformación del universo de benchmark">
+    <ol class="benchmark-evidence-line benchmark-row-ledger" aria-label="Transformación del universo de benchmark">
       ${steps
         .map(
           (step) => `
@@ -457,6 +457,48 @@ function renderEvidenceLine(context) {
         )
         .join("")}
     </ol>
+  `;
+}
+
+function renderCommercialBenchmarkSummary(context) {
+  const quantitative = context.quantitative.pricePerM2Total;
+  const coverage = quantitative.coverage;
+  const rawPublications = state.scenarioContext?.price_reference_project_ids?.length ?? 0;
+  const orientativeCount = quantitative.orientative?.n ?? 0;
+  return `
+    <section
+      class="benchmark-decision-brief"
+      aria-labelledby="benchmark-decision-title"
+      data-commercial-benchmark-summary
+      data-raw-publications="${escapeAttr(rawPublications)}"
+      data-orientative-ratios="${escapeAttr(orientativeCount)}"
+      data-eligible-pairs="${escapeAttr(quantitative.n)}"
+    >
+      <div class="benchmark-decision-brief__copy">
+        <span class="benchmark-kicker">Lectura para decidir</span>
+        <h3 id="benchmark-decision-title">Referencia orientativa; no es un benchmark certificado</h3>
+        <p>Sirve para reconocer el rango de entrada publicado. No representa precios reales de cierre ni una recomendación de posicionamiento.</p>
+      </div>
+      <dl class="benchmark-decision-ledger" aria-label="Partición principal del benchmark">
+        <div><dt>Publicaciones con precio y área</dt><dd>${formatNumber(rawPublications)}</dd></div>
+        <div><dt>Cocientes orientativos</dt><dd>${formatNumber(orientativeCount)}</dd></div>
+        <div><dt>Usados / parejas elegibles</dt><dd>${formatNumber(quantitative.n)}</dd></div>
+        <div><dt>Faltantes</dt><dd>${formatNumber(coverage.missingProjectIds.length)}</dd></div>
+        <div><dt>Excluidos</dt><dd>${formatNumber(coverage.excludedProjects.length)}</dd></div>
+      </dl>
+    </section>
+  `;
+}
+
+function progressiveBenchmarkSection(label, description, content, className) {
+  return `
+    <details class="benchmark-progressive ${escapeAttr(className)}">
+      <summary>
+        <span><strong>${escapeHtml(label)}</strong>${escapeHtml(description)}</span>
+        <span aria-hidden="true">+</span>
+      </summary>
+      <div class="benchmark-progressive__body">${content}</div>
+    </details>
   `;
 }
 
@@ -636,14 +678,22 @@ function renderQualitative(context, summaries) {
           ${formatNumber(context.qualitative.coverage.usedProjectIds.length)}/${formatNumber(context.scope.projectCount)} informados
         </span>
       </div>
-      <div class="benchmark-attribute-list">
-        ${visible.map((attribute) => renderAttribute(attribute, summaries)).join("")}
-      </div>
-      ${remaining.length ? `<details class="benchmark-disclosure benchmark-more-attributes"><summary>Ver ${formatNumber(remaining.length)} atributos anunciados adicionales</summary><div class="benchmark-attribute-list">${remaining.map((attribute) => renderAttribute(attribute, summaries)).join("")}</div></details>` : ""}
-      <div class="benchmark-data-gaps" aria-label="Coberturas que requieren más evidencia">
-        <div><strong>Acabados y materiales</strong><span>Información insuficiente en la muestra territorial.</span></div>
-        <div><strong>Estacionamientos</strong><span>Se muestran como “No informado” cuando la publicación no declara el dato.</span></div>
-      </div>
+      <details class="benchmark-progressive benchmark-progressive--attributes">
+        <summary>
+          <span><strong>Explorar atributos</strong>Prevalencias, cobertura y texto original.</span>
+          <span aria-hidden="true">+</span>
+        </summary>
+        <div class="benchmark-progressive__body">
+          <div class="benchmark-attribute-list">
+            ${visible.map((attribute) => renderAttribute(attribute, summaries)).join("")}
+          </div>
+          ${remaining.length ? `<details class="benchmark-disclosure benchmark-more-attributes"><summary>Ver ${formatNumber(remaining.length)} atributos anunciados adicionales</summary><div class="benchmark-attribute-list">${remaining.map((attribute) => renderAttribute(attribute, summaries)).join("")}</div></details>` : ""}
+          <div class="benchmark-data-gaps" aria-label="Coberturas que requieren más evidencia">
+            <div><strong>Acabados y materiales</strong><span>Información insuficiente en la muestra territorial.</span></div>
+            <div><strong>Estacionamientos</strong><span>Se muestran como “No informado” cuando la publicación no declara el dato.</span></div>
+          </div>
+        </div>
+      </details>
     </section>
   `;
 }
@@ -911,25 +961,8 @@ export function renderMarket() {
                 <span class="status-badge ${statusMeta.tone}">${escapeHtml(statusMeta.label)}</span>
               </header>
 
-              <section class="benchmark-section benchmark-scope" aria-labelledby="benchmark-scope-title">
-                <div class="benchmark-section__heading">
-                  <div>
-                    <span class="benchmark-section__index">01 · Alcance</span>
-                    <h3 id="benchmark-scope-title">Cómo se usa esta muestra</h3>
-                    <p>Cada paso conserva la misma zona y muestra qué información puede sostener.</p>
-                  </div>
-                  ${componentHelp(
-                    "Cómo leer la línea de evidencia",
-                    "La zona no cambia. Cada indicador distingue proyectos usados, faltantes y excluidos; una referencia basada en mínimos no se convierte en una comparación confiable.",
-                  )}
-                </div>
-                ${renderEvidenceLine(benchmark)}
-              </section>
-
+              ${renderCommercialBenchmarkSummary(benchmark)}
               ${renderQuantitative(benchmark)}
-              ${renderOfferComposition(benchmark, summaries)}
-              ${renderQualitative(benchmark, summaries)}
-              ${renderCompositionAndExclusions(benchmark, summaries)}
 
               <footer class="benchmark-sheet__footer">
                 <div>
@@ -940,6 +973,36 @@ export function renderMarket() {
                   Comparar proyectos de esta muestra
                 </button>
               </footer>
+
+              <section class="benchmark-secondary" aria-label="Detalle complementario del benchmark">
+                ${progressiveBenchmarkSection(
+                  "Cómo se construye la muestra",
+                  "Alcance, parejas demostradas y cobertura informada.",
+                  `<section class="benchmark-section benchmark-scope" aria-labelledby="benchmark-scope-title">
+                    <div class="benchmark-section__heading">
+                      <div>
+                        <span class="benchmark-section__index">01 · Alcance</span>
+                        <h3 id="benchmark-scope-title">Cómo se usa esta muestra</h3>
+                        <p>Cada paso conserva la misma zona y muestra qué información puede sostener.</p>
+                      </div>
+                      ${componentHelp(
+                        "Cómo leer la línea de evidencia",
+                        "La zona no cambia. Cada indicador distingue proyectos usados, faltantes y excluidos; una referencia basada en mínimos no se convierte en una comparación confiable.",
+                      )}
+                    </div>
+                    ${renderEvidenceLine(benchmark)}
+                  </section>`,
+                  "benchmark-progressive--scope",
+                )}
+                ${progressiveBenchmarkSection(
+                  "Composición de la muestra",
+                  "Proyectos, inmobiliarias y unidades declaradas.",
+                  renderOfferComposition(benchmark, summaries),
+                  "benchmark-progressive--offer",
+                )}
+                ${renderQualitative(benchmark, summaries)}
+                ${renderCompositionAndExclusions(benchmark, summaries)}
+              </section>
             </article>
           `
           : renderBenchmarkUnavailable(benchmark, district)
