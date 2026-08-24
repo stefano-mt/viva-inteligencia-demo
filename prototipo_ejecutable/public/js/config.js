@@ -26,6 +26,88 @@ export const views = [
   { id: "activity", label: "Señales del mercado", hint: "Cambios publicados", group: "Decisión" },
 ];
 
+function defineCommandDestination(destination) {
+  return Object.freeze({
+    ...destination,
+    terms: Object.freeze([...destination.terms]),
+  });
+}
+
+export const commandDestinations = Object.freeze([
+  defineCommandDestination({
+    id: "journey",
+    label: "Recorrido",
+    href: "#journey/scale",
+    tier: "primary",
+    hint: "Comprender la demo por etapas",
+    terms: ["recorrido", "guía", "demo", "etapas"],
+  }),
+  defineCommandDestination({
+    id: "dashboard",
+    label: "Panorama",
+    href: "#dashboard",
+    tier: "primary",
+    hint: "Leer zona, radar y mapa",
+    terms: ["panorama", "radar", "mapa", "geografía"],
+  }),
+  defineCommandDestination({
+    id: "projects",
+    label: "Proyectos",
+    href: "#projects",
+    tier: "primary",
+    hint: "Priorizar comparables y competidores",
+    terms: ["proyectos", "comparables", "competidores", "inventario"],
+  }),
+  defineCommandDestination({
+    id: "assistant",
+    label: "Decidir",
+    href: "#assistant",
+    tier: "primary",
+    hint: "Preparar recomendación y estrategia",
+    terms: ["decidir", "asistente", "recomendación", "estrategia"],
+  }),
+  defineCommandDestination({
+    id: "activity",
+    label: "Seguimiento",
+    href: "#activity",
+    tier: "primary",
+    hint: "Revisar señales, cambios e histórico",
+    terms: ["seguimiento", "señales", "cambios", "histórico"],
+  }),
+  defineCommandDestination({
+    id: "inspector",
+    label: "Inspector",
+    href: "#inspector",
+    tier: "expert",
+    hint: "Contrastar evidencia, fuentes y calidad",
+    terms: ["inspector", "evidencia", "fuentes", "calidad"],
+  }),
+  defineCommandDestination({
+    id: "market",
+    label: "Benchmark",
+    href: "#market",
+    tier: "expert",
+    hint: "Revisar microzona, referencias y atributos",
+    terms: ["benchmark", "microzona", "referencias", "atributos"],
+  }),
+  defineCommandDestination({
+    id: "compare",
+    label: "Comparador",
+    href: "#compare",
+    tier: "expert",
+    hint: "Comparar diferencias entre proyectos",
+    terms: ["comparador", "comparar", "diferencias"],
+  }),
+  defineCommandDestination({
+    id: "trust",
+    label: "Checklist",
+    href: "#trust",
+    tier: "expert",
+    hint: "Validar preparación para campaña",
+    terms: ["checklist", "preparación", "campaña", "validación"],
+  }),
+]);
+
 export const legacyRoutes = {
   sources: "market",
   matching: "compare",

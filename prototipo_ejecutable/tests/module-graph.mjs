@@ -18,6 +18,7 @@ import {
   applyScenarioProduct,
   bindEvents,
   focusComparisonRow,
+  navigateToDestination,
   resetScenario,
   selectInspectorCase,
   selectScenarioProject,
@@ -26,6 +27,7 @@ import {
   setScenarioScope,
 } from "../public/js/controller.js";
 import {
+  commandDestinations,
   journeyEntry,
   journeyStages,
   sectionGuides,
@@ -70,6 +72,7 @@ const expectedViews = [
   "checklist.js",
   "assistant.js",
   "activity.js",
+  "command-menu.js",
 ].map((filename) =>
   path.join(projectDir, "public", "js", "views", filename),
 );
@@ -556,6 +559,18 @@ assert.strictEqual(
   beforeHashHistoryContext,
   "navegar entre rutas conserva la misma derivación histórica",
 );
+const beforeCommandRevision = state.scenarioContextRevision;
+state.mobileNavOpen = true;
+assert.equal(navigateToDestination("compare"), true);
+assert.equal(fakeLocation.hash, "#compare");
+assert.equal(state.mobileNavOpen, false);
+assert.equal(
+  state.scenarioContextRevision,
+  beforeCommandRevision,
+  "Ir a… navega sin recomponer el escenario",
+);
+assert.equal(navigateToDestination("unknown-destination"), false);
+assert.equal(commandDestinations.length, 9);
 delete globalThis.window;
 delete globalThis.document;
 
@@ -602,12 +617,15 @@ assert.doesNotMatch(appSource, /\bdispatchScenario\b/);
 assert.match(appSource, /inspector:\s*renderInspector/);
 assert.match(appSource, /selectInspectorCase\(requested,\s*\{\s*render:\s*false\s*\}\)/);
 assert.match(indexSource, /renderInspector/);
+assert.match(indexSource, /renderCommandMenu/);
 const featureStyleOrder = [
   "./styles/50-views.css",
   "./styles/55-inspector.css",
   "./styles/56-benchmark.css",
   "./styles/57-comparison.css",
   "./styles/60-states.css",
+  "./styles/64-command-menu.css",
+  "./styles/90-responsive.css",
 ].map((specifier) => stylesManifestSource.indexOf(specifier));
 assert.ok(featureStyleOrder.every((index) => index >= 0));
 assert.deepEqual(

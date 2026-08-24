@@ -1,7 +1,8 @@
-import { journeyEntry } from "./js/config.js";
+import { commandDestinations, journeyEntry } from "./js/config.js";
 import {
   bindEvents,
   initializeScenarioFromLocation,
+  navigateToDestination,
   restoreActiveInput,
   selectInspectorCase,
 } from "./js/controller.js";
@@ -22,10 +23,12 @@ import {
 } from "./js/state.js";
 import {
   buildScenarioPresentation,
+  filterCommandDestinations,
   loadBoundaryArtifact,
   renderActivity,
   renderAssistant,
   renderChecklist,
+  renderCommandMenu,
   renderCompare,
   renderDashboard,
   renderInspector,
@@ -144,6 +147,10 @@ let scenarioEditorOpen = false;
 let scenarioEditorReturnFocusId = "scenario-editor-trigger";
 let scenarioEditorPreviousNavOpen = false;
 let expertNavigationOpen = false;
+let commandMenuOpen = false;
+let commandMenuQuery = "";
+let commandMenuActiveIndex = 0;
+let commandMenuReturnFocusSelector = "#command-menu-trigger";
 
 const primaryNavigation = Object.freeze([
   { id: "journey", label: "Recorrido", hint: "Comprender la tesis completa" },
@@ -205,6 +212,22 @@ async function init() {
       render();
     });
     window.addEventListener("keydown", (event) => {
+      if (
+        event.key.toLocaleLowerCase("es") === "k" &&
+        (event.ctrlKey || event.metaKey) &&
+        !event.altKey &&
+        !isEditableControl(event.target)
+      ) {
+        event.preventDefault();
+        if (commandMenuOpen) closeCommandMenu();
+        else openCommandMenu(event.target);
+        return;
+      }
+      if (event.key === "Escape" && commandMenuOpen) {
+        event.preventDefault();
+        closeCommandMenu();
+        return;
+      }
       if (event.key === "Escape" && scenarioEditorOpen) {
         event.preventDefault();
         closeScenarioEditor();
@@ -441,6 +464,150 @@ function trapFocus(event, container) {
   }
 }
 
+function isEditableControl(target) {
+  return Boolean(
+    target?.closest?.('input, textarea, select, [contenteditable="true"]'),
+  );
+}
+
+function commandReturnSelector(element) {
+  if (element?.id) return `#${element.id}`;
+  if (element?.matches?.("[data-journey-entry]")) return "[data-journey-entry]";
+  const viewId = element?.dataset?.view;
+  return viewId ? `[data-view="${viewId}"]` : "#command-menu-trigger";
+}
+
+function commandResults() {
+  return filterCommandDestinations(commandDestinations, commandMenuQuery);
+}
+
+function openCommandMenu(trigger = document.activeElement) {
+  if (commandMenuOpen) return;
+  commandMenuReturnFocusSelector = commandReturnSelector(trigger);
+  commandMenuOpen = true;
+  commandMenuQuery = "";
+  commandMenuActiveIndex = 0;
+  scenarioEditorOpen = false;
+  render();
+}
+
+function closeCommandMenu({ restoreFocus = true } = {}) {
+  if (!commandMenuOpen) return;
+  document.getElementById("command-menu-dialog")?.close?.();
+  commandMenuOpen = false;
+  commandMenuQuery = "";
+  commandMenuActiveIndex = 0;
+  render();
+  if (restoreFocus) {
+    document.querySelector(commandMenuReturnFocusSelector)?.focus();
+  }
+}
+
+function activateCommandMenu() {
+  const dialog = document.getElementById("command-menu-dialog");
+  if (!dialog) return;
+  if (!dialog.open) dialog.showModal();
+  const input = document.getElementById("command-menu-input");
+  input?.focus();
+  input?.setSelectionRange?.(input.value.length, input.value.length);
+}
+
+function setCommandActiveIndex(nextIndex) {
+  const results = commandResults();
+  if (!results.length) {
+    commandMenuActiveIndex = 0;
+    return;
+  }
+  commandMenuActiveIndex = (nextIndex + results.length) % results.length;
+  const options = [...document.querySelectorAll("[data-command-destination]")];
+  options.forEach((option, index) => {
+    const active = index === commandMenuActiveIndex;
+    option.classList.toggle("is-active", active);
+    option.setAttribute("aria-selected", String(active));
+    if (active) option.scrollIntoView({ block: "nearest" });
+  });
+  document.getElementById("command-menu-input")?.setAttribute(
+    "aria-activedescendant",
+    options[commandMenuActiveIndex]?.id ?? "",
+  );
+}
+
+function navigateFromCommand(destinationId) {
+  document.getElementById("command-menu-dialog")?.close?.();
+  commandMenuOpen = false;
+  commandMenuQuery = "";
+  commandMenuActiveIndex = 0;
+  navigateToDestination(destinationId, { focusId: "main-content" });
+}
+
+function trapCommandMenuFocus(event, dialog) {
+  if (event.key !== "Tab") return;
+  const focusable = focusableElements(dialog);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+function bindCommandMenuEvents() {
+  document.getElementById("command-menu-trigger")?.addEventListener("click", (event) => {
+    openCommandMenu(event.currentTarget);
+  });
+  if (!commandMenuOpen) return;
+
+  const dialog = document.getElementById("command-menu-dialog");
+  const input = document.getElementById("command-menu-input");
+  dialog?.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    closeCommandMenu();
+  });
+  dialog?.addEventListener("keydown", (event) => {
+    trapCommandMenuFocus(event, dialog);
+  });
+  document.querySelector("[data-command-menu-close]")?.addEventListener("click", () => {
+    closeCommandMenu();
+  });
+  input?.addEventListener("input", (event) => {
+    commandMenuQuery = event.currentTarget.value;
+    commandMenuActiveIndex = 0;
+    render();
+  });
+  input?.addEventListener("keydown", (event) => {
+    const results = commandResults();
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setCommandActiveIndex(commandMenuActiveIndex + 1);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setCommandActiveIndex(commandMenuActiveIndex - 1);
+    } else if (event.key === "Home" && results.length) {
+      event.preventDefault();
+      setCommandActiveIndex(0);
+    } else if (event.key === "End" && results.length) {
+      event.preventDefault();
+      setCommandActiveIndex(results.length - 1);
+    } else if (event.key === "Enter" && results[commandMenuActiveIndex]) {
+      event.preventDefault();
+      navigateFromCommand(results[commandMenuActiveIndex].id);
+    }
+  });
+  document.querySelectorAll("[data-command-destination]").forEach((option) => {
+    option.addEventListener("pointerenter", () => {
+      setCommandActiveIndex(Number(option.dataset.commandIndex));
+    });
+    option.addEventListener("click", () => {
+      navigateFromCommand(option.dataset.commandDestination);
+    });
+  });
+  activateCommandMenu();
+}
+
 function bindCommercialShellEvents() {
   const journeyScenario = document.querySelector(".journey-topbar__scenario");
   if (journeyScenario) {
@@ -578,6 +745,21 @@ function render() {
             ${interfaceIcon("close")}
           </button>
         </div>
+        <button
+          class="command-menu-trigger"
+          id="command-menu-trigger"
+          type="button"
+          data-command-menu-open
+          aria-haspopup="dialog"
+          aria-controls="command-menu-dialog"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M6 7h12M6 12h7M6 17h9"></path>
+            <path d="m17 10 2 2-2 2"></path>
+          </svg>
+          <span>Ir a…</span>
+          <kbd aria-hidden="true">Ctrl K</kbd>
+        </button>
         ${renderScenarioSidebar(scenarioPresentation)}
         ${renderShellNavigation()}
         <div class="sidebar-footer">
@@ -613,11 +795,18 @@ function render() {
         </main>
       </div>
     </div>
+    ${renderCommandMenu({
+      open: commandMenuOpen,
+      destinations: commandDestinations,
+      query: commandMenuQuery,
+      activeIndex: commandMenuActiveIndex,
+    })}
   `;
 
   bindEvents(render);
   bindJourneyShellEvents();
   bindCommercialShellEvents();
+  bindCommandMenuEvents();
   restoreActiveInput();
   restoreInspectorRouteEffects();
   pendingJourneyAnnouncement = "";

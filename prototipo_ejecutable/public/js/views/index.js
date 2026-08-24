@@ -8,6 +8,11 @@ export { renderAssistant } from "./assistant.js";
 export { renderActivity } from "./activity.js";
 export { renderJourney, renderJourneyTopbar } from "./journey.js";
 export {
+  filterCommandDestinations,
+  normalizeCommandQuery,
+  renderCommandMenu,
+} from "./command-menu.js";
+export {
   buildScenarioPresentation,
   loadBoundaryArtifact,
   renderScenarioBar,
