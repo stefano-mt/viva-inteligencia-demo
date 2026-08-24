@@ -60,11 +60,26 @@ const primitives = [
   "action-tertiary",
 ];
 for (const primitive of primitives) assert.match(components, new RegExp(`\\.${primitive}(?:[\\s:{>,.]|$)`, "u"), `.${primitive}: primitive ausente`);
-for (const primitive of primitives) {
-  assert.doesNotMatch(
+const adoptedPrimitives = [
+  "decision-line",
+  "decision-line__reading",
+  "decision-line__limit",
+  "metric-row",
+  "metric-pair",
+  "workspace-toolbar",
+  "work-surface",
+  "data-list",
+  "data-row",
+  "data-row__primary",
+  "data-row__secondary",
+  "detail-disclosure",
+  "detail-disclosure__body",
+];
+for (const primitive of adoptedPrimitives) {
+  assert.match(
     runtimeSources,
     new RegExp(`["'\\s]${escapeRegex(primitive)}(?:[\\s"']|$)`, "u"),
-    `.${primitive}: P7-01 no puede adoptar primitives dentro de una vista`,
+    `.${primitive}: la fase integrada debe adoptar la primitive en una vista`,
   );
 }
 
@@ -82,7 +97,7 @@ for (const href of ["./styles/00-tokens.css", "./styles/10-base.css", "./styles/
 assert.ok(imports.indexOf("./styles/00-tokens.css") < imports.indexOf("./styles/10-base.css"));
 assert.ok(imports.indexOf("./styles/10-base.css") < imports.indexOf("./styles/30-components.css"));
 
-console.log("Commercial density OK: tokens, filas, toolbar, decision-line, disclosures y jerarquía de acciones disponibles sin adoptar vistas.");
+console.log("Commercial density OK: tokens y primitives preservados; decisiones, métricas, filas, toolbar y disclosures adoptados por las vistas.");
 
 async function read(relativePath) {
   return fs.readFile(new URL(relativePath, import.meta.url), "utf8");

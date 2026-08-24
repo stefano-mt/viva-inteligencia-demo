@@ -127,6 +127,10 @@ async function clickAndWaitForHash(page, locator, expectedHash) {
 }
 
 async function openExpert(page, routeId) {
+  const disclosure = page.locator("details.journey-expert");
+  if ((await disclosure.getAttribute("open")) === null) {
+    await disclosure.locator(":scope > summary").click();
+  }
   await clickAndWaitForHash(
     page,
     page.locator(`[data-journey-expert="${routeId}"]`),
@@ -343,8 +347,8 @@ await withDemoBrowser(
         .getAttribute("data-assistant-handoff"),
       "ready",
     );
-    assert.match(await visibleText(checklist), /Qué está listo/iu);
-    assert.match(await visibleText(checklist), /Qué está bloqueado/iu);
+    assert.match(await visibleText(checklist), /Evidencia del escenario/iu);
+    assert.match(await visibleText(checklist), /Límites que debes comunicar/iu);
     assert.match(await visibleText(checklist), /Próximo paso/iu);
     await capture(
       page,

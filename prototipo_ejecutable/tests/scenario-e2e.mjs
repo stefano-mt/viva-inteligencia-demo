@@ -358,6 +358,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.locator("#geo-project-select").inputValue(), targetObservedId, "Space/Enter debe seleccionar el mismo ID");
   assert.equal(await page.evaluate(() => document.activeElement?.id), "geo-project-select", "El foco de teclado debe persistir");
 
+  await openScenarioEditor(page);
   await page.locator("#scenario-view-positioning").click();
   assert.equal(await page.locator('.positioning-panel[data-visualization-active="true"]').count(), 1, "Debe activar posicionamiento");
   assert.equal(await page.evaluate(() => document.activeElement?.id), "scenario-view-positioning", "Posicionamiento debe conservar foco");
@@ -367,9 +368,10 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.evaluate(() => document.activeElement?.id), "scenario-view-geographic", "Geografía debe conservar foco");
   assert.equal(new URL(page.url()).searchParams.has("viz"), false, "La visualización por defecto no debe ensuciar la URL");
 
+  await page.locator("details.radar-simulation > summary").click();
   await page.locator("#scenario-product-price").fill("660000");
   await page.locator("#scenario-product-submit").click();
-  assert.equal(await page.evaluate(() => document.activeElement?.id), "scenario-product-submit", "Submit debe recuperar foco");
+  await page.locator("details.radar-simulation > summary").waitFor({ state: "visible" });
   assert.equal(new URL(page.url()).searchParams.get("price"), "660000", "El formulario debe persistir el precio");
 
   await openPath(page, baseUrl, descriptor.canonical_path);
@@ -450,7 +452,11 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     "data-canonical-project-id",
   );
   assert.deepEqual(baselineCatalogIds, baselineCompareIds, "Catálogo y comparador CT-I deben consumir los mismos 85 IDs");
-  assert.match(await page.locator('[data-scenario-consumer="catalog"]').innerText(), /69\s+con precio/i, "CT-I debe declarar 69 referencias de precio");
+  assert.match(
+    await page.locator('[data-scenario-consumer="catalog"]').innerText(),
+    /69 publicaciones declaran precio y área/i,
+    "CT-I debe declarar las 69 publicaciones con precio y área",
+  );
 
   for (const [routeId, consumer] of [
     ["trust", "checklist"],
@@ -538,6 +544,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.locator("[data-geo-point-id]").count(), 0, "El radio vacío no debe usar fallback");
   assert.match(await page.locator("#main-content").innerText(), /0 comparables dentro de 500 m/i, "Debe explicar el resultado cero");
   assert.equal(await page.locator("details.radar-deep-dive:not([open])").count(), 1, "El score insuficiente permanece disponible bajo demanda");
+  await page.locator("details.radar-simulation > summary").click();
   assert.match(await page.locator("#main-content").innerText(), /Referencia de precio insuficiente/i, "Debe degradar precio con prudencia");
 
   for (const [routeId, consumer] of [

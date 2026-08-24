@@ -122,10 +122,13 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   } = await createObservedPage(context, baseUrl);
   await openRoute(page, baseUrl, "dashboard");
 
+  await page.locator("#scenario-editor-trigger").click();
   const district = page.locator("#top-district");
+  await district.waitFor({ state: "visible" });
   assert.equal(await district.locator('option[value="150140"]').count(), 1, "Debe existir el distrito estable 150140");
   await district.selectOption("150140");
   assert.equal(await district.inputValue(), "150140", "El cambio al distrito 150140 no se conserva");
+  await page.keyboard.press("Escape");
 
   await page.locator('[data-view="projects"]').first().click();
   await page.locator("#project-query").fill("Miraflores");

@@ -237,7 +237,7 @@ const CORRECTIVE_ACTIONS = Object.freeze({
     href: "#dashboard",
   }),
   quality: Object.freeze({
-    label: "Volver a geografÃ­a",
+    label: "Volver a geografía",
     href: "#journey/geography",
   }),
   depth: Object.freeze({

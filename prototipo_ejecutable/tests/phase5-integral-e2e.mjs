@@ -71,7 +71,9 @@ await withDemoBrowser(
     assert.equal(await page.locator(".history-detail").count(), 0);
     assert.equal(await page.evaluate(() => document.activeElement?.id), evidenceToggleId);
 
+    await page.locator("#scenario-editor-trigger").click();
     const district = page.locator("#top-district");
+    await district.waitFor({ state: "visible" });
     const initialDistrict = await district.inputValue();
     const alternateDistrict = initialDistrict === "150140" ? "150122" : "150140";
     const alternateLabel = (
@@ -83,6 +85,7 @@ await withDemoBrowser(
       (expected) => document.querySelector("#top-district")?.value === expected,
       alternateDistrict,
     );
+    await page.keyboard.press("Escape");
     await page.locator('[data-history-status="ready"]').waitFor();
     const alternateRows = await rowIds(page);
     assert.ok(alternateRows.length > 0, "the alternate district must keep an observed history");
@@ -96,9 +99,11 @@ await withDemoBrowser(
 
     await page.locator('[data-view="dashboard"]').first().click();
     await page.locator('[data-view="dashboard"][aria-current="page"]').waitFor();
+    await page.locator("#scenario-editor-trigger").click();
     await page.locator("#scenario-scope-quadrant").click();
     assert.equal(new URL(page.url()).searchParams.get("scope"), "quadrant");
     assert.equal(new URL(page.url()).searchParams.get("quadrant"), "NW");
+    await page.keyboard.press("Escape");
     await page.locator('[data-view="assistant"]').first().click();
     await page.locator('[data-view="assistant"][aria-current="page"]').waitFor();
     await page.locator(".assistant-question").first().click();

@@ -248,6 +248,9 @@ async function init() {
     render();
   } catch (error) {
     root.innerHTML = errorTemplate(error);
+    root.querySelector("[data-app-retry]")?.addEventListener("click", () => {
+      window.location.reload();
+    });
   }
 }
 
