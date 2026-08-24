@@ -369,13 +369,14 @@ function renderAssistantWorkbench() {
       data-scenario-consumer="assistant"
       data-assistant-status="${escapeAttr(response?.status ?? "idle")}"
     >
-      <section class="assistant-intro panel">
+      <section class="assistant-intro panel" data-commercial-assistant-context>
         <div class="assistant-intro__copy">
-          <span class="assistant-mode">Respuesta basada en los datos visibles</span>
-          <h2>Convierte una pregunta en una recomendación verificable</h2>
+          <span class="assistant-mode">Decisión con evidencia</span>
+          <span class="sr-only">Respuesta basada en los datos visibles</span>
+          <h2>Pregunta primero. Verifica antes de decidir.</h2>
           <p>
-            El asistente usa la zona activa y las fuentes disponibles en la
-            demo. No busca datos externos ni cambia la muestra mientras responde.
+            La respuesta usa el escenario activo, no consulta fuentes externas
+            y conserva los límites de la muestra.
           </p>
           ${
             (state.scenarioContext?.comparable_project_ids?.length ?? 0) === 0
@@ -390,25 +391,11 @@ function renderAssistantWorkbench() {
         </dl>
       </section>
 
-      ${response ? renderTraceableAssistantResponse(response) : renderAssistantEmptyState()}
-
-      <section class="assistant-query panel" aria-labelledby="assistant-query-title">
-        <div class="assistant-question-bank">
-          <div>
-            <p class="assistant-step">1 · Elige una pregunta compatible</p>
-            <h2 id="assistant-query-title">¿Qué necesitas leer?</h2>
-            <p>Parte de una pregunta validada o escribe una consulta breve sobre el escenario activo.</p>
-          </div>
-          <div class="assistant-suggestions">
-            ${questions.slice(0, 3).map(renderAssistantQuestion).join("")}
-          </div>
-          ${renderAdditionalQuestions(questions.slice(3))}
-        </div>
-
+      <section class="assistant-query panel" aria-labelledby="assistant-query-title" data-commercial-assistant-query>
         <form class="assistant-composer" id="assistant-form" novalidate>
           <div class="assistant-composer__heading">
-            <p class="assistant-step">2 · Formula la consulta</p>
-            <h2>Pregunta comercial</h2>
+            <p class="assistant-step">Consulta comercial</p>
+            <h2 id="assistant-query-title">¿Qué necesitas decidir?</h2>
           </div>
           <label for="assistant-input">Escribe una pregunta sobre el escenario activo</label>
           <textarea
@@ -429,7 +416,20 @@ function renderAssistantWorkbench() {
             ${response ? '<button class="secondary-button" type="button" data-assistant-clear>Nueva pregunta</button>' : ""}
           </div>
         </form>
+        <div class="assistant-question-bank">
+          <div>
+            <p class="assistant-step">Atajos</p>
+            <h2>Preguntas frecuentes</h2>
+            <p>Elige una para completar la consulta sin cambiar el escenario.</p>
+          </div>
+          <div class="assistant-suggestions">
+            ${questions.slice(0, 3).map(renderAssistantQuestion).join("")}
+          </div>
+          ${renderAdditionalQuestions(questions.slice(3))}
+        </div>
       </section>
+
+      ${response ? renderTraceableAssistantResponse(response) : renderAssistantEmptyState()}
 
       <p class="sr-only" id="assistant-live" aria-live="polite" aria-atomic="true"></p>
     </section>
@@ -511,12 +511,15 @@ function renderAssistantEmptyState() {
 export function renderTraceableAssistantResponse(response) {
   const meta = assistantStatusMeta(response.status);
   const blocks = Array.isArray(response.blocks) ? response.blocks : [];
-  const responseBlock = blocks.find(({ type }) => type === "response");
+  const responseBlock = blocks.find(
+    ({ type }) => type === "answer" || type === "response",
+  );
   const nextStepBlock = blocks.find(({ type }) => type === "next_step");
   const referencesBlock = blocks.find(({ type }) => type === "references");
   const limitationsBlock = blocks.find(({ type }) => type === "limitations");
   const detailBlocks = blocks.filter(
     ({ type }) =>
+      type !== "answer" &&
       type !== "response" &&
       type !== "next_step" &&
       type !== "references" &&
@@ -565,7 +568,7 @@ export function renderTraceableAssistantResponse(response) {
       }
       ${
         referencesBlock
-          ? `<div class="assistant-reference-access">${renderAssistantBlock(referencesBlock, blocks.indexOf(referencesBlock))}</div>`
+          ? `<details class="assistant-reference-access" open><summary>${formatNumber(referencesBlock.items?.length ?? 0)} referencias usadas</summary>${renderAssistantBlock(referencesBlock, blocks.indexOf(referencesBlock))}</details>`
           : ""
       }
       <details class="assistant-evidence-disclosure">
