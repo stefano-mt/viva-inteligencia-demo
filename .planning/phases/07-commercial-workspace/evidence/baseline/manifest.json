@@ -1,0 +1,2382 @@
+{
+  "step": "P7-00D",
+  "approvalSha": "53ccfefb487e92f95f334d442c2356720e2cc7ed",
+  "surfaces": [
+    {
+      "id": "journey-scale",
+      "route": "/#journey/scale",
+      "root": ".journey-view[data-journey-stage=\"scale\"]"
+    },
+    {
+      "id": "journey-geography",
+      "route": "/#journey/geography",
+      "root": ".journey-view[data-journey-stage=\"geography\"]"
+    },
+    {
+      "id": "journey-quality",
+      "route": "/#journey/quality",
+      "root": ".journey-view[data-journey-stage=\"quality\"]"
+    },
+    {
+      "id": "journey-depth",
+      "route": "/#journey/depth",
+      "root": ".journey-view[data-journey-stage=\"depth\"]"
+    },
+    {
+      "id": "journey-movement",
+      "route": "/#journey/movement",
+      "root": ".journey-view[data-journey-stage=\"movement\"]"
+    },
+    {
+      "id": "journey-decision",
+      "route": "/#journey/decision",
+      "root": ".journey-view[data-journey-stage=\"decision\"]"
+    },
+    {
+      "id": "expert-dashboard",
+      "route": "/#dashboard",
+      "root": ".dashboard-grid"
+    },
+    {
+      "id": "expert-projects",
+      "route": "/#projects",
+      "root": "[data-scenario-consumer=\"catalog\"]"
+    },
+    {
+      "id": "expert-inspector",
+      "route": "/#inspector/case/f3-ct-g-pardo",
+      "root": ".inspector-view[data-inspector-state=\"ready\"]"
+    },
+    {
+      "id": "expert-market",
+      "route": "/#market",
+      "root": "[data-scenario-consumer=\"benchmark\"]"
+    },
+    {
+      "id": "expert-compare",
+      "route": "/#compare",
+      "root": ".comparison-shell[data-comparison-status=\"ready\"]"
+    },
+    {
+      "id": "expert-trust",
+      "route": "/#trust",
+      "root": ".checklist-evidence"
+    },
+    {
+      "id": "expert-assistant",
+      "route": "/#assistant",
+      "root": ".assistant-workbench"
+    },
+    {
+      "id": "expert-activity",
+      "route": "/#activity",
+      "root": ".history-view[data-history-status=\"ready\"]"
+    }
+  ],
+  "viewports": [
+    {
+      "name": "desktop",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "name": "laptop",
+      "width": 1280,
+      "height": 720
+    },
+    {
+      "name": "mobile",
+      "width": 390,
+      "height": 844
+    }
+  ],
+  "totals": {
+    "surfaces": 14,
+    "viewportChecks": 42,
+    "consoleOrPageErrors": 0,
+    "externalRequests": 0,
+    "horizontalOverflowCases": 0
+  },
+  "files": [
+    {
+      "file": "journey-scale-1440x900.png",
+      "sha256": "ae72c8d025f263c9b1c6ad92e07cda6f7ce34e2186bd1a3e12aff50233df492d",
+      "surface": "journey-scale",
+      "route": "/#journey/scale",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#journey/scale",
+      "metrics": {
+        "title": "¿Qué mercado observable sostiene la lectura?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué mercado observable sostiene la lectura?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1016,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 8,
+        "aboveFoldControlCount": 8,
+        "primaryControlCount": 1,
+        "mainTextLength": 1099,
+        "rootTextLength": 1099,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-geography-1440x900.png",
+      "sha256": "f981b92cb65a6b92bd5d603b262e573da7c4e5f9a663f94e5ab54ea919201ad6",
+      "surface": "journey-geography",
+      "route": "/#journey/geography",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#journey/geography",
+      "metrics": {
+        "title": "¿Dónde compite el proyecto?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Dónde compite el proyecto?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 960,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 10,
+        "aboveFoldControlCount": 10,
+        "primaryControlCount": 1,
+        "mainTextLength": 1062,
+        "rootTextLength": 1062,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-quality-1440x900.png",
+      "sha256": "e827e607e1b4d562142c0a80dd91c04da63e8d568efd33a5ae846c420d1c79f5",
+      "surface": "journey-quality",
+      "route": "/#journey/quality",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#journey/quality",
+      "metrics": {
+        "title": "¿Qué dato puede utilizarse?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué dato puede utilizarse?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 960,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 9,
+        "aboveFoldControlCount": 9,
+        "primaryControlCount": 1,
+        "mainTextLength": 1097,
+        "rootTextLength": 1097,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-depth-1440x900.png",
+      "sha256": "2775283be0d4b009963daded3007b7473f8d395bff77f4bcf8fee6cff161d60e",
+      "surface": "journey-depth",
+      "route": "/#journey/depth",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#journey/depth",
+      "metrics": {
+        "title": "¿Cómo se diferencia la oferta?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Cómo se diferencia la oferta?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1137,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 12,
+        "aboveFoldControlCount": 6,
+        "primaryControlCount": 1,
+        "mainTextLength": 1137,
+        "rootTextLength": 1137,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-movement-1440x900.png",
+      "sha256": "2a04338f6bacc079a20520fad84062de7f41fab04f5dce181bd8609850a71b3a",
+      "surface": "journey-movement",
+      "route": "/#journey/movement",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#journey/movement",
+      "metrics": {
+        "title": "¿Qué cambió en el mercado?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué cambió en el mercado?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 960,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 9,
+        "aboveFoldControlCount": 9,
+        "primaryControlCount": 1,
+        "mainTextLength": 962,
+        "rootTextLength": 962,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-decision-1440x900.png",
+      "sha256": "f224e9de2e5b50d3af19d8c88815409fd77eed0519ef73787bac32c2e1cfcd0c",
+      "surface": "journey-decision",
+      "route": "/#journey/decision",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#journey/decision",
+      "metrics": {
+        "title": "¿Qué hacemos y qué no podemos afirmar?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué hacemos y qué no podemos afirmar?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1088,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 10,
+        "aboveFoldControlCount": 8,
+        "primaryControlCount": 1,
+        "mainTextLength": 1188,
+        "rootTextLength": 1188,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-dashboard-1440x900.png",
+      "sha256": "6bcc68d259e6143c178c934d37d14d556f3d4dcdab7c0c52b5c53859c6af1829",
+      "surface": "expert-dashboard",
+      "route": "/#dashboard",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#dashboard",
+      "metrics": {
+        "title": "Radar comercial",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Radar comercial"
+          },
+          {
+            "level": "h2",
+            "text": "Mapa del escenario"
+          },
+          {
+            "level": "h3",
+            "text": "Arequipa"
+          },
+          {
+            "level": "h2",
+            "text": "Producto y precio"
+          },
+          {
+            "level": "h2",
+            "text": "Diagnóstico publicado vs. simulado"
+          },
+          {
+            "level": "h2",
+            "text": "Por qué es comparable"
+          },
+          {
+            "level": "h2",
+            "text": "Comparables a revisar primero"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1644,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 23,
+        "aboveFoldControlCount": 7,
+        "primaryControlCount": 1,
+        "mainTextLength": 4241,
+        "rootTextLength": 4139,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-projects-1440x900.png",
+      "sha256": "4435b856f3113e205a56c53227fa08405f9d90a565589cf587170fb78fba3417",
+      "surface": "expert-projects",
+      "route": "/#projects",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#projects",
+      "metrics": {
+        "title": "Proyectos comparables",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Proyectos comparables"
+          },
+          {
+            "level": "h2",
+            "text": "85 proyectos para priorizar"
+          },
+          {
+            "level": "h2",
+            "text": "Ordena y selecciona candidatos"
+          },
+          {
+            "level": "h2",
+            "text": "Arequipa"
+          },
+          {
+            "level": "h3",
+            "text": "Cobertura de evidencia"
+          },
+          {
+            "level": "h3",
+            "text": "Resumen ejecutivo"
+          },
+          {
+            "level": "h3",
+            "text": "Datos publicados"
+          },
+          {
+            "level": "h3",
+            "text": "Atributos publicados"
+          },
+          {
+            "level": "h3",
+            "text": "Fuente"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1436,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 32,
+        "aboveFoldControlCount": 11,
+        "primaryControlCount": 1,
+        "mainTextLength": 4639,
+        "rootTextLength": 4543,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-inspector-1440x900.png",
+      "sha256": "e7a112ff1cf6300695c525076a4f21110ad11b3ca7eeff727fb62de80504bebe",
+      "surface": "expert-inspector",
+      "route": "/#inspector/case/f3-ct-g-pardo",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#inspector/case/f3-ct-g-pardo",
+      "metrics": {
+        "title": "Inspector de evidencia",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Inspector de evidencia"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h1",
+            "text": "Inspector de evidencia"
+          },
+          {
+            "level": "h2",
+            "text": "Tipo 7 no debe entrar a la comparación"
+          },
+          {
+            "level": "h2",
+            "text": "Profundidad disponible"
+          },
+          {
+            "level": "h2",
+            "text": "Expediente a contrastar"
+          },
+          {
+            "level": "h2",
+            "text": "Pardo Coast · Tipo 7"
+          },
+          {
+            "level": "h2",
+            "text": "Comparación campo por campo"
+          },
+          {
+            "level": "h2",
+            "text": "Evidencia permitida"
+          },
+          {
+            "level": "h2",
+            "text": "Uso en la comparación"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 2527,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 15,
+        "aboveFoldControlCount": 5,
+        "primaryControlCount": 1,
+        "mainTextLength": 5361,
+        "rootTextLength": 5110,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-market-1440x900.png",
+      "sha256": "5cc4be755cd974aad3e5617ff20d74a6b7f39eac11b34c13a5bf213470b82950",
+      "surface": "expert-market",
+      "route": "/#market",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#market",
+      "metrics": {
+        "title": "Benchmark de microzona",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Benchmark de microzona"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Tres niveles de cobertura que no deben sumarse"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores tiene 85 comparables; 68 permiten un índice orientativo de entrada, pero la pareja precio–área no está demostrada a nivel de unidad."
+          },
+          {
+            "level": "h3",
+            "text": "Cómo se usa esta muestra"
+          },
+          {
+            "level": "h3",
+            "text": "Índice orientativo de entrada"
+          },
+          {
+            "level": "h3",
+            "text": "Oferta de la muestra"
+          },
+          {
+            "level": "h3",
+            "text": "Atributos anunciados"
+          },
+          {
+            "level": "h3",
+            "text": "Usados por el benchmark elegible"
+          },
+          {
+            "level": "h3",
+            "text": "Faltantes"
+          },
+          {
+            "level": "h3",
+            "text": "Excluidos"
+          },
+          {
+            "level": "h3",
+            "text": "Regla de lectura"
+          },
+          {
+            "level": "h2",
+            "text": "Lectura territorial de Miraflores"
+          },
+          {
+            "level": "h2",
+            "text": "Ranking distrital por carga observada"
+          },
+          {
+            "level": "h2",
+            "text": "Cuadrantes para analizar la muestra"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 3912,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 50,
+        "aboveFoldControlCount": 4,
+        "primaryControlCount": 1,
+        "mainTextLength": 3444,
+        "rootTextLength": 3207,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-compare-1440x900.png",
+      "sha256": "c1d83d73a6173bf337ea6befb17df61974c92b2d4aeefad3418a830798a46266",
+      "surface": "expert-compare",
+      "route": "/#compare",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#compare",
+      "metrics": {
+        "title": "Comparador comercial",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Comparador comercial"
+          },
+          {
+            "level": "h1",
+            "text": "Comparador comercial"
+          },
+          {
+            "level": "h2",
+            "text": "Qué cambia la decisión"
+          },
+          {
+            "level": "h2",
+            "text": "Tres grupos que no deben sumarse"
+          },
+          {
+            "level": "h2",
+            "text": "Comparación completa"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 2232,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 62,
+        "aboveFoldControlCount": 10,
+        "primaryControlCount": 1,
+        "mainTextLength": 2501,
+        "rootTextLength": 2402,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-trust-1440x900.png",
+      "sha256": "824a2f25abb26f408e2a3a2bf54d59a980f3f4f017f08c8fcc0ccdbcfc13c797",
+      "surface": "expert-trust",
+      "route": "/#trust",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#trust",
+      "metrics": {
+        "title": "Checklist comercial",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Checklist comercial"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Checklist de evidencia · Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Avance bloqueado por evidencia"
+          },
+          {
+            "level": "h2",
+            "text": "Muestra vigente"
+          },
+          {
+            "level": "h2",
+            "text": "Referencia publicada provisional"
+          },
+          {
+            "level": "h2",
+            "text": "Comparables para revisión"
+          },
+          {
+            "level": "h2",
+            "text": "Condición de avance"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1063,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 10,
+        "aboveFoldControlCount": 5,
+        "primaryControlCount": 1,
+        "mainTextLength": 996,
+        "rootTextLength": 745,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-assistant-1440x900.png",
+      "sha256": "85a4bb32f69d32161610a9840d16ec597dcfcd9ba06a5235a46a3a7434fad3a6",
+      "surface": "expert-assistant",
+      "route": "/#assistant",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#assistant",
+      "metrics": {
+        "title": "Asistente de estrategia",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Asistente de estrategia"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Convierte una pregunta en una recomendación verificable"
+          },
+          {
+            "level": "h2",
+            "text": "Formula una consulta antes de tomar una decisión"
+          },
+          {
+            "level": "h2",
+            "text": "¿Qué necesitas leer?"
+          },
+          {
+            "level": "h2",
+            "text": "Pregunta comercial"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1424,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 14,
+        "aboveFoldControlCount": 4,
+        "primaryControlCount": 1,
+        "mainTextLength": 1328,
+        "rootTextLength": 1072,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-activity-1440x900.png",
+      "sha256": "24a424e1fa94a583c9f4aef66382f6714b45130f359b395f579830ab2f33de4a",
+      "surface": "expert-activity",
+      "route": "/#activity",
+      "viewport": {
+        "name": "desktop",
+        "width": 1440,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4375/#activity",
+      "metrics": {
+        "title": "Señales del mercado",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Señales del mercado"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Cambios publicados en Miraflores"
+          },
+          {
+            "level": "h3",
+            "text": "Hay un cambio publicado; su causa no se presume"
+          },
+          {
+            "level": "h3",
+            "text": "Resumen de calidad"
+          },
+          {
+            "level": "h3",
+            "text": "Acotar la lectura"
+          },
+          {
+            "level": "h3",
+            "text": "Línea de tiempo explicable"
+          },
+          {
+            "level": "h3",
+            "text": "Agenda de seguimiento"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 3509,
+        "viewportHeight": 900,
+        "horizontalOverflow": 0,
+        "controlCount": 28,
+        "aboveFoldControlCount": 5,
+        "primaryControlCount": 1,
+        "mainTextLength": 3667,
+        "rootTextLength": 3430,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-scale-1280x720.png",
+      "sha256": "3ea6b09ddc453b53c7579b2e2a16d144b86bf996c6a84fa1edda44ecf89bee37",
+      "surface": "journey-scale",
+      "route": "/#journey/scale",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#journey/scale",
+      "metrics": {
+        "title": "¿Qué mercado observable sostiene la lectura?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué mercado observable sostiene la lectura?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 720,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 8,
+        "aboveFoldControlCount": 8,
+        "primaryControlCount": 1,
+        "mainTextLength": 901,
+        "rootTextLength": 901,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-geography-1280x720.png",
+      "sha256": "baafb70ed8900e8be164c781f4df6626e6e604b5644488d2682c2f16877babb4",
+      "surface": "journey-geography",
+      "route": "/#journey/geography",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#journey/geography",
+      "metrics": {
+        "title": "¿Dónde compite el proyecto?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Dónde compite el proyecto?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 720,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 10,
+        "aboveFoldControlCount": 10,
+        "primaryControlCount": 1,
+        "mainTextLength": 864,
+        "rootTextLength": 864,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-quality-1280x720.png",
+      "sha256": "0566c44bef52717b096edfdc005b43dd66aa07ffa76766ce8ba05d1cdf515ffc",
+      "surface": "journey-quality",
+      "route": "/#journey/quality",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#journey/quality",
+      "metrics": {
+        "title": "¿Qué dato puede utilizarse?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué dato puede utilizarse?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 720,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 9,
+        "aboveFoldControlCount": 9,
+        "primaryControlCount": 1,
+        "mainTextLength": 899,
+        "rootTextLength": 899,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-depth-1280x720.png",
+      "sha256": "d999389156fe0cab38b48f111d38882c9b5f74a346cbaffbbbe36b7c7e50b121",
+      "surface": "journey-depth",
+      "route": "/#journey/depth",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#journey/depth",
+      "metrics": {
+        "title": "¿Cómo se diferencia la oferta?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Cómo se diferencia la oferta?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 764,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 12,
+        "aboveFoldControlCount": 12,
+        "primaryControlCount": 1,
+        "mainTextLength": 939,
+        "rootTextLength": 939,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-movement-1280x720.png",
+      "sha256": "13b832da867fc840def8a81f2dd2191f083f0b8b00abc1e81080dc30eca7c9e9",
+      "surface": "journey-movement",
+      "route": "/#journey/movement",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#journey/movement",
+      "metrics": {
+        "title": "¿Qué cambió en el mercado?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué cambió en el mercado?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 720,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 9,
+        "aboveFoldControlCount": 9,
+        "primaryControlCount": 1,
+        "mainTextLength": 764,
+        "rootTextLength": 764,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-decision-1280x720.png",
+      "sha256": "77901453f1e73473951e519d4d4cf408faf115b0d39dbde3379363516d5f72d0",
+      "surface": "journey-decision",
+      "route": "/#journey/decision",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#journey/decision",
+      "metrics": {
+        "title": "¿Qué hacemos y qué no podemos afirmar?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué hacemos y qué no podemos afirmar?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 720,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 10,
+        "aboveFoldControlCount": 10,
+        "primaryControlCount": 1,
+        "mainTextLength": 990,
+        "rootTextLength": 990,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-dashboard-1280x720.png",
+      "sha256": "2b40389b1608b65cafe39d340d6a1b14c551bd5faa40a1313db02b1a3765d589",
+      "surface": "expert-dashboard",
+      "route": "/#dashboard",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#dashboard",
+      "metrics": {
+        "title": "Radar comercial",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Radar comercial"
+          },
+          {
+            "level": "h2",
+            "text": "Mapa del escenario"
+          },
+          {
+            "level": "h3",
+            "text": "Arequipa"
+          },
+          {
+            "level": "h2",
+            "text": "Producto y precio"
+          },
+          {
+            "level": "h2",
+            "text": "Diagnóstico publicado vs. simulado"
+          },
+          {
+            "level": "h2",
+            "text": "Por qué es comparable"
+          },
+          {
+            "level": "h2",
+            "text": "Comparables a revisar primero"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 2793,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 23,
+        "aboveFoldControlCount": 4,
+        "primaryControlCount": 1,
+        "mainTextLength": 4241,
+        "rootTextLength": 4139,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-projects-1280x720.png",
+      "sha256": "59cd9aff95f1543ac93112ca203fe780721b883a9c546b02d97245bc6b1752df",
+      "surface": "expert-projects",
+      "route": "/#projects",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#projects",
+      "metrics": {
+        "title": "Proyectos comparables",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Proyectos comparables"
+          },
+          {
+            "level": "h2",
+            "text": "85 proyectos para priorizar"
+          },
+          {
+            "level": "h2",
+            "text": "Ordena y selecciona candidatos"
+          },
+          {
+            "level": "h2",
+            "text": "Arequipa"
+          },
+          {
+            "level": "h3",
+            "text": "Cobertura de evidencia"
+          },
+          {
+            "level": "h3",
+            "text": "Resumen ejecutivo"
+          },
+          {
+            "level": "h3",
+            "text": "Datos publicados"
+          },
+          {
+            "level": "h3",
+            "text": "Atributos publicados"
+          },
+          {
+            "level": "h3",
+            "text": "Fuente"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1770,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 32,
+        "aboveFoldControlCount": 9,
+        "primaryControlCount": 1,
+        "mainTextLength": 4639,
+        "rootTextLength": 4543,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-inspector-1280x720.png",
+      "sha256": "ebad48298616a773fd73b0245afd1a110879ab45b5e5fd107d423673c7def686",
+      "surface": "expert-inspector",
+      "route": "/#inspector/case/f3-ct-g-pardo",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#inspector/case/f3-ct-g-pardo",
+      "metrics": {
+        "title": "Inspector de evidencia",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Inspector de evidencia"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h1",
+            "text": "Inspector de evidencia"
+          },
+          {
+            "level": "h2",
+            "text": "Tipo 7 no debe entrar a la comparación"
+          },
+          {
+            "level": "h2",
+            "text": "Profundidad disponible"
+          },
+          {
+            "level": "h2",
+            "text": "Expediente a contrastar"
+          },
+          {
+            "level": "h2",
+            "text": "Pardo Coast · Tipo 7"
+          },
+          {
+            "level": "h2",
+            "text": "Comparación campo por campo"
+          },
+          {
+            "level": "h2",
+            "text": "Evidencia permitida"
+          },
+          {
+            "level": "h2",
+            "text": "Uso en la comparación"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 2461,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 15,
+        "aboveFoldControlCount": 5,
+        "primaryControlCount": 1,
+        "mainTextLength": 5361,
+        "rootTextLength": 5110,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-market-1280x720.png",
+      "sha256": "c3b8914b4a1f9b2b036a386450d0b567e6fc8758ae29b4830ead60d88afa2150",
+      "surface": "expert-market",
+      "route": "/#market",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#market",
+      "metrics": {
+        "title": "Benchmark de microzona",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Benchmark de microzona"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Tres niveles de cobertura que no deben sumarse"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores tiene 85 comparables; 68 permiten un índice orientativo de entrada, pero la pareja precio–área no está demostrada a nivel de unidad."
+          },
+          {
+            "level": "h3",
+            "text": "Cómo se usa esta muestra"
+          },
+          {
+            "level": "h3",
+            "text": "Índice orientativo de entrada"
+          },
+          {
+            "level": "h3",
+            "text": "Oferta de la muestra"
+          },
+          {
+            "level": "h3",
+            "text": "Atributos anunciados"
+          },
+          {
+            "level": "h3",
+            "text": "Usados por el benchmark elegible"
+          },
+          {
+            "level": "h3",
+            "text": "Faltantes"
+          },
+          {
+            "level": "h3",
+            "text": "Excluidos"
+          },
+          {
+            "level": "h3",
+            "text": "Regla de lectura"
+          },
+          {
+            "level": "h2",
+            "text": "Lectura territorial de Miraflores"
+          },
+          {
+            "level": "h2",
+            "text": "Ranking distrital por carga observada"
+          },
+          {
+            "level": "h2",
+            "text": "Cuadrantes para analizar la muestra"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 3986,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 50,
+        "aboveFoldControlCount": 3,
+        "primaryControlCount": 1,
+        "mainTextLength": 3444,
+        "rootTextLength": 3207,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-compare-1280x720.png",
+      "sha256": "19149abd05f6c365c1b9ada2b56da4d0ba96a8c16d4159bebb9c459443feb8c8",
+      "surface": "expert-compare",
+      "route": "/#compare",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#compare",
+      "metrics": {
+        "title": "Comparador comercial",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Comparador comercial"
+          },
+          {
+            "level": "h1",
+            "text": "Comparador comercial"
+          },
+          {
+            "level": "h2",
+            "text": "Qué cambia la decisión"
+          },
+          {
+            "level": "h2",
+            "text": "Tres grupos que no deben sumarse"
+          },
+          {
+            "level": "h2",
+            "text": "Comparación completa"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 2319,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 62,
+        "aboveFoldControlCount": 8,
+        "primaryControlCount": 1,
+        "mainTextLength": 2501,
+        "rootTextLength": 2402,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-trust-1280x720.png",
+      "sha256": "41a14007a73e0fb865067fb44e9d6bc8fdff6a3233930e7d70e6e7c116d5b2cb",
+      "surface": "expert-trust",
+      "route": "/#trust",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#trust",
+      "metrics": {
+        "title": "Checklist comercial",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Checklist comercial"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Checklist de evidencia · Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Avance bloqueado por evidencia"
+          },
+          {
+            "level": "h2",
+            "text": "Muestra vigente"
+          },
+          {
+            "level": "h2",
+            "text": "Referencia publicada provisional"
+          },
+          {
+            "level": "h2",
+            "text": "Comparables para revisión"
+          },
+          {
+            "level": "h2",
+            "text": "Condición de avance"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1103,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 10,
+        "aboveFoldControlCount": 3,
+        "primaryControlCount": 1,
+        "mainTextLength": 996,
+        "rootTextLength": 745,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-assistant-1280x720.png",
+      "sha256": "1fb02d0990c0678211f09450e38f5ad7f2ba94af04765c60144022aa64b09036",
+      "surface": "expert-assistant",
+      "route": "/#assistant",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#assistant",
+      "metrics": {
+        "title": "Asistente de estrategia",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Asistente de estrategia"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Convierte una pregunta en una recomendación verificable"
+          },
+          {
+            "level": "h2",
+            "text": "Formula una consulta antes de tomar una decisión"
+          },
+          {
+            "level": "h2",
+            "text": "¿Qué necesitas leer?"
+          },
+          {
+            "level": "h2",
+            "text": "Pregunta comercial"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1464,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 14,
+        "aboveFoldControlCount": 2,
+        "primaryControlCount": 1,
+        "mainTextLength": 1328,
+        "rootTextLength": 1072,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-activity-1280x720.png",
+      "sha256": "2f4329a62bcfab0b44634045aa94bcb6eeac79b01694e6aa1623861a1e512d6f",
+      "surface": "expert-activity",
+      "route": "/#activity",
+      "viewport": {
+        "name": "laptop",
+        "width": 1280,
+        "height": 720
+      },
+      "url": "http://127.0.0.1:4375/#activity",
+      "metrics": {
+        "title": "Señales del mercado",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Señales del mercado"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Cambios publicados en Miraflores"
+          },
+          {
+            "level": "h3",
+            "text": "Hay un cambio publicado; su causa no se presume"
+          },
+          {
+            "level": "h3",
+            "text": "Resumen de calidad"
+          },
+          {
+            "level": "h3",
+            "text": "Acotar la lectura"
+          },
+          {
+            "level": "h3",
+            "text": "Línea de tiempo explicable"
+          },
+          {
+            "level": "h3",
+            "text": "Agenda de seguimiento"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 3560,
+        "viewportHeight": 720,
+        "horizontalOverflow": 0,
+        "controlCount": 28,
+        "aboveFoldControlCount": 4,
+        "primaryControlCount": 1,
+        "mainTextLength": 3667,
+        "rootTextLength": 3430,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-scale-390x844.png",
+      "sha256": "656eec3fe5fa2dae7acfa72ca2da827245fc2c8835151530c5d70286b2f9f4ea",
+      "surface": "journey-scale",
+      "route": "/#journey/scale",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#journey/scale",
+      "metrics": {
+        "title": "¿Qué mercado observable sostiene la lectura?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué mercado observable sostiene la lectura?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1503,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 9,
+        "aboveFoldControlCount": 7,
+        "primaryControlCount": 1,
+        "mainTextLength": 848,
+        "rootTextLength": 848,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-geography-390x844.png",
+      "sha256": "3e12649cf595cee9966587bc61ea5b29da869b3f3a8395ff400aae4bc6683cc3",
+      "surface": "journey-geography",
+      "route": "/#journey/geography",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#journey/geography",
+      "metrics": {
+        "title": "¿Dónde compite el proyecto?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Dónde compite el proyecto?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1473,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 11,
+        "aboveFoldControlCount": 7,
+        "primaryControlCount": 1,
+        "mainTextLength": 814,
+        "rootTextLength": 814,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-quality-390x844.png",
+      "sha256": "aaa33d93fa4123e9a761e5a52ffa63b59a4c3c55997b4e00308cce11c915e89d",
+      "surface": "journey-quality",
+      "route": "/#journey/quality",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#journey/quality",
+      "metrics": {
+        "title": "¿Qué dato puede utilizarse?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué dato puede utilizarse?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1495,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 10,
+        "aboveFoldControlCount": 7,
+        "primaryControlCount": 1,
+        "mainTextLength": 847,
+        "rootTextLength": 847,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-depth-390x844.png",
+      "sha256": "776188658ee4e39019a901f5dbb4026bafc52cbd9b5ca9c79b09fedd42eb12eb",
+      "surface": "journey-depth",
+      "route": "/#journey/depth",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#journey/depth",
+      "metrics": {
+        "title": "¿Cómo se diferencia la oferta?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Cómo se diferencia la oferta?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1666,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 13,
+        "aboveFoldControlCount": 7,
+        "primaryControlCount": 1,
+        "mainTextLength": 891,
+        "rootTextLength": 891,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-movement-390x844.png",
+      "sha256": "211a2fd23040489d0bd7ab8f7617850255a65666fd5ad217eb3b8650a8381443",
+      "surface": "journey-movement",
+      "route": "/#journey/movement",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#journey/movement",
+      "metrics": {
+        "title": "¿Qué cambió en el mercado?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué cambió en el mercado?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1393,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 10,
+        "aboveFoldControlCount": 7,
+        "primaryControlCount": 1,
+        "mainTextLength": 715,
+        "rootTextLength": 715,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "journey-decision-390x844.png",
+      "sha256": "7fc0253e874eb5b20f3400844661d14b669e41af10a2eef02e7ffe23db587e00",
+      "surface": "journey-decision",
+      "route": "/#journey/decision",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#journey/decision",
+      "metrics": {
+        "title": "¿Qué hacemos y qué no podemos afirmar?",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "¿Qué hacemos y qué no podemos afirmar?"
+          },
+          {
+            "level": "h2",
+            "text": "Qué sabemos"
+          },
+          {
+            "level": "h2",
+            "text": "Qué falta o no puede afirmarse"
+          },
+          {
+            "level": "h2",
+            "text": "Revisar el detalle"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1566,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 11,
+        "aboveFoldControlCount": 7,
+        "primaryControlCount": 1,
+        "mainTextLength": 939,
+        "rootTextLength": 939,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-dashboard-390x844.png",
+      "sha256": "0c39b078629901b2788cb202d54ab3f308bbaa841661ff2843a3c9e89cdbf16b",
+      "surface": "expert-dashboard",
+      "route": "/#dashboard",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#dashboard",
+      "metrics": {
+        "title": "Radar comercial",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Radar comercial"
+          },
+          {
+            "level": "h2",
+            "text": "Mapa del escenario"
+          },
+          {
+            "level": "h3",
+            "text": "Arequipa"
+          },
+          {
+            "level": "h2",
+            "text": "Producto y precio"
+          },
+          {
+            "level": "h2",
+            "text": "Diagnóstico publicado vs. simulado"
+          },
+          {
+            "level": "h2",
+            "text": "Por qué es comparable"
+          },
+          {
+            "level": "h2",
+            "text": "Comparables a revisar primero"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 3619,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 23,
+        "aboveFoldControlCount": 4,
+        "primaryControlCount": 1,
+        "mainTextLength": 4241,
+        "rootTextLength": 4139,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-projects-390x844.png",
+      "sha256": "dc951554631086a246c4cad64773b5c7fe1d514019f93d7262ba9066c97f3e80",
+      "surface": "expert-projects",
+      "route": "/#projects",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#projects",
+      "metrics": {
+        "title": "Proyectos comparables",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Proyectos comparables"
+          },
+          {
+            "level": "h2",
+            "text": "85 proyectos para priorizar"
+          },
+          {
+            "level": "h2",
+            "text": "Ordena y selecciona candidatos"
+          },
+          {
+            "level": "h2",
+            "text": "Arequipa"
+          },
+          {
+            "level": "h3",
+            "text": "Cobertura de evidencia"
+          },
+          {
+            "level": "h3",
+            "text": "Resumen ejecutivo"
+          },
+          {
+            "level": "h3",
+            "text": "Datos publicados"
+          },
+          {
+            "level": "h3",
+            "text": "Atributos publicados"
+          },
+          {
+            "level": "h3",
+            "text": "Fuente"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 8629,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 32,
+        "aboveFoldControlCount": 5,
+        "primaryControlCount": 1,
+        "mainTextLength": 4639,
+        "rootTextLength": 4543,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-inspector-390x844.png",
+      "sha256": "2da8df615903b7651f6fabbb5ef8507341f84b414794d87d0db212cd63277ed0",
+      "surface": "expert-inspector",
+      "route": "/#inspector/case/f3-ct-g-pardo",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#inspector/case/f3-ct-g-pardo",
+      "metrics": {
+        "title": "Inspector de evidencia",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Inspector de evidencia"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h1",
+            "text": "Inspector de evidencia"
+          },
+          {
+            "level": "h2",
+            "text": "Tipo 7 no debe entrar a la comparación"
+          },
+          {
+            "level": "h2",
+            "text": "Profundidad disponible"
+          },
+          {
+            "level": "h2",
+            "text": "Expediente a contrastar"
+          },
+          {
+            "level": "h2",
+            "text": "Pardo Coast · Tipo 7"
+          },
+          {
+            "level": "h2",
+            "text": "Comparación campo por campo"
+          },
+          {
+            "level": "h2",
+            "text": "Evidencia permitida"
+          },
+          {
+            "level": "h2",
+            "text": "Uso en la comparación"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 5817,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 15,
+        "aboveFoldControlCount": 2,
+        "primaryControlCount": 1,
+        "mainTextLength": 5329,
+        "rootTextLength": 5078,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-market-390x844.png",
+      "sha256": "fe9a534d0a2d296c49850192263f6276945fcffec01c8770f3a3412263c30f86",
+      "surface": "expert-market",
+      "route": "/#market",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#market",
+      "metrics": {
+        "title": "Benchmark de microzona",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Benchmark de microzona"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Tres niveles de cobertura que no deben sumarse"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores tiene 85 comparables; 68 permiten un índice orientativo de entrada, pero la pareja precio–área no está demostrada a nivel de unidad."
+          },
+          {
+            "level": "h3",
+            "text": "Cómo se usa esta muestra"
+          },
+          {
+            "level": "h3",
+            "text": "Índice orientativo de entrada"
+          },
+          {
+            "level": "h3",
+            "text": "Oferta de la muestra"
+          },
+          {
+            "level": "h3",
+            "text": "Atributos anunciados"
+          },
+          {
+            "level": "h3",
+            "text": "Usados por el benchmark elegible"
+          },
+          {
+            "level": "h3",
+            "text": "Faltantes"
+          },
+          {
+            "level": "h3",
+            "text": "Excluidos"
+          },
+          {
+            "level": "h3",
+            "text": "Regla de lectura"
+          },
+          {
+            "level": "h2",
+            "text": "Lectura territorial de Miraflores"
+          },
+          {
+            "level": "h2",
+            "text": "Ranking distrital por carga observada"
+          },
+          {
+            "level": "h2",
+            "text": "Cuadrantes para analizar la muestra"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 5738,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 50,
+        "aboveFoldControlCount": 2,
+        "primaryControlCount": 1,
+        "mainTextLength": 3444,
+        "rootTextLength": 3207,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-compare-390x844.png",
+      "sha256": "473bb61672b800142477010bc5b8c3e759a8cf071f7d00129f47ac53a4c9a759",
+      "surface": "expert-compare",
+      "route": "/#compare",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#compare",
+      "metrics": {
+        "title": "Comparador comercial",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Comparador comercial"
+          },
+          {
+            "level": "h1",
+            "text": "Comparador comercial"
+          },
+          {
+            "level": "h2",
+            "text": "Qué cambia la decisión"
+          },
+          {
+            "level": "h2",
+            "text": "Tres grupos que no deben sumarse"
+          },
+          {
+            "level": "h2",
+            "text": "Comparación completa"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 4133,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 62,
+        "aboveFoldControlCount": 4,
+        "primaryControlCount": 1,
+        "mainTextLength": 2473,
+        "rootTextLength": 2374,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-trust-390x844.png",
+      "sha256": "77d8b2989df72f67c40b2d699544c0c27a7b40ada0e042583d90a8ed20185f80",
+      "surface": "expert-trust",
+      "route": "/#trust",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#trust",
+      "metrics": {
+        "title": "Checklist comercial",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Checklist comercial"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Checklist de evidencia · Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Avance bloqueado por evidencia"
+          },
+          {
+            "level": "h2",
+            "text": "Muestra vigente"
+          },
+          {
+            "level": "h2",
+            "text": "Referencia publicada provisional"
+          },
+          {
+            "level": "h2",
+            "text": "Comparables para revisión"
+          },
+          {
+            "level": "h2",
+            "text": "Condición de avance"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 1652,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 10,
+        "aboveFoldControlCount": 2,
+        "primaryControlCount": 1,
+        "mainTextLength": 996,
+        "rootTextLength": 745,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-assistant-390x844.png",
+      "sha256": "f7380e0c3b71a014f770d6e989ae79f7317bede48263ae038aa978d1d5bc6acc",
+      "surface": "expert-assistant",
+      "route": "/#assistant",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#assistant",
+      "metrics": {
+        "title": "Asistente de estrategia",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Asistente de estrategia"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Convierte una pregunta en una recomendación verificable"
+          },
+          {
+            "level": "h2",
+            "text": "Formula una consulta antes de tomar una decisión"
+          },
+          {
+            "level": "h2",
+            "text": "¿Qué necesitas leer?"
+          },
+          {
+            "level": "h2",
+            "text": "Pregunta comercial"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 2521,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 14,
+        "aboveFoldControlCount": 2,
+        "primaryControlCount": 1,
+        "mainTextLength": 1328,
+        "rootTextLength": 1072,
+        "bodyHasNonFinite": false
+      }
+    },
+    {
+      "file": "expert-activity-390x844.png",
+      "sha256": "c055f02882fe41aa89c8d153e59599a158aace794c18900a34e98715f1964d60",
+      "surface": "expert-activity",
+      "route": "/#activity",
+      "viewport": {
+        "name": "mobile",
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4375/#activity",
+      "metrics": {
+        "title": "Señales del mercado",
+        "headings": [
+          {
+            "level": "h1",
+            "text": "Señales del mercado"
+          },
+          {
+            "level": "h2",
+            "text": "Miraflores · Distrito completo"
+          },
+          {
+            "level": "h2",
+            "text": "Cambios publicados en Miraflores"
+          },
+          {
+            "level": "h3",
+            "text": "Hay un cambio publicado; su causa no se presume"
+          },
+          {
+            "level": "h3",
+            "text": "Resumen de calidad"
+          },
+          {
+            "level": "h3",
+            "text": "Acotar la lectura"
+          },
+          {
+            "level": "h3",
+            "text": "Línea de tiempo explicable"
+          },
+          {
+            "level": "h3",
+            "text": "Agenda de seguimiento"
+          }
+        ],
+        "h1OrderIndex": 0,
+        "readingOrderStartsWithH1": true,
+        "documentHeight": 6527,
+        "viewportHeight": 844,
+        "horizontalOverflow": 0,
+        "controlCount": 28,
+        "aboveFoldControlCount": 2,
+        "primaryControlCount": 1,
+        "mainTextLength": 3667,
+        "rootTextLength": 3430,
+        "bodyHasNonFinite": false
+      }
+    }
+  ]
+}
