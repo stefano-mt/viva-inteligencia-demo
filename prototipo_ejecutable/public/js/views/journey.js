@@ -120,7 +120,7 @@ function statusLabel(value) {
 
 function renderFact(id, label, value, detail = "") {
   return `
-    <div class="journey-fact" data-journey-fact="${escapeHtml(id)}">
+    <div class="journey-fact metric-pair" data-journey-fact="${escapeHtml(id)}">
       <dt>${escapeHtml(label)}</dt>
       <dd>${escapeHtml(value)}</dd>
       ${detail ? `<p>${escapeHtml(detail)}</p>` : ""}
@@ -154,6 +154,12 @@ function renderScaleFacts(data) {
 }
 
 function renderGeographyFacts(data) {
+  const observedCount = finiteNumber(data?.scope?.observed_project_count);
+  const comparableCount = finiteNumber(data?.comparableProjectCount);
+  const unreconciledCount =
+    observedCount !== null && comparableCount !== null
+      ? Math.max(0, observedCount - comparableCount)
+      : null;
   return [
     renderFact(
       "geography-scope",
@@ -164,13 +170,13 @@ function renderGeographyFacts(data) {
     renderFact(
       "geography-sample",
       "Muestra del escenario",
-      `${formatNumber(data?.scope?.observed_project_count)} observados · ${formatNumber(data?.comparableProjectCount)} comparables`,
+      `${formatNumber(observedCount)} observados · ${formatNumber(comparableCount)} comparables`,
     ),
     renderFact(
       "geography-exclusions",
-      "Fuera o por revisar",
-      formatNumber(data?.excludedProjectCount),
-      "Se conservan como exclusiones; no se reasignan al escenario.",
+      "No reconciliados o por revisar",
+      formatNumber(unreconciledCount),
+      "Se conservan en la cobertura observada y se excluyen de comparabilidad.",
     ),
   ];
 }
@@ -179,7 +185,7 @@ function renderQualityFacts(data) {
   const eligible = data?.decision?.benchmarkEligible === true;
   return [
     `
-      <div class="journey-fact journey-fact--sources">
+      <div class="journey-fact journey-fact--sources metric-pair">
         <dt>Dos fuentes, una discrepancia</dt>
         <dd>
           <span data-journey-fact="card-area">Tarjeta · ${escapeHtml(formatDecimal(data?.cardArea?.normalized_value))} m²</span>
@@ -322,7 +328,7 @@ function renderDecisionResponseFacts(response) {
       `Escenario: ${scope}`,
     ),
     `
-      <div class="journey-fact" data-journey-fact="decision-next-step">
+      <div class="journey-fact metric-pair" data-journey-fact="decision-next-step">
         <dt>Siguiente verificación</dt>
         <dd>${escapeHtml(nextStep)}</dd>
         <p data-journey-response-block="limitations"><strong>Límites:</strong> ${escapeHtml(limitations)}</p>
@@ -371,7 +377,7 @@ function renderStageFacts(stageId, data) {
     decision: renderDecisionFacts,
   }[stageId]?.(data);
   return Array.isArray(facts) && facts.length
-    ? `<dl class="journey-facts" data-journey-stage-data>${facts.join("")}</dl>`
+    ? `<dl class="journey-facts metric-row" data-journey-stage-data>${facts.join("")}</dl>`
     : "";
 }
 
@@ -429,24 +435,32 @@ function renderExpertLinks(stage) {
     .map((viewId) => views.find(({ id }) => id === viewId))
     .filter(Boolean);
   return `
-    <aside class="journey-expert" aria-labelledby="journey-expert-title">
-      <div>
-        <p class="journey-section-label">Explorar análisis</p>
-        <h2 id="journey-expert-title">Revisar el detalle</h2>
+    <details class="journey-expert detail-disclosure">
+      <summary>
+        <span>
+          <strong>Profundizar esta lectura</strong>
+          <small>Abre las herramientas expertas relacionadas con esta etapa.</small>
+        </span>
+      </summary>
+      <div class="journey-expert__body detail-disclosure__body">
+        <div>
+          <p class="journey-section-label">Explorar análisis</p>
+          <h2 id="journey-expert-title">Revisar el detalle</h2>
+        </div>
+        <div class="journey-expert__links" aria-labelledby="journey-expert-title">
+          ${permittedViews.map((view) => `
+            <a
+              class="journey-expert-link"
+              href="${escapeHtml(expertHref(stage.id, view.id))}"
+              data-journey-expert="${escapeHtml(view.id)}"
+            >
+              <strong>${escapeHtml(view.label)}</strong>
+              <span>${escapeHtml(view.hint)}</span>
+            </a>
+          `).join("")}
+        </div>
       </div>
-      <div class="journey-expert__links">
-        ${permittedViews.map((view) => `
-          <a
-            class="journey-expert-link"
-            href="${escapeHtml(expertHref(stage.id, view.id))}"
-            data-journey-expert="${escapeHtml(view.id)}"
-          >
-            <strong>${escapeHtml(view.label)}</strong>
-            <span>${escapeHtml(view.hint)}</span>
-          </a>
-        `).join("")}
-      </div>
-    </aside>
+    </details>
   `;
 }
 
@@ -488,14 +502,14 @@ function renderBaseState(stage, model) {
     ].includes(status);
     return `
       <div class="journey-reading">
-        <p class="journey-reading__lead">${escapeHtml(stateMessage(stage, model))}</p>
-        <div class="journey-reading__ledger">
+        <div class="journey-reading__ledger decision-line">
           <section class="journey-state ${unavailable ? "journey-state--unavailable" : "journey-state--error"}" ${status === "error" ? 'role="alert"' : 'role="status"'}>
             <p class="journey-section-label">${status === "empty" ? "Sin proyectos para esta lectura" : status === "insufficient" ? "Evidencia insuficiente" : status === "error" ? "No pudimos preparar la etapa" : "Lectura no disponible"}</p>
             <h2 id="journey-known-title">Qué sabemos</h2>
+            <p class="journey-reading__lead decision-line__reading">${escapeHtml(stateMessage(stage, model))}</p>
             ${renderStageFacts(stage.id, model.data)}
           </section>
-          <section class="journey-reading__limit">
+          <section class="journey-reading__limit decision-line__limit">
             <p class="journey-section-label">Límite de la lectura</p>
             <h2 id="journey-limit-title">Qué falta o no puede afirmarse</h2>
             <p>${escapeHtml(BASE_STAGE_COPY[stage.id].limitation)}</p>
@@ -508,20 +522,20 @@ function renderBaseState(stage, model) {
   const copy = BASE_STAGE_COPY[stage.id];
   return `
     <div class="journey-reading">
-      <p class="journey-reading__lead">${escapeHtml(copy.reading)}</p>
-      <div class="journey-reading__ledger">
+      <div class="journey-reading__ledger decision-line">
         <section aria-labelledby="journey-known-title">
           <p class="journey-section-label">Lectura principal</p>
           <h2 id="journey-known-title">Qué sabemos</h2>
+          <p class="journey-reading__lead decision-line__reading">${escapeHtml(copy.reading)}</p>
           <p>${escapeHtml(copy.known)}</p>
         </section>
-        <section class="journey-reading__limit" aria-labelledby="journey-limit-title">
+        <section class="journey-reading__limit decision-line__limit" aria-labelledby="journey-limit-title">
           <p class="journey-section-label">Límite de la lectura</p>
           <h2 id="journey-limit-title">Qué falta o no puede afirmarse</h2>
           <p>${escapeHtml(copy.limitation)}</p>
         </section>
-        ${renderStageFacts(stage.id, model.data)}
       </div>
+      ${renderStageFacts(stage.id, model.data)}
     </div>
   `;
 }

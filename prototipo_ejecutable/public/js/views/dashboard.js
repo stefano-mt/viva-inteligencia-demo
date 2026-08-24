@@ -56,35 +56,91 @@ export function renderDashboard() {
       data-excluded-projects="${escapeAttr(context.excluded_projects?.length ?? 0)}"
       data-active-visualization="${escapeAttr(context.scenario.visualization ?? "geographic")}"
     >
+      ${renderRadarOverview(context)}
+
       <div class="radar-primary span-12">
         ${renderRadarVisualization(context, boundaryGeoJson)}
       </div>
 
-      <section class="planner-panel span-5" aria-labelledby="scenario-product-title">
-        ${renderProductPlanner(context)}
+      <section class="radar-priority work-surface span-12" aria-labelledby="priority-comparables-title">
+        ${renderPriorityComparables(context)}
       </section>
 
-      <section class="panel span-7" aria-labelledby="price-diagnosis-title">
-        ${renderPriceDiagnosis(context)}
-      </section>
-
-      <details class="radar-deep-dive span-12">
+      <details class="radar-simulation detail-disclosure span-12">
         <summary>
           <span>
-            <strong>Profundizar en comparabilidad</strong>
-            <small>Revisa el score explicable y los cinco candidatos prioritarios.</small>
+            <strong>Simular escenario Viva</strong>
+            <small>Edita producto y precio sin confundir la hipótesis con datos observados.</small>
           </span>
         </summary>
-        <div class="radar-deep-dive__grid">
-          <section class="panel" aria-labelledby="score-explanation-title">
-            ${renderScoreExplanation(context)}
+        <div class="radar-simulation__grid detail-disclosure__body">
+          <section class="planner-panel" aria-labelledby="scenario-product-title">
+            ${renderProductPlanner(context)}
           </section>
-
-          <section class="panel" aria-labelledby="priority-comparables-title">
-            ${renderPriorityComparables(context)}
+          <section class="radar-diagnosis" aria-labelledby="price-diagnosis-title">
+            ${renderPriceDiagnosis(context)}
           </section>
         </div>
       </details>
+
+      <details class="radar-deep-dive detail-disclosure span-12">
+        <summary>
+          <span>
+            <strong>Cómo se construye la comparabilidad</strong>
+            <small>Revisa score, factores y límites metodológicos.</small>
+          </span>
+        </summary>
+        <div class="radar-deep-dive__body detail-disclosure__body">
+          <section aria-labelledby="score-explanation-title">
+            ${renderScoreExplanation(context)}
+          </section>
+        </div>
+      </details>
+    </section>
+  `;
+}
+
+function renderRadarOverview(context) {
+  const benchmark = state.benchmarkContext?.quantitative?.pricePerM2Total ?? {};
+  const publishedCount = context.price_reference_project_ids?.length ?? 0;
+  const eligiblePairCount = benchmark.n ?? 0;
+  const orientativeCount = benchmark.orientative?.n ?? 0;
+  const observedCount = context.observed_scope_project_ids.length;
+  const comparableCount = context.comparable_project_ids.length;
+  const diagnosis = context.price_diagnosis ?? {};
+  const targetPricePerM2 = scenarioTargetPricePerM2(context.scenario);
+  const reading = targetPricePerM2 && diagnosis.status === "ready"
+    ? `El precio Viva simulado se contrasta con ${formatNumber(publishedCount)} publicaciones del alcance; la posición no representa un precio observado.`
+    : `${context.scope_text} reúne ${formatNumber(observedCount)} proyectos observados y ${formatNumber(comparableCount)} comparables para revisar en el mapa.`;
+
+  return `
+    <section
+      class="radar-overview span-12"
+      data-radar-summary
+      data-published-price-area="${escapeAttr(publishedCount)}"
+      data-eligible-price-per-m2="${escapeAttr(eligiblePairCount)}"
+    >
+      <div class="decision-line radar-decision-line">
+        <span class="decision-line__label">Lectura territorial</span>
+        <p class="decision-line__reading">${escapeHtml(reading)}</p>
+        <p class="decision-line__limit">
+          <strong>Límite:</strong> ${formatNumber(publishedCount)} publicaciones declaran precio y área total, pero ${formatNumber(eligiblePairCount)} tienen pairing certificado por unidad. Los ${formatNumber(orientativeCount)} cocientes disponibles son orientativos y no representan precios reales de cierre.
+        </p>
+      </div>
+      <dl class="metric-row radar-metrics" aria-label="Resumen del escenario territorial">
+        <div class="metric-pair">
+          <dt>Proyectos observados</dt>
+          <dd>${formatNumber(observedCount)}</dd>
+        </div>
+        <div class="metric-pair">
+          <dt>Comparables elegibles</dt>
+          <dd>${formatNumber(comparableCount)}</dd>
+        </div>
+        <div class="metric-pair">
+          <dt>Pairing certificado precio/m²</dt>
+          <dd>${formatNumber(eligiblePairCount)}</dd>
+        </div>
+      </dl>
     </section>
   `;
 }
