@@ -1,12 +1,12 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-08-21
+**Actualizado:** 2026-08-24
 
 **Milestone:** demo vNext orientada a venta
 
 **Última fase con despliegue técnico verificado:** Fase 6 — narrativa comercial, accesibilidad y QA
 
-**Estado:** Fase 7 abierta en planificación para simplificar el workspace comercial. Fases 0–5 están `deployed and verified`; Fase 6 está `FINAL — deployed and technically verified; human acceptance waived by Product Owner`. P7-00A no modifica runtime y HUMAN-GATE-A está pendiente.
+**Estado:** Fase 7 aprobada para baseline preimplementación. Fases 0–5 están `deployed and verified`; Fase 6 está `FINAL — deployed and technically verified; human acceptance waived by Product Owner`. P7-00A–P7-00C están completos; P7-00D es la siguiente tarea y todavía no se modificó runtime.
 
 **Rama activa:** `feat/phase-7-commercial-workspace`.
 
@@ -303,16 +303,15 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Dirección: `Viva Decision Desk`, con línea de decisión verde y menor dependencia de cards.
 - Contrato, datos, motores, rutas, claims y reset permanecen protegidos.
 - P7-00A: contexto, auditoría, especificación, plan y solicitud de gate completados; runtime sin cambios.
-- P7-00B inicial: `FAIL` por tres P2 documentados; correctivo documental preparado para repetir la revisión.
-- P7-00C: HUMAN-GATE-A pendiente; no se inicia implementación antes.
+- P7-00B: tercera revisión independiente `PASS` sobre `83bb0a5`; acta final versionada en `074b15d`, sin hallazgos P0–P2.
+- P7-00C: [HUMAN-GATE-A aprobada](phases/07-commercial-workspace/APPROVAL.md) bajo A1–A14 el `2026-08-24T11:28:28.4214512-05:00`.
+- Runtime de Fase 7: sin cambios; P7-01 continúa bloqueado hasta que P7-00D establezca un baseline reproducible.
 
 ## Próxima acción recomendada
 
-1. Completar y revisar P7-00A.
-2. Ejecutar P7-00B con checker independiente.
-3. Resolver cualquier hallazgo P0–P2.
-4. Solicitar aceptación de A1–A14 para HUMAN-GATE-A.
-5. Solo entonces capturar baseline e iniciar P7-01.
+1. Versionar el registro de HUMAN-GATE-A de P7-00C.
+2. Ejecutar P7-00D sobre ese SHA: `npm.cmd run verify` y baseline de 14 superficies en 1440×900, 1280×720 y 390×844.
+3. Iniciar P7-01 únicamente si P7-00D termina en `PASS`.
 
 ## Regla para actualizar este archivo
 
