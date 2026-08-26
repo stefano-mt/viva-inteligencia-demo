@@ -67,6 +67,12 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.match(await page.locator("#journey-live").textContent(), /no estaba disponible/i);
 
   await openPath(page, baseUrl, "/#journey/quality");
+  await page.locator("details.journey-expert > summary").click();
+  assert.equal(
+    await page.locator("details.journey-expert[open]").count(),
+    1,
+    "El detalle experto debe abrirse antes de usar su acceso al Inspector",
+  );
   await page.locator('[data-journey-expert="inspector"]').click();
   await page.waitForFunction(
     () => window.location.hash === "#inspector/case/f3-ct-g-pardo",

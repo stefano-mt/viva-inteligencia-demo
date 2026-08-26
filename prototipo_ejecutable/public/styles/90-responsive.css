@@ -1382,3 +1382,58 @@
   min-height: 44px;
   align-items: center;
 }
+
+/*
+ * P7-09 — Matriz final de legibilidad del Viva Decision Desk.
+ * El contenido que cambia una decisión conserva 16 px; la metadata nunca baja
+ * de 13 px, incluso cuando las vistas anteriores aplican reglas de densidad.
+ */
+:is(
+    .decision-line__reading,
+    .decision-line__limit,
+    .data-row__primary,
+    .data-row__secondary,
+    .journey-reading__lead,
+    .journey-reading__ledger p:last-child,
+    .journey-state p
+  ) {
+  font-size: max(16px, 1em);
+}
+
+:is(
+    .decision-line__label,
+    .data-row small,
+    .metric-pair dt,
+    .journey-stage__eyebrow,
+    .journey-section-label,
+    .journey-expert-link span
+  ) {
+  font-size: max(13px, 0.8125rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body *,
+  body *::before,
+  body *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}
+
+@media (min-width: 1121px) {
+  body .app-shell .workspace > .scenario-bar {
+    min-height: var(--workspace-topbar-height);
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding: 8px 20px;
+  }
+
+  body .app-shell .workspace > .scenario-bar .scenario-bar__heading,
+  body .app-shell .workspace > .scenario-bar .title-row {
+    min-height: 0;
+    flex-wrap: nowrap;
+  }
+}
