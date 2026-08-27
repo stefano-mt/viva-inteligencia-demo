@@ -1229,9 +1229,9 @@
   }
 }
 
-/* Phase 7 · follow-up desk: agenda first, evidence after selection. */
+/* Phase 7 · follow-up desk: lectura breve primero, agenda inmediatamente después. */
 .history-view {
-  gap: 16px;
+  gap: 8px;
 }
 
 .history-hero {

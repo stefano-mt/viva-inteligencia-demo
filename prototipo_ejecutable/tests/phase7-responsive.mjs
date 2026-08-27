@@ -79,7 +79,7 @@ const surfaces = [
     path: "/#compare",
     root: ".comparison-shell",
     focus: "details.comparison-selector > summary",
-    reading: ".comparison-command",
+    reading: "[data-commercial-comparison-summary]",
     work: "details.comparison-selector",
   },
   {
@@ -379,6 +379,11 @@ async function assertShell(page, viewport, label) {
 }
 
 async function assertReadingAndWork(page, surface, viewport, label) {
+  assert.equal(
+    await page.evaluate(() => window.scrollY),
+    0,
+    `${label}: la primera pantalla debe medirse antes de cualquier scroll`,
+  );
   for (const selector of [surface.reading, surface.work]) {
     const locator = page.locator(selector).first();
     await locator.waitFor({ state: "visible" });
@@ -396,6 +401,14 @@ async function assertReadingAndWork(page, surface, viewport, label) {
         box.width > 0 && box.height > 0 && box.bottom > 0 && box.top < innerHeight;
     }).length);
   assert.ok(visiblePrimaryActions <= 1, `${label}: ${visiblePrimaryActions} acciones primarias compiten en el viewport`);
+}
+
+async function assertSingleVisibleHeading(page, label) {
+  assert.equal(
+    await page.locator("h1:visible").count(),
+    1,
+    `${label}: debe existir un único h1 visible`,
+  );
 }
 
 async function assertJourneyLayout(page, surface, viewport, label) {
@@ -433,17 +446,20 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
       const { page } = observed;
       await page.emulateMedia({ reducedMotion: "reduce" });
       await openSurface(page, baseUrl, surface);
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await settleUi(page);
       const label = `${viewport.name} ${surface.id}`;
       await assertNoHorizontalOverflow(page, label);
       await assertNoTruncation(page, surface.root, label);
       await assertContrast(page, "h1", `${label} título`);
+      await assertSingleVisibleHeading(page, label);
+      await assertShell(page, viewport, label);
+      await assertReadingAndWork(page, surface, viewport, label);
       await assertFocusRing(page, surface.focus, label);
       await assertFocusedControlVisible(page, surface.focus, label);
       await assertTargets(page, surface.root, label);
       await assertTypography(page, surface, label);
       await assertReducedMotion(page, label);
-      await assertShell(page, viewport, label);
-      await assertReadingAndWork(page, surface, viewport, label);
       if (surface.kind === "journey") await assertJourneyLayout(page, surface, viewport, label);
       await page.evaluate(() => window.scrollTo(0, 0));
       await settleUi(page);
@@ -461,16 +477,19 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     const { page } = observed;
     await page.emulateMedia({ reducedMotion: "reduce" });
     await openSurface(page, baseUrl, surface);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await settleUi(page);
     const label = `zoom-200 ${surface.id}`;
     await assertNoHorizontalOverflow(page, label);
     await assertNoTruncation(page, surface.root, label);
     await assertTargets(page, surface.root, label);
     await assertContrast(page, "h1", `${label} título`);
+    await assertSingleVisibleHeading(page, label);
+    await assertReadingAndWork(page, surface, { width: 720, height: 450 }, label);
     await assertFocusRing(page, surface.focus, label);
     await assertFocusedControlVisible(page, surface.focus, label);
     await assertTypography(page, surface, label);
     await assertReducedMotion(page, label);
-    await assertReadingAndWork(page, surface, { width: 720, height: 450 }, label);
     if (surface.kind === "journey") {
       await assertJourneyLayout(page, surface, { width: 720, height: 450 }, label);
     }

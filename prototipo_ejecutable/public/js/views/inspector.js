@@ -1747,7 +1747,7 @@ function renderUnavailable(model) {
     <section class="inspector-view inspector-unavailable" data-inspector-state="unavailable">
       <p class="inspector-breadcrumb">Viva Inteligencia / Evidencia</p>
       <span class="inspector-kicker">Custodia de datos</span>
-      <h1>Inspector de evidencia</h1>
+      <h2>Inspector de evidencia</h2>
       <p>Contrasta fuentes y decide qué datos pueden usarse en la comparación.</p>
       <div class="inspector-notice" role="status">
         <strong>Inspector no disponible</strong>
@@ -1778,7 +1778,7 @@ export function renderInspectorModel(model) {
         <div class="inspector-intro-copy">
           <p class="inspector-breadcrumb">Viva Inteligencia / Evidencia</p>
           <span class="inspector-kicker">Custodia de datos</span>
-          <h1>Inspector de evidencia</h1>
+          <h2>Inspector de evidencia</h2>
           <p class="inspector-purpose">
             Contrasta fuentes y decide qué datos pueden usarse en la comparación.
           </p>

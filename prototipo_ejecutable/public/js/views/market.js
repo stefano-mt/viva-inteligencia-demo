@@ -939,15 +939,14 @@ export function renderMarket() {
   const statusMeta = benchmarkStatus(benchmark?.status);
   const thesis = benchmarkAvailable
     ? quantitative.n > 0
-      ? `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables; ${formatNumber(quantitative.n)} sostienen una referencia elegible por m² de área total.`
+      ? `${districtName(district)}: ${formatNumber(benchmark.scope.projectCount)} comparables; ${formatNumber(quantitative.n)} sostienen una referencia elegible por m².`
       : quantitative.orientative.n > 0
-        ? `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables; ${formatNumber(quantitative.orientative.n)} permiten un índice orientativo de entrada, pero la pareja precio–área no está demostrada a nivel de unidad.`
+        ? `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables; ${formatNumber(quantitative.orientative.n)} permiten un índice orientativo.`
         : `${districtName(district)} tiene ${formatNumber(benchmark.scope.projectCount)} comparables, pero no dispone de pares precio–área demostrados ni referencias orientativas utilizables.`
     : null;
 
   return `
     <section class="dashboard-grid market-reading benchmark-view" data-scenario-consumer="benchmark">
-      ${renderScaleLedger()}
       ${
         benchmarkAvailable
           ? `
@@ -1007,6 +1006,8 @@ export function renderMarket() {
           `
           : renderBenchmarkUnavailable(benchmark, district)
       }
+
+      ${renderScaleLedger()}
 
       <details class="benchmark-territory span-12">
         <summary>

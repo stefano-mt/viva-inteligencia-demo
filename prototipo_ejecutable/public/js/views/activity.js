@@ -99,8 +99,8 @@ export function renderActivity() {
     status,
     header,
     body: `
-      ${renderHistoryAgenda(context)}
       ${renderCurrentSignalBrief(context)}
+      ${renderHistoryAgenda(context)}
       ${renderHistoryFilters(context)}
       ${renderHistoryTimeline(context)}
       ${renderQualityBand(context)}
@@ -239,7 +239,7 @@ function renderCurrentSignalBrief(context) {
       </dl>
       <div class="history-signal-brief__handoff">
         <p><strong>Límite:</strong> un cambio publicado no permite afirmar precio de cierre, venta ni motivo comercial.</p>
-        <a class="primary-button history-decision-action" href="#assistant">Preparar decisión</a>
+        <a class="secondary-button history-decision-action" href="#assistant">Preparar decisión</a>
       </div>
     </section>
   `;

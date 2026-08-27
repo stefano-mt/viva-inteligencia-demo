@@ -22,6 +22,7 @@ initializeScenarioData(data, {
 });
 const html = renderActivity();
 assert.match(html, /Agenda priorizada/u);
+assert.ok(html.indexOf("history-signal-brief") < html.indexOf("history-agenda"), "La lectura debe anteceder a la agenda");
 assert.ok(html.indexOf("history-agenda") < html.indexOf("history-ledger"), "La agenda debe anteceder al ledger");
 assert.match(html, /Anterior → nuevo/u);
 assert.match(html, /Causa no observada|causa no se presume/iu);

@@ -668,7 +668,10 @@ function render() {
   const route = parseHashRoute(window.location.hash);
   const isJourney = state.view === "journey";
   const showScenarioSummary =
-    !isJourney && !["dashboard", "projects", "compare"].includes(state.view);
+    !isJourney &&
+    !["dashboard", "projects", "market", "compare", "activity"].includes(
+      state.view,
+    );
   const scenarioPresentation = {
     ...buildScenarioPresentation({
       data: state.data,

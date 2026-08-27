@@ -142,7 +142,7 @@
     },
     {
       "file": "expert-dashboard-1440x900.png",
-      "sha256": "30485717f424e972f87c7decce1f700aee7327406dd906048e33ce40249d9df3",
+      "sha256": "76fc639ce622c58c66b9639899976177a4bb7246106fb64e7171ab5122180027",
       "surface": "expert-dashboard",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4375/?sv=1&area=80&price=650000#dashboard"
@@ -156,21 +156,21 @@
     },
     {
       "file": "expert-inspector-1440x900.png",
-      "sha256": "6e65fabebe994e80c41f4148b459eea3a542c9d611326f54d5f09edd290528e0",
+      "sha256": "f6e219f56cf9c7ac8f08ca72cab4b1d1e6ef13a3ca68273a5eb57742871c9129",
       "surface": "expert-inspector",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4375/#inspector/case/f3-ct-g-pardo"
     },
     {
       "file": "expert-market-1440x900.png",
-      "sha256": "a46220f29ce878ac78a9eadf7185af22dc1fd7ec1cd9d182cc69c9cb056d0d90",
+      "sha256": "4f6ad1821bafbaa0cdf2ab782952a1c29bec5748102f0e748d4a2d248ab0414f",
       "surface": "expert-market",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4375/#market"
     },
     {
       "file": "expert-compare-1440x900.png",
-      "sha256": "00f9c221df2559289d7c20bee434bd589c89f662d1d07faf75dc22b96c860a9f",
+      "sha256": "136bc5db096b27d793d1d08d468386d5f8eef511cc9aa0f0867a2e3631d4f0f2",
       "surface": "expert-compare",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4375/#compare"
@@ -191,7 +191,7 @@
     },
     {
       "file": "expert-activity-1440x900.png",
-      "sha256": "44e48c58823c4e78a117eed15ac64f901fb1e4b88995b1dca99d8906259f3fd4",
+      "sha256": "263c1e0b6f3459c947896174cb045bd5bb46baa12755f5f08e8501d5f74fb9c1",
       "surface": "expert-activity",
       "mode": "1440x900",
       "url": "http://127.0.0.1:4375/#activity"
@@ -254,21 +254,21 @@
     },
     {
       "file": "expert-inspector-1280x720.png",
-      "sha256": "8d9116001e884ac3805854c40d94c4e2f7184d06d1a856cd3e5a64624ee2f9da",
+      "sha256": "ab593331a82304ae52ab5bdd23358d720c974f2e81cedc82305d838ebac9683a",
       "surface": "expert-inspector",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4375/#inspector/case/f3-ct-g-pardo"
     },
     {
       "file": "expert-market-1280x720.png",
-      "sha256": "2458ef586ef325d12b139beba3b51c111563123ef3fb79d708213f3d7014ad80",
+      "sha256": "2b529f25c4a0bb9347262dbb1c53531304b784b14193ae0847247dd0c9b48ef8",
       "surface": "expert-market",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4375/#market"
     },
     {
       "file": "expert-compare-1280x720.png",
-      "sha256": "48787552ee8d0436f54fc1828775d67064ed65e58c4b9a4d6cf3ad196e7b2be8",
+      "sha256": "cbe113754aada7a6f55eb230f8a7a9fdef179e14fb7aaac27ed062b7de5e8ccb",
       "surface": "expert-compare",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4375/#compare"
@@ -289,7 +289,7 @@
     },
     {
       "file": "expert-activity-1280x720.png",
-      "sha256": "9a3452f02aa0402ac4ce08dbbffe30419d8ceef8cd6e4903255b5686c9f3b040",
+      "sha256": "44b8c0c6a327f1b7bb07d9629c81e0e5efb70a5a16eba0b496a82ce3336dcd3a",
       "surface": "expert-activity",
       "mode": "1280x720",
       "url": "http://127.0.0.1:4375/#activity"
@@ -352,21 +352,21 @@
     },
     {
       "file": "expert-inspector-390x844.png",
-      "sha256": "65feace704b871c4b3a6a43192233862f22f0228ec2aca9231f0c35298c746ba",
+      "sha256": "2f44c814cd079edfe3bf395ee74dc653b199978121034daaf24068c2cdb5adf0",
       "surface": "expert-inspector",
       "mode": "390x844",
       "url": "http://127.0.0.1:4375/#inspector/case/f3-ct-g-pardo"
     },
     {
       "file": "expert-market-390x844.png",
-      "sha256": "ee187d9d5801560eb50647144f78c8dcbfb8696cd7a537e7586e3c5d79b192fb",
+      "sha256": "b2fb0e785fefc4fd269342eb0c404f987d1a1adcbd2a0fd06da930b75a6ceb72",
       "surface": "expert-market",
       "mode": "390x844",
       "url": "http://127.0.0.1:4375/#market"
     },
     {
       "file": "expert-compare-390x844.png",
-      "sha256": "fa2965d1fbd0fdec81f4d88f776847e7a19cc433148ba9a04344820b51813813",
+      "sha256": "adad8c74081a0dbe3853c7188e9d38d1f7436bbf74e4dee14ecbd94156f320f8",
       "surface": "expert-compare",
       "mode": "390x844",
       "url": "http://127.0.0.1:4375/#compare"
@@ -387,7 +387,7 @@
     },
     {
       "file": "expert-activity-390x844.png",
-      "sha256": "132f6e06b0d7ad360eb86a214a167a32e2937ee3efe1725cc29be9cd37527dd5",
+      "sha256": "e4b10cdf1de8d2af92a1007888984f0fec5e613509b2f50b8124abc537bde4ab",
       "surface": "expert-activity",
       "mode": "390x844",
       "url": "http://127.0.0.1:4375/#activity"
@@ -457,14 +457,14 @@
     },
     {
       "file": "expert-market-zoom-200.png",
-      "sha256": "5dfe67955005a02729b44dc8345788d43ea732bb65748a90e6eae7cf12d0e2c6",
+      "sha256": "dfcb40284de8f69c659c00a4aec617ec2c361c278412dc2ddd0da08f53616ced",
       "surface": "expert-market",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4376/#market"
     },
     {
       "file": "expert-compare-zoom-200.png",
-      "sha256": "283f49c59044b791f4836cd4bf7e4f6f4acb39eaa41d8b3f00ce53e7c6ee0110",
+      "sha256": "0e2d92e67078efa8b6bff7c6739dcbeae7e071bf0af3c9174ac5f5543bcecd99",
       "surface": "expert-compare",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4376/#compare"
@@ -485,7 +485,7 @@
     },
     {
       "file": "expert-activity-zoom-200.png",
-      "sha256": "baa24c1af566cfc95977821562d33f17798a552226bcfd1cb774b04f5b4b4570",
+      "sha256": "0485a4cd8b6f4488acde853621063783d9e736ae69aeb214389b101450c10c70",
       "surface": "expert-activity",
       "mode": "zoom-200",
       "url": "http://127.0.0.1:4376/#activity"

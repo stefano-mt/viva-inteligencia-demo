@@ -48,7 +48,7 @@
   margin-bottom: 5px;
 }
 
-.inspector-intro h1 {
+.inspector-intro h2 {
   max-width: 720px;
   font-size: clamp(2rem, 3.7vw, 3.4rem);
   line-height: 0.98;
@@ -1399,7 +1399,7 @@
     padding-bottom: 14px;
   }
 
-  .inspector-intro h1 {
+  .inspector-intro h2 {
     font-size: 2rem;
   }
 
@@ -1659,7 +1659,7 @@
     padding-bottom: 8px;
   }
 
-  .inspector-intro h1 {
+  .inspector-intro h2 {
     font-size: clamp(1.9rem, 3vw, 2.35rem);
   }
 
@@ -1766,7 +1766,7 @@
 }
 
 @media (max-width: 620px) {
-  .inspector-intro h1 {
+  .inspector-intro h2 {
     font-size: clamp(1.75rem, 9vw, 2rem);
   }
 

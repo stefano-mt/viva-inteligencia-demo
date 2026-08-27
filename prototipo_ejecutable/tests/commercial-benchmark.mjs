@@ -48,6 +48,10 @@ assert.ok(
   html.indexOf("data-commercial-benchmark-summary") < html.indexOf("benchmark-quantitative"),
   "La conclusión debe anteceder a la referencia técnica",
 );
+assert.ok(
+  html.indexOf("data-commercial-benchmark-summary") < html.indexOf("data-scale-ledger"),
+  "La conclusión debe anteceder al contexto de escala",
+);
 assert.equal((html.match(/class="benchmark-progressive /gu) ?? []).length, 3);
 assert.equal(await fs.readFile(claimsUrl, "utf8"), claimsSource, "El fixture es read-only");
 

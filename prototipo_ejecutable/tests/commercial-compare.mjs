@@ -52,6 +52,11 @@ assert.ok(
     readyHtml.indexOf("data-commercial-comparison-matrix"),
   "La conclusión debe anteceder al ledger de criterios",
 );
+assert.ok(
+  readyHtml.indexOf("comparison-decision-sheet") <
+    readyHtml.indexOf("comparison-command"),
+  "La conclusión debe presentarse antes del trabajo de selección",
+);
 assert.match(readyHtml, /Ver datos y evidencia/u);
 assert.equal((readyHtml.match(/data-comparison-group=/gu) ?? []).length, 9);
 assert.equal(await fs.readFile(claimsUrl, "utf8"), claimsSource, "El fixture es read-only");
@@ -66,7 +71,8 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     await openPath(page, baseUrl, "/#compare");
     const conclusion = page.locator("[data-commercial-comparison-summary]");
     await conclusion.waitFor();
-    assert.equal(await page.locator(".comparison-shell h1").count(), 1, `${viewport.name}: un h1 local`);
+    assert.equal(await page.locator("h1:visible").count(), 1, `${viewport.name}: un único h1 visible`);
+    assert.equal(await page.locator(".comparison-shell h1").count(), 0, `${viewport.name}: sin h1 local duplicado`);
     assert.ok(
       (await conclusion.boundingBox()).y <
         (await page.locator("[data-commercial-comparison-matrix]").boundingBox()).y,

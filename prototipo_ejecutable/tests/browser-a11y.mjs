@@ -15,6 +15,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     for (const route of routes) {
       await openRoute(page, baseUrl, route.id);
       assert.equal(await page.locator("main").count(), 1, `Debe existir un único main en #${route.id}`);
+      assert.equal(await page.locator("h1:visible").count(), 1, `Debe existir un único h1 visible en #${route.id}`);
       assert.equal(
         await page.locator('.sidebar nav[aria-label="Módulos principales"]').count(),
         1,
@@ -36,7 +37,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
       assert.equal(await page.locator(".scenario-bar .eyebrow").count(), 0, `La cabecera no debe repetir el eyebrow técnico en #${route.id}`);
       assert.equal(
         await page.locator(".scenario-summary").count(),
-        ["dashboard", "projects", "compare"].includes(route.id) ? 0 : 1,
+        ["dashboard", "projects", "market", "compare", "activity"].includes(route.id) ? 0 : 1,
         `Resumen global duplicado o ausente en #${route.id}`,
       );
 

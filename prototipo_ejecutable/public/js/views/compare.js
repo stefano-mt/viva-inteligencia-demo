@@ -287,7 +287,10 @@ function comparisonGroup(group, model, summaries) {
   `;
 }
 
-function conclusionMarkup(model, { linksEnabled = true } = {}) {
+function conclusionMarkup(
+  model,
+  { linksEnabled = true, commandMarkup = "" } = {},
+) {
   return `
     <section
       class="comparison-conclusion"
@@ -316,6 +319,7 @@ function conclusionMarkup(model, { linksEnabled = true } = {}) {
               )
         }
       </div>
+      ${commandMarkup}
       <ol class="comparison-findings comparison-row-ledger">
         ${model.conclusion
           .map(
@@ -533,25 +537,7 @@ function comparisonHeader(benchmarkContext, model) {
   const targetAvailable = Boolean(benchmarkContext?.targetScenario);
   const targetIncluded = model.selected.some(({ simulated }) => simulated);
   const marketCount = model.selected.filter(({ simulated }) => !simulated).length;
-  return `
-    <header class="comparison-hero">
-      <div>
-        <span class="comparison-eyebrow">Decisión entre comparables</span>
-        <h1>Comparador comercial</h1>
-        <p>
-          Contrasta diferencias respaldadas del mismo escenario y separa lo observado de lo simulado.
-        </p>
-      </div>
-      <div class="comparison-hero__status" aria-label="Estado de la selección">
-        <strong>${formatNumber(marketCount)}/${MAX_SELECTED}</strong>
-        <span>proyectos de mercado</span>
-      </div>
-    </header>
-    ${
-      model.status === "ready"
-        ? conclusionMarkup(model)
-        : ""
-    }
+  const commandMarkup = `
     <section class="comparison-command" aria-label="Selección de proyectos">
       <div>
         ${selectedChips(model)}
@@ -581,6 +567,26 @@ function comparisonHeader(benchmarkContext, model) {
         })}
       </div>
     </section>
+  `;
+  return `
+    <header class="comparison-hero">
+      <div>
+        <span class="comparison-eyebrow">Decisión entre comparables</span>
+        <h2>Comparador comercial</h2>
+        <p>
+          Contrasta diferencias respaldadas del mismo escenario y separa lo observado de lo simulado.
+        </p>
+      </div>
+      <div class="comparison-hero__status" aria-label="Estado de la selección">
+        <strong>${formatNumber(marketCount)}/${MAX_SELECTED}</strong>
+        <span>proyectos de mercado</span>
+      </div>
+    </header>
+    ${
+      model.status === "ready"
+        ? conclusionMarkup(model, { commandMarkup })
+        : commandMarkup
+    }
     ${denominatorMarkup(benchmarkContext, model)}
   `;
 }
@@ -593,7 +599,7 @@ function unavailableMarkup(status, benchmarkContext) {
   return `
     <section class="comparison-unavailable" data-comparison-status="${escapeAttr(status)}">
       <span class="comparison-eyebrow">Comparador comercial</span>
-      <h1>${isLegacy ? "Comparador no disponible para esta versión de datos" : "No se pudo construir una comparación segura"}</h1>
+      <h2>${isLegacy ? "Comparador no disponible para esta versión de datos" : "No se pudo construir una comparación segura"}</h2>
       <p>${escapeHtml(description)}</p>
       ${
         benchmarkContext?.errorCodes?.length

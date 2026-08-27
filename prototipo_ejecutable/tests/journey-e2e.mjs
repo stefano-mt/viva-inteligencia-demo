@@ -205,9 +205,14 @@ await withDemoBrowser(
     }
     assert.match(benchmarkText, /no deben sumarse|grupos distintos/iu);
     assert.equal(
-      await visibleText(page.locator("#scenario-summary-title")),
+      await page.locator("#scenario-summary-title").count(),
+      0,
+      "Benchmark no repite el resumen global del escenario",
+    );
+    assert.equal(
+      await visibleText(page.locator("#scenario-sidebar-title")),
       scenarioLabel,
-      "Escala y benchmark conservan el mismo escenario visible",
+      "Escala y benchmark conservan el mismo escenario visible en la estación lateral",
     );
     await returnFromExpert(page, "scale");
 

@@ -72,7 +72,8 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     await openPath(page, baseUrl, "/#inspector/case/f3-ct-g-pardo");
     await page.locator("[data-commercial-inspector-summary]").waitFor();
 
-    assert.equal(await page.locator(".inspector-view h1").count(), 1, `${viewport.name}: un h1 local`);
+    assert.equal(await page.locator("h1:visible").count(), 1, `${viewport.name}: un único h1 visible`);
+    assert.equal(await page.locator(".inspector-view h1").count(), 0, `${viewport.name}: sin h1 local duplicado`);
     const visibleText = await page.locator("#main-content").innerText();
     for (const value of ["104.15", "53.37", "50.78"]) {
       assert.match(visibleText, new RegExp(value, "u"), `${viewport.name}: C06 ${value}`);
