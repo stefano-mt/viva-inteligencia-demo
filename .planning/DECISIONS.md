@@ -504,3 +504,15 @@ Queda decidido que:
 7. esta exención no modifica código, contrato 2.4, dataset, writer, fingerprints, elegibilidad, motores, workflow ni los resultados técnicos de P6-15/P6-18.
 
 La decisión cierra la secuencia de desarrollo sin debilitar ni reinterpretar los gates técnicos ya ejecutados.
+
+## D-045 — HUMAN-GATE-A habilita el baseline de Fase 7 bajo A1–A14
+
+**Fecha:** 2026-08-24
+
+**Estado:** aceptada
+
+Stefano declaró exactamente “Acepto A1–A14 y autorizo HUMAN-GATE-A de la Fase 7.” con timestamp de sesión `2026-08-24T11:28:28.4214512-05:00`. La aprobación acepta el HEAD documental `074b15dc6a8535a4b149b9a38f6a034830ccdbe3`, cuyo plan normalizado fue revisado sobre `83bb0a526535b14d6008483576d07dcccced4209` con veredicto `PASS` sin hallazgos P0–P2.
+
+La decisión habilita P7-00D y, solo si el baseline reproducible pasa, P7-01. Autoriza simplificar shell, navegación, densidad, copy y jerarquía visual; reorganizar las superficies comerciales; añadir la paleta local `Ir a…`; y adoptar la dirección `Viva Decision Desk`. No autoriza cambios en contrato 2.4, datos, writer, fingerprints, motores, elegibilidad, workflow, dependencias, servicios externos, telemetría o persistencia.
+
+El fixture C01–C23 debe materializar las autoridades existentes sin reinterpretarlas. Las nueve superficies y seis etapas conservan sus rutas, reset, claims, límites, referencias y acciones correctivas. El usuario mantiene control exclusivo del merge y despliegue.

@@ -808,3 +808,296 @@ textarea {
 .content-expander .compare-candidates {
   padding-top: 2px;
 }
+
+/* Fase 7 — primitives Viva Decision Desk. Se adoptan por vista desde P7-02. */
+.workspace-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--space-5);
+  max-width: var(--workspace-content-max);
+  padding-block: var(--space-4);
+  border-bottom: 1px solid var(--line);
+}
+
+.workspace-heading__copy {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.workspace-heading__copy h1 {
+  margin: 0;
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-tight);
+  letter-spacing: -0.025em;
+}
+
+.workspace-heading__copy p {
+  max-width: 70ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--font-size-meta);
+}
+
+.decision-line {
+  position: relative;
+  display: grid;
+  gap: var(--space-2);
+  border-block: 1px solid var(--line);
+  border-inline-start: var(--decision-line-width) solid var(--teal-bright);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+}
+
+.decision-line__label {
+  color: var(--action);
+  font-size: var(--font-size-caption);
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.decision-line__reading {
+  max-width: 72ch;
+  margin: 0;
+  font-size: var(--font-size-lead);
+  font-weight: 720;
+  line-height: 1.35;
+}
+
+.decision-line__limit {
+  max-width: 82ch;
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--font-size-meta);
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-block: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.metric-pair {
+  min-width: 0;
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+}
+
+.metric-pair + .metric-pair {
+  border-inline-start: 1px solid var(--line);
+}
+
+.metric-pair dt,
+.metric-pair__label {
+  color: var(--muted);
+  font-size: var(--font-size-caption);
+  font-weight: 750;
+}
+
+.metric-pair dd,
+.metric-pair__value {
+  min-width: 0;
+  margin: 0;
+  font-size: var(--font-size-body);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.workspace-toolbar {
+  display: flex;
+  align-items: end;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-block: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.workspace-toolbar__group {
+  min-width: 0;
+  display: flex;
+  align-items: end;
+  gap: var(--space-2);
+}
+
+.workspace-toolbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-inline-start: auto;
+}
+
+.work-surface {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-surface);
+  background: var(--surface);
+  overflow: clip;
+}
+
+.data-list {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+
+.data-row {
+  --data-row-columns: minmax(12rem, 1.5fr) repeat(3, minmax(7rem, 1fr));
+  min-width: 0;
+  display: grid;
+  grid-template-columns: var(--data-row-columns);
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--control-min-size);
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.data-row:is(button, a) {
+  width: 100%;
+  border-inline: 0;
+  border-top: 0;
+  color: inherit;
+  text-align: start;
+  text-decoration: none;
+}
+
+.data-row:is(button, a):hover,
+.data-row[aria-selected="true"] {
+  background: var(--teal-soft);
+}
+
+.data-row__primary {
+  min-width: 0;
+  font-weight: 800;
+}
+
+.data-row__secondary,
+.data-row__meta {
+  min-width: 0;
+  color: var(--muted);
+  font-size: var(--font-size-meta);
+}
+
+.detail-disclosure {
+  border-block: 1px solid var(--line);
+  background: var(--surface);
+}
+
+.detail-disclosure > summary {
+  min-height: var(--control-min-size);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  color: var(--action);
+  font-size: var(--font-size-meta);
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+
+.detail-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.detail-disclosure > summary::after {
+  content: "+";
+  font-size: var(--font-size-lead);
+}
+
+.detail-disclosure[open] > summary::after {
+  content: "−";
+}
+
+.detail-disclosure__body {
+  padding: 0 var(--space-4) var(--space-4);
+  color: var(--muted);
+  font-size: var(--font-size-meta);
+}
+
+.next-action {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding-block: var(--space-4);
+}
+
+.action-primary,
+.action-secondary,
+.action-tertiary {
+  min-height: var(--control-min-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-control);
+  padding-inline: var(--space-4);
+  font-weight: 800;
+  text-decoration: none;
+  transition:
+    color var(--motion-fast) ease,
+    background var(--motion-fast) ease,
+    border-color var(--motion-fast) ease;
+}
+
+.action-primary {
+  border: 1px solid var(--action);
+  background: var(--action);
+  color: #ffffff;
+}
+
+.action-primary:hover {
+  border-color: var(--action-hover);
+  background: var(--action-hover);
+}
+
+.action-secondary {
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--action);
+}
+
+.action-secondary:hover {
+  border-color: var(--action);
+  background: var(--teal-soft);
+}
+
+.action-tertiary {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--action);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+@media (max-width: 720px) {
+  .workspace-heading,
+  .workspace-toolbar,
+  .workspace-toolbar__group,
+  .workspace-toolbar__actions,
+  .next-action {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .workspace-toolbar__actions {
+    margin-inline-start: 0;
+  }
+
+  .metric-row,
+  .data-row {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-pair + .metric-pair {
+    border-inline-start: 0;
+    border-top: 1px solid var(--line);
+  }
+}

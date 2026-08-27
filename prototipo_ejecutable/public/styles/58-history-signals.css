@@ -1228,3 +1228,71 @@
     animation-iteration-count: 1;
   }
 }
+
+/* Phase 7 · follow-up desk: lectura breve primero, agenda inmediatamente después. */
+.history-view {
+  gap: 8px;
+}
+
+.history-hero {
+  padding: 20px 22px;
+  background: var(--surface);
+}
+
+.history-hero h2 {
+  font-size: clamp(1.8rem, 3.5vw, 2.65rem);
+}
+
+.history-agenda {
+  border-top: 4px solid var(--action);
+}
+
+.history-agenda__header {
+  padding: 17px 20px;
+}
+
+.history-agenda__item {
+  min-height: 0;
+  padding: 13px 18px;
+}
+
+.history-agenda__copy p {
+  margin-top: 2px;
+}
+
+.history-signal-brief {
+  padding: 18px 20px;
+}
+
+.history-signal-brief__thesis h3 {
+  font-size: clamp(1.35rem, 2.4vw, 1.9rem);
+}
+
+.history-controls {
+  padding: 14px 16px;
+}
+
+.history-controls__heading p {
+  margin-top: 2px;
+}
+
+.history-ledger__header {
+  padding: 17px 20px;
+}
+
+.history-timeline__row > article {
+  padding-block: 16px;
+}
+
+.history-quality-band {
+  order: 10;
+}
+
+@media (max-width: 620px) {
+  .history-agenda__header,
+  .history-agenda__item,
+  .history-signal-brief,
+  .history-ledger__header {
+    padding: 16px;
+  }
+}

@@ -125,6 +125,8 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     module.state.mobileNavOpen = true;
   });
 
+  await page.locator("#scenario-journey-editor-trigger").click();
+  await page.locator("#scenario-editor").waitFor({ state: "visible" });
   await page.locator("#reset-scenario").click();
   await page.waitForFunction(() => window.location.hash === "#journey/scale");
   const resetUrl = new URL(page.url());

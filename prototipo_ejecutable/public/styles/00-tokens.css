@@ -1,8 +1,32 @@
 :root {
   color: #202022;
   background: #eff0f0;
-  font-family: Aptos, "Segoe UI", Arial, sans-serif;
+  font-family: var(--font-body);
   font-size: 16px;
+  --font-display: "Aptos Display", Aptos, "Segoe UI", sans-serif;
+  --font-body: Aptos, "Segoe UI", Arial, sans-serif;
+  --font-data: ui-monospace, Consolas, "Cascadia Mono", monospace;
+  --font-size-caption: 0.8125rem;
+  --font-size-meta: 0.875rem;
+  --font-size-body: 1rem;
+  --font-size-lead: 1.125rem;
+  --font-size-title: clamp(1.5rem, 2.2vw, 1.875rem);
+  --line-height-tight: 1.15;
+  --line-height-body: 1.5;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --radius-control: 0.5rem;
+  --radius-surface: 0.625rem;
+  --control-min-size: 2.75rem;
+  --workspace-rail-width: 15.25rem;
+  --workspace-topbar-height: 4.25rem;
+  --workspace-content-max: 80rem;
+  --decision-line-width: 0.1875rem;
   --surface: #ffffff;
   --surface-soft: #eff0f0;
   --surface-warm: #f8f5ec;
@@ -26,6 +50,8 @@
   --coral: #00943b;
   --action: #00614f;
   --action-hover: #00483b;
+  --focus-ring: rgba(0, 148, 59, 0.4);
+  --motion-fast: 140ms;
   --shadow: 0 14px 34px rgba(1, 51, 43, 0.08);
   --shadow-soft: 0 8px 24px rgba(1, 51, 43, 0.06);
 }

@@ -1,0 +1,93 @@
+{
+  "gate": "P7-10A",
+  "candidate": "23d350532584ead2cbad3ccb15e3ad88aecb08ce",
+  "verifier": "/root/p7_10a_checker",
+  "viewport": "1280x720",
+  "measurementPolicy": "scrollY=0; selectors measured before focus, keyboard, click, screenshot or explicit scroll",
+  "surfaces": [
+    {
+      "id": "inspector",
+      "path": "/#inspector/case/f3-ct-g-pardo",
+      "scrollY": 0,
+      "visibleH1": 1,
+      "boxes": {},
+      "screenshot": "p7-10a-inspector-1280x720.png",
+      "sha256": "e4d604205b351b55342fd6d29c77e95fce43af53a5daa4367a0d52ec9ff42c81"
+    },
+    {
+      "id": "market",
+      "path": "/#market",
+      "scrollY": 0,
+      "visibleH1": 1,
+      "boxes": {
+        "reading": {
+          "selector": "[data-commercial-benchmark-summary]",
+          "x": 269,
+          "y": 345.25,
+          "width": 986,
+          "height": 265
+        },
+        "work": {
+          "selector": ".benchmark-decision-ledger",
+          "x": 675.38,
+          "y": 366.25,
+          "width": 549.63,
+          "height": 223
+        }
+      },
+      "screenshot": "p7-10a-market-1280x720.png",
+      "sha256": "2b529f25c4a0bb9347262dbb1c53531304b784b14193ae0847247dd0c9b48ef8"
+    },
+    {
+      "id": "compare",
+      "path": "/#compare",
+      "scrollY": 0,
+      "visibleH1": 1,
+      "boxes": {
+        "reading": {
+          "selector": "[data-commercial-comparison-summary]",
+          "x": 268,
+          "y": 295.83,
+          "width": 988,
+          "height": 780.09
+        },
+        "work": {
+          "selector": "details.comparison-selector",
+          "x": 1060.14,
+          "y": 466,
+          "width": 177.86,
+          "height": 44
+        }
+      },
+      "screenshot": "p7-10a-compare-1280x720.png",
+      "sha256": "b23b6db2c8b88de9109921df2fef16c8b694d1c75c56ab469a818cdcf1566b00"
+    },
+    {
+      "id": "activity",
+      "path": "/#activity",
+      "scrollY": 0,
+      "visibleH1": 1,
+      "boxes": {
+        "reading": {
+          "selector": ".history-signal-brief",
+          "x": 268,
+          "y": 356.55,
+          "width": 988,
+          "height": 351.48
+        },
+        "work": {
+          "selector": ".history-agenda",
+          "x": 268,
+          "y": 716.03,
+          "width": 988,
+          "height": 455.64
+        }
+      },
+      "screenshot": "p7-10a-activity-1280x720.png",
+      "sha256": "44b8c0c6a327f1b7bb07d9629c81e0e5efb70a5a16eba0b496a82ce3336dcd3a"
+    }
+  ],
+  "browserProblems": [],
+  "externalRequests": [],
+  "verdict": "PASS"
+}

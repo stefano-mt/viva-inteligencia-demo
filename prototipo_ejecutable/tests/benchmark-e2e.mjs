@@ -195,14 +195,20 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     1,
     "CT-I debe separar el índice orientativo del benchmark elegible",
   );
+  assert.equal(
+    await observed.page.locator(".scenario-summary").count(),
+    0,
+    "Benchmark debe usar el escenario compacto del shell sin repetir el resumen territorial",
+  );
   const territorialPriceText = await observed.page
-    .locator(".scenario-summary")
-    .textContent();
-  assert.match(territorialPriceText, /Referencia de precio no demostrada/u);
+    .locator("[data-commercial-benchmark-summary]")
+    .innerText();
+  assert.match(territorialPriceText, /Referencia orientativa; no es un benchmark certificado/u);
   assert.match(
     territorialPriceText,
-    /69 publicaciones declaran precio y área total; no prueban que ambos valores pertenezcan a la misma oferta/u,
+    /Publicaciones con precio y área\s+69/u,
   );
+  assert.match(territorialPriceText, /No representa precios reales de cierre/u);
   assert.doesNotMatch(
     territorialPriceText,
     /Referencia de precio lista|precios publicados compatibles/iu,
@@ -212,7 +218,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.match(baselineText, /85 comparables/u);
   assert.match(baselineText, /68 orientativos/u);
   assert.match(baselineText, /85 de entrada = 0 usados \+ 16 faltantes \+ 69 excluidos/u);
-  assert.doesNotMatch(baselineText, /precio de cierre|tasación|promedio transaccional/iu);
+  assert.doesNotMatch(baselineText, /tasación|promedio transaccional/iu);
 
   const audit = observed.page.locator("details.benchmark-audit");
   await audit.locator("summary").click();

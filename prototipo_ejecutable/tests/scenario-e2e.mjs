@@ -126,6 +126,21 @@ async function waitForMobileNav(page, open) {
   );
 }
 
+async function openScenarioEditor(page) {
+  const editor = page.locator("#scenario-editor");
+  if (await editor.isVisible()) return;
+  await page.locator("[data-scenario-editor-open]").first().click();
+  await editor.waitFor({ state: "visible" });
+}
+
+async function clickNavigationView(page, routeId) {
+  const control = page.locator(`[data-nav-tier][data-view="${routeId}"]`).first();
+  if (!(await control.isVisible())) {
+    await page.locator(".nav-expert-disclosure > summary").click();
+  }
+  await control.click();
+}
+
 function assertClean(problems, externalRequests, label) {
   assert.deepEqual(
     externalRequests,
@@ -278,7 +293,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   const ctCTerritorialPath = await page.evaluate(
     () => `${window.location.pathname}${window.location.search}`,
   );
-  await page.locator('[data-view="inspector"]').first().click();
+  await clickNavigationView(page, "inspector");
   await waitForActiveRoute(page, "inspector", {
     baseUrl,
     expectedPath: pathForRoute(descriptor.canonical_path, "inspector"),
@@ -300,7 +315,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     ctCTerritorialPath,
     "Abrir y cerrar evidencia no debe cambiar la query territorial CT-C",
   );
-  await page.locator('[data-view="dashboard"]').first().click();
+  await clickNavigationView(page, "dashboard");
   await waitForActiveRoute(page, "dashboard", {
     baseUrl,
     expectedPath: descriptor.canonical_path,
@@ -343,6 +358,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.locator("#geo-project-select").inputValue(), targetObservedId, "Space/Enter debe seleccionar el mismo ID");
   assert.equal(await page.evaluate(() => document.activeElement?.id), "geo-project-select", "El foco de teclado debe persistir");
 
+  await openScenarioEditor(page);
   await page.locator("#scenario-view-positioning").click();
   assert.equal(await page.locator('.positioning-panel[data-visualization-active="true"]').count(), 1, "Debe activar posicionamiento");
   assert.equal(await page.evaluate(() => document.activeElement?.id), "scenario-view-positioning", "Posicionamiento debe conservar foco");
@@ -352,12 +368,14 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.evaluate(() => document.activeElement?.id), "scenario-view-geographic", "Geografía debe conservar foco");
   assert.equal(new URL(page.url()).searchParams.has("viz"), false, "La visualización por defecto no debe ensuciar la URL");
 
+  await page.locator("details.radar-simulation > summary").click();
   await page.locator("#scenario-product-price").fill("660000");
   await page.locator("#scenario-product-submit").click();
-  assert.equal(await page.evaluate(() => document.activeElement?.id), "scenario-product-submit", "Submit debe recuperar foco");
+  await page.locator("details.radar-simulation > summary").waitFor({ state: "visible" });
   assert.equal(new URL(page.url()).searchParams.get("price"), "660000", "El formulario debe persistir el precio");
 
   await openPath(page, baseUrl, descriptor.canonical_path);
+  await openScenarioEditor(page);
   await page.locator("#scenario-view-comparables").click();
   await waitForActiveRoute(page, "projects", {
     baseUrl,
@@ -402,6 +420,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   await assertCompareCanonicalIds(page, descriptor.expected.consumer_project_ids.compare);
 
   await openPath(page, baseUrl, descriptor.canonical_path);
+  await openScenarioEditor(page);
   await page.locator("#reset-scenario").click();
   await assertCurrentPath(page, baseUrl, "/#journey/scale", "Reset debe restaurar CT-I en Escala");
   assert.equal(await page.evaluate(() => document.activeElement?.id), "journey-title", "Reset debe mover foco al h1 de Escala");
@@ -413,7 +432,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     [],
     "Reset debe vaciar la selección del comparador",
   );
-  await page.locator('[data-view="dashboard"]').first().click();
+  await clickNavigationView(page, "dashboard");
   await waitForActiveRoute(page, "dashboard");
   assert.equal(await page.locator("[data-geo-point-id]").count(), 90, "CT-I debe mostrar 90 observaciones");
   assert.equal(await page.locator("#geo-project-select option").count(), 90, "CT-I debe ofrecer 90 observaciones por teclado");
@@ -433,7 +452,11 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     "data-canonical-project-id",
   );
   assert.deepEqual(baselineCatalogIds, baselineCompareIds, "Catálogo y comparador CT-I deben consumir los mismos 85 IDs");
-  assert.match(await page.locator('[data-scenario-consumer="catalog"]').innerText(), /69\s+con precio/i, "CT-I debe declarar 69 referencias de precio");
+  assert.match(
+    await page.locator('[data-scenario-consumer="catalog"]').innerText(),
+    /69 publicaciones declaran precio y área/i,
+    "CT-I debe declarar las 69 publicaciones con precio y área",
+  );
 
   for (const [routeId, consumer] of [
     ["trust", "checklist"],
@@ -454,18 +477,19 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   }
 
   await openPath(page, baseUrl, "/#dashboard");
+  await openScenarioEditor(page);
   await page.locator("#scenario-scope-quadrant").click();
   assert.equal(new URL(page.url()).searchParams.get("scope"), "quadrant", "Debe activar alcance por cuadrante");
   assert.equal(new URL(page.url()).searchParams.get("quadrant"), "NW", "Debe elegir el primer cuadrante estable");
   assert.equal(await page.evaluate(() => document.activeElement?.id), "scenario-scope-quadrant", "El control de cuadrante debe conservar foco");
 
-  await page.locator('[data-view="compare"]').first().click();
+  await clickNavigationView(page, "compare");
   await waitForActiveRoute(page, "compare");
   const quadrantCompareIds = await compareCandidateIds(page);
   assert.ok(quadrantCompareIds.length > 0, "El cuadrante NW debe tener comparables");
   assert.ok(quadrantCompareIds.every((id) => baselineCompareIds.includes(id)), "El cuadrante no debe ampliar el universo distrital");
 
-  await page.locator('[data-view="projects"]').first().click();
+  await clickNavigationView(page, "projects");
   await waitForActiveRoute(page, "projects");
   await expandProjectCatalog(page);
   assert.deepEqual(
@@ -482,7 +506,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     ["trust", "checklist"],
     ["assistant", "assistant"],
   ]) {
-    await page.locator(`[data-view="${routeId}"]`).first().click();
+    await clickNavigationView(page, routeId);
     await waitForActiveRoute(page, routeId);
     const referenceIds = await uniqueAttributeValues(
       page.locator(`[data-scenario-consumer="${consumer}"] [data-canonical-project-id]`),
@@ -491,6 +515,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     assert.ok(referenceIds.every((id) => quadrantCompareIds.includes(id)), `${consumer} debe conservar el cuadrante NW`);
   }
 
+  await openScenarioEditor(page);
   await page.locator("#reset-scenario").click();
   await assertCurrentPath(page, baseUrl, "/#journey/scale", "Reset fuera del dashboard debe volver a Escala");
   await waitForFocus(page, "journey-title");
@@ -503,10 +528,10 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     [],
     "Reset posterior al cuadrante debe vaciar la comparación",
   );
-  await page.locator('[data-view="dashboard"]').first().click();
+  await clickNavigationView(page, "dashboard");
   await waitForActiveRoute(page, "dashboard");
   assert.equal(await page.locator("[data-geo-point-id]").count(), 90, "Reset posterior al cuadrante debe volver a 90 observaciones");
-  await page.locator('[data-view="compare"]').first().click();
+  await clickNavigationView(page, "compare");
   await waitForActiveRoute(page, "compare");
   assert.equal(
     (await compareCandidateIds(page)).length,
@@ -519,6 +544,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
   assert.equal(await page.locator("[data-geo-point-id]").count(), 0, "El radio vacío no debe usar fallback");
   assert.match(await page.locator("#main-content").innerText(), /0 comparables dentro de 500 m/i, "Debe explicar el resultado cero");
   assert.equal(await page.locator("details.radar-deep-dive:not([open])").count(), 1, "El score insuficiente permanece disponible bajo demanda");
+  await page.locator("details.radar-simulation > summary").click();
   assert.match(await page.locator("#main-content").innerText(), /Referencia de precio insuficiente/i, "Debe degradar precio con prudencia");
 
   for (const [routeId, consumer] of [

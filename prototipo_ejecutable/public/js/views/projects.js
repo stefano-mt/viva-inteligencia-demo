@@ -8,7 +8,6 @@ import {
   escapeAttr,
   escapeHtml,
   formatNumber,
-  miniMetric,
   money,
   normalizeSearch,
   optionList,
@@ -249,6 +248,7 @@ export function buildProjectCatalogModel({
   filters = DEFAULT_FILTERS,
   limit = 18,
   selectedProjectId = null,
+  eligiblePricePerM2Count = 0,
 } = {}) {
   const comparableRows = buildComparableRows({
     projects,
@@ -287,6 +287,8 @@ export function buildProjectCatalogModel({
     priceReferenceCount: comparableRows.filter(
       (row) => row.priceEligible,
     ).length,
+    eligiblePricePerM2Count:
+      finiteNumber(eligiblePricePerM2Count) ?? 0,
     filters: normalizedFilters,
     availablePhases: [
       ...new Set(
@@ -308,10 +310,10 @@ function distanceLabel(row) {
     : `${formatNumber(row.distanceMeters, 0)} m del punto Viva`;
 }
 
-function provisionalPriceLabel(row, formatter) {
+function publishedValueLabel(row, formatter) {
   return row.priceEligible
     ? formatter(row)
-    : "No elegible para referencia";
+    : "No disponible";
 }
 
 function scoreBadge(row) {
@@ -325,82 +327,85 @@ function scoreBadge(row) {
 
 function projectSelectionReading(row) {
   return row.priceEligible
-    ? "Comparable con precio publicado provisional habilitado para contraste."
-    : "Comparable por sus atributos; su precio no es elegible como referencia."
+    ? "Comparable por atributos. El precio y el área publicados son orientativos; no forman un precio por m² certificado."
+    : "Comparable por atributos. No dispone de precio y área publicados utilizables para este contraste."
 }
 
 function projectListRow(row, selected) {
   const project = row.project;
+  const projectName = project.project_name || "Proyecto sin nombre";
+  const agencyName = project.agency_name || "Inmobiliaria no registrada";
+  const phase = project.project_phase || "Estado no disponible";
+  const district = project.district || "Distrito no disponible";
   return `
     <button
-      class="project-card ${selected ? "selected" : ""}"
+      class="project-row project-card data-row ${selected ? "selected" : ""}"
       type="button"
+      id="project-row-${escapeAttr(row.legacyId)}"
       data-select-project="${escapeAttr(row.legacyId)}"
       data-canonical-project-id="${escapeAttr(row.projectId)}"
+      role="option"
+      aria-selected="${selected}"
       aria-pressed="${selected}"
+      aria-controls="project-detail-panel"
     >
-      <div class="project-card-head">
-        <div>
-          <strong>${escapeHtml(project.project_name || "Proyecto sin nombre")}</strong>
-          <span>${escapeHtml(project.agency_name || "Inmobiliaria no registrada")}</span>
-        </div>
-        ${scoreBadge(row)}
-      </div>
-      <dl class="project-row-facts">
-        <div>
-          <dt>Precio / m²</dt>
-          <dd>${escapeHtml(provisionalPriceLabel(row, ({ pricePerM2 }) => priceM2(pricePerM2)))}</dd>
-        </div>
-        <div>
-          <dt>Área total</dt>
-          <dd>${escapeHtml(areaLabel(project.total_area))}</dd>
-        </div>
-        <div>
-          <dt>Evidencia</dt>
-          <dd>${formatNumber(row.evidenceCoverage, 1)}%</dd>
-        </div>
-      </dl>
-      <p class="project-card-meta">
-        <span>${escapeHtml(distanceLabel(row))}</span>
-        <span>${escapeHtml(project.project_phase || "Fase no disponible")}</span>
-        <span>${escapeHtml(bedroomsLabel(project))}</span>
-        <span>${escapeHtml(deliveryLabel(project))}</span>
-      </p>
+      <span class="project-row__identity data-row__primary">
+        <span class="project-cell-label">Proyecto</span>
+        <strong>${escapeHtml(projectName)}</strong>
+        <small>${escapeHtml(agencyName)}</small>
+      </span>
+      <span class="project-row__location data-row__secondary">
+        <span class="project-cell-label">Ubicación</span>
+        <strong>${escapeHtml(district)}</strong>
+        <small>${escapeHtml(shortText(project.address, 54) || distanceLabel(row))}</small>
+      </span>
+      <span class="project-row__price">
+        <span class="project-cell-label">Precio publicado</span>
+        <strong>${escapeHtml(publishedValueLabel(row, ({ priceTotal }) => money(priceTotal)))}</strong>
+        <small>${row.priceEligible ? "Dato publicado" : "Sin cifra utilizable"}</small>
+      </span>
+      <span class="project-row__area">
+        <span class="project-cell-label">Área publicada</span>
+        <strong>${escapeHtml(areaLabel(project.total_area))}</strong>
+        <small>Área total declarada</small>
+      </span>
+      <span class="project-row__status">
+        <span class="project-cell-label">Estado</span>
+        <strong>${escapeHtml(phase)}</strong>
+        <small>${escapeHtml(deliveryLabel(project))}</small>
+      </span>
+      <span class="project-row__score">
+        <span class="project-cell-label">Score</span>
+        <strong>${formatNumber(row.score, 1)}</strong>
+        <small>${formatNumber(row.evidenceCoverage, 1)}% evidencia · ${selected ? "Detalle abierto" : "Ver detalle"}</small>
+      </span>
     </button>
   `;
 }
 
 function renderCatalogOrientation(catalog) {
-  const excludedFromPrice = Math.max(
-    0,
-    catalog.comparableCount - catalog.priceReferenceCount,
-  );
   const hasComparables = catalog.comparableCount > 0;
   const conclusion = hasComparables
-    ? `${formatNumber(catalog.comparableCount)} proyectos sostienen la muestra comparable; ${formatNumber(catalog.priceReferenceCount)} con precio publicado provisional elegible. Selecciona candidatos y contrasta sus diferencias antes de decidir.`
+    ? `${formatNumber(catalog.comparableCount)} proyectos cumplen la comparabilidad del escenario. Revisa primero los competidores con mejor score y abre solo el detalle que necesites.`
     : "El escenario actual no tiene proyectos comparables. Revisa el alcance antes de intentar una comparación.";
 
   return `
     <section
-      class="project-catalog-orientation"
+      class="project-catalog-orientation decision-line"
       data-projects-conclusion
       data-comparable-count="${escapeAttr(catalog.comparableCount)}"
       data-filtered-count="${escapeAttr(catalog.rows.length)}"
       data-price-reference-count="${escapeAttr(catalog.priceReferenceCount)}"
+      data-eligible-price-per-m2="${escapeAttr(catalog.eligiblePricePerM2Count)}"
       aria-labelledby="project-catalog-orientation-title"
     >
       <div class="project-catalog-orientation__copy">
-        <span class="project-catalog-orientation__eyebrow">Inventario comparable · ${escapeHtml(catalog.scopeText)}</span>
-        <h2 id="project-catalog-orientation-title">${formatNumber(catalog.comparableCount)} proyectos para priorizar</h2>
-        <p>${escapeHtml(conclusion)}</p>
-        <small>Que un proyecto sea comparable no significa que todos sus campos puedan usarse.</small>
-      </div>
-      <div
-        class="project-catalog-orientation__status"
-        aria-label="Estado del inventario"
-      >
-        <strong>${formatNumber(catalog.rows.length)}</strong>
-        <span>visibles tras filtros · ${formatNumber(excludedFromPrice)} sin precio elegible</span>
+        <span class="decision-line__label">Inventario comparable · ${escapeHtml(catalog.scopeText)}</span>
+        <h2 class="project-catalog-orientation__status" id="project-catalog-orientation-title">${formatNumber(catalog.comparableCount)} comparables</h2>
+        <p class="decision-line__reading">${escapeHtml(conclusion)}</p>
+        <p class="decision-line__limit">
+          <strong>Límite:</strong> ${formatNumber(catalog.priceReferenceCount)} publicaciones declaran precio y área, pero ${formatNumber(catalog.eligiblePricePerM2Count)} tienen pairing certificado por unidad. Ser comparable no vuelve utilizables todos sus campos ni produce un precio por m² elegible.
+        </p>
       </div>
       <div class="project-catalog-orientation__actions">
         ${
@@ -528,28 +533,27 @@ export function renderProjectDetail(row) {
         </div>
         ${componentHelp(
           "Por qué aparece aquí",
-          "Este proyecto pertenece exactamente a comparable_project_ids del escenario. Los filtros de búsqueda, fase y orden solo cambian esta vista.",
+          "Este proyecto pertenece exactamente a comparable_project_ids del escenario. Los filtros de búsqueda, fase y orden solo cambian esta lista.",
         )}
       </div>
       <h2>${escapeHtml(project.project_name || "Proyecto sin nombre")}</h2>
       <p>${escapeHtml(project.agency_name || "Inmobiliaria no registrada")}</p>
       <p class="project-detail-reading">${escapeHtml(projectSelectionReading(row))}</p>
     </div>
-    <div class="detail-metrics">
-      ${miniMetric(
-        "Precio publicado provisional",
-        provisionalPriceLabel(row, ({ priceTotal }) =>
-          money(priceTotal),
-        ),
-      )}
-      ${miniMetric(
-        "Precio publicado / m²",
-        provisionalPriceLabel(row, ({ pricePerM2 }) =>
-          priceM2(pricePerM2),
-        ),
-      )}
-      ${miniMetric("Área total publicada", areaLabel(project.total_area))}
-    </div>
+    <dl class="detail-metrics project-detail-ledger" aria-label="Cifras publicadas del proyecto">
+      <div>
+        <dt>Precio publicado</dt>
+        <dd>${escapeHtml(publishedValueLabel(row, ({ priceTotal }) => money(priceTotal)))}</dd>
+      </div>
+      <div>
+        <dt>Cociente orientativo / m²</dt>
+        <dd>${escapeHtml(publishedValueLabel(row, ({ pricePerM2 }) => priceM2(pricePerM2)))}</dd>
+      </div>
+      <div>
+        <dt>Área total publicada</dt>
+        <dd>${escapeHtml(areaLabel(project.total_area))}</dd>
+      </div>
+    </dl>
     ${renderProjectInspectorEntry(row)}
     <details class="project-detail-disclosure">
       <summary>Cómo se construye la comparabilidad</summary>
@@ -584,7 +588,7 @@ export function renderProjectDetail(row) {
             ? `<a class="text-link" href="${escapeAttr(url)}" target="_blank" rel="noreferrer">Abrir publicación visible</a>`
             : "<p>No disponible en la información visible.</p>"
         }
-        <p>Los precios son referencias publicadas provisionales; no representan precios reales de cierre.</p>
+        <p>Las cifras son datos publicados orientativos; no constituyen un precio por m² certificado ni precios reales de cierre.</p>
       </div>
     </details>
   `;
@@ -597,6 +601,8 @@ export function renderProjects() {
     filters: state.projectFilters,
     limit: state.projectLimit,
     selectedProjectId: state.selectedProjectId,
+    eligiblePricePerM2Count:
+      state.benchmarkContext?.quantitative?.pricePerM2Total?.n ?? 0,
   });
 
   return `
@@ -605,22 +611,22 @@ export function renderProjects() {
       data-scenario-consumer="catalog"
     >
       ${renderCatalogOrientation(catalog)}
-      <section class="panel catalog-panel">
-        <div class="panel-header">
+      <section class="catalog-panel work-surface" aria-labelledby="project-catalog-title">
+        <div class="project-catalog-heading">
           <div>
-            <h2>Ordena y selecciona candidatos</h2>
-            <p>Los filtros de esta lista no modifican el escenario territorial.</p>
+            <h2 id="project-catalog-title">Explora el inventario</h2>
+            <p><strong>${formatNumber(catalog.rows.length)} resultados</strong> con los filtros locales vigentes.</p>
           </div>
           <div class="panel-header-actions">
             ${componentHelp(
-              "Filtros locales",
-              "Buscar, filtrar por fase u ordenar no modifica el distrito, alcance ni filtros de producto del escenario compartido.",
+              "Campos y filtros",
+              "Buscar, filtrar u ordenar no modifica el escenario. Precio y área son datos publicados; el score ordena comparabilidad, pero no certifica cada campo.",
             )}
           </div>
         </div>
-        <div class="local-controls">
+        <div class="local-controls workspace-toolbar" role="search" aria-label="Filtrar proyectos comparables">
           <label class="field-control" for="project-phase">
-            <span>Fase publicada</span>
+            <span>Fase</span>
             <select id="project-phase" data-project-filter="phase">
               ${optionList(
                 ["Todos", ...catalog.availablePhases],
@@ -629,7 +635,7 @@ export function renderProjects() {
             </select>
           </label>
           <label class="field-control" for="project-sort">
-            <span>Ordenar sin cambiar el escenario</span>
+            <span>Orden</span>
             <select id="project-sort" data-project-filter="sort">
               ${optionList(
                 [
@@ -658,17 +664,25 @@ export function renderProjects() {
             </select>
           </label>
           <label class="field-control search-control" for="project-query">
-            <span>Buscar en estos comparables</span>
+            <span>Buscar</span>
             <input
               id="project-query"
               data-project-filter="query"
               type="search"
               value="${escapeAttr(catalog.filters.query)}"
-              placeholder="Proyecto, inmobiliaria, dirección o ID"
+              placeholder="Proyecto, inmobiliaria o dirección"
             />
           </label>
         </div>
-        <div class="catalog-result-list">
+        <div class="project-list-header" aria-hidden="true">
+          <span>Proyecto</span>
+          <span>Ubicación</span>
+          <span>Precio publicado</span>
+          <span>Área</span>
+          <span>Estado</span>
+          <span>Score</span>
+        </div>
+        <div class="catalog-result-list data-list" role="listbox" aria-label="${formatNumber(catalog.rows.length)} proyectos comparables filtrados">
           ${
             catalog.visibleRows
               .map((row) =>
@@ -700,7 +714,7 @@ export function renderProjects() {
             : ""
         }
       </section>
-      <aside class="detail-panel">
+      <aside class="detail-panel" id="project-detail-panel" aria-label="Detalle del proyecto seleccionado">
         ${renderProjectDetail(catalog.selected)}
       </aside>
     </section>

@@ -1,8 +1,7 @@
-
 .app-shell {
   min-height: 100vh;
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: var(--workspace-rail-width) minmax(0, 1fr);
 }
 
 .nav-scrim {
@@ -15,11 +14,11 @@
   top: 0;
   display: grid;
   grid-template-rows: auto auto 1fr auto;
-  gap: 16px;
+  gap: 12px;
   overflow-y: auto;
-  padding: 24px 18px 18px;
+  padding: 18px 14px 14px;
   background:
-    linear-gradient(90deg, var(--teal) 0 62%, var(--teal-bright) 62% 100%) top / 100% 6px no-repeat,
+    linear-gradient(90deg, var(--teal) 0 62%, var(--teal-bright) 62% 100%) top / 100% 4px no-repeat,
     #ffffff;
   border-right: 1px solid var(--line);
 }
@@ -33,15 +32,15 @@
 
 .brand-block {
   display: grid;
-  grid-template-columns: 86px minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 9px;
   align-items: center;
 }
 
 .brand-logo {
   position: relative;
-  width: 86px;
-  height: 36px;
+  width: 72px;
+  height: 32px;
   overflow: hidden;
   border-radius: 6px;
   background: #eaeaea;
@@ -51,8 +50,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 86px;
-  height: 86px;
+  width: 72px;
+  height: 72px;
   display: block;
   max-width: none;
   object-fit: cover;
@@ -84,7 +83,12 @@
 .nav-list {
   display: grid;
   align-content: start;
-  gap: 20px;
+  gap: 10px;
+}
+
+.nav-list > [data-expert-navigation] {
+  display: grid;
+  gap: 10px;
 }
 
 .nav-section {
@@ -92,15 +96,12 @@
   gap: 5px;
 }
 
-.nav-section--journey {
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--line);
+.nav-section--primary {
+  gap: 2px;
 }
 
 .nav-item--journey {
-  min-height: 66px;
-  border-color: var(--teal-line);
-  background: linear-gradient(135deg, var(--teal-soft), #f5faf8);
+  min-height: var(--control-min-size);
 }
 
 .nav-item--journey:not(.active) .nav-copy strong {
@@ -115,7 +116,8 @@
 }
 
 .nav-section--expert {
-  gap: 3px;
+  gap: 2px;
+  padding-top: 4px;
 }
 
 .nav-section-label {
@@ -129,32 +131,32 @@
 
 .nav-item {
   position: relative;
-  min-height: 54px;
+  min-height: var(--control-min-size);
   display: grid;
-  grid-template-columns: 30px minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
   align-items: center;
   text-align: left;
   border: 1px solid transparent;
-  border-radius: 10px;
-  padding: 8px 10px;
+  border-radius: var(--radius-control);
+  padding: 6px 8px;
   background: transparent;
   color: var(--text);
-  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+  transition: background var(--motion-fast) ease, border-color var(--motion-fast) ease, color var(--motion-fast) ease;
 }
 
 .nav-item::before {
   content: "";
   position: absolute;
-  inset: 9px auto 9px -18px;
-  width: 4px;
+  inset: 7px auto 7px -14px;
+  width: 3px;
   border-radius: 0 4px 4px 0;
   background: transparent;
 }
 
 .nav-icon {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   display: grid;
   place-items: center;
   border-radius: 8px;
@@ -185,16 +187,12 @@
 }
 
 .nav-item small {
-  color: var(--muted);
-  margin-top: 3px;
-  font-size: 11px;
-  line-height: 1.2;
+  display: none;
 }
 
 .nav-item:hover {
   background: #f5f8f7;
   border-color: #e2e8e5;
-  transform: translateX(2px);
 }
 
 .nav-item.active {
@@ -217,12 +215,8 @@
 }
 
 .sidebar-footer {
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 13px;
-  background:
-    linear-gradient(135deg, rgba(1, 97, 80, 0.05), rgba(0, 148, 59, 0.03)),
-    var(--surface);
+  border-top: 1px solid var(--line);
+  padding: 11px 4px 0;
 }
 
 .sidebar-footer strong {
@@ -245,8 +239,8 @@
   grid-template-columns: minmax(240px, 1fr) auto;
   gap: 18px;
   align-items: center;
-  min-height: 86px;
-  padding: 14px 24px;
+  min-height: var(--workspace-topbar-height);
+  padding: 10px 20px;
   background: rgba(255, 255, 255, 0.96);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(10px);
@@ -285,15 +279,15 @@ p {
 }
 
 h1 {
-  font-family: "Arial Narrow", "Aptos Display", "Segoe UI", sans-serif;
-  font-size: 25px;
+  font-family: var(--font-display);
+  font-size: var(--font-size-title);
   font-weight: 800;
   letter-spacing: -0.025em;
   line-height: 1.1;
 }
 
 h2 {
-  font-family: "Arial Narrow", "Aptos Display", "Segoe UI", sans-serif;
+  font-family: var(--font-display);
   font-size: 18px;
   letter-spacing: -0.012em;
   line-height: 1.2;
@@ -312,12 +306,12 @@ p {
   border-left: 1px solid var(--line-strong);
   padding-left: 12px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--font-size-caption);
 }
 
 .icon-button {
-  width: 42px;
-  height: 42px;
+  width: var(--control-min-size);
+  height: var(--control-min-size);
   display: grid;
   flex: 0 0 auto;
   place-items: center;
@@ -346,4 +340,117 @@ p {
 .content {
   min-width: 0;
   padding: 22px 24px 40px;
+}
+
+.nav-expert-disclosure {
+  border-top: 1px solid var(--line);
+  padding-top: 6px;
+}
+
+.nav-expert-disclosure > summary {
+  min-height: var(--control-min-size);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-radius: var(--radius-control);
+  padding: 6px 8px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+
+.nav-expert-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.nav-expert-disclosure > summary::before {
+  content: "›";
+  color: var(--teal);
+  font-size: 18px;
+  transform: rotate(0deg);
+  transition: transform var(--motion-fast) ease;
+}
+
+.nav-expert-disclosure[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.nav-expert-disclosure > summary small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: var(--font-size-caption);
+  font-weight: 650;
+}
+
+.nav-expert-disclosure > summary:hover {
+  background: var(--surface-soft);
+}
+
+.workspace > .journey-topbar {
+  min-height: var(--workspace-topbar-height);
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding-block: 8px;
+}
+
+.workspace > .journey-topbar .journey-topbar__scenario {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 9rem;
+  padding: 4px 8px 4px 16px;
+  border-top: 0;
+  border-left: 1px solid var(--line);
+  text-align: right;
+}
+
+.journey-topbar__scenario.scenario-trigger {
+  min-height: var(--control-min-size);
+  border-radius: var(--radius-control);
+  cursor: pointer;
+}
+
+.journey-topbar__scenario.scenario-trigger:hover {
+  background: var(--teal-soft);
+}
+
+@media (max-width: 620px) {
+  .app-shell .sidebar {
+    width: 100vw;
+  }
+
+  .sidebar-footer {
+    display: none;
+  }
+
+  .workspace > .journey-topbar {
+    grid-template-columns: minmax(0, 1fr) minmax(7.25rem, auto);
+    gap: 6px;
+    padding: 8px 10px;
+  }
+
+  .workspace > .journey-topbar .journey-topbar__scenario {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    padding: 4px 6px;
+  }
+
+  .workspace > .journey-topbar .journey-topbar__scenario span {
+    display: none;
+  }
+
+  .workspace > .journey-topbar .journey-topbar__scenario strong {
+    margin-top: 0;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-item,
+  .nav-expert-disclosure > summary::before {
+    transition: none;
+  }
 }

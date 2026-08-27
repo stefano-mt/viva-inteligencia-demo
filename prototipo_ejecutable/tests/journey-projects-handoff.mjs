@@ -47,8 +47,9 @@ assert.match(
   catalogHtml,
   new RegExp(`data-price-reference-count="${priceReferenceCount}"`, "u"),
 );
-assert.match(catalogHtml, /proyectos para priorizar/u);
-assert.match(catalogHtml, /Que un proyecto sea comparable no significa que todos sus campos puedan usarse/u);
+assert.match(catalogHtml, /data-eligible-price-per-m2="0"/u);
+assert.match(catalogHtml, /85 comparables/u);
+assert.match(catalogHtml, /Ser comparable no vuelve utilizables todos sus campos/u);
 assert.match(catalogHtml, /href="#compare"[^>]*data-view="compare"/u);
 assert.match(
   catalogHtml,
@@ -59,6 +60,7 @@ assert.equal(
   1,
   "Projects exposes one primary action before technical detail",
 );
+assert.match(catalogHtml, /class="project-catalog-orientation decision-line"/u);
 assert.equal(
   (catalogHtml.match(/class="project-catalog-orientation__status"/gu) ?? []).length,
   1,
@@ -103,7 +105,7 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
     const brief = page.locator("[data-projects-conclusion]");
     await brief.waitFor({ state: "visible" });
     assert.equal(await brief.getAttribute("data-comparable-count"), "85");
-    assert.equal(await brief.locator(".project-catalog-orientation__status").count(), 1);
+    assert.equal(await brief.getAttribute("data-eligible-price-per-m2"), "0");
     assert.equal(await brief.locator("dl").count(), 0, "Projects does not repeat a KPI ledger");
     const briefBox = await brief.boundingBox();
     const catalogPanelBox = await page.locator(".catalog-panel").boundingBox();
@@ -117,8 +119,8 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
       1,
     );
 
-    const firstRow = page.locator(".project-card").first();
-    assert.equal(await firstRow.locator(".project-row-facts > div").count(), 3);
+    const firstRow = page.locator(".project-row").first();
+    assert.equal(await firstRow.locator(":scope > span").count(), 6);
 
     const disclosure = page.locator(".project-detail-disclosure").first();
     const disclosureSummary = disclosure.locator("summary");
@@ -143,12 +145,14 @@ await withDemoBrowser(async ({ browser, baseUrl }) => {
       assert.equal(listStyle.overflowY, "auto");
       assert.notEqual(listStyle.maxHeight, "none");
     } else {
-      assert.equal(
-        await page
-          .locator(".catalog-result-list")
-          .evaluate((element) => getComputedStyle(element).maxHeight),
-        "none",
-      );
+      const listStyle = await page
+        .locator(".catalog-result-list")
+        .evaluate((element) => ({
+          maxHeight: getComputedStyle(element).maxHeight,
+          overflowY: getComputedStyle(element).overflowY,
+        }));
+      assert.equal(listStyle.overflowY, "auto");
+      assert.notEqual(listStyle.maxHeight, "none");
     }
 
     await brief.locator("a[href='#compare']").click();

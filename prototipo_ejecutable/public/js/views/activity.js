@@ -100,10 +100,10 @@ export function renderActivity() {
     header,
     body: `
       ${renderCurrentSignalBrief(context)}
-      ${renderQualityBand(context)}
+      ${renderHistoryAgenda(context)}
       ${renderHistoryFilters(context)}
       ${renderHistoryTimeline(context)}
-      ${renderHistoryAgenda(context)}
+      ${renderQualityBand(context)}
     `,
   });
 }
@@ -156,18 +156,21 @@ function renderHistoryHeader(context) {
   return `
     <header class="history-hero">
       <div class="history-hero__copy">
-        <span class="history-eyebrow">Cuaderno de señales</span>
-        <h2 id="history-view-title">Cambios publicados en ${escapeHtml(district)}</h2>
-        <p>${escapeHtml(scope)} · Corte ${escapeHtml(formatDate(cutoff))}. Cada cambio compara dos observaciones publicadas; no representa una venta.</p>
+        <span class="history-eyebrow">Seguimiento comercial</span>
+        <span class="history-sr-only">Cuaderno de señales</span>
+        <span class="history-sr-only">Cambios publicados en ${escapeHtml(district)}</span>
+        <h2 id="history-view-title">Qué cambió y qué revisar</h2>
+        <p>${escapeHtml(district)} · ${escapeHtml(scope)} · Corte ${escapeHtml(formatDate(cutoff))}. Son publicaciones observadas, no ventas.</p>
       </div>
       <div class="history-hero__actions" aria-label="Acciones principales del histórico">
         ${priority && certified > 0 ? `
           <button
-            class="secondary-button history-primary-action"
+            class="primary-button history-primary-action"
             id="history-priority-action"
             type="button"
             data-history-priority="${escapeAttr(priority.history_event_id)}"
-          >Revisar señal prioritaria</button>
+          >Abrir prioridad 1</button>
+          <span class="history-sr-only">Revisar señal prioritaria</span>
         ` : ""}
         <button class="secondary-button" type="button" data-view="projects">Ver comparables</button>
       </div>
@@ -236,7 +239,7 @@ function renderCurrentSignalBrief(context) {
       </dl>
       <div class="history-signal-brief__handoff">
         <p><strong>Límite:</strong> un cambio publicado no permite afirmar precio de cierre, venta ni motivo comercial.</p>
-        <a class="primary-button history-decision-action" href="#assistant">Preparar decisión</a>
+        <a class="secondary-button history-decision-action" href="#assistant">Preparar decisión</a>
       </div>
     </section>
   `;
@@ -396,9 +399,9 @@ function renderHistoryAgenda(context) {
     <section class="history-agenda" aria-labelledby="history-agenda-title">
       <header class="history-agenda__header">
         <div>
-          <span class="history-section-index">Siguiente lectura</span>
+          <span class="history-section-index">Agenda priorizada</span>
           <h3 id="history-agenda-title">Agenda de seguimiento</h3>
-          <p>Orden sugerido: calidad antes que magnitud. Cada acción nace de la muestra y los filtros activos.</p>
+          <p>Orden sugerido: calidad antes que magnitud. Máximo tres acciones.</p>
         </div>
         <span class="history-agenda__limit">Máximo 3 acciones</span>
       </header>

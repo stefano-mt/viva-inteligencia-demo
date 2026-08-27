@@ -229,11 +229,11 @@ export function renderChecklistModel(model) {
           <span class="status-badge ${escapeHtml(model.comparison.tone)}">
             ${escapeHtml(model.comparison.label)}
           </span>
-          <h2>Checklist de evidencia · ${escapeHtml(model.scopeText)}</h2>
-          <p>Verifica qué puede sostenerse antes de convertirlo en argumento comercial.</p>
+          <h2>Qué falta para avanzar</h2>
+          <p>${escapeHtml(model.scopeText)} · Revisa cada requisito antes de usar la lectura comercial.</p>
         </div>
         <a
-          class="primary-button checklist-return"
+          class="secondary-button checklist-return"
           href="#journey/decision"
           data-journey-return="decision"
         >Volver al recorrido: Decisión</a>
@@ -241,23 +241,26 @@ export function renderChecklistModel(model) {
 
       <section class="checklist-close span-12" aria-labelledby="checklist-close-title">
         <div class="checklist-close__heading">
-          <span class="step-label">Resumen de cierre</span>
+          <span class="step-label">Condición de salida</span>
           <h2 id="checklist-close-title">
             ${model.readiness.ready ? "Listo para revisión humana" : "Avance bloqueado por evidencia"}
           </h2>
           <p>${escapeHtml(model.scopeText)} · ${escapeHtml(model.cutoffLabel)}</p>
         </div>
-        <div class="checklist-summary" aria-label="Estado del cierre">
-          <div class="checklist-summary__item is-ready">
-            <span>Qué está listo</span>
+        <div class="checklist-summary" aria-label="Requisitos para avanzar" data-commercial-checklist-rows>
+          <div class="checklist-summary__item is-ready" data-checklist-requirement="evidence">
+            <span class="checklist-summary__state">Disponible</span>
+            <strong>Evidencia del escenario</strong>
             <p>${escapeHtml(model.readiness.readyText)}</p>
           </div>
-          <div class="checklist-summary__item is-blocked">
-            <span>Qué está bloqueado</span>
+          <div class="checklist-summary__item is-blocked" data-checklist-requirement="limits">
+            <span class="checklist-summary__state">${model.readiness.ready ? "Límite" : "Bloqueado"}</span>
+            <strong>Límites que debes comunicar</strong>
             <p>${escapeHtml(model.readiness.blockedText)}</p>
           </div>
-          <div class="checklist-summary__item is-next">
-            <span>Próximo paso</span>
+          <div class="checklist-summary__item is-next" data-checklist-requirement="next">
+            <span class="checklist-summary__state">Acción</span>
+            <strong>Próximo paso</strong>
             <p>${escapeHtml(model.readiness.nextText)}</p>
           </div>
         </div>
@@ -275,14 +278,14 @@ export function renderChecklistModel(model) {
               }
             </p>
           </div>
-          <a class="checklist-assistant-link" href="#assistant">
+          <a class="primary-button checklist-assistant-link" href="#assistant">
             ${model.readiness.assistantHandoff ? "Revisar lectura" : "Formular consulta"}
           </a>
         </div>
       </section>
 
       <details class="checklist-detail span-12">
-        <summary>Ver comprobaciones y referencias</summary>
+        <summary>Ver evidencia y justificación técnica</summary>
         <div class="checklist-detail__body">
           <section class="check-block workflow-step">
             <div class="check-block-title">

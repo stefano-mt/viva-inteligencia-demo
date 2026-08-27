@@ -1,14 +1,14 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-08-21
+**Actualizado:** 2026-08-27
 
 **Milestone:** demo vNext orientada a venta
 
 **Última fase con despliegue técnico verificado:** Fase 6 — narrativa comercial, accesibilidad y QA
 
-**Estado:** plan de desarrollo vNext cerrado. Fases 0–5 están `deployed and verified`; Fase 6 está `FINAL — deployed and technically verified; human acceptance waived by Product Owner`. P6-20 no fue ejecutado y no tiene `PASS`; D-044 acepta `R6-H1` como riesgo residual de producto.
+**Estado:** Fase 7 implementada y verificada técnicamente con `PASS`; P7-11 queda completo al versionar su memoria y handoff. Fases 0–5 están `deployed and verified`; Fase 6 está `FINAL — deployed and technically verified; human acceptance waived by Product Owner`. PR, revisión humana, merge y verificación pública de Fase 7 permanecen pendientes.
 
-**Rama activa:** `docs/phase-6-final-human-acceptance`.
+**Rama activa:** `feat/phase-7-commercial-workspace`.
 
 ## Baseline histórica de Fase 2
 
@@ -290,12 +290,37 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Estado final de Fase 6: **`FINAL — deployed and technically verified; human acceptance waived by Product Owner`**.
 - Riesgo residual aceptado: `R6-H1 — validación humana diferida`. No existen gaps técnicos abiertos; cualquier prueba humana futura será una UAT separada.
 
+## Fase 7 — cierre técnico pre-merge
+
+- Contexto: [phases/07-commercial-workspace/CONTEXT.md](phases/07-commercial-workspace/CONTEXT.md).
+- Auditoría UX/UI: [phases/07-commercial-workspace/UX-AUDIT.md](phases/07-commercial-workspace/UX-AUDIT.md).
+- Especificación visual: [phases/07-commercial-workspace/UI-SPEC.md](phases/07-commercial-workspace/UI-SPEC.md).
+- Inventario de claims: [phases/07-commercial-workspace/CLAIMS-INVENTORY.md](phases/07-commercial-workspace/CLAIMS-INVENTORY.md).
+- Plan: [phases/07-commercial-workspace/PLAN.md](phases/07-commercial-workspace/PLAN.md).
+- Solicitud de aprobación: [phases/07-commercial-workspace/HUMAN-GATE-A-REQUEST.md](phases/07-commercial-workspace/HUMAN-GATE-A-REQUEST.md).
+- Aprobación: [phases/07-commercial-workspace/APPROVAL.md](phases/07-commercial-workspace/APPROVAL.md), A1–A14 aceptadas el `2026-08-24T11:28:28.4214512-05:00`.
+- Baseline: [phases/07-commercial-workspace/BASELINE_BROWSER.md](phases/07-commercial-workspace/BASELINE_BROWSER.md), `PASS` sobre `53ccfef`.
+- Historias: HU-DEMO-805–810.
+- Referencias: rail persistente, filas operativas, comando local y acciones contextuales; identidad y composición propias de Viva.
+- Dirección: `Viva Decision Desk`, con línea de decisión verde y menor dependencia de cards.
+- Contrato, datos, motores, rutas, claims y reset permanecen protegidos.
+- P7-01–P7-09: primitives, shell, navegación `Ir a…`, ocho rutas, integración y matriz responsive completados.
+- Contrato ejecutable: C01–C23, seis etapas, ocho rutas expertas, CT-A–I/P y compatibilidad 2.0–2.4 en PASS.
+- P7-10 inicial: `FAIL` por dos gaps P2 de jerarquía y primer viewport, versionado en `afa67bc`.
+- P7-10A: correctivo funcional `23d3505`; Inspector y Comparador tienen un `h1`, y Benchmark/Comparador/Seguimiento muestran lectura y el borde superior del trabajo dentro de 1280×720 sin scroll.
+- Verificación independiente vigente: [phases/07-commercial-workspace/VERIFICATION_REPORT.md](phases/07-commercial-workspace/VERIFICATION_REPORT.md), `PASS` versionado en `ce52b20`; HUMAN-GATE-B no requerido.
+- Suite integral, smoke, accesibilidad, responsive, privacidad y Graphify: PASS; cero gaps técnicos P0–P3 abiertos.
+- Resumen: [phases/07-commercial-workspace/SUMMARY.md](phases/07-commercial-workspace/SUMMARY.md).
+- Handoff: [phases/07-commercial-workspace/HANDOFF.md](phases/07-commercial-workspace/HANDOFF.md).
+- Estado de ship: `functionally verified; awaiting human PR review and merge`. No declarar `deployed and verified` antes de P7-13/P7-14.
+
 ## Próxima acción recomendada
 
-1. Revisar y fusionar el PR documental de cierre final.
-2. Presentar la URL pública como versión final técnica, conservando los límites de datos y evidencia visibles.
-3. No afirmar que hubo validación de usuarios o aceptación humana.
-4. Si se decide probar con usuarios posteriormente, abrir una UAT nueva y usar el protocolo archivado sin reescribir D-044.
+1. Publicar el commit P7-11 y derivar su SHA remoto conforme a `HANDOFF.md`.
+2. Abrir el PR funcional `main...feat/phase-7-commercial-workspace` y ejecutar P7-12 mediante revisión y merge humanos.
+3. Si `origin/main` avanzó desde `6251442`, detener el merge, integrar y repetir verify/P7-10.
+4. Tras el merge, ejecutar P7-13 de forma read-only sobre Pages.
+5. Persistir el resultado con P7-14 en una rama y PR documental separados.
 
 ## Regla para actualizar este archivo
 

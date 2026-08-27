@@ -609,6 +609,207 @@
   }
 }
 
+/* P7-02 — escenario compacto y editor bajo demanda. */
+.scenario-sidebar {
+  gap: 8px;
+  border: 0;
+  border-block: 1px solid var(--line);
+  border-radius: 0;
+  padding: 10px 4px 10px 12px;
+  background: var(--surface);
+}
+
+.scenario-sidebar::before {
+  inset: 10px auto 10px 0;
+  width: var(--decision-line-width);
+  border-radius: 0;
+  background: var(--teal-bright);
+}
+
+.scenario-sidebar__heading {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.scenario-sidebar__heading > div > span {
+  font-size: var(--font-size-caption);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.scenario-sidebar__heading strong {
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+.scenario-sidebar__count {
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--font-size-caption);
+}
+
+.scenario-editor-trigger,
+.scenario-editor__compare {
+  min-height: var(--control-min-size);
+  width: 100%;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-control);
+  padding: 8px 10px;
+  background: var(--surface);
+  color: var(--action);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.scenario-editor-trigger:hover:not(:disabled),
+.scenario-editor__compare:hover:not(:disabled) {
+  border-color: var(--action);
+  background: var(--teal-soft);
+}
+
+.scenario-editor {
+  display: grid;
+  gap: 12px;
+  margin: 4px -4px -2px -12px;
+  border-top: 1px solid var(--line);
+  padding: 12px 4px 2px 12px;
+  background: var(--surface);
+}
+
+.scenario-editor[hidden] {
+  display: none;
+}
+
+.scenario-editor__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.scenario-editor__heading span {
+  color: var(--muted);
+  font-size: var(--font-size-caption);
+}
+
+.scenario-editor__heading h2 {
+  margin-top: 2px;
+  font-size: 18px;
+}
+
+.scenario-editor__close {
+  border-color: transparent;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.scenario-editor__actions {
+  display: grid;
+  gap: 4px;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.scenario-editor .scenario-reset {
+  min-height: var(--control-min-size);
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.workspace > .scenario-bar {
+  min-height: var(--workspace-topbar-height);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 20px;
+}
+
+.scenario-bar__heading h1 {
+  font-size: var(--font-size-title);
+}
+
+.scenario-bar__active {
+  min-width: 180px;
+  min-height: var(--control-min-size);
+  border: 0;
+  border-left: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: 4px 8px 4px 16px;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.scenario-bar__active:hover {
+  background: var(--teal-soft);
+}
+
+.scenario-bar__active:focus-visible,
+.scenario-editor-trigger:focus-visible,
+.scenario-editor__compare:focus-visible,
+.scenario-editor button:focus-visible,
+.scenario-editor select:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+@media (max-width: 1120px) {
+  .scenario-is-open .sidebar {
+    width: min(26rem, 100vw);
+  }
+
+  .scenario-editor {
+    padding-right: 10px;
+  }
+}
+
+@media (max-width: 620px) {
+  .workspace > .scenario-bar {
+    min-height: var(--workspace-topbar-height);
+    grid-template-columns: minmax(0, 1fr) minmax(7.25rem, auto);
+    gap: 6px;
+    padding: 8px 10px;
+  }
+
+  .scenario-bar__heading {
+    gap: 8px;
+  }
+
+  .scenario-bar__heading .view-context {
+    display: none;
+  }
+
+  .scenario-bar__active {
+    min-width: 0;
+    padding: 4px 6px;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+    text-align: right;
+  }
+
+  .scenario-bar__active span {
+    display: none;
+  }
+
+  .scenario-bar__active strong {
+    margin-top: 0;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .scenario-editor {
+    gap: 14px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .scenario-loading-pulse {
     animation: none;
@@ -925,5 +1126,98 @@
   .scenario-summary__metrics,
   .scenario-technical__facts {
     grid-template-columns: 1fr;
+  }
+}
+
+/* P7-02 final ownership overrides legacy scenario presentation. */
+.scenario-sidebar {
+  gap: 8px;
+  border: 0;
+  border-block: 1px solid var(--line);
+  border-radius: 0;
+  padding: 10px 4px 10px 12px;
+  background: var(--surface);
+}
+
+.scenario-sidebar::before {
+  inset: 10px auto 10px 0;
+  width: var(--decision-line-width);
+  border-radius: 0;
+  background: var(--teal-bright);
+}
+
+.scenario-sidebar__heading {
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.scenario-sidebar__heading > div > span {
+  font-size: var(--font-size-caption);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.scenario-sidebar__heading strong {
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+.scenario-sidebar__count {
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--font-size-caption);
+}
+
+.scenario-sidebar .scenario-reset {
+  min-height: var(--control-min-size);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.scenario-bar__active {
+  min-width: 180px;
+  min-height: var(--control-min-size);
+  border: 0;
+  border-left: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  padding: 4px 8px 4px 16px;
+  background: transparent;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.scenario-bar__active:hover {
+  background: var(--teal-soft);
+}
+
+.scenario-sidebar .scenario-editor-trigger:focus-visible,
+.scenario-sidebar .scenario-editor__compare:focus-visible,
+.scenario-sidebar .scenario-editor button:focus-visible,
+.scenario-sidebar .scenario-editor select:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+@media (max-width: 620px) {
+  .scenario-bar__active {
+    min-width: 0;
+    padding: 4px 6px;
+    border-top: 0;
+    border-left: 1px solid var(--line);
+    text-align: right;
+  }
+
+  .scenario-bar__active span {
+    display: none;
+  }
+
+  .scenario-bar__active strong {
+    margin-top: 0;
+    font-size: 12px;
+    line-height: 1.2;
   }
 }

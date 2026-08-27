@@ -287,12 +287,16 @@ function comparisonGroup(group, model, summaries) {
   `;
 }
 
-function conclusionMarkup(model, { linksEnabled = true } = {}) {
+function conclusionMarkup(
+  model,
+  { linksEnabled = true, commandMarkup = "" } = {},
+) {
   return `
     <section
       class="comparison-conclusion"
       aria-labelledby="comparison-conclusion-title"
       data-comparison-findings="${formatNumber(model.conclusion.length)}"
+      data-commercial-comparison-summary
     >
       <div class="comparison-decision-sheet">
         <div>
@@ -315,7 +319,8 @@ function conclusionMarkup(model, { linksEnabled = true } = {}) {
               )
         }
       </div>
-      <ol class="comparison-findings">
+      ${commandMarkup}
+      <ol class="comparison-findings comparison-row-ledger">
         ${model.conclusion
           .map(
             (finding, index) => `
@@ -377,6 +382,7 @@ function denominatorMarkup(benchmarkContext, model) {
       data-selected-projects="${selectedCount}"
       data-eligible-price-pairs="${eligibleCount ?? "unavailable"}"
       data-orientative-price-ratios="${orientativeCount ?? "unavailable"}"
+      data-commercial-comparison-basis
     >
       <summary class="comparison-basis__summary">
         <span>
@@ -531,25 +537,7 @@ function comparisonHeader(benchmarkContext, model) {
   const targetAvailable = Boolean(benchmarkContext?.targetScenario);
   const targetIncluded = model.selected.some(({ simulated }) => simulated);
   const marketCount = model.selected.filter(({ simulated }) => !simulated).length;
-  return `
-    <header class="comparison-hero">
-      <div>
-        <span class="comparison-eyebrow">Decisión entre comparables</span>
-        <h1>Comparador comercial</h1>
-        <p>
-          Contrasta diferencias respaldadas del mismo escenario y separa lo observado de lo simulado.
-        </p>
-      </div>
-      <div class="comparison-hero__status" aria-label="Estado de la selección">
-        <strong>${formatNumber(marketCount)}/${MAX_SELECTED}</strong>
-        <span>proyectos de mercado</span>
-      </div>
-    </header>
-    ${
-      model.status === "ready"
-        ? conclusionMarkup(model)
-        : ""
-    }
+  const commandMarkup = `
     <section class="comparison-command" aria-label="Selección de proyectos">
       <div>
         ${selectedChips(model)}
@@ -579,6 +567,26 @@ function comparisonHeader(benchmarkContext, model) {
         })}
       </div>
     </section>
+  `;
+  return `
+    <header class="comparison-hero">
+      <div>
+        <span class="comparison-eyebrow">Decisión entre comparables</span>
+        <h2>Comparador comercial</h2>
+        <p>
+          Contrasta diferencias respaldadas del mismo escenario y separa lo observado de lo simulado.
+        </p>
+      </div>
+      <div class="comparison-hero__status" aria-label="Estado de la selección">
+        <strong>${formatNumber(marketCount)}/${MAX_SELECTED}</strong>
+        <span>proyectos de mercado</span>
+      </div>
+    </header>
+    ${
+      model.status === "ready"
+        ? conclusionMarkup(model, { commandMarkup })
+        : commandMarkup
+    }
     ${denominatorMarkup(benchmarkContext, model)}
   `;
 }
@@ -591,7 +599,7 @@ function unavailableMarkup(status, benchmarkContext) {
   return `
     <section class="comparison-unavailable" data-comparison-status="${escapeAttr(status)}">
       <span class="comparison-eyebrow">Comparador comercial</span>
-      <h1>${isLegacy ? "Comparador no disponible para esta versión de datos" : "No se pudo construir una comparación segura"}</h1>
+      <h2>${isLegacy ? "Comparador no disponible para esta versión de datos" : "No se pudo construir una comparación segura"}</h2>
       <p>${escapeHtml(description)}</p>
       ${
         benchmarkContext?.errorCodes?.length
@@ -648,7 +656,7 @@ export function renderCompare() {
       ${
         selectionReady
           ? `
-            <section class="comparison-matrix" aria-labelledby="comparison-matrix-title">
+            <section class="comparison-matrix" aria-labelledby="comparison-matrix-title" data-commercial-comparison-matrix>
               <div class="comparison-section-heading">
                 <div>
                   <span class="comparison-eyebrow">Evidencia por criterio</span>
@@ -693,7 +701,6 @@ export function renderCompare() {
                   : "Selecciona dos proyectos para comenzar",
                 "El comparador admite hasta tres proyectos del escenario y, opcionalmente, el escenario Viva.",
               )}
-              ${conclusionMarkup(model, { linksEnabled: false })}
             </section>`
       }
 

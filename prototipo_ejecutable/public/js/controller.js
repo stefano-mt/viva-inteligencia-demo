@@ -1,4 +1,5 @@
 import * as domain from "./domain.js";
+import { commandDestinations } from "./config.js";
 import {
   parseHashRoute,
   replaceCanonicalJourneyLocation,
@@ -311,6 +312,23 @@ export function bindEvents(render) {
 
   bindInspectorElementEvents();
   bindJourneyRouteEffects();
+}
+
+export function navigateToDestination(
+  destinationId,
+  { focusId = "main-content", render = renderApp } = {},
+) {
+  const destination = commandDestinations.find(({ id }) => id === destinationId);
+  const location = globalThis.window?.location;
+  if (!destination || !location) return false;
+  state.scenarioFocusId = focusId;
+  state.mobileNavOpen = false;
+  if (location.hash === destination.href) {
+    render?.();
+  } else {
+    location.hash = destination.href;
+  }
+  return true;
 }
 
 export function applyJourneyRouteEffects({

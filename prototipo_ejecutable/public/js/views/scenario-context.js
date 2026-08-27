@@ -451,7 +451,12 @@ function dependentControl(model) {
   `;
 }
 
-export function renderScenarioSidebar(model) {
+export function renderScenarioSidebar(
+  model,
+  options = {},
+) {
+  const editorOpen = options.editorOpen ?? model.editorOpen ?? true;
+  const modal = options.modal ?? model.editorModal ?? false;
   return `
     <section
       class="scenario-sidebar"
@@ -466,62 +471,102 @@ export function renderScenarioSidebar(model) {
         <span class="scenario-sidebar__count">${formatNumber(model.comparableCount)} comparables</span>
       </div>
 
-      <label class="field-control scenario-district" for="top-district">
-        <span>Distrito objetivo</span>
-        <select id="top-district" ${model.loading ? "disabled" : ""}>
-          ${districtOptions(model)}
-        </select>
-      </label>
+      <button
+        class="scenario-editor-trigger"
+        id="scenario-editor-trigger"
+        type="button"
+        data-scenario-editor-open
+        aria-controls="scenario-editor"
+        aria-expanded="${editorOpen}"
+        ${model.loading ? "disabled" : ""}
+      >Cambiar escenario</button>
 
-      <fieldset
-        class="scenario-scope"
-        aria-describedby="scenario-quadrant-availability"
+      <div
+        class="scenario-editor"
+        id="scenario-editor"
+        role="dialog"
+        aria-modal="${modal}"
+        aria-labelledby="scenario-editor-title"
+        ${editorOpen ? "" : "hidden"}
       >
-        <legend>Zona de análisis</legend>
-        <div class="scenario-segments scenario-segments--scope">
-          ${scopeButton(model, "district", "Distrito")}
-          ${scopeButton(
-            model,
-            "quadrant",
-            "Cuadrante",
-            "scenario-quadrant-availability",
-          )}
-          ${scopeButton(model, "radius", "Radio")}
-        </div>
-        <p id="scenario-quadrant-availability">
-          ${
-            model.district.high_load && model.district.quadrants.length > 0
-              ? "Puedes analizar este distrito por cuadrantes."
-              : "Este distrito no tiene división por cuadrantes."
-          }
-        </p>
-      </fieldset>
+          <div class="scenario-editor__heading">
+            <div>
+              <span>Escenario territorial</span>
+              <h2 id="scenario-editor-title">Cambiar escenario</h2>
+            </div>
+            <button
+              class="icon-button scenario-editor__close"
+              id="scenario-editor-close"
+              type="button"
+              data-scenario-editor-close
+              aria-label="Cerrar editor del escenario"
+            >×</button>
+          </div>
 
-      ${dependentControl(model)}
+          <label class="field-control scenario-district" for="top-district">
+            <span>Distrito objetivo</span>
+            <select id="top-district" ${model.loading ? "disabled" : ""}>
+              ${districtOptions(model)}
+            </select>
+          </label>
 
-      <div class="scenario-sidebar__actions">
-        <button
-          class="primary-button scenario-primary-action"
-          id="scenario-view-comparables"
-          type="button"
-          data-view="projects"
-          data-scenario-action="view-comparables"
-          data-focus-target="main-content"
-          ${model.loading ? "disabled" : ""}
-        >Ver comparables</button>
-        <button
-          class="scenario-reset"
-          id="reset-scenario"
-          type="button"
-          data-scenario-action="reset"
-          ${model.loading ? "disabled" : ""}
-        >Reiniciar escenario</button>
+          <fieldset
+            class="scenario-scope"
+            aria-describedby="scenario-quadrant-availability"
+          >
+            <legend>Zona de análisis</legend>
+            <div class="scenario-segments scenario-segments--scope">
+              ${scopeButton(model, "district", "Distrito")}
+              ${scopeButton(
+                model,
+                "quadrant",
+                "Cuadrante",
+                "scenario-quadrant-availability",
+              )}
+              ${scopeButton(model, "radius", "Radio")}
+            </div>
+            <p id="scenario-quadrant-availability">
+              ${
+                model.district.high_load && model.district.quadrants.length > 0
+                  ? "Puedes analizar este distrito por cuadrantes."
+                  : "Este distrito no tiene división por cuadrantes."
+              }
+            </p>
+          </fieldset>
+
+          ${dependentControl(model)}
+
+          <div class="scenario-editor__actions">
+            ${editorOpen ? `
+              <button
+                class="scenario-editor__compare"
+                id="scenario-view-comparables"
+                type="button"
+                data-view="projects"
+                data-scenario-action="view-comparables"
+                data-focus-target="main-content"
+                ${model.loading ? "disabled" : ""}
+              >Ver comparables</button>
+            ` : ""}
+            <button
+              class="scenario-reset"
+              id="reset-scenario"
+              type="button"
+              data-scenario-action="reset"
+              ${model.loading ? "disabled" : ""}
+            >Reiniciar escenario</button>
+          </div>
       </div>
+
+      <p class="sr-only" aria-live="polite">
+        ${editorOpen ? "Editor del escenario abierto." : ""}
+      </p>
     </section>
   `;
 }
 
-export function renderScenarioBar(model) {
+export function renderScenarioBar(model, options = {}) {
+  const editorOpen = options.editorOpen ?? model.editorOpen ?? false;
   return `
     <header
       class="topbar scenario-bar"
@@ -549,10 +594,18 @@ export function renderScenarioBar(model) {
         </div>
       </div>
 
-      <div class="scenario-bar__active" aria-label="Escenario activo">
+      <button
+        class="scenario-bar__active"
+        id="scenario-topbar-editor-trigger"
+        type="button"
+        data-scenario-editor-open
+        aria-controls="scenario-editor"
+        aria-expanded="${editorOpen}"
+        aria-label="Cambiar escenario: ${escapeAttribute(model.scopeTitle)}"
+      >
         <span>Escenario activo</span>
         <strong>${escapeHtml(model.scopeTitle)}</strong>
-      </div>
+      </button>
     </header>
   `;
 }

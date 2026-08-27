@@ -49,6 +49,12 @@
 | HU-DEMO-802 | Reducción de densidad y jerarquía visual | Must | 6 |
 | HU-DEMO-803 | Reinicio y reproducibilidad | Must | 6 |
 | HU-DEMO-804 | Navegación orientada a vender la propuesta | Must | 6 |
+| HU-DEMO-805 | Navegación comercial organizada por tareas | Must | 7 |
+| HU-DEMO-806 | Escenario compacto y editable bajo demanda | Must | 7 |
+| HU-DEMO-807 | Lectura principal inmediata por vista | Must | 7 |
+| HU-DEMO-808 | Listas operativas compactas y comparables | Must | 7 |
+| HU-DEMO-809 | Detalle y ayuda bajo demanda sin perder límites | Must | 7 |
+| HU-DEMO-810 | Acceso rápido local por teclado | Should | 7 |
 | HU-DEMO-901 | Cobertura de mercado y fuentes | Must | 3 |
 | HU-DEMO-902 | Selección/normalización de 30 inmobiliarias | Must | 1 |
 

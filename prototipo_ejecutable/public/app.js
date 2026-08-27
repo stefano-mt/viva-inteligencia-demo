@@ -1,7 +1,8 @@
-import { journeyEntry, views } from "./js/config.js";
+import { commandDestinations, journeyEntry } from "./js/config.js";
 import {
   bindEvents,
   initializeScenarioFromLocation,
+  navigateToDestination,
   restoreActiveInput,
   selectInspectorCase,
 } from "./js/controller.js";
@@ -22,10 +23,12 @@ import {
 } from "./js/state.js";
 import {
   buildScenarioPresentation,
+  filterCommandDestinations,
   loadBoundaryArtifact,
   renderActivity,
   renderAssistant,
   renderChecklist,
+  renderCommandMenu,
   renderCompare,
   renderDashboard,
   renderInspector,
@@ -140,6 +143,29 @@ let geographyArtifact = {
 let pendingInspectorAnnouncement = "";
 let pendingInspectorAnchorId = null;
 let pendingJourneyAnnouncement = "";
+let scenarioEditorOpen = false;
+let scenarioEditorReturnFocusId = "scenario-editor-trigger";
+let scenarioEditorPreviousNavOpen = false;
+let expertNavigationOpen = false;
+let commandMenuOpen = false;
+let commandMenuQuery = "";
+let commandMenuActiveIndex = 0;
+let commandMenuReturnFocusSelector = "#command-menu-trigger";
+
+const primaryNavigation = Object.freeze([
+  { id: "journey", label: "Recorrido", hint: "Comprender la tesis completa" },
+  { id: "dashboard", label: "Panorama", hint: "Leer zona y mapa" },
+  { id: "projects", label: "Proyectos", hint: "Priorizar competidores" },
+  { id: "assistant", label: "Decidir", hint: "Convertir evidencia en acción" },
+  { id: "activity", label: "Seguimiento", hint: "Revisar cambios publicados" },
+]);
+
+const expertNavigation = Object.freeze([
+  { id: "inspector", label: "Inspector", hint: "Evidencia y calidad" },
+  { id: "market", label: "Benchmark", hint: "Referencias y atributos" },
+  { id: "compare", label: "Comparador", hint: "Diferencias entre proyectos" },
+  { id: "trust", label: "Checklist", hint: "Preparación comercial" },
+]);
 
 init();
 
@@ -186,6 +212,27 @@ async function init() {
       render();
     });
     window.addEventListener("keydown", (event) => {
+      if (
+        event.key.toLocaleLowerCase("es") === "k" &&
+        (event.ctrlKey || event.metaKey) &&
+        !event.altKey &&
+        !isEditableControl(event.target)
+      ) {
+        event.preventDefault();
+        if (commandMenuOpen) closeCommandMenu();
+        else openCommandMenu(event.target);
+        return;
+      }
+      if (event.key === "Escape" && commandMenuOpen) {
+        event.preventDefault();
+        closeCommandMenu();
+        return;
+      }
+      if (event.key === "Escape" && scenarioEditorOpen) {
+        event.preventDefault();
+        closeScenarioEditor();
+        return;
+      }
       if (event.key === "Escape" && state.mobileNavOpen) {
         state.mobileNavOpen = false;
         render();
@@ -201,6 +248,9 @@ async function init() {
     render();
   } catch (error) {
     root.innerHTML = errorTemplate(error);
+    root.querySelector("[data-app-retry]")?.addEventListener("click", () => {
+      window.location.reload();
+    });
   }
 }
 
@@ -305,44 +355,63 @@ function restoreInspectorRouteEffects() {
 
 function renderShellNavigation() {
   const journeyIsActive = state.view === "journey";
+  const expertIsActive = expertNavigation.some(({ id }) => id === state.view);
+  const expertIsOpen = expertIsActive || expertNavigationOpen;
   return `
     <nav class="nav-list" aria-label="Módulos principales">
-      <section class="nav-section nav-section--journey" aria-labelledby="nav-journey">
-        <p class="nav-section-label" id="nav-journey">Recorrido</p>
-        <button
-          class="nav-item nav-item--journey ${journeyIsActive ? "active" : ""}"
-          type="button"
-          data-journey-entry
-          ${journeyIsActive ? 'aria-current="page"' : ""}
-        >
-          <span class="nav-icon journey-entry-mark" aria-hidden="true">01→06</span>
-          <span class="nav-copy">
-            <strong>${escapeHtml(journeyEntry.label)}</strong>
-            <small>${escapeHtml(journeyEntry.hint)}</small>
-          </span>
-        </button>
+      <div data-expert-navigation aria-labelledby="nav-expert">
+      <span class="sr-only">Explorar análisis</span>
+      <section class="nav-section nav-section--primary nav-section--journey" aria-labelledby="nav-primary">
+        <p class="nav-section-label" id="nav-primary">Trabajo comercial</p>
+        ${primaryNavigation.map((item) => {
+          const active = item.id === "journey" ? journeyIsActive : state.view === item.id;
+          const navigationAttributes = item.id === "journey"
+            ? "data-journey-entry"
+            : `data-view="${escapeAttr(item.id)}"`;
+          const icon = item.id === "journey" ? "01→06" : viewIcon(item.id);
+          return `
+            <button
+              class="nav-item ${item.id === "journey" ? "nav-item--journey" : ""} ${active ? "active" : ""}"
+              type="button"
+              data-nav-tier="primary"
+              ${navigationAttributes}
+              ${active ? 'aria-current="page"' : ""}
+            >
+              <span class="nav-icon ${item.id === "journey" ? "journey-entry-mark" : ""}" aria-hidden="true">${icon}</span>
+              <span class="nav-copy">
+                <strong>${escapeHtml(item.label)}</strong>
+                <small>${escapeHtml(item.hint)}</small>
+              </span>
+            </button>`;
+        }).join("")}
       </section>
-      <section
-        class="nav-section nav-section--expert"
-        aria-labelledby="nav-expert"
-        data-expert-navigation
+      <details
+        class="nav-expert-disclosure"
+        ${expertIsOpen ? "open" : ""}
       >
-        <p class="nav-section-label" id="nav-expert">Explorar análisis</p>
-        ${views.map((view) => `
-          <button
-            class="nav-item ${state.view === view.id ? "active" : ""}"
-            type="button"
-            data-view="${escapeAttr(view.id)}"
-            ${state.view === view.id ? 'aria-current="page"' : ""}
-          >
-            <span class="nav-icon" aria-hidden="true">${viewIcon(view.id)}</span>
-            <span class="nav-copy">
-              <strong>${escapeHtml(view.label)}</strong>
-              <small>${escapeHtml(view.hint)}</small>
-            </span>
-          </button>
-        `).join("")}
-      </section>
+        <summary>
+          <span id="nav-expert">Profundizar</span>
+          <small>4 herramientas</small>
+        </summary>
+        <div class="nav-section nav-section--expert" aria-label="Herramientas para profundizar">
+          ${expertNavigation.map((view) => `
+            <button
+              class="nav-item ${state.view === view.id ? "active" : ""}"
+              type="button"
+              data-nav-tier="expert"
+              data-view="${escapeAttr(view.id)}"
+              ${state.view === view.id ? 'aria-current="page"' : ""}
+            >
+              <span class="nav-icon" aria-hidden="true">${viewIcon(view.id)}</span>
+              <span class="nav-copy">
+                <strong>${escapeHtml(view.label)}</strong>
+                <small>${escapeHtml(view.hint)}</small>
+              </span>
+            </button>
+          `).join("")}
+        </div>
+      </details>
+      </div>
     </nav>
   `;
 }
@@ -356,27 +425,273 @@ function bindJourneyShellEvents() {
   });
 }
 
+function compactShellMatches() {
+  return globalThis.matchMedia?.("(max-width: 1120px)").matches ?? false;
+}
+
+function openScenarioEditor(trigger) {
+  scenarioEditorReturnFocusId = trigger?.id || "scenario-editor-trigger";
+  scenarioEditorPreviousNavOpen = state.mobileNavOpen;
+  scenarioEditorOpen = true;
+  if (compactShellMatches()) state.mobileNavOpen = true;
+  render();
+  document.getElementById("scenario-editor-close")?.focus();
+}
+
+function closeScenarioEditor({ restoreFocus = true } = {}) {
+  if (!scenarioEditorOpen) return;
+  scenarioEditorOpen = false;
+  if (compactShellMatches()) state.mobileNavOpen = scenarioEditorPreviousNavOpen;
+  render();
+  if (restoreFocus) document.getElementById(scenarioEditorReturnFocusId)?.focus();
+}
+
+function focusableElements(container) {
+  return [...container.querySelectorAll(
+    'button:not([disabled]), select:not([disabled]), input:not([disabled]), summary, a[href], [tabindex]:not([tabindex="-1"])',
+  )].filter((element) => !element.hidden && element.getClientRects().length > 0);
+}
+
+function trapFocus(event, container) {
+  if (event.key !== "Tab" || !compactShellMatches()) return;
+  const focusable = focusableElements(container);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+function isEditableControl(target) {
+  return Boolean(
+    target?.closest?.('input, textarea, select, [contenteditable="true"]'),
+  );
+}
+
+function commandReturnSelector(element) {
+  if (element?.id) return `#${element.id}`;
+  if (element?.matches?.("[data-journey-entry]")) return "[data-journey-entry]";
+  const viewId = element?.dataset?.view;
+  return viewId ? `[data-view="${viewId}"]` : "#command-menu-trigger";
+}
+
+function commandResults() {
+  return filterCommandDestinations(commandDestinations, commandMenuQuery);
+}
+
+function openCommandMenu(trigger = document.activeElement) {
+  if (commandMenuOpen) return;
+  commandMenuReturnFocusSelector = commandReturnSelector(trigger);
+  commandMenuOpen = true;
+  commandMenuQuery = "";
+  commandMenuActiveIndex = 0;
+  scenarioEditorOpen = false;
+  render();
+}
+
+function closeCommandMenu({ restoreFocus = true } = {}) {
+  if (!commandMenuOpen) return;
+  document.getElementById("command-menu-dialog")?.close?.();
+  commandMenuOpen = false;
+  commandMenuQuery = "";
+  commandMenuActiveIndex = 0;
+  render();
+  if (restoreFocus) {
+    document.querySelector(commandMenuReturnFocusSelector)?.focus();
+  }
+}
+
+function activateCommandMenu() {
+  const dialog = document.getElementById("command-menu-dialog");
+  if (!dialog) return;
+  if (!dialog.open) dialog.showModal();
+  const input = document.getElementById("command-menu-input");
+  input?.focus();
+  input?.setSelectionRange?.(input.value.length, input.value.length);
+}
+
+function setCommandActiveIndex(nextIndex) {
+  const results = commandResults();
+  if (!results.length) {
+    commandMenuActiveIndex = 0;
+    return;
+  }
+  commandMenuActiveIndex = (nextIndex + results.length) % results.length;
+  const options = [...document.querySelectorAll("[data-command-destination]")];
+  options.forEach((option, index) => {
+    const active = index === commandMenuActiveIndex;
+    option.classList.toggle("is-active", active);
+    option.setAttribute("aria-selected", String(active));
+    if (active) option.scrollIntoView({ block: "nearest" });
+  });
+  document.getElementById("command-menu-input")?.setAttribute(
+    "aria-activedescendant",
+    options[commandMenuActiveIndex]?.id ?? "",
+  );
+}
+
+function navigateFromCommand(destinationId) {
+  document.getElementById("command-menu-dialog")?.close?.();
+  commandMenuOpen = false;
+  commandMenuQuery = "";
+  commandMenuActiveIndex = 0;
+  navigateToDestination(destinationId, { focusId: "main-content" });
+}
+
+function trapCommandMenuFocus(event, dialog) {
+  if (event.key !== "Tab") return;
+  const focusable = focusableElements(dialog);
+  if (!focusable.length) return;
+  const first = focusable[0];
+  const last = focusable.at(-1);
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+function bindCommandMenuEvents() {
+  document.getElementById("command-menu-trigger")?.addEventListener("click", (event) => {
+    openCommandMenu(event.currentTarget);
+  });
+  if (!commandMenuOpen) return;
+
+  const dialog = document.getElementById("command-menu-dialog");
+  const input = document.getElementById("command-menu-input");
+  dialog?.addEventListener("cancel", (event) => {
+    event.preventDefault();
+    closeCommandMenu();
+  });
+  dialog?.addEventListener("keydown", (event) => {
+    trapCommandMenuFocus(event, dialog);
+  });
+  document.querySelector("[data-command-menu-close]")?.addEventListener("click", () => {
+    closeCommandMenu();
+  });
+  input?.addEventListener("input", (event) => {
+    commandMenuQuery = event.currentTarget.value;
+    commandMenuActiveIndex = 0;
+    render();
+  });
+  input?.addEventListener("keydown", (event) => {
+    const results = commandResults();
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      setCommandActiveIndex(commandMenuActiveIndex + 1);
+    } else if (event.key === "ArrowUp") {
+      event.preventDefault();
+      setCommandActiveIndex(commandMenuActiveIndex - 1);
+    } else if (event.key === "Home" && results.length) {
+      event.preventDefault();
+      setCommandActiveIndex(0);
+    } else if (event.key === "End" && results.length) {
+      event.preventDefault();
+      setCommandActiveIndex(results.length - 1);
+    } else if (event.key === "Enter" && results[commandMenuActiveIndex]) {
+      event.preventDefault();
+      navigateFromCommand(results[commandMenuActiveIndex].id);
+    }
+  });
+  document.querySelectorAll("[data-command-destination]").forEach((option) => {
+    option.addEventListener("pointerenter", () => {
+      setCommandActiveIndex(Number(option.dataset.commandIndex));
+    });
+    option.addEventListener("click", () => {
+      navigateFromCommand(option.dataset.commandDestination);
+    });
+  });
+  activateCommandMenu();
+}
+
+function bindCommercialShellEvents() {
+  const journeyScenario = document.querySelector(".journey-topbar__scenario");
+  if (journeyScenario) {
+    journeyScenario.id = "scenario-journey-editor-trigger";
+    journeyScenario.classList.add("scenario-trigger");
+    journeyScenario.setAttribute("role", "button");
+    journeyScenario.setAttribute("tabindex", "0");
+    journeyScenario.setAttribute("aria-controls", "scenario-editor");
+    journeyScenario.setAttribute("aria-expanded", String(scenarioEditorOpen));
+  }
+
+  document.querySelectorAll("[data-scenario-editor-open], .scenario-trigger").forEach((trigger) => {
+    trigger.addEventListener("click", () => openScenarioEditor(trigger));
+    if (trigger.matches("[role=button]")) {
+      trigger.addEventListener("keydown", (event) => {
+        if (!["Enter", " "].includes(event.key)) return;
+        event.preventDefault();
+        openScenarioEditor(trigger);
+      });
+    }
+  });
+  document.querySelector("[data-scenario-editor-close]")?.addEventListener("click", () => {
+    closeScenarioEditor();
+  });
+
+  document.querySelector(".scenario-editor")?.addEventListener("keydown", (event) => {
+    trapFocus(event, event.currentTarget);
+  });
+  document.getElementById("top-district")?.addEventListener("change", (event) => {
+    state.scenarioFocusId = event.currentTarget.id;
+  }, { capture: true });
+  document.querySelector(".sidebar")?.addEventListener("keydown", (event) => {
+    if (!state.mobileNavOpen || scenarioEditorOpen) return;
+    trapFocus(event, event.currentTarget);
+  });
+
+  document.querySelector(".nav-expert-disclosure")?.addEventListener("toggle", (event) => {
+    expertNavigationOpen = event.currentTarget.open;
+  });
+
+  document.querySelectorAll("[data-view], [data-journey-entry]").forEach((control) => {
+    control.addEventListener("click", () => {
+      scenarioEditorOpen = false;
+      state.mobileNavOpen = false;
+    }, { capture: true });
+  });
+  document.querySelectorAll("[data-nav-close], #reset-scenario").forEach((control) => {
+    control.addEventListener("click", () => {
+      scenarioEditorOpen = false;
+    }, { capture: true });
+  });
+}
+
 function render() {
   const route = parseHashRoute(window.location.hash);
   const isJourney = state.view === "journey";
   const showScenarioSummary =
-    !isJourney && !["dashboard", "projects", "compare"].includes(state.view);
-  const scenarioPresentation = buildScenarioPresentation({
-    data: state.data,
-    scenarioState: state.scenarioState,
-    scenarioContext: state.scenarioContext,
-    geographyArtifact,
-    canonicalUrl: getCanonicalScenarioUrl(),
-    announcement: state.scenarioAnnouncement,
-    activeView: isJourney
-      ? {
-          group: "Recorrido",
-          label: journeyEntry.label,
-          hint: journeyEntry.hint,
-        }
-      : activeView(),
-    mobileNavOpen: state.mobileNavOpen,
-  });
+    !isJourney &&
+    !["dashboard", "projects", "market", "compare", "activity"].includes(
+      state.view,
+    );
+  const scenarioPresentation = {
+    ...buildScenarioPresentation({
+      data: state.data,
+      scenarioState: state.scenarioState,
+      scenarioContext: state.scenarioContext,
+      geographyArtifact,
+      canonicalUrl: getCanonicalScenarioUrl(),
+      announcement: state.scenarioAnnouncement,
+      activeView: isJourney
+        ? {
+            group: "Recorrido",
+            label: journeyEntry.label,
+            hint: journeyEntry.hint,
+          }
+        : activeView(),
+      mobileNavOpen: state.mobileNavOpen,
+    }),
+    editorOpen: scenarioEditorOpen,
+    editorModal: compactShellMatches(),
+  };
   const content = isJourney
     ? renderJourney({
         stageId: route.stageId,
@@ -414,7 +729,7 @@ function render() {
 
   root.innerHTML = `
     <a class="skip-link" href="#main-content">Ir al contenido principal</a>
-    <div class="app-shell ${state.mobileNavOpen ? "nav-is-open" : ""}">
+    <div class="app-shell ${state.mobileNavOpen ? "nav-is-open" : ""} ${scenarioEditorOpen ? "scenario-is-open" : ""}">
       <button class="nav-scrim" type="button" data-nav-close aria-label="Cerrar navegación"></button>
       <aside class="sidebar" id="primary-sidebar" aria-label="Navegación de Viva Inteligencia">
         <div class="sidebar-header">
@@ -436,6 +751,21 @@ function render() {
             ${interfaceIcon("close")}
           </button>
         </div>
+        <button
+          class="command-menu-trigger"
+          id="command-menu-trigger"
+          type="button"
+          data-command-menu-open
+          aria-haspopup="dialog"
+          aria-controls="command-menu-dialog"
+        >
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M6 7h12M6 12h7M6 17h9"></path>
+            <path d="m17 10 2 2-2 2"></path>
+          </svg>
+          <span>Ir a…</span>
+          <kbd aria-hidden="true">Ctrl K</kbd>
+        </button>
         ${renderScenarioSidebar(scenarioPresentation)}
         ${renderShellNavigation()}
         <div class="sidebar-footer">
@@ -471,10 +801,18 @@ function render() {
         </main>
       </div>
     </div>
+    ${renderCommandMenu({
+      open: commandMenuOpen,
+      destinations: commandDestinations,
+      query: commandMenuQuery,
+      activeIndex: commandMenuActiveIndex,
+    })}
   `;
 
   bindEvents(render);
   bindJourneyShellEvents();
+  bindCommercialShellEvents();
+  bindCommandMenuEvents();
   restoreActiveInput();
   restoreInspectorRouteEffects();
   pendingJourneyAnnouncement = "";

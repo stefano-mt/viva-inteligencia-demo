@@ -1,0 +1,379 @@
+{
+  "candidate": "6a6a60ca2e607dc4768c56b139c2549b5fae41d8",
+  "matrix": [
+    {
+      "mode": "1440x900",
+      "surface": "journey-scale",
+      "primary": 1
+    },
+    {
+      "mode": "1440x900",
+      "surface": "journey-geography",
+      "primary": 1
+    },
+    {
+      "mode": "1440x900",
+      "surface": "journey-quality",
+      "primary": 1
+    },
+    {
+      "mode": "1440x900",
+      "surface": "journey-depth",
+      "primary": 1
+    },
+    {
+      "mode": "1440x900",
+      "surface": "journey-movement",
+      "primary": 1
+    },
+    {
+      "mode": "1440x900",
+      "surface": "journey-decision",
+      "primary": 1
+    },
+    {
+      "mode": "1440x900",
+      "surface": "expert-dashboard",
+      "primary": 0
+    },
+    {
+      "mode": "1440x900",
+      "surface": "expert-projects",
+      "primary": 1
+    },
+    {
+      "mode": "1440x900",
+      "surface": "expert-inspector",
+      "primary": 0
+    },
+    {
+      "mode": "1440x900",
+      "surface": "expert-market",
+      "primary": 0
+    },
+    {
+      "mode": "1440x900",
+      "surface": "expert-compare",
+      "primary": 1
+    },
+    {
+      "mode": "1440x900",
+      "surface": "expert-trust",
+      "primary": 1
+    },
+    {
+      "mode": "1440x900",
+      "surface": "expert-assistant",
+      "primary": 0
+    },
+    {
+      "mode": "1440x900",
+      "surface": "expert-activity",
+      "primary": 1
+    },
+    {
+      "mode": "1280x720",
+      "surface": "journey-scale",
+      "primary": 1
+    },
+    {
+      "mode": "1280x720",
+      "surface": "journey-geography",
+      "primary": 1
+    },
+    {
+      "mode": "1280x720",
+      "surface": "journey-quality",
+      "primary": 1
+    },
+    {
+      "mode": "1280x720",
+      "surface": "journey-depth",
+      "primary": 1
+    },
+    {
+      "mode": "1280x720",
+      "surface": "journey-movement",
+      "primary": 1
+    },
+    {
+      "mode": "1280x720",
+      "surface": "journey-decision",
+      "primary": 1
+    },
+    {
+      "mode": "1280x720",
+      "surface": "expert-dashboard",
+      "primary": 0
+    },
+    {
+      "mode": "1280x720",
+      "surface": "expert-projects",
+      "primary": 1
+    },
+    {
+      "mode": "1280x720",
+      "surface": "expert-inspector",
+      "primary": 0
+    },
+    {
+      "mode": "1280x720",
+      "surface": "expert-market",
+      "primary": 0
+    },
+    {
+      "mode": "1280x720",
+      "surface": "expert-compare",
+      "primary": 1
+    },
+    {
+      "mode": "1280x720",
+      "surface": "expert-trust",
+      "primary": 0
+    },
+    {
+      "mode": "1280x720",
+      "surface": "expert-assistant",
+      "primary": 0
+    },
+    {
+      "mode": "1280x720",
+      "surface": "expert-activity",
+      "primary": 1
+    },
+    {
+      "mode": "390x844",
+      "surface": "journey-scale",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "journey-geography",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "journey-quality",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "journey-depth",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "journey-movement",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "journey-decision",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "expert-dashboard",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "expert-projects",
+      "primary": 1
+    },
+    {
+      "mode": "390x844",
+      "surface": "expert-inspector",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "expert-market",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "expert-compare",
+      "primary": 1
+    },
+    {
+      "mode": "390x844",
+      "surface": "expert-trust",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "expert-assistant",
+      "primary": 0
+    },
+    {
+      "mode": "390x844",
+      "surface": "expert-activity",
+      "primary": 1
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "journey-scale",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "journey-geography",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "journey-quality",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "journey-depth",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "journey-movement",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "journey-decision",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "expert-dashboard",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "expert-projects",
+      "primary": 1
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "expert-inspector",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "expert-market",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "expert-compare",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "expert-trust",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "expert-assistant",
+      "primary": 0
+    },
+    {
+      "mode": "zoom-200",
+      "surface": "expert-activity",
+      "primary": 0
+    }
+  ],
+  "interactions": {
+    "expertDesktop": "4/4 rutas en dos interacciones",
+    "scenarioDesktop": "cerrado/Enter/Escape/foco PASS",
+    "commandMenu": "Ctrl+K/copy local/9 destinos/Escape/foco/no persistencia PASS",
+    "reset": "/#journey/scale, query vacía y foco h1 PASS",
+    "empty": "comparación vacía y CTA correctiva PASS",
+    "domParity": "Tipo 7 DOM↔estado visible PASS",
+    "mobile": "drawer/editor modal/Ctrl+K/Escape/retorno de foco PASS",
+    "legacy": "2.1 capability_unavailable + CTA PASS",
+    "error": "fallo global uniforme, sin estado obsoleto/parcial, Reintentar PASS"
+  },
+  "captures": [
+    {
+      "file": "journey-scale-1440x900.png",
+      "sha256": "97a30979680fe3566c66ba07db9efb03c06af93308286b3cf7866f4a16009601"
+    },
+    {
+      "file": "expert-dashboard-1280x720.png",
+      "sha256": "6afa7a6480fb228857674f9ee6d7667f1684c57a987c9db5695cc72da48afc0a"
+    },
+    {
+      "file": "expert-assistant-1280x720.png",
+      "sha256": "4654a910778548f9d36e782e5f621164bc5fbca175a287729f476d41e73b1c25"
+    },
+    {
+      "file": "expert-projects-390x844.png",
+      "sha256": "dd451e8372628e3cd1c2c818e60b5a7a2508179c77543d89d89d9d2cff0df6de"
+    },
+    {
+      "file": "expert-activity-390x844.png",
+      "sha256": "132f6e06b0d7ad360eb86a214a167a32e2937ee3efe1725cc29be9cd37527dd5"
+    },
+    {
+      "file": "expert-inspector-zoom-200.png",
+      "sha256": "091e84f69291114a2c90cdeeb427585ae94350a58bffa18c05e3b70323139170"
+    }
+  ],
+  "gaps": [
+    {
+      "severity": "P2",
+      "check": "1440x900:expert-inspector",
+      "finding": "Se esperaban 1 h1 y se encontraron 2."
+    },
+    {
+      "severity": "P2",
+      "check": "1440x900:expert-compare",
+      "finding": "Se esperaban 1 h1 y se encontraron 2."
+    },
+    {
+      "severity": "P2",
+      "check": "1280x720:expert-inspector",
+      "finding": "Se esperaban 1 h1 y se encontraron 2."
+    },
+    {
+      "severity": "P2",
+      "check": "1280x720:expert-market",
+      "finding": "Lectura/trabajo fuera de la primera pantalla (reading=873, work=894)."
+    },
+    {
+      "severity": "P2",
+      "check": "1280x720:expert-compare",
+      "finding": "Se esperaban 1 h1 y se encontraron 2."
+    },
+    {
+      "severity": "P2",
+      "check": "1280x720:expert-compare",
+      "finding": "Lectura/trabajo fuera de la primera pantalla (reading=929, work=988)."
+    },
+    {
+      "severity": "P2",
+      "check": "1280x720:expert-activity",
+      "finding": "Lectura/trabajo fuera de la primera pantalla (reading=1067, work=596)."
+    },
+    {
+      "severity": "P2",
+      "check": "390x844:expert-inspector",
+      "finding": "Se esperaban 1 h1 y se encontraron 2."
+    },
+    {
+      "severity": "P2",
+      "check": "390x844:expert-compare",
+      "finding": "Se esperaban 1 h1 y se encontraron 2."
+    },
+    {
+      "severity": "P2",
+      "check": "zoom-200:expert-inspector",
+      "finding": "Se esperaban 1 h1 y se encontraron 2."
+    },
+    {
+      "severity": "P2",
+      "check": "zoom-200:expert-compare",
+      "finding": "Se esperaban 1 h1 y se encontraron 2."
+    }
+  ]
+}

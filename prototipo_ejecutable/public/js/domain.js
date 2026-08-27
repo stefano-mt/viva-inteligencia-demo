@@ -1197,6 +1197,7 @@ export function errorTemplate(error) {
       <div class="error-box">
         <strong>No se pudo iniciar la plataforma</strong>
         <span>${escapeHtml(error.message)}</span>
+        <button class="primary-button" type="button" data-app-retry>Reintentar</button>
       </div>
     </div>
   `;
