@@ -50,3 +50,23 @@ El grafo confirma que una corrección de shell/título o densidad debe volver a 
 - `*.png`: seis capturas representativas con hash registrado en el JSON.
 
 No se guardaron logs masivos. No se modificó runtime, datos, estilos, tests del producto, evidencia F6 ni el directorio de ensayo humano excluido.
+
+## Repetición P7-10A
+
+Fecha: 2026-08-27
+
+Candidato: `23d350532584ead2cbad3ccb15e3ad88aecb08ce`
+
+Verificador: `/root/p7_10a_checker`
+
+La repetición independiente cerró G1 y G2 con **PASS**. `checker-p7-10a.mjs` midió a `scrollY = 0`, antes de cualquier foco o desplazamiento:
+
+- Inspector y Comparador: un `h1` visible;
+- Benchmark: lectura `y=345.25`, trabajo `y=366.25`;
+- Comparador: lectura `y=295.83`, trabajo `y=466.00`;
+- Seguimiento: lectura `y=356.55`, trabajo `y=716.03`;
+- viewport: `1280×720`;
+- problemas browser: 0;
+- solicitudes externas: 0.
+
+La evidencia nueva está en `p7-10a-browser-verification.json` y las cuatro capturas `p7-10a-*-1280x720.png`. El veredicto vigente se encuentra en `../../VERIFICATION_REPORT.md`.
