@@ -213,7 +213,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** reducir el tiempo de orientación y escaneo sin alterar datos, evidencia o decisiones.
 
-**Estado:** `PLANNED`; P7-00A completado, P7-00B inicial en `FAIL` con correctivo documental preparado y HUMAN-GATE-A pendiente.
+**Estado:** `deployed and technically verified; documentary closure pending`. PR funcional #20 fusionado; Pages desplegó `5e4cfd064c6b008fcce43ea0e78792e13b1cedd5` mediante el run `33095830231` y P7-13 terminó en `PASS`. P7-14 está publicado en el PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21); solo su merge humano habilita el estado final `deployed and verified`.
 
 ### Olas
 
@@ -225,6 +225,10 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 **Gate de salida:** cinco destinos primarios, cuatro herramientas expertas en máximo dos interacciones, una acción primaria por viewport, trabajo principal visible en 1280×720, cero pérdida de claims y suite 6+8/CT-A–I/P en `PASS`.
 
 **Protegidos:** contrato 2.4, dataset, writer, fingerprints, motores, elegibilidad, histórico, asistente y workflow.
+
+**Resultado técnico:** HU-DEMO-805–810 y C01–C23 en `PASS`; seis etapas, ocho rutas, CT-A–I/P, compatibilidad 2.0–2.4, responsive, accesibilidad, privacidad, determinismo y Graphify verificados. Pages sirve contrato `2.4.0`; la verificación post-merge confirmó las 14 superficies, la primera pantalla de 1280×720, la paleta local y el reinicio canónico. No existen gaps técnicos P0–P3 abiertos.
+
+**Alcance del cierre:** técnico. Fase 7 no ejecuta ni simula UAT o aceptación humana conforme a A13; cualquier evaluación posterior será una actividad independiente.
 
 ## Estrategia de PR
 

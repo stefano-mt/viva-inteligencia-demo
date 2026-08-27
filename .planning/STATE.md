@@ -4,11 +4,11 @@
 
 **Milestone:** demo vNext orientada a venta
 
-**Última fase con despliegue técnico verificado:** Fase 6 — narrativa comercial, accesibilidad y QA
+**Última fase con despliegue técnico verificado:** Fase 7 — workspace comercial simplificado
 
-**Estado:** Fase 7 implementada y verificada técnicamente con `PASS`; P7-11 queda completo al versionar su memoria y handoff. Fases 0–5 están `deployed and verified`; Fase 6 está `FINAL — deployed and technically verified; human acceptance waived by Product Owner`. PR, revisión humana, merge y verificación pública de Fase 7 permanecen pendientes.
+**Estado:** Fase 7 fue fusionada mediante el PR #20, desplegada por GitHub Pages y verificada con `PASS` en P7-13. P7-14 persiste el resultado en una rama documental separada; el estado oficial `deployed and verified` se declara únicamente después del merge humano de ese PR. Fases 0–5 están `deployed and verified`; Fase 6 está `FINAL — deployed and technically verified; human acceptance waived by Product Owner`.
 
-**Rama activa:** `feat/phase-7-commercial-workspace`.
+**Rama activa:** `docs/phase-7-postmerge-report`.
 
 ## Baseline histórica de Fase 2
 
@@ -290,7 +290,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Estado final de Fase 6: **`FINAL — deployed and technically verified; human acceptance waived by Product Owner`**.
 - Riesgo residual aceptado: `R6-H1 — validación humana diferida`. No existen gaps técnicos abiertos; cualquier prueba humana futura será una UAT separada.
 
-## Fase 7 — cierre técnico pre-merge
+## Fase 7 — cierre post-merge pendiente de persistencia
 
 - Contexto: [phases/07-commercial-workspace/CONTEXT.md](phases/07-commercial-workspace/CONTEXT.md).
 - Auditoría UX/UI: [phases/07-commercial-workspace/UX-AUDIT.md](phases/07-commercial-workspace/UX-AUDIT.md).
@@ -312,15 +312,22 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Suite integral, smoke, accesibilidad, responsive, privacidad y Graphify: PASS; cero gaps técnicos P0–P3 abiertos.
 - Resumen: [phases/07-commercial-workspace/SUMMARY.md](phases/07-commercial-workspace/SUMMARY.md).
 - Handoff: [phases/07-commercial-workspace/HANDOFF.md](phases/07-commercial-workspace/HANDOFF.md).
-- Estado de ship: `functionally verified; awaiting human PR review and merge`. No declarar `deployed and verified` antes de P7-13/P7-14.
+- PR funcional: [#20 — feat: simplify the Viva commercial workspace](https://github.com/stefano-mt/viva-inteligencia-demo/pull/20), fusionado por `stefano-mt` el `2026-08-27T16:56:32Z`.
+- Head final del PR: `3211482804081b31405131d6a39b7ccd8180f80d`.
+- Merge funcional y `main` verificado: `5e4cfd064c6b008fcce43ea0e78792e13b1cedd5`.
+- Workflow Pages: [run 33095830231](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/33095830231), `success` para el mismo SHA; job `98600352791`.
+- GitHub Pages: [URL pública](https://stefano-mt.github.io/viva-inteligencia-demo/), HTTP 200; JSON público HTTP 200 y contrato `2.4.0`.
+- P7-13: [verificación post-merge](phases/07-commercial-workspace/POSTMERGE_REPORT.md) `PASS`; seis etapas, ocho rutas expertas, un `h1`/`main`, primera pantalla 1280×720, `Ctrl+K`, reinicio, consola y dependencias visibles verificados en Pages.
+- El tree del head funcional y el merge desplegado coincide en `049aed75720427402a3c45704681e35eddde473d`; la matriz P7-10 de 14 superficies × 4 geometrías aplica al artefacto desplegado.
+- Limitación P7-13: la herramienta pública conservó `1280×720` al solicitar móvil; el informe no presenta esa tentativa como repetición pública de 390×844.
+- P7-14: resultado preparado y publicado desde `docs/phase-7-postmerge-report`; PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21) abierto contra `main`, con merge humano pendiente.
+- Estado de ship vigente: `deployed and technically verified; documentary closure pending`. Declarar `deployed and verified` solo tras fusionar P7-14; el estado es técnico y no implica UAT o aceptación humana.
 
 ## Próxima acción recomendada
 
-1. Publicar el commit P7-11 y derivar su SHA remoto conforme a `HANDOFF.md`.
-2. Abrir el PR funcional `main...feat/phase-7-commercial-workspace` y ejecutar P7-12 mediante revisión y merge humanos.
-3. Si `origin/main` avanzó desde `6251442`, detener el merge, integrar y repetir verify/P7-10.
-4. Tras el merge, ejecutar P7-13 de forma read-only sobre Pages.
-5. Persistir el resultado con P7-14 en una rama y PR documental separados.
+1. Revisar el PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21), que contiene exclusivamente el write set de P7-14.
+2. El usuario fusiona el PR; ningún agente realiza el merge.
+3. Tras el merge, Fase 7 queda `deployed and verified` en sentido técnico y no queda una fase de desarrollo abierta.
 
 ## Regla para actualizar este archivo
 
