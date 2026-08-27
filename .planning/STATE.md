@@ -320,15 +320,14 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P7-13: [verificación post-merge](phases/07-commercial-workspace/POSTMERGE_REPORT.md) `PASS`; seis etapas, ocho rutas expertas, un `h1`/`main`, primera pantalla 1280×720, `Ctrl+K`, reinicio, consola y dependencias visibles verificados en Pages.
 - El tree del head funcional y el merge desplegado coincide en `049aed75720427402a3c45704681e35eddde473d`; la matriz P7-10 de 14 superficies × 4 geometrías aplica al artefacto desplegado.
 - Limitación P7-13: la herramienta pública conservó `1280×720` al solicitar móvil; el informe no presenta esa tentativa como repetición pública de 390×844.
-- P7-14: resultado preparado en `docs/phase-7-postmerge-report`; PR documental y merge humano pendientes.
+- P7-14: resultado preparado y publicado desde `docs/phase-7-postmerge-report`; PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21) abierto contra `main`, con merge humano pendiente.
 - Estado de ship vigente: `deployed and technically verified; documentary closure pending`. Declarar `deployed and verified` solo tras fusionar P7-14; el estado es técnico y no implica UAT o aceptación humana.
 
 ## Próxima acción recomendada
 
-1. Publicar los commits documentales de P7-14 desde `docs/phase-7-postmerge-report`.
-2. Abrir y revisar un PR exclusivamente documental contra `main`.
-3. El usuario fusiona el PR; ningún agente realiza el merge.
-4. Tras el merge, Fase 7 queda `deployed and verified` en sentido técnico y no queda una fase de desarrollo abierta.
+1. Revisar el PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21), que contiene exclusivamente el write set de P7-14.
+2. El usuario fusiona el PR; ningún agente realiza el merge.
+3. Tras el merge, Fase 7 queda `deployed and verified` en sentido técnico y no queda una fase de desarrollo abierta.
 
 ## Regla para actualizar este archivo
 

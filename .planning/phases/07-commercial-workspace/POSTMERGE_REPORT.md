@@ -180,5 +180,6 @@ Una vez fusionado el PR documental de P7-14, puede declararse Fase 7 `deployed a
 
 - P7-13 concluye `PASS` y no modificó `main` ni Pages.
 - P7-14 persiste el resultado mediante `docs/phase-7-postmerge-report`.
+- PR documental: [#21 — docs: record phase 7 postmerge verification](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21), abierto contra `main`.
 - El usuario conserva la revisión y el merge del PR documental.
 - Solo después de ese merge se completa la Definition of Done documental de Fase 7.

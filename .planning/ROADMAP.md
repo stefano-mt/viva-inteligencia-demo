@@ -213,7 +213,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** reducir el tiempo de orientación y escaneo sin alterar datos, evidencia o decisiones.
 
-**Estado:** `deployed and technically verified; documentary closure pending`. PR funcional #20 fusionado; Pages desplegó `5e4cfd064c6b008fcce43ea0e78792e13b1cedd5` mediante el run `33095830231` y P7-13 terminó en `PASS`. P7-14 se prepara en una rama/PR documental separados; solo su merge humano habilita el estado final `deployed and verified`.
+**Estado:** `deployed and technically verified; documentary closure pending`. PR funcional #20 fusionado; Pages desplegó `5e4cfd064c6b008fcce43ea0e78792e13b1cedd5` mediante el run `33095830231` y P7-13 terminó en `PASS`. P7-14 está publicado en el PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21); solo su merge humano habilita el estado final `deployed and verified`.
 
 ### Olas
 
