@@ -21,6 +21,8 @@
     "e2e": "npm run e2e:product",
     "e2e:product": "npm run data:build && npm run build:packages && npm run build --workspace @viva/api && node tests/e2e/productized-e2e.mjs",
     "e2e:legacy": "npm run test:e2e --workspace @viva/web",
+    "compose:up": "docker compose up --build",
+    "compose:down": "docker compose down",
     "verify": "npm run data:build && npm run check && npm run test && npm run e2e && npm run build && npm audit --audit-level=high",
     "verify:legacy": "npm run verify --workspace @viva/web",
     "data:build": "npm run build --workspace @viva/data-tools"
