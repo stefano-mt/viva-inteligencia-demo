@@ -1,14 +1,14 @@
 # Estado del proyecto
 
-**Actualizado:** 2026-08-27
+**Actualizado:** 2026-09-04
 
 **Milestone:** demo vNext orientada a venta
 
-**Última fase con despliegue técnico verificado:** Fase 7 — workspace comercial simplificado
+**Última fase con verificación técnica post-merge:** Fase 8 — productización lean
 
-**Estado:** Fase 7 fue fusionada mediante el PR #20, desplegada por GitHub Pages y verificada con `PASS` en P7-13. P7-14 persiste el resultado en una rama documental separada; el estado oficial `deployed and verified` se declara únicamente después del merge humano de ese PR. Fases 0–5 están `deployed and verified`; Fase 6 está `FINAL — deployed and technically verified; human acceptance waived by Product Owner`.
+**Estado:** Fase 8 fue fusionada mediante el PR #22. El merge `65334e7fb2acbff0ca1fd0e225690c16269a4bf1` pasó CI, construcción y publicación OCI, además de una repetición independiente completa de `npm.cmd run verify`. P8-08 tiene `PASS técnico post-merge`; permanece abierta hasta ejecutar las imágenes inmutables con Compose y completar la única validación humana integral. Fase 7 quedó cerrada documentalmente con el merge del PR #21.
 
-**Rama activa:** `docs/phase-7-postmerge-report`.
+**Rama activa:** `docs/phase-8-final-verification`.
 
 ## Baseline histórica de Fase 2
 
@@ -290,7 +290,7 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Estado final de Fase 6: **`FINAL — deployed and technically verified; human acceptance waived by Product Owner`**.
 - Riesgo residual aceptado: `R6-H1 — validación humana diferida`. No existen gaps técnicos abiertos; cualquier prueba humana futura será una UAT separada.
 
-## Fase 7 — cierre post-merge pendiente de persistencia
+## Fase 7 — cierre post-merge
 
 - Contexto: [phases/07-commercial-workspace/CONTEXT.md](phases/07-commercial-workspace/CONTEXT.md).
 - Auditoría UX/UI: [phases/07-commercial-workspace/UX-AUDIT.md](phases/07-commercial-workspace/UX-AUDIT.md).
@@ -320,14 +320,32 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - P7-13: [verificación post-merge](phases/07-commercial-workspace/POSTMERGE_REPORT.md) `PASS`; seis etapas, ocho rutas expertas, un `h1`/`main`, primera pantalla 1280×720, `Ctrl+K`, reinicio, consola y dependencias visibles verificados en Pages.
 - El tree del head funcional y el merge desplegado coincide en `049aed75720427402a3c45704681e35eddde473d`; la matriz P7-10 de 14 superficies × 4 geometrías aplica al artefacto desplegado.
 - Limitación P7-13: la herramienta pública conservó `1280×720` al solicitar móvil; el informe no presenta esa tentativa como repetición pública de 390×844.
-- P7-14: resultado preparado y publicado desde `docs/phase-7-postmerge-report`; PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21) abierto contra `main`, con merge humano pendiente.
-- Estado de ship vigente: `deployed and technically verified; documentary closure pending`. Declarar `deployed and verified` solo tras fusionar P7-14; el estado es técnico y no implica UAT o aceptación humana.
+- P7-14: resultado integrado mediante el PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21), fusionado el `2026-08-27T17:49:24Z`; merge `c15179e806bfc6746fdb718bdafcf12164161470`.
+- Estado de ship: **`deployed and verified`** en sentido técnico. No implica UAT o aceptación humana.
+
+## Fase 8 — productización lean y cierre integral en curso
+
+- Plan: [phases/08-productization-lean/PLAN.md](phases/08-productization-lean/PLAN.md).
+- Verificación: [phases/08-productization-lean/VERIFICATION.md](phases/08-productization-lean/VERIFICATION.md).
+- Handoff: [phases/08-productization-lean/HANDOFF.md](phases/08-productization-lean/HANDOFF.md).
+- Reporte post-merge: [phases/08-productization-lean/POSTMERGE_REPORT.md](phases/08-productization-lean/POSTMERGE_REPORT.md).
+- PR funcional: [#22](https://github.com/stefano-mt/viva-inteligencia-demo/pull/22), fusionado el `2026-09-04T22:09:56Z`.
+- Merge verificado: `65334e7fb2acbff0ca1fd0e225690c16269a4bf1`.
+- CI de `main`: [run 33924328654](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/33924328654), `verify` e `images` en `success`.
+- Publicación OCI: [run 33924328603](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/33924328603), `success`.
+- Imágenes inmutables: web y API etiquetadas con `sha-65334e7fb2acbff0ca1fd0e225690c16269a4bf1`.
+- Repetición independiente desde instalación limpia: `npm.cmd run verify` en `PASS`; 190 paquetes auditados, 0 vulnerabilidades.
+- Snapshot 2.4: `d8937532109bab7ca72794f103359b41b9d9e12e1618bb3014aa90cb12121ce9`.
+- Cobertura: `82afd4bb75dc14033769b6a60e19398a2d803403efc54a463224b6c3ef8f6478`.
+- Estado P8-08: **`PASS técnico post-merge; despliegue Compose y validación humana pendientes`**.
+- No se declara la Fase 8 cerrada ni validada por usuarios mientras permanezcan esos dos pendientes.
 
 ## Próxima acción recomendada
 
-1. Revisar el PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21), que contiene exclusivamente el write set de P7-14.
-2. El usuario fusiona el PR; ningún agente realiza el merge.
-3. Tras el merge, Fase 7 queda `deployed and verified` en sentido técnico y no queda una fase de desarrollo abierta.
+1. Abrir Docker Desktop y esperar a que el motor esté disponible.
+2. Desplegar web y API con el tag inmutable `sha-65334e7fb2acbff0ca1fd0e225690c16269a4bf1` y verificar health, metadata y recorrido crítico.
+3. Ejecutar una única sesión humana con una persona independiente mediante el paquete externo de P8-08.
+4. Registrar el resultado literal y preparar el PR documental final; el usuario realiza el merge.
 
 ## Regla para actualizar este archivo
 

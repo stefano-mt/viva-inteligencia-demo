@@ -2,18 +2,18 @@
 
 ## Antes del merge
 
-- [ ] La rama parte de `main` y no incluye archivos locales, logs, capturas ni secretos.
-- [ ] `npm ci` completa desde una clonación limpia.
-- [ ] `npm run verify` finaliza sin errores.
-- [ ] `docker compose config --quiet` valida la composición.
-- [ ] CI construye las imágenes `web` y `api`.
-- [ ] El cambio de contrato incluye pruebas compatibles y documentación OpenAPI.
-- [ ] Los cambios de datos conservan determinismo, privacidad y trazabilidad.
+- [x] La rama parte de `main` y no incluye archivos locales, logs, capturas ni secretos.
+- [x] `npm ci` completa desde una clonación limpia.
+- [x] `npm run verify` finaliza sin errores.
+- [x] `docker compose config --quiet` valida la composición.
+- [x] CI construye las imágenes `web` y `api`.
+- [x] El cambio de contrato incluye pruebas compatibles y documentación OpenAPI.
+- [x] Los cambios de datos conservan determinismo, privacidad y trazabilidad.
 
 ## Después del merge
 
-- [ ] El workflow `Publish OCI images` publica ambos artefactos para el mismo SHA.
-- [ ] Se registra el SHA inmutable de `web` y `api`; no se promueven imágenes mezcladas.
+- [x] El workflow `Publish OCI images` publica ambos artefactos para el mismo SHA.
+- [x] Se registra el SHA inmutable de `web` y `api`; no se promueven imágenes mezcladas.
 - [ ] El entorno responde `200` en `/health/live` y `/health/ready`.
 - [ ] `/api/v1/meta` informa contrato `2.4.0` y el dataset esperado.
 - [ ] Se ejecuta el recorrido crítico sin llamadas a hosts externos ni descarga del snapshot.

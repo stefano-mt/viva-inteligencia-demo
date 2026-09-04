@@ -213,7 +213,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** reducir el tiempo de orientación y escaneo sin alterar datos, evidencia o decisiones.
 
-**Estado:** `deployed and technically verified; documentary closure pending`. PR funcional #20 fusionado; Pages desplegó `5e4cfd064c6b008fcce43ea0e78792e13b1cedd5` mediante el run `33095830231` y P7-13 terminó en `PASS`. P7-14 está publicado en el PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21); solo su merge humano habilita el estado final `deployed and verified`.
+**Estado:** `deployed and verified` en sentido técnico. PR funcional #20 y PR documental [#21](https://github.com/stefano-mt/viva-inteligencia-demo/pull/21) fusionados; Pages desplegó `5e4cfd064c6b008fcce43ea0e78792e13b1cedd5` mediante el run `33095830231`, P7-13 terminó en `PASS` y P7-14 quedó integrado en `main` mediante `c15179e806bfc6746fdb718bdafcf12164161470`.
 
 ### Olas
 
@@ -229,6 +229,29 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 **Resultado técnico:** HU-DEMO-805–810 y C01–C23 en `PASS`; seis etapas, ocho rutas, CT-A–I/P, compatibilidad 2.0–2.4, responsive, accesibilidad, privacidad, determinismo y Graphify verificados. Pages sirve contrato `2.4.0`; la verificación post-merge confirmó las 14 superficies, la primera pantalla de 1280×720, la paleta local y el reinicio canónico. No existen gaps técnicos P0–P3 abiertos.
 
 **Alcance del cierre:** técnico. Fase 7 no ejecuta ni simula UAT o aceptación humana conforme a A13; cualquier evaluación posterior será una actividad independiente.
+
+---
+
+## Fase 8 — Productización lean
+
+**Objetivo:** convertir la demo estática en un MVP frontend/backend desplegable, ordenado y delegable, preservando el contrato 2.4 y la paridad funcional.
+
+**Estado:** P8-00–P8-07 integrados mediante el PR [#22](https://github.com/stefano-mt/viva-inteligencia-demo/pull/22). El merge `65334e7fb2acbff0ca1fd0e225690c16269a4bf1` tiene CI, imágenes OCI y verificación independiente en `PASS`. P8-08 permanece abierto hasta ejecutar el entorno Compose de referencia y completar la única validación humana integral.
+
+### Olas
+
+1. Baseline, monorepo, saneamiento y gobierno documental.
+2. Contratos, dominio puro y repositorio de snapshot.
+3. API Fastify y traslado de casos de uso.
+4. Frontend Vite abastecido por API, sin snapshot ni reglas duplicadas.
+5. Contenedores, CI, imágenes OCI, documentación y traspaso.
+6. Verificación post-merge, despliegue de referencia y prueba humana final.
+
+**Resultado técnico:** `npm.cmd run verify` pasa desde instalación limpia; CT-A–I/P, 14 superficies, responsive, teclado, zoom 200%, privacidad, determinismo y fallbacks están cubiertos. Los runs [33924328654](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/33924328654) y [33924328603](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/33924328603) terminaron en `success`.
+
+**Gate de salida pendiente:** web y API del mismo tag SHA deben arrancar con Compose, responder health/metadata y superar el recorrido crítico; luego una persona independiente debe completar la rúbrica humana sin ayuda del equipo creador.
+
+**Veredicto vigente:** `PASS técnico post-merge; cierre integral pendiente`.
 
 ## Estrategia de PR
 
