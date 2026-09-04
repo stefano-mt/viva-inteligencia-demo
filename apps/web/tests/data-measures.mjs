@@ -14,15 +14,21 @@ import {
   halfUp,
   materializeMeasureRecords,
   sortEvents,
-} from "../scripts/data/measures.js";
+} from "../../../tools/data/src/data/measures.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
-const REPO_ROOT = path.resolve(ROOT, "..");
+const REPO_ROOT = path.resolve(ROOT, "..", "..");
 const PILOT_DIR = path.join(REPO_ROOT, "data/source", "demo-pilot");
-const FIXTURE_DIR = path.join(PILOT_DIR, "fixtures");
-const CONTRACT_PATH = path.join(ROOT, "contracts", "demo-v2.schema.json");
-const MODULE_PATH = path.join(ROOT, "scripts", "data", "measures.js");
+const FIXTURE_DIR = path.join(REPO_ROOT, "data", "fixtures");
+const CONTRACT_PATH = path.join(
+  REPO_ROOT,
+  "packages",
+  "contracts",
+  "schemas",
+  "demo-v2.schema.json",
+);
+const MODULE_PATH = path.join(REPO_ROOT, "tools", "data", "src", "data", "measures.js");
 
 const CASE_IDS = ["CT-A", "CT-B", "CT-D", "CT-E", "CT-G"];
 const fixtureByCase = Object.fromEntries(

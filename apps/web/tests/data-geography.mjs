@@ -18,7 +18,7 @@ import {
   rankHighLoadDistricts,
   simplifyFeatureCollection,
   stableSerializeGeoJson
-} from "../scripts/data/geography.js";
+} from "../../../tools/data/src/data/geography.js";
 
 async function readJson(relativePath) {
   return JSON.parse(
@@ -33,13 +33,13 @@ const boundaries = await readJson(
   "../../../data/source/geography/district-boundaries-source.geojson"
 );
 const demo = await readJson(
-  "../public/demo-data/viva-platform-demo.json"
+  "../../../data/generated/viva-platform-demo.json"
 );
 const fixtureC = await readJson(
-  "../../../data/source/demo-pilot/fixtures/ct-c.json"
+  "../../../data/fixtures/ct-c.json"
 );
 const fixtureI = await readJson(
-  "../../../data/source/demo-pilot/fixtures/ct-i.json"
+  "../../../data/fixtures/ct-i.json"
 );
 
 assert.equal(normalizeDistrictName("  Jesús-MARÍA "), "jesus maria");

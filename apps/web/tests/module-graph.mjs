@@ -248,8 +248,10 @@ const demoData = JSON.parse(
   await fs.readFile(
     path.join(
       projectDir,
-      "public",
-      "demo-data",
+      "..",
+      "..",
+      "data",
+      "generated",
       "viva-platform-demo.json",
     ),
     "utf8",

@@ -13,7 +13,7 @@ async function readJson(relativePath) {
 }
 
 const [data, source] = await Promise.all([
-  readJson("../public/demo-data/viva-platform-demo.json"),
+  readJson("../../../data/generated/viva-platform-demo.json"),
   fs.readFile(new URL("../../../packages/domain/src/legacy/history.js", import.meta.url), "utf8"),
 ]);
 

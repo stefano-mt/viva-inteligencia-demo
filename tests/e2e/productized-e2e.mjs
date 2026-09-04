@@ -49,7 +49,7 @@ const executablePath = [
   "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
 ].find((candidate) => candidate && existsSync(candidate));
 const browser = await chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true });
-const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const consoleErrors = [];
 const observedRequests = [];
 page.on("console", (message) => {
@@ -61,7 +61,23 @@ try {
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
   await page.locator("h1").waitFor();
   assert.match(await page.locator("h1").innerText(), /lectura comercial/i);
-  await page.screenshot({ path: path.join(outputDirectory, "dashboard-1280x720.png"), fullPage: true });
+  assert.equal(await hasHorizontalOverflow(page), false, "Dashboard 1440×900 no debe desbordar");
+  await page.screenshot({ path: path.join(outputDirectory, "dashboard-1440x900.png"), fullPage: true });
+
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto(`${baseUrl}/#journey/scale`, { waitUntil: "networkidle" });
+  const firstDecision = await page.locator(".decision-strip").boundingBox();
+  assert.ok(firstDecision && firstDecision.y < 720, "La lectura principal debe comenzar en el primer viewport");
+  assert.equal(await hasHorizontalOverflow(page), false, "Recorrido 1280×720 no debe desbordar");
+  await page.keyboard.press("Control+k");
+  await page.locator("#command-dialog[open]").waitFor();
+  assert.equal(
+    await page.locator("#command-input").evaluate((input) => input === document.activeElement),
+    true,
+    "Ctrl+K debe enfocar la búsqueda",
+  );
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator("#command-dialog").evaluate((dialog) => dialog.hasAttribute("open")), false);
 
   const routes = [
     "dashboard", "projects", "inspector", "market", "compare", "trust", "assistant", "activity",
@@ -78,16 +94,53 @@ try {
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
   assert.ok(await page.locator("svg.map-chart").count() === 1, "El mapa debe tener ejes y puntos accesibles");
 
+  await page.evaluate(() => { document.documentElement.style.zoom = "2"; });
+  assert.equal(await hasHorizontalOverflow(page), false, "El dashboard debe conservar reflow a zoom 200%");
+  await page.screenshot({ path: path.join(outputDirectory, "dashboard-zoom-200.png"), fullPage: true });
+  await page.evaluate(() => { document.documentElement.style.zoom = ""; });
+
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${baseUrl}/#assistant`, { waitUntil: "networkidle" });
   await page.locator("h1").waitFor();
-  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
+  assert.equal(await hasHorizontalOverflow(page), false, "Asistente 390×844 no debe desbordar");
   await page.screenshot({ path: path.join(outputDirectory, "assistant-390x844.png"), fullPage: true });
+
+  const unavailablePage = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  await unavailablePage.route("**/api/v1/meta", (route) => route.abort("failed"));
+  await unavailablePage.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
+  await unavailablePage.locator(".startup-state--error").waitFor();
+  assert.match(await unavailablePage.locator("main").innerText(), /API no está disponible/i);
+  assert.equal(await unavailablePage.getByRole("button", { name: "Reintentar" }).count(), 1);
+  await unavailablePage.close();
+
+  const incompatiblePage = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  await incompatiblePage.route("**/api/v1/meta", async (route) => {
+    const response = await route.fetch();
+    const payload = await response.json();
+    await route.fulfill({ response, json: { ...payload, contractVersion: "9.9.0" } });
+  });
+  await incompatiblePage.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
+  await incompatiblePage.locator(".startup-state--error").waitFor();
+  assert.match(await incompatiblePage.locator("main").innerText(), /contrato incompatible/i);
+  await incompatiblePage.close();
+
+  const emptyPage = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+  await emptyPage.route("**/api/v1/projects?*", async (route) => {
+    const response = await route.fetch();
+    const payload = await response.json();
+    await route.fulfill({
+      response,
+      json: { ...payload, items: [], total: 0, page: 1, pageCount: 0 },
+    });
+  });
+  await emptyPage.goto(`${baseUrl}/#projects`, { waitUntil: "networkidle" });
+  await emptyPage.getByText("No hay proyectos para los filtros activos.").waitFor();
+  await emptyPage.close();
 
   assert.equal(consoleErrors.length, 0, `Errores de consola: ${consoleErrors.join(" | ")}`);
   assert.equal(observedRequests.some((url) => url.includes("demo-data")), false, "El navegador no debe pedir el snapshot");
   assert.equal(
-    observedRequests.some((url) => !url.startsWith(baseUrl) && !url.startsWith("http://127.0.0.1:3000")),
+    observedRequests.some((url) => !url.startsWith(baseUrl)),
     false,
     "El recorrido no debe depender de hosts externos",
   );
@@ -96,4 +149,10 @@ try {
   await browser.close();
   await viteServer?.close();
   await apiApp?.close();
+}
+
+async function hasHorizontalOverflow(targetPage) {
+  return targetPage.evaluate(() =>
+    document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
+  );
 }

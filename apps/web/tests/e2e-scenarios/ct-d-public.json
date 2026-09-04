@@ -1,6 +1,6 @@
 {
   "id": "CT-D-public",
-  "source_fixture": "data/source/demo-pilot/fixtures/ct-d.json",
+  "source_fixture": "data/fixtures/ct-d.json",
   "classification": "controlled",
   "project_id": "project:ct-d-controlled",
   "typology_id": "typology:ct-d-controlled",

@@ -3,11 +3,11 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { parseCsv } from "../scripts/data/agencies.js";
+import { parseCsv } from "../../../tools/data/src/data/agencies.js";
 import {
   loadContractSchema,
   validateSchemaShape
-} from "../scripts/data/validate.js";
+} from "../../../tools/data/src/data/validate.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
@@ -38,11 +38,10 @@ const fixtureNames = ["ct-a", "ct-b", "ct-c", "ct-d", "ct-g", "ct-i", "ct-p"];
 const [policy, catalog, publicData, ctISource, ...fixtures] = await Promise.all([
   readJson(policyPath),
   readJson(catalogPath),
-  readJson(prototypeRoot, "public", "demo-data", "viva-platform-demo.json"),
+  readJson(testDirectory, "../../..", "data", "generated", "viva-platform-demo.json"),
   readJson(
     repositoryRoot,
-    "data/source",
-    "demo-pilot",
+    "data",
     "fixtures",
     "ct-i.json"
   ),
@@ -127,7 +126,7 @@ assert.equal(policy.coverage_partition.sets_must_be_disjoint, true);
 assert.equal(policy.coverage_partition.global_used_project_ids_forbidden, true);
 
 const schema = loadContractSchema(
-  path.join(prototypeRoot, "contracts", "demo-v2.schema.json")
+  path.resolve(testDirectory, "../../..", "packages", "contracts", "schemas", "demo-v2.schema.json")
 );
 const contractMethodology = {
   cutoff_at: policy.source.cutoff_at,

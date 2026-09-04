@@ -15,6 +15,7 @@ const evidenceDirectory = path.resolve(
   testDirectory,
   "..",
   "..",
+  "..",
   ".planning",
   "phases",
   "07-commercial-workspace",

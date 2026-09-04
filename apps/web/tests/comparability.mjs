@@ -14,13 +14,13 @@ import {
 const cutoffAt = "2026-01-16T00:00:00.000Z";
 const ctC = JSON.parse(
   await readFile(
-    new URL("../../../data/source/demo-pilot/fixtures/ct-c.json", import.meta.url),
+    new URL("../../../data/fixtures/ct-c.json", import.meta.url),
     "utf8",
   ),
 );
 const demoData = JSON.parse(
   await readFile(
-    new URL("../public/demo-data/viva-platform-demo.json", import.meta.url),
+    new URL("../../../data/generated/viva-platform-demo.json", import.meta.url),
     "utf8",
   ),
 );

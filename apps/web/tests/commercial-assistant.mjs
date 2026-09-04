@@ -10,7 +10,7 @@ import {
   withDemoBrowser,
 } from "./helpers/demo-browser.mjs";
 
-const data = JSON.parse(await fs.readFile(new URL("../public/demo-data/viva-platform-demo.json", import.meta.url), "utf8"));
+const data = JSON.parse(await fs.readFile(new URL("../../../data/generated/viva-platform-demo.json", import.meta.url), "utf8"));
 const claimsUrl = new URL("./fixtures/commercial-claims.json", import.meta.url);
 const claimsSource = await fs.readFile(claimsUrl, "utf8");
 const claims = JSON.parse(claimsSource);

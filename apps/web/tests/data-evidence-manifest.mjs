@@ -9,7 +9,7 @@ import {
   loadContractSchema,
   validateEntityCatalog,
   validateSchemaShape
-} from "../scripts/data/validate.js";
+} from "../../../tools/data/src/data/validate.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
@@ -18,7 +18,7 @@ const catalogRoot = path.join(repositoryRoot, "data/source", "demo-pilot");
 const publicRoot = path.join(prototypeRoot, "public");
 const assetDirectory = path.join(publicRoot, "assets", "evidence");
 const schema = loadContractSchema(
-  path.join(prototypeRoot, "contracts", "demo-v2.schema.json")
+  path.resolve(testDirectory, "../../..", "packages", "contracts", "schemas", "demo-v2.schema.json")
 );
 const requireFromTest = createRequire(import.meta.url);
 const loadPlaywright = async () => {
@@ -92,7 +92,7 @@ const [inspectorCases, evidenceManifest, ...fixtures] = await Promise.all([
   readJson(catalogRoot, "inspector-cases.json"),
   readJson(catalogRoot, "evidence-manifest.json"),
   ...["ct-a", "ct-b", "ct-d", "ct-e", "ct-g"].map((fixture) =>
-    readJson(catalogRoot, "fixtures", `${fixture}.json`)
+    readJson(repositoryRoot, "data", "fixtures", `${fixture}.json`)
   )
 ]);
 

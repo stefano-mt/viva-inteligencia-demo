@@ -4,12 +4,12 @@ import fs from "node:fs/promises";
 const fixture = JSON.parse(await fs.readFile(new URL("./fixtures/commercial-claims.json", import.meta.url), "utf8"));
 const publicData = JSON.parse(
   await fs.readFile(
-    new URL("../public/demo-data/viva-platform-demo.json", import.meta.url),
+    new URL("../../../data/generated/viva-platform-demo.json", import.meta.url),
     "utf8",
   ),
 );
 const inventory = await fs.readFile(
-  new URL("../../.planning/phases/07-commercial-workspace/CLAIMS-INVENTORY.md", import.meta.url),
+  new URL("../../../.planning/phases/07-commercial-workspace/CLAIMS-INVENTORY.md", import.meta.url),
   "utf8",
 );
 

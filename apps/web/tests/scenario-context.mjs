@@ -42,11 +42,11 @@ function responseFor(bytes, ok = true) {
 }
 
 const data = await readJson(
-  "../public/demo-data/viva-platform-demo.json",
+  "../../../data/generated/viva-platform-demo.json",
 );
 const boundaryBytes = await fs.readFile(
   new URL(
-    "../public/demo-data/district-boundaries.geojson",
+    "../../../data/generated/district-boundaries.geojson",
     import.meta.url,
   ),
 );

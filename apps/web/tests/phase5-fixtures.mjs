@@ -5,16 +5,16 @@ import { fileURLToPath } from "node:url";
 import {
   evaluateAssistantRequest,
   validateAssistantCatalog
-} from "../scripts/data/assistant.js";
+} from "../../../tools/data/src/data/assistant.js";
 import {
   evaluateHistoryCandidate,
   validateHistoryPolicy
-} from "../scripts/data/history.js";
+} from "../../../tools/data/src/data/history.js";
 import {
   loadContractSchema,
   validatePrivacy,
   validateSchemaShape
-} from "../scripts/data/validate.js";
+} from "../../../tools/data/src/data/validate.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
@@ -39,15 +39,14 @@ const [policy, catalog, fixtures] = await Promise.all([
   ),
   readJson(
     repositoryRoot,
-    "data/source",
-    "demo-pilot",
+    "data",
     "fixtures",
     "phase5-policy-cases.json"
   )
 ]);
 
 const schema = loadContractSchema(
-  path.join(prototypeRoot, "contracts", "demo-v2.schema.json")
+  path.resolve(testDirectory, "../../..", "packages", "contracts", "schemas", "demo-v2.schema.json")
 );
 
 assert.deepEqual(validateHistoryPolicy(policy), []);

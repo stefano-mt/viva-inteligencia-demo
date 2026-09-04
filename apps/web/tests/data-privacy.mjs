@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { validatePrivacy } from "../scripts/data/validate.js";
+import { validatePrivacy } from "../../../tools/data/src/data/validate.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
@@ -11,13 +11,13 @@ const repositoryRoot = path.resolve(prototypeRoot, "..", "..");
 
 const data = JSON.parse(
   await fs.readFile(
-    new URL("../public/demo-data/viva-platform-demo.json", import.meta.url),
+    new URL("../../../data/generated/viva-platform-demo.json", import.meta.url),
     "utf8"
   )
 );
 const geography = JSON.parse(
   await fs.readFile(
-    new URL("../public/demo-data/district-boundaries.geojson", import.meta.url),
+    new URL("../../../data/generated/district-boundaries.geojson", import.meta.url),
     "utf8"
   )
 );

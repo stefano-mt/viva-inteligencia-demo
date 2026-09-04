@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
-import { normalizeAgencyName } from "../scripts/data/agencies.js";
+import { normalizeAgencyName } from "../../../tools/data/src/data/agencies.js";
 
 const data = JSON.parse(
   await fs.readFile(
-    new URL("../public/demo-data/viva-platform-demo.json", import.meta.url),
+    new URL("../../../data/generated/viva-platform-demo.json", import.meta.url),
     "utf8"
   )
 );

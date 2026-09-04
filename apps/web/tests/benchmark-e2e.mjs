@@ -10,7 +10,7 @@ import { initializeScenarioData, state } from "../public/js/state.js";
 
 const publicData = JSON.parse(
   await fs.readFile(
-    new URL("../public/demo-data/viva-platform-demo.json", import.meta.url),
+    new URL("../../../data/generated/viva-platform-demo.json", import.meta.url),
     "utf8",
   ),
 );

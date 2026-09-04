@@ -15,7 +15,7 @@ const claimsUrl = new URL("./fixtures/commercial-claims.json", import.meta.url);
 const claimsSource = await fs.readFile(claimsUrl, "utf8");
 const claimsFixture = JSON.parse(claimsSource);
 const publicData = JSON.parse(
-  await fs.readFile(new URL("../public/demo-data/viva-platform-demo.json", import.meta.url), "utf8"),
+  await fs.readFile(new URL("../../../data/generated/viva-platform-demo.json", import.meta.url), "utf8"),
 );
 const ctFixtures = await Promise.all(
   ["a", "b", "c", "d", "e", "f", "g", "h", "i", "p"].map(async (id) =>

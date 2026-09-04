@@ -19,12 +19,13 @@ const projectDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+const repositoryDir = path.resolve(projectDir, "..", "..");
 const data = JSON.parse(
   await fs.readFile(
     path.join(
-      projectDir,
-      "public",
-      "demo-data",
+      repositoryDir,
+      "data",
+      "generated",
       "viva-platform-demo.json",
     ),
     "utf8",
@@ -33,9 +34,9 @@ const data = JSON.parse(
 const boundaryGeoJson = JSON.parse(
   await fs.readFile(
     path.join(
-      projectDir,
-      "public",
-      "demo-data",
+      repositoryDir,
+      "data",
+      "generated",
       "district-boundaries.geojson",
     ),
     "utf8",

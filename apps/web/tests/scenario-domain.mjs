@@ -22,12 +22,12 @@ async function readJson(relativePath) {
   );
 }
 
-const data = await readJson("../public/demo-data/viva-platform-demo.json");
+const data = await readJson("../../../data/generated/viva-platform-demo.json");
 const ctC = await readJson(
-  "../../../data/source/demo-pilot/fixtures/ct-c.json"
+  "../../../data/fixtures/ct-c.json"
 );
 const ctI = await readJson(
-  "../../../data/source/demo-pilot/fixtures/ct-i.json"
+  "../../../data/fixtures/ct-i.json"
 );
 const environment = createScenarioEnvironment(data);
 const defaults = environment.defaults;

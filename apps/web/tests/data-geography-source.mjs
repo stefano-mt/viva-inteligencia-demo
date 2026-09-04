@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import {
   createDistrictIndex,
   stableSerializeGeoJson
-} from "../scripts/data/geography.js";
+} from "../../../tools/data/src/data/geography.js";
 
 const manifestUrl = new URL(
   "../../../data/source/geography/source-manifest.json",

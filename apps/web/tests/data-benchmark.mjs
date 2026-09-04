@@ -2,13 +2,13 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildDemoData } from "../scripts/build-demo-data.js";
-import { parseCsv } from "../scripts/data/agencies.js";
-import { classifyBenchmarkRecords } from "../scripts/data/benchmark.js";
+import { buildDemoData } from "../../../tools/data/src/build-demo-data.js";
+import { parseCsv } from "../../../tools/data/src/data/agencies.js";
+import { classifyBenchmarkRecords } from "../../../tools/data/src/data/benchmark.js";
 import {
   loadContractSchema,
   validateRootDocument
-} from "../scripts/data/validate.js";
+} from "../../../tools/data/src/data/validate.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
@@ -56,7 +56,7 @@ const observationById = new Map(
 );
 const factById = new Map(model.facts.map((entry) => [entry.fact_id, entry]));
 const schema = loadContractSchema(
-  path.join(prototypeRoot, "contracts", "demo-v2.schema.json")
+  path.resolve(testDirectory, "../../..", "packages", "contracts", "schemas", "demo-v2.schema.json")
 );
 const publicRoot = path.join(prototypeRoot, "public");
 const assetExists = (logicalPath) =>

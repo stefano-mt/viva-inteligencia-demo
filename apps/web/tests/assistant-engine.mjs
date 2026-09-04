@@ -18,7 +18,7 @@ async function readJson(relativePath) {
   );
 }
 
-const data = await readJson("../public/demo-data/viva-platform-demo.json");
+const data = await readJson("../../../data/generated/viva-platform-demo.json");
 const source = await fs.readFile(
   new URL("../../../packages/domain/src/legacy/assistant-engine.js", import.meta.url),
   "utf8",

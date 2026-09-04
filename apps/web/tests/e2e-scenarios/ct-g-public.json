@@ -1,6 +1,6 @@
 {
   "id": "CT-G-public",
-  "source_fixture": "data/source/demo-pilot/fixtures/ct-g.json",
+  "source_fixture": "data/fixtures/ct-g.json",
   "classification": "observed",
   "canonical_path": "#inspector/case/f3-ct-g-pardo",
   "project_id": "project:nexo-2951",

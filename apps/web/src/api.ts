@@ -89,7 +89,7 @@ export class ApiDataProvider implements DataProvider {
 
   async #request<T>(path: string, init: RequestInit = {}): Promise<T> {
     const controller = new AbortController();
-    const timeout = window.setTimeout(() => controller.abort(), this.#timeoutMs);
+    const timeout = globalThis.setTimeout(() => controller.abort(), this.#timeoutMs);
     try {
       const response = await fetch(`${this.#baseUrl}${path}`, {
         ...init,
@@ -118,7 +118,7 @@ export class ApiDataProvider implements DataProvider {
       }
       throw new ApiClientError("La API no está disponible. Verifica la conexión y reintenta.", "API_UNAVAILABLE", 503, null);
     } finally {
-      window.clearTimeout(timeout);
+      globalThis.clearTimeout(timeout);
     }
   }
 }

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import * as agencyModule from "../scripts/data/agencies.js";
+import * as agencyModule from "../../../tools/data/src/data/agencies.js";
 import {
   DEEP_PROJECT_BY_AGENCY,
   PILOT_MINIMUMS,
@@ -15,7 +15,7 @@ import {
   sha256,
   stableAgencyId,
   validateAgencyArtifacts
-} from "../scripts/data/agencies.js";
+} from "../../../tools/data/src/data/agencies.js";
 
 const TEST_DIRECTORY = dirname(fileURLToPath(import.meta.url));
 const PROTOTYPE_ROOT = resolve(TEST_DIRECTORY, "..");
@@ -645,7 +645,7 @@ for (const testCase of mutationCases) {
 }
 
 const implementationSource = readFileSync(
-  join(PROTOTYPE_ROOT, "scripts", "data", "agencies.js"),
+  join(REPOSITORY_ROOT, "tools", "data", "src", "data", "agencies.js"),
   "utf8"
 );
 assert.doesNotMatch(

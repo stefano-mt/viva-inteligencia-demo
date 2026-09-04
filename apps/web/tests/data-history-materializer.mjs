@@ -2,16 +2,16 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { parseCsv } from "../scripts/data/agencies.js";
+import { parseCsv } from "../../../tools/data/src/data/agencies.js";
 import {
   materializeHistoryCandidates,
   serializeHistoryMaterialization
-} from "../scripts/data/history.js";
+} from "../../../tools/data/src/data/history.js";
 import {
   loadContractSchema,
   validatePrivacy,
   validateSchemaShape
-} from "../scripts/data/validate.js";
+} from "../../../tools/data/src/data/validate.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
@@ -34,9 +34,9 @@ const [snapshotText, policy, publicData, geographyManifest] = await Promise.all(
     "history-policy.json"
   ),
   readJson(
-    prototypeRoot,
-    "public",
-    "demo-data",
+    repositoryRoot,
+    "data",
+    "generated",
     "viva-platform-demo.json"
   ),
   readJson(
@@ -163,7 +163,7 @@ for (const event of materialized.events) {
 }
 
 const schema = loadContractSchema(
-  path.join(prototypeRoot, "contracts", "demo-v2.schema.json")
+  path.resolve(testDirectory, "../../..", "packages", "contracts", "schemas", "demo-v2.schema.json")
 );
 for (const [index, event] of materialized.events.entries()) {
   assert.deepEqual(

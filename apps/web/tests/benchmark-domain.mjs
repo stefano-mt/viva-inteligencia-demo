@@ -17,7 +17,7 @@ async function readJson(relativePath) {
 }
 
 const [data, ctA, ctB, ctC, ctD, ctG, ctI, ctP, source] = await Promise.all([
-  readJson("../public/demo-data/viva-platform-demo.json"),
+  readJson("../../../data/generated/viva-platform-demo.json"),
   readJson("./e2e-scenarios/ct-a-benchmark.json"),
   readJson("./e2e-scenarios/ct-b-benchmark.json"),
   readJson("./e2e-scenarios/ct-c-benchmark.json"),

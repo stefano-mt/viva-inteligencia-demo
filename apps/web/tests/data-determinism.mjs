@@ -10,21 +10,21 @@ import {
   discoverRequiredInputPaths,
   logicalInputSha256,
   sha256
-} from "../scripts/build-demo-data.js";
+} from "../../../tools/data/src/build-demo-data.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
 const repositoryRoot = path.resolve(prototypeRoot, "..", "..");
 const versionedOutputPath = path.join(
-  prototypeRoot,
-  "public",
-  "demo-data",
+  repositoryRoot,
+  "data",
+  "generated",
   "viva-platform-demo.json"
 );
 const versionedGeoJsonPath = path.join(
-  prototypeRoot,
-  "public",
-  "demo-data",
+  repositoryRoot,
+  "data",
+  "generated",
   "district-boundaries.geojson"
 );
 const versionedCoveragePath = path.join(
@@ -85,7 +85,7 @@ assert.equal(
 );
 
 const buildSource = await fs.readFile(
-  path.join(prototypeRoot, "scripts", "build-demo-data.js"),
+  path.join(repositoryRoot, "tools", "data", "src", "build-demo-data.js"),
   "utf8"
 );
 assert.equal(/\bnew\s+Date\b|\bDate\b/.test(buildSource), false);

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {
   loadContractSchema,
   validateSchemaShape
-} from "../scripts/data/validate.js";
+} from "../../../tools/data/src/data/validate.js";
 
 const schema = loadContractSchema();
 const clone = (value) => structuredClone(value);
@@ -94,7 +94,7 @@ const history = {
   fingerprints: [
     {
       input_id: "input:history-test",
-      path: "data/source/demo-pilot/fixtures/history-test.json",
+      path: "data/fixtures/history-test.json",
       sha256: "a".repeat(64)
     }
   ]

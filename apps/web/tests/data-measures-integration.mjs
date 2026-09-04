@@ -2,14 +2,14 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { aggregateCertifiedMean } from "../scripts/data/measures.js";
+import { aggregateCertifiedMean } from "../../../tools/data/src/data/measures.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const repositoryRoot = path.resolve(testDirectory, "../../..");
 const readJson = async (relativePath) =>
   JSON.parse(await fs.readFile(path.join(repositoryRoot, relativePath), "utf8"));
 const data = await readJson(
-  "apps/web/public/demo-data/viva-platform-demo.json"
+  "data/generated/viva-platform-demo.json"
 );
 
 let baseFactIds = new Set();

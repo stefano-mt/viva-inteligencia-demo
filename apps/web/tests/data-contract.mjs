@@ -4,13 +4,13 @@ import fs from "node:fs/promises";
 import { views } from "../public/js/config.js";
 
 const dataUrl = new URL(
-  "../public/demo-data/viva-platform-demo.json",
+  "../../../data/generated/viva-platform-demo.json",
   import.meta.url
 );
 const dataBytes = await fs.readFile(dataUrl);
 const data = JSON.parse(dataBytes.toString("utf8"));
 const boundaryUrl = new URL(
-  "../public/demo-data/district-boundaries.geojson",
+  "../../../data/generated/district-boundaries.geojson",
   import.meta.url
 );
 const boundaryBytes = await fs.readFile(boundaryUrl);

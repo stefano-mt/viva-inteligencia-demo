@@ -3,10 +3,10 @@
   "dataset_id": "dataset:viva-platform-demo-2026-07-28",
   "cutoff_at": "2026-07-28T01:24:28Z",
   "source_artifact": {
-    "path": "apps/web/public/demo-data/viva-platform-demo.json",
+    "path": "data/generated/viva-platform-demo.json",
     "contract_version": "2.4.0",
-    "sha256": "652365fbcb6a894b7c13beaf9606a0cc73689497dfcad886829769dbe1a24af7",
-    "byte_length": 7555238
+    "sha256": "cc3634fe33e96c1e3411f7cb80fec8483ef6aff4bdd8161b03977e03d9871267",
+    "byte_length": 7555094
   },
   "derivation": {
     "authority": "$.model, $.inspector, $.benchmark, $.history and $.assistant when present are authoritative; $.projects is the temporary legacy projection.",
@@ -488,7 +488,7 @@
   "fixture_coverage": [
     {
       "case_id": "CT-A",
-      "source_path": "data/source/demo-pilot/fixtures/ct-a.json",
+      "source_path": "data/fixtures/ct-a.json",
       "purpose": "Separate built, total and derived free area and calculate scenario price per compatible denominator.",
       "model_result": {
         "fact_count": 6,
@@ -497,7 +497,7 @@
     },
     {
       "case_id": "CT-B",
-      "source_path": "data/source/demo-pilot/fixtures/ct-b.json",
+      "source_path": "data/fixtures/ct-b.json",
       "purpose": "Preserve conflicting observed list prices without choosing a winner.",
       "model_result": {
         "fact_count": 4,
@@ -506,7 +506,7 @@
     },
     {
       "case_id": "CT-D",
-      "source_path": "data/source/demo-pilot/fixtures/ct-d.json",
+      "source_path": "data/fixtures/ct-d.json",
       "purpose": "Distinguish evidenced, unobserved and restricted qualitative attributes.",
       "model_result": {
         "fact_count": 2,
@@ -515,7 +515,7 @@
     },
     {
       "case_id": "CT-E",
-      "source_path": "data/source/demo-pilot/fixtures/ct-e.json",
+      "source_path": "data/fixtures/ct-e.json",
       "purpose": "Materialize deterministic history without inventing causes.",
       "model_result": {
         "fact_count": 6,
@@ -524,7 +524,7 @@
     },
     {
       "case_id": "CT-G",
-      "source_path": "data/source/demo-pilot/fixtures/ct-g.json",
+      "source_path": "data/fixtures/ct-g.json",
       "purpose": "Preserve the Pardo Coast Tipo 7 card and plan as incompatible observations.",
       "model_result": {
         "fact_count": 8,
@@ -534,7 +534,7 @@
     },
     {
       "case_id": "CT-H",
-      "source_path": "data/source/demo-pilot/fixtures/ct-h.json",
+      "source_path": "data/fixtures/ct-h.json",
       "purpose": "Demonstrate stable canonical IDs, conservative aliases and tiered pilot coverage.",
       "model_result": {
         "selected_agency_count": 30,
@@ -547,7 +547,7 @@
   ],
   "geography_coverage": {
     "public_artifact": {
-      "path": "apps/web/public/demo-data/district-boundaries.geojson",
+      "path": "data/generated/district-boundaries.geojson",
       "sha256": "ef75b5deb43f2ed94cc9661c3f1926e94608e0b2e4a41c8ce9197dbea71b16c0",
       "byte_length": 46650,
       "crs": "EPSG:4326",

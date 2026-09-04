@@ -7,6 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "public");
 const REPOSITORY_DIR = path.resolve(__dirname, "..", "..");
 const DOMAIN_DIR = path.join(REPOSITORY_DIR, "packages", "domain");
+const GENERATED_DATA_DIR = path.join(REPOSITORY_DIR, "data", "generated");
 const PORT = Number(process.env.PORT ?? 4173);
 
 const contentTypes = {
@@ -21,9 +22,13 @@ const server = http.createServer(async (req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
     const servesDomain = pathname.startsWith("/packages/domain/");
-    const rootDirectory = servesDomain ? REPOSITORY_DIR : PUBLIC_DIR;
-    const filePath = path.resolve(rootDirectory, pathname.replace(/^\/+/, ""));
-    const allowedDirectory = servesDomain ? DOMAIN_DIR : PUBLIC_DIR;
+    const servesGeneratedData = pathname.startsWith("/demo-data/");
+    const rootDirectory = servesDomain ? REPOSITORY_DIR : servesGeneratedData ? GENERATED_DATA_DIR : PUBLIC_DIR;
+    const requestedPath = servesGeneratedData
+      ? pathname.replace(/^\/demo-data\//u, "")
+      : pathname.replace(/^\/+/, "");
+    const filePath = path.resolve(rootDirectory, requestedPath);
+    const allowedDirectory = servesDomain ? DOMAIN_DIR : servesGeneratedData ? GENERATED_DATA_DIR : PUBLIC_DIR;
     const relativePath = path.relative(allowedDirectory, filePath);
     if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
       return send(res, 403, "Forbidden", "text/plain; charset=utf-8");

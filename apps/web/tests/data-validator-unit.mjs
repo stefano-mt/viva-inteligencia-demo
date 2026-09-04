@@ -14,16 +14,15 @@ import {
   validateInspectorSemantics,
   validateRootDocument,
   validateSchemaShape
-} from "../scripts/data/validate.js";
-import { buildDemoData } from "../scripts/build-demo-data.js";
+} from "../../../tools/data/src/data/validate.js";
+import { buildDemoData } from "../../../tools/data/src/build-demo-data.js";
 
 const TEST_DIRECTORY = dirname(fileURLToPath(import.meta.url));
 const PROTOTYPE_ROOT = resolve(TEST_DIRECTORY, "..");
 const REPOSITORY_ROOT = resolve(PROTOTYPE_ROOT, "..", "..");
 const FIXTURE_DIRECTORY = join(
   REPOSITORY_ROOT,
-  "data/source",
-  "demo-pilot",
+  "data",
   "fixtures"
 );
 

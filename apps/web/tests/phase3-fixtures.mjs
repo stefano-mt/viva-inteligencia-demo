@@ -12,15 +12,13 @@ const readJson = async (...segments) =>
 const [ctDSource, ctGSource, ctDPublic, ctGPublic] = await Promise.all([
   readJson(
     repositoryRoot,
-    "data/source",
-    "demo-pilot",
+    "data",
     "fixtures",
     "ct-d.json"
   ),
   readJson(
     repositoryRoot,
-    "data/source",
-    "demo-pilot",
+    "data",
     "fixtures",
     "ct-g.json"
   ),
@@ -94,7 +92,7 @@ const projectCtD = (source) => {
 
   return {
     id: "CT-D-public",
-    source_fixture: "data/source/demo-pilot/fixtures/ct-d.json",
+    source_fixture: "data/fixtures/ct-d.json",
     classification: source.classification,
     project_id: project.project_id,
     typology_id: typology.typology_id,
@@ -235,7 +233,7 @@ const projectCtG = (source) => {
 
   return {
     id: "CT-G-public",
-    source_fixture: "data/source/demo-pilot/fixtures/ct-g.json",
+    source_fixture: "data/fixtures/ct-g.json",
     classification: source.classification,
     canonical_path: "#inspector/case/f3-ct-g-pardo",
     project_id: project.project_id,

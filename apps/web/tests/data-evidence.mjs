@@ -14,15 +14,14 @@ import {
   serializeEvidenceBundle,
   sha256,
   validateEvidenceBundle
-} from "../scripts/data/evidence.js";
+} from "../../../tools/data/src/data/evidence.js";
 
 const TEST_DIRECTORY = dirname(fileURLToPath(import.meta.url));
 const PROTOTYPE_ROOT = resolve(TEST_DIRECTORY, "..");
 const REPOSITORY_ROOT = resolve(PROTOTYPE_ROOT, "..", "..");
 const FIXTURE_DIRECTORY = join(
   REPOSITORY_ROOT,
-  "data/source",
-  "demo-pilot",
+  "data",
   "fixtures"
 );
 const EVIDENCE_DIRECTORY = join(
@@ -732,7 +731,7 @@ assertIncludesError(
 );
 
 const implementationSource = readFileSync(
-  join(PROTOTYPE_ROOT, "scripts", "data", "evidence.js"),
+  join(REPOSITORY_ROOT, "tools", "data", "src", "data", "evidence.js"),
   "utf8"
 );
 assert.doesNotMatch(

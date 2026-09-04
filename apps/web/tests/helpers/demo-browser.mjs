@@ -11,10 +11,11 @@ const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_DIR = path.resolve(TEST_DIR, "..");
+const PROJECT_DIR = path.resolve(TEST_DIR, "..", "..");
 const REPOSITORY_DIR = path.resolve(PROJECT_DIR, "..", "..");
 const PUBLIC_DIR = path.join(PROJECT_DIR, "public");
 const DOMAIN_DIR = path.join(REPOSITORY_DIR, "packages", "domain");
+const GENERATED_DATA_DIR = path.join(REPOSITORY_DIR, "data", "generated");
 const SERVER_FILE = path.join(PROJECT_DIR, "server-static.js");
 const contentTypes = new Map([
   [".css", "text/css; charset=utf-8"],
@@ -173,20 +174,27 @@ async function startPagesStyleServer({ port, basePath }) {
     try {
       const url = new URL(request.url, `http://${request.headers.host}`);
       const baseWithoutSlash = basePath.slice(0, -1);
-      if (url.pathname !== baseWithoutSlash && !url.pathname.startsWith(basePath)) {
+      const servesDomain = url.pathname.startsWith("/packages/domain/");
+      if (
+        !servesDomain
+        && url.pathname !== baseWithoutSlash
+        && !url.pathname.startsWith(basePath)
+      ) {
         return send(response, 404, "Not found", "text/plain; charset=utf-8");
       }
       const relativePath =
         url.pathname === baseWithoutSlash || url.pathname === basePath
           ? "index.html"
           : url.pathname.slice(basePath.length);
-      const servesDomain = url.pathname.startsWith("/packages/domain/");
-      const rootDirectory = servesDomain ? REPOSITORY_DIR : PUBLIC_DIR;
+      const servesGeneratedData = relativePath.startsWith("demo-data/");
+      const rootDirectory = servesDomain ? REPOSITORY_DIR : servesGeneratedData ? GENERATED_DATA_DIR : PUBLIC_DIR;
       const requestedPath = servesDomain
         ? url.pathname.replace(/^\/+/, "")
-        : relativePath;
+        : servesGeneratedData
+          ? relativePath.replace(/^demo-data\//u, "")
+          : relativePath;
       const filePath = path.resolve(rootDirectory, requestedPath);
-      const allowedDirectory = servesDomain ? DOMAIN_DIR : PUBLIC_DIR;
+      const allowedDirectory = servesDomain ? DOMAIN_DIR : servesGeneratedData ? GENERATED_DATA_DIR : PUBLIC_DIR;
       const relativeToAllowed = path.relative(allowedDirectory, filePath);
       if (relativeToAllowed.startsWith("..") || path.isAbsolute(relativeToAllowed)) {
         return send(response, 403, "Forbidden", "text/plain; charset=utf-8");

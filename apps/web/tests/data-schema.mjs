@@ -8,19 +8,19 @@ import {
   validateFixture,
   validateRootDocument,
   validateSchemaShape
-} from "../scripts/data/validate.js";
-import { parseCsv } from "../scripts/data/agencies.js";
+} from "../../../tools/data/src/data/validate.js";
+import { parseCsv } from "../../../tools/data/src/data/agencies.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
 const repositoryRoot = path.resolve(prototypeRoot, "..", "..");
 const schema = loadContractSchema(
-  path.join(prototypeRoot, "contracts", "demo-v2.schema.json")
+  path.resolve(testDirectory, "../../..", "packages", "contracts", "schemas", "demo-v2.schema.json")
 );
 const outputPath = path.join(
-  prototypeRoot,
-  "public",
-  "demo-data",
+  repositoryRoot,
+  "data",
+  "generated",
   "viva-platform-demo.json"
 );
 const data = JSON.parse(await fs.readFile(outputPath, "utf8"));
@@ -149,8 +149,7 @@ for (const name of [
 ]) {
   const fixturePath = path.join(
     repositoryRoot,
-    "data/source",
-    "demo-pilot",
+    "data",
     "fixtures",
     name
   );
@@ -174,8 +173,7 @@ const readFixture = async (name) =>
     await fs.readFile(
       path.join(
         repositoryRoot,
-        "data/source",
-        "demo-pilot",
+        "data",
         "fixtures",
         name
       ),

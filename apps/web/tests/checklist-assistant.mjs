@@ -44,10 +44,10 @@ function assertReferenceSubset(response, context) {
 }
 
 const data = await readJson(
-  "../public/demo-data/viva-platform-demo.json",
+  "../../../data/generated/viva-platform-demo.json",
 );
 const boundaryGeoJson = await readJson(
-  "../public/demo-data/district-boundaries.geojson",
+  "../../../data/generated/district-boundaries.geojson",
 );
 
 initializeScenarioData(data);

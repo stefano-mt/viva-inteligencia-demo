@@ -2,6 +2,7 @@
 .cache/
 graphify-out/
 .planning/evidence/local/
+.planning/**/evidence/
 node_modules/
 .npm-cache/
 *.tsbuildinfo

@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildDemoData } from "../scripts/build-demo-data.js";
-import { validatePrivacy } from "../scripts/data/validate.js";
+import { buildDemoData } from "../../../tools/data/src/build-demo-data.js";
+import { validatePrivacy } from "../../../tools/data/src/data/validate.js";
 
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),

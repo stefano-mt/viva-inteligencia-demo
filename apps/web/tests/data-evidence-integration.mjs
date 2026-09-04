@@ -9,7 +9,7 @@ const repositoryRoot = path.resolve(testDirectory, "../../..");
 const readJson = async (relativePath) =>
   JSON.parse(await fs.readFile(path.join(repositoryRoot, relativePath), "utf8"));
 const data = await readJson(
-  "apps/web/public/demo-data/viva-platform-demo.json"
+  "data/generated/viva-platform-demo.json"
 );
 
 for (const collection of [

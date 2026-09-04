@@ -8,11 +8,20 @@ const phaseDirectory = path.resolve(
   testDirectory,
   "..",
   "..",
+  "..",
   ".planning",
   "phases",
   "06-commercial-narrative-qa",
 );
-const rehearsalDirectory = path.join(phaseDirectory, "evidence", "rehearsal");
+const rehearsalDirectory = path.resolve(
+  testDirectory,
+  "..",
+  "..",
+  "..",
+  "docs",
+  "business",
+  "human-validation",
+);
 const files = [
   path.join(phaseDirectory, "COMMERCIAL_REHEARSAL.md"),
   path.join(rehearsalDirectory, "README.md"),

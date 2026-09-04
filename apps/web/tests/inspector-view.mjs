@@ -12,7 +12,7 @@ import {
 
 const payload = JSON.parse(
   await readFile(
-    new URL("../public/demo-data/viva-platform-demo.json", import.meta.url),
+    new URL("../../../data/generated/viva-platform-demo.json", import.meta.url),
     "utf8",
   ),
 );

@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node ../../apps/web/scripts/build-demo-data.js",
-    "check": "node --check ../../apps/web/scripts/build-demo-data.js"
+    "build": "node src/build-demo-data.js",
+    "check": "node --check src/build-demo-data.js"
   },
   "engines": {
     "node": ">=24"

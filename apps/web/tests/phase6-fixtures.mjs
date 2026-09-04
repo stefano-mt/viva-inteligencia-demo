@@ -35,7 +35,7 @@ const fixtures = await Promise.all(
   ),
 );
 const publicData = await readJson(
-  path.join(testDirectory, "..", "public", "demo-data", "viva-platform-demo.json"),
+  path.resolve(testDirectory, "../../..", "data", "generated", "viva-platform-demo.json"),
 );
 
 assert.deepEqual(

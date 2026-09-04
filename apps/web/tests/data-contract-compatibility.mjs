@@ -6,13 +6,13 @@ import { fileURLToPath } from "node:url";
 import {
   loadContractSchema,
   validateRootDocument
-} from "../scripts/data/validate.js";
+} from "../../../tools/data/src/data/validate.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
 const repositoryRoot = path.resolve(prototypeRoot, "..", "..");
 const schema = loadContractSchema(
-  path.join(prototypeRoot, "contracts", "demo-v2.schema.json")
+  path.resolve(testDirectory, "../../..", "packages", "contracts", "schemas", "demo-v2.schema.json")
 );
 const assetExists = (logicalPath) =>
   existsSync(path.join(prototypeRoot, "public", ...logicalPath.split("/")));
@@ -223,7 +223,7 @@ const inspectorSemanticErrors = (document) => {
 
 const publicData = JSON.parse(
   await fs.readFile(
-    path.join(prototypeRoot, "public", "demo-data", "viva-platform-demo.json"),
+    path.resolve(testDirectory, "../../..", "data", "generated", "viva-platform-demo.json"),
     "utf8"
   )
 );
@@ -231,8 +231,7 @@ const ctC = JSON.parse(
   await fs.readFile(
     path.join(
       repositoryRoot,
-      "data/source",
-      "demo-pilot",
+      "data",
       "fixtures",
       "ct-c.json"
     ),
@@ -243,8 +242,7 @@ const ctI = JSON.parse(
   await fs.readFile(
     path.join(
       repositoryRoot,
-      "data/source",
-      "demo-pilot",
+      "data",
       "fixtures",
       "ct-i.json"
     ),

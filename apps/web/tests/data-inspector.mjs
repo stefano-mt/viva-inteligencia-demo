@@ -3,12 +3,12 @@ import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildDemoData } from "../scripts/build-demo-data.js";
+import { buildDemoData } from "../../../tools/data/src/build-demo-data.js";
 import {
   loadContractSchema,
   validateInspectorSemantics,
   validateRootDocument
-} from "../scripts/data/validate.js";
+} from "../../../tools/data/src/data/validate.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
@@ -17,7 +17,7 @@ const built = await buildDemoData({ repositoryRoot, write: false });
 const { payload } = built;
 const { inspector, model } = payload;
 const schema = loadContractSchema(
-  path.join(prototypeRoot, "contracts", "demo-v2.schema.json")
+  path.resolve(testDirectory, "../../..", "packages", "contracts", "schemas", "demo-v2.schema.json")
 );
 const assetExists = (logicalPath) =>
   path

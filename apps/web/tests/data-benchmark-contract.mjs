@@ -7,16 +7,16 @@ import {
   loadContractSchema,
   validateRootDocument,
   validateSchemaShape
-} from "../scripts/data/validate.js";
+} from "../../../tools/data/src/data/validate.js";
 
 const testDirectory = path.dirname(fileURLToPath(import.meta.url));
 const prototypeRoot = path.resolve(testDirectory, "..");
 const schema = loadContractSchema(
-  path.join(prototypeRoot, "contracts", "demo-v2.schema.json")
+  path.resolve(testDirectory, "../../..", "packages", "contracts", "schemas", "demo-v2.schema.json")
 );
 const publicData = JSON.parse(
   await fs.readFile(
-    path.join(prototypeRoot, "public", "demo-data", "viva-platform-demo.json"),
+    path.resolve(testDirectory, "../../..", "data", "generated", "viva-platform-demo.json"),
     "utf8"
   )
 );
