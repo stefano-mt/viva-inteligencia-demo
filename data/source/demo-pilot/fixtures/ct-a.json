@@ -1,0 +1,306 @@
+{
+  "case_id": "CT-A",
+  "classification": "controlled",
+  "description": "Áreas built, free y total con dos precios por m2 y propagación de inelegibilidad desde un precio simulado.",
+  "provenance": [
+    {
+      "provenance_id": "provenance:ct-a-controlled",
+      "classification": "controlled",
+      "source_path": "data/source/demo-pilot/fixtures/ct-a.json",
+      "note": "Valores congelados para validación; no representan una publicación ni un proyecto real."
+    }
+  ],
+  "input": {
+    "sources": [
+      {
+        "source_id": "source:ct-a-controlled",
+        "name": "Fixture controlado CT-A",
+        "type": "controlled_fixture",
+        "base_url": null,
+        "legal_status": "cleared_for_demo",
+        "access_mode": "controlled_fixture"
+      }
+    ],
+    "agencies": [
+      {
+        "agency_id": "agency:ct-a-controlled",
+        "canonical_name": "Inmobiliaria controlada CT-A",
+        "normalized_name": "inmobiliaria-controlada-ct-a",
+        "domain": null,
+        "pilot_selected": false,
+        "coverage_tier": null,
+        "source_names": [
+          "Inmobiliaria controlada CT-A"
+        ],
+        "selection_reason": null
+      }
+    ],
+    "projects": [
+      {
+        "project_id": "project:ct-a-controlled",
+        "agency_id": "agency:ct-a-controlled",
+        "canonical_name": "Proyecto controlado CT-A",
+        "source_names": [
+          "Proyecto controlado CT-A"
+        ],
+        "location": {
+          "district": null,
+          "province": null,
+          "department": null,
+          "address": null,
+          "latitude": null,
+          "longitude": null
+        },
+        "status": "fixture",
+        "first_seen_at": "2026-01-01T00:00:00Z",
+        "last_seen_at": "2026-01-01T00:00:00Z",
+        "quality_status": "certified"
+      }
+    ],
+    "typologies": [
+      {
+        "typology_id": "typology:ct-a-controlled",
+        "project_id": "project:ct-a-controlled",
+        "model": "CT-A",
+        "floor_label_original": null,
+        "floor_min": null,
+        "floor_max": null,
+        "bedrooms_min": null,
+        "bedrooms_max": null,
+        "bathrooms_min": null,
+        "bathrooms_max": null,
+        "quality_status": "certified"
+      }
+    ],
+    "observations": [
+      {
+        "observation_id": "observation:ct-a-inputs",
+        "source_id": "source:ct-a-controlled",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-a-controlled",
+        "captured_at": "2026-01-01T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "controlled_fixture",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Fixture matemático controlado sin activo externo."
+      },
+      {
+        "observation_id": "observation:ct-a-derived",
+        "source_id": "source:ct-a-controlled",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-a-controlled",
+        "captured_at": "2026-01-01T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "deterministic_derivation",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Resultados derivados reproducibles desde los hechos de entrada."
+      }
+    ],
+    "facts": [
+      {
+        "fact_id": "fact:ct-a-scenario-price",
+        "observation_id": "observation:ct-a-inputs",
+        "entity_id": "typology:ct-a-controlled",
+        "field_name": "scenario_price",
+        "original_value": 980000,
+        "normalized_value": 980000,
+        "unit": "PEN",
+        "value_kind": "simulated",
+        "semantic_type": "price",
+        "area_type": null,
+        "price_type": "scenario",
+        "currency": "PEN",
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Precio simulado de fixture; no es una observación de mercado.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:ct-a-built-area",
+        "observation_id": "observation:ct-a-inputs",
+        "entity_id": "typology:ct-a-controlled",
+        "field_name": "built_area",
+        "original_value": "98 m2",
+        "normalized_value": 98,
+        "unit": "m2",
+        "value_kind": "observed",
+        "semantic_type": "area",
+        "area_type": "built",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "certified",
+        "benchmark_eligible": true,
+        "exclusion_reason": null,
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:ct-a-total-area",
+        "observation_id": "observation:ct-a-inputs",
+        "entity_id": "typology:ct-a-controlled",
+        "field_name": "total_area",
+        "original_value": "206 m2",
+        "normalized_value": 206,
+        "unit": "m2",
+        "value_kind": "observed",
+        "semantic_type": "area",
+        "area_type": "total",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "certified",
+        "benchmark_eligible": true,
+        "exclusion_reason": null,
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:ct-a-free-area",
+        "observation_id": "observation:ct-a-derived",
+        "entity_id": "typology:ct-a-controlled",
+        "field_name": "free_area",
+        "original_value": null,
+        "normalized_value": 108,
+        "unit": "m2",
+        "value_kind": "derived",
+        "semantic_type": "area",
+        "area_type": "free",
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "certified",
+        "benchmark_eligible": true,
+        "exclusion_reason": null,
+        "derivation": {
+          "formula": "total_area - built_area",
+          "input_fact_ids": [
+            "fact:ct-a-total-area",
+            "fact:ct-a-built-area"
+          ],
+          "rounding": {
+            "mode": "half_up",
+            "digits": 2
+          }
+        }
+      },
+      {
+        "fact_id": "fact:ct-a-price-per-built-m2",
+        "observation_id": "observation:ct-a-derived",
+        "entity_id": "typology:ct-a-controlled",
+        "field_name": "scenario_price_per_built_m2",
+        "original_value": null,
+        "normalized_value": 10000,
+        "unit": "PEN/m2",
+        "value_kind": "derived",
+        "semantic_type": "price_per_m2",
+        "area_type": null,
+        "price_type": "scenario",
+        "currency": "PEN",
+        "denominator_area_type": "built",
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Derivado de fact:ct-a-scenario-price, que es simulated e inelegible.",
+        "derivation": {
+          "formula": "scenario_price / built_area",
+          "input_fact_ids": [
+            "fact:ct-a-scenario-price",
+            "fact:ct-a-built-area"
+          ],
+          "rounding": {
+            "mode": "half_up",
+            "digits": 2
+          }
+        }
+      },
+      {
+        "fact_id": "fact:ct-a-price-per-total-m2",
+        "observation_id": "observation:ct-a-derived",
+        "entity_id": "typology:ct-a-controlled",
+        "field_name": "scenario_price_per_total_m2",
+        "original_value": null,
+        "normalized_value": 4757.28,
+        "unit": "PEN/m2",
+        "value_kind": "derived",
+        "semantic_type": "price_per_m2",
+        "area_type": null,
+        "price_type": "scenario",
+        "currency": "PEN",
+        "denominator_area_type": "total",
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Derivado de fact:ct-a-scenario-price, que es simulated e inelegible.",
+        "derivation": {
+          "formula": "scenario_price / total_area",
+          "input_fact_ids": [
+            "fact:ct-a-scenario-price",
+            "fact:ct-a-total-area"
+          ],
+          "rounding": {
+            "mode": "half_up",
+            "digits": 2
+          }
+        }
+      }
+    ],
+    "documents": [],
+    "evidence": [],
+    "issues": [],
+    "events": []
+  },
+  "expected": {
+    "assertions": [
+      {
+        "assertion_id": "assertion:ct-a-free-area",
+        "operation": "subtract",
+        "input_fact_ids": [
+          "fact:ct-a-total-area",
+          "fact:ct-a-built-area"
+        ],
+        "expected_value": 108
+      },
+      {
+        "assertion_id": "assertion:ct-a-price-per-built-m2",
+        "operation": "divide_half_up_2",
+        "input_fact_ids": [
+          "fact:ct-a-scenario-price",
+          "fact:ct-a-built-area"
+        ],
+        "expected_value": 10000
+      },
+      {
+        "assertion_id": "assertion:ct-a-price-per-total-m2",
+        "operation": "divide_half_up_2",
+        "input_fact_ids": [
+          "fact:ct-a-scenario-price",
+          "fact:ct-a-total-area"
+        ],
+        "expected_value": 4757.28
+      },
+      {
+        "assertion_id": "assertion:ct-a-ineligibility-propagates",
+        "operation": "all_equal",
+        "fact_ids": [
+          "fact:ct-a-price-per-built-m2",
+          "fact:ct-a-price-per-total-m2"
+        ],
+        "field": "benchmark_eligible",
+        "expected_value": false
+      }
+    ],
+    "result": {
+      "free_area": 108,
+      "price_per_built_m2": 10000,
+      "price_per_total_m2": 4757.28,
+      "price_per_m2_facts_benchmark_eligible": false,
+      "denominators_remain_distinct": true
+    }
+  }
+}

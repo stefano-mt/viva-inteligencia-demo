@@ -1,0 +1,332 @@
+{
+  "case_id": "CT-C",
+  "classification": "controlled",
+  "description": "Consistencia exacta de IDs para un alcance radial con un comparable dentro, uno fuera, uno inválido y uno observado no reconciliado.",
+  "provenance": [
+    {
+      "provenance_id": "provenance:ct-c-controlled",
+      "classification": "controlled",
+      "source_path": "data/source/demo-pilot/fixtures/ct-c.json",
+      "note": "Coordenadas e IDs sintéticos congelados; no representan proyectos ni ubicaciones reales."
+    }
+  ],
+  "input": {
+    "scenario_catalogs": {
+      "typologies": ["all", "casa", "departamento", "lote", "oficina"],
+      "bedrooms": ["all", 0, 1, 2, 3, 4, 5],
+      "delivery_years": ["all", 2019, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029],
+      "scope_modes": ["district", "quadrant", "radius"],
+      "quadrants": ["NW", "NE", "SW", "SE"],
+      "radius_meters": [500, 1000, 1500],
+      "visualizations": ["geographic", "positioning"]
+    },
+    "scenario": {
+      "version": 1,
+      "district_id": "150122",
+      "scope_mode": "radius",
+      "quadrant_id": null,
+      "center_latitude": -12.121,
+      "center_longitude": -77.03,
+      "radius_meters": 500,
+      "typology": "departamento",
+      "bedrooms": 2,
+      "target_area_m2": 80,
+      "target_price_pen": 650000,
+      "delivery_year": 2027,
+      "visualization": "geographic",
+      "source": "url"
+    },
+    "geography": {
+      "source_id": "controlled:ct-c",
+      "crs": "EPSG:4326",
+      "boundary_artifact_path": "data/source/demo-pilot/fixtures/ct-c.json",
+      "boundary_artifact_sha256": null,
+      "quadrant_method": "district_valid_point_coordinate_medians_v1",
+      "districts": [
+        {
+          "district_id": "150122",
+          "district_name": "Miraflores",
+          "source_name": "Miraflores",
+          "osm_relation_id": 1944770,
+          "high_load": true,
+          "observed_project_count": 4,
+          "authoritative_project_count": 3,
+          "unreconciled_project_count": 1,
+          "coordinate_valid_count": 3,
+          "polygon_valid_count": 3,
+          "median_latitude": -12.121,
+          "median_longitude": -77.03,
+          "quadrants": [
+            {
+              "quadrant_id": "NW",
+              "label": "Noroeste",
+              "observed_project_ids": [],
+              "authoritative_project_ids": []
+            },
+            {
+              "quadrant_id": "NE",
+              "label": "Noreste",
+              "observed_project_ids": [
+                "observed:ct-c-inside",
+                "observed:ct-c-outside",
+                "observed:ct-c-unreconciled"
+              ],
+              "authoritative_project_ids": [
+                "project:ct-c-inside",
+                "project:ct-c-outside"
+              ]
+            },
+            {
+              "quadrant_id": "SW",
+              "label": "Suroeste",
+              "observed_project_ids": [],
+              "authoritative_project_ids": []
+            },
+            {
+              "quadrant_id": "SE",
+              "label": "Sureste",
+              "observed_project_ids": [],
+              "authoritative_project_ids": []
+            }
+          ]
+        }
+      ],
+      "assignments": [
+        {
+          "observed_project_id": "observed:ct-c-inside",
+          "authoritative_project_id": "project:ct-c-inside",
+          "district_id": "150122",
+          "latitude": -12.1205,
+          "longitude": -77.0295,
+          "coordinate_valid": true,
+          "polygon_valid": true,
+          "quadrant_id": "NE",
+          "reconciliation_status": "matched"
+        },
+        {
+          "observed_project_id": "observed:ct-c-outside",
+          "authoritative_project_id": "project:ct-c-outside",
+          "district_id": "150122",
+          "latitude": -12.112,
+          "longitude": -77.02,
+          "coordinate_valid": true,
+          "polygon_valid": true,
+          "quadrant_id": "NE",
+          "reconciliation_status": "matched"
+        },
+        {
+          "observed_project_id": "observed:ct-c-invalid",
+          "authoritative_project_id": "project:ct-c-invalid",
+          "district_id": "150122",
+          "latitude": null,
+          "longitude": null,
+          "coordinate_valid": false,
+          "polygon_valid": false,
+          "quadrant_id": null,
+          "reconciliation_status": "matched"
+        },
+        {
+          "observed_project_id": "observed:ct-c-unreconciled",
+          "authoritative_project_id": null,
+          "district_id": "150122",
+          "latitude": -12.1206,
+          "longitude": -77.0296,
+          "coordinate_valid": true,
+          "polygon_valid": true,
+          "quadrant_id": "NE",
+          "reconciliation_status": "unreconciled"
+        }
+      ],
+      "exclusions": [
+        {
+          "project_id": "observed:ct-c-outside",
+          "stage": "scope",
+          "reason": "outside_scope",
+          "visible_as_coverage": false
+        },
+        {
+          "project_id": "observed:ct-c-invalid",
+          "stage": "geography",
+          "reason": "invalid_coordinates",
+          "visible_as_coverage": true
+        },
+        {
+          "project_id": "observed:ct-c-unreconciled",
+          "stage": "reconciliation",
+          "reason": "not_reconciled",
+          "visible_as_coverage": true
+        }
+      ]
+    },
+    "controlled_vectors": {
+      "point_in_polygon": {
+        "epsilon_degrees": 1e-10,
+        "outer_ring": [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
+        "holes": [
+          [[4, 4], [6, 4], [6, 6], [4, 6], [4, 4]]
+        ],
+        "cases": [
+          {
+            "case_id": "outer-edge-is-inside",
+            "point": [0, 5],
+            "expected_inside": true
+          },
+          {
+            "case_id": "hole-edge-is-outside",
+            "point": [4, 5],
+            "expected_inside": false
+          }
+        ]
+      },
+      "haversine": {
+        "earth_radius_meters": 6371008.8,
+        "from": [0, 0],
+        "to": [0.00449660181862269, 0],
+        "radius_meters": 500,
+        "expected_distance_meters": 500,
+        "expected_inside_radius": true
+      },
+      "comparability": {
+        "full_coverage": {
+          "inputs": {
+            "distance_meters": 125,
+            "radius_meters": 500,
+            "target_area_m2": 80,
+            "project_area_m2": 72,
+            "target_bedrooms": 2,
+            "project_bedrooms_min": 2,
+            "project_bedrooms_max": 3,
+            "target_typology": "departamento",
+            "project_typology": "departamento",
+            "target_delivery_year": 2027,
+            "project_delivery_year": 2026,
+            "target_price_per_m2": 8000,
+            "project_price_per_m2": 7200
+          },
+          "expected_components": {
+            "geography": 22.5,
+            "area": 18,
+            "bedrooms": 15,
+            "typology": 10,
+            "delivery": 5,
+            "price_per_m2": 13.5
+          },
+          "expected_raw_points": 84,
+          "expected_available_weight": 100,
+          "expected_score": 84,
+          "expected_coverage_pct": 100,
+          "expected_label": "Alta"
+        },
+        "partial_coverage": {
+          "expected_components": {
+            "geography": 30,
+            "area": 18,
+            "typology": 10
+          },
+          "expected_raw_points": 58,
+          "expected_available_weight": 60,
+          "expected_score": 96.7,
+          "expected_coverage_pct": 60,
+          "expected_label": "Alta"
+        },
+        "evidence_coverage": {
+          "available_weights": [100, 60, 20],
+          "expected_mean_pct": 60,
+          "expected_comparability_status": "ready"
+        }
+      },
+      "quantiles_r7": {
+        "odd": {
+          "values": [10, 20, 30, 40, 50],
+          "expected_p25": 20,
+          "expected_median": 30,
+          "expected_p75": 40
+        },
+        "even": {
+          "values": [10, 20, 30, 40],
+          "expected_p25": 17.5,
+          "expected_median": 25,
+          "expected_p75": 32.5
+        }
+      }
+    }
+  },
+  "expected": {
+    "assertions": [
+      {
+        "assertion_id": "assertion:ct-c-consumer-id-parity",
+        "operation": "all_consumers_equal",
+        "consumers": ["map", "market_reading", "comparator", "assistant"],
+        "expected_project_ids": ["project:ct-c-inside"]
+      },
+      {
+        "assertion_id": "assertion:ct-c-exclusions",
+        "operation": "exclusions_equal",
+        "expected": [
+          ["observed:ct-c-outside", "outside_scope"],
+          ["observed:ct-c-invalid", "invalid_coordinates"],
+          ["observed:ct-c-unreconciled", "not_reconciled"]
+        ]
+      },
+      {
+        "assertion_id": "assertion:ct-c-order-independent",
+        "operation": "reverse_input_same_result",
+        "expected_value": true
+      },
+      {
+        "assertion_id": "assertion:ct-c-polygon-boundaries",
+        "operation": "point_in_polygon_vectors",
+        "expected_value": [true, false]
+      },
+      {
+        "assertion_id": "assertion:ct-c-haversine-radius-edge",
+        "operation": "haversine_equals_radius",
+        "expected_value": 500
+      },
+      {
+        "assertion_id": "assertion:ct-c-score-components",
+        "operation": "comparability_score_vectors",
+        "expected_value": [
+          {"raw_points": 84, "available_weight": 100, "score": 84, "coverage_pct": 100},
+          {"raw_points": 58, "available_weight": 60, "score": 96.7, "coverage_pct": 60}
+        ]
+      },
+      {
+        "assertion_id": "assertion:ct-c-r7-quantiles",
+        "operation": "quantiles_r7",
+        "expected_value": [
+          {"p25": 20, "median": 30, "p75": 40},
+          {"p25": 17.5, "median": 25, "p75": 32.5}
+        ]
+      }
+    ],
+    "result": {
+      "observed_scope_project_ids": [
+        "observed:ct-c-inside",
+        "observed:ct-c-invalid",
+        "observed:ct-c-unreconciled"
+      ],
+      "geography_valid_project_ids": [
+        "observed:ct-c-inside",
+        "observed:ct-c-unreconciled"
+      ],
+      "comparable_project_ids": ["project:ct-c-inside"],
+      "price_reference_project_ids": ["project:ct-c-inside"],
+      "consumer_project_ids": {
+        "map": ["project:ct-c-inside"],
+        "market_reading": ["project:ct-c-inside"],
+        "comparator": ["project:ct-c-inside"],
+        "assistant": ["project:ct-c-inside"]
+      },
+      "coverage_only_project_ids": [
+        "observed:ct-c-invalid",
+        "observed:ct-c-unreconciled"
+      ],
+      "reset": {
+        "scope_mode": "district",
+        "observed_project_count": 4,
+        "authoritative_project_count": 3
+      }
+    }
+  }
+}

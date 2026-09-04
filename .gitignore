@@ -4,3 +4,18 @@ graphify-out/
 .planning/evidence/local/
 node_modules/
 npm-debug.log*
+
+# Generated application outputs
+dist/
+coverage/
+playwright-report/
+test-results/
+*.log
+apps/web/public/demo-data/*.generated.json
+apps/web/public/demo-data/*.generated.geojson
+data/generated/
+
+# Local configuration
+.env
+.env.*
+!.env.example

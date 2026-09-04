@@ -1,0 +1,43 @@
+{
+  "case_id": "CT-I-benchmark",
+  "classification": "observed",
+  "description": "Miraflores conserva 90/85/5 y separa el benchmark elegible de los cocientes de mínimos.",
+  "policy_version": "benchmark-policy-v1",
+  "input": {
+    "district_id": "150122",
+    "source_fixture": "data/source/demo-pilot/fixtures/ct-i.json",
+    "observed_project_count": 90,
+    "comparable_project_count": 85,
+    "unreconciled_project_count": 5,
+    "quadrant_observed_counts": {
+      "NW": 40,
+      "NE": 5,
+      "SW": 5,
+      "SE": 40
+    },
+    "project_minima_pair_unresolved_count": 69,
+    "source_paired_count": 0,
+    "missing_pair_count": 16
+  },
+  "expected": {
+    "territorial_counts_unchanged": true,
+    "eligible_quantitative_state": "insufficient",
+    "eligible_quantitative_n": 0,
+    "orientative_series_state": "orientative_noncomparable",
+    "orientative_series_n": 69,
+    "price_partition_counts": {
+      "input": 85,
+      "used": 0,
+      "missing": 16,
+      "excluded": 69
+    },
+    "qualitative_input_project_count": 85,
+    "qualitative_informed_project_count": "derive_from_announced_facts",
+    "quadrant_observed_counts": {
+      "NW": 40,
+      "NE": 5,
+      "SW": 5,
+      "SE": 40
+    }
+  }
+}

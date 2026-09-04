@@ -1,0 +1,31 @@
+{
+  "name": "viva-inteligencia",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MVP cloud-agnostic de inteligencia comercial para Viva Inmobiliaria.",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace @viva/web",
+    "dev:web": "npm run dev --workspace @viva/web",
+    "build": "npm run build --workspaces --if-present",
+    "check": "npm run check --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "e2e": "npm run test:e2e --workspace @viva/web",
+    "verify": "npm run check && npm run test && npm run e2e && npm run build",
+    "verify:legacy": "npm run verify --workspace @viva/web",
+    "data:build": "npm run build --workspace @viva/data-tools"
+  },
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.2"
+  }
+}
