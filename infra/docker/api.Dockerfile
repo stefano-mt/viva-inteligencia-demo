@@ -17,6 +17,7 @@ COPY packages packages
 COPY tools tools
 COPY data/source data/source
 COPY data/fixtures data/fixtures
+COPY apps/web/public/assets/evidence apps/web/public/assets/evidence
 RUN npm run data:build \
  && npm run build:packages \
  && npm run build --workspace @viva/api \
