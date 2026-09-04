@@ -10,13 +10,16 @@
     "tools/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace @viva/web",
+    "dev": "concurrently -k -n api,web -c green,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run dev --workspace @viva/api",
     "dev:web": "npm run dev --workspace @viva/web",
-    "build": "npm run build --workspaces --if-present",
-    "check": "npm run check --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
+    "build": "npm run build:packages && npm run build:apps",
+    "build:packages": "npm run build --workspace @viva/contracts && npm run build --workspace @viva/domain && npm run build --workspace @viva/snapshot",
+    "build:apps": "npm run build --workspace @viva/api && npm run build --workspace @viva/web",
+    "check": "npm run build:packages && npm run check --workspace @viva/contracts && npm run check --workspace @viva/domain && npm run check --workspace @viva/snapshot && npm run check --workspace @viva/api && npm run check --workspace @viva/web",
+    "test": "npm run test --workspace @viva/contracts && npm run test --workspace @viva/domain && npm run test --workspace @viva/snapshot && npm run test --workspace @viva/api && npm run test:architecture --workspace @viva/web && npm run test:scenario --workspace @viva/web && npm run test:comparability --workspace @viva/web && npm run test:inspector:domain --workspace @viva/web && npm run test:benchmark:domain --workspace @viva/web && npm run test:history:domain --workspace @viva/web && npm run test:assistant:domain --workspace @viva/web",
     "e2e": "npm run test:e2e --workspace @viva/web",
-    "verify": "npm run check && npm run test && npm run e2e && npm run build",
+    "verify": "npm run data:build && npm run check && npm run test && npm run e2e && npm run build && npm audit --audit-level=high",
     "verify:legacy": "npm run verify --workspace @viva/web",
     "data:build": "npm run build --workspace @viva/data-tools"
   },
