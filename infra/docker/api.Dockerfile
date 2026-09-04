@@ -16,6 +16,7 @@ COPY apps/api/tsconfig.json apps/api/tsconfig.json
 COPY packages packages
 COPY tools tools
 COPY data/source data/source
+COPY data/fixtures data/fixtures
 RUN npm run data:build \
  && npm run build:packages \
  && npm run build --workspace @viva/api \

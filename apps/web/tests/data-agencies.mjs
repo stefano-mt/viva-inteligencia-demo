@@ -10,6 +10,7 @@ import {
   buildAgencyArtifacts,
   buildCanonicalRegistry,
   findAgencyPrivacyViolations,
+  logicalInputSha256,
   normalizeAgencyName,
   parseAgencyInputs,
   sha256,
@@ -168,6 +169,23 @@ assert.deepEqual(
   buildAgencyArtifacts(inputTexts),
   "two builds from identical bytes must be deterministic"
 );
+const lfInputTexts = Object.fromEntries(
+  Object.entries(inputTexts).map(([key, value]) => [
+    key,
+    value.replace(/\r\n?/g, "\n")
+  ])
+);
+const crlfInputTexts = Object.fromEntries(
+  Object.entries(lfInputTexts).map(([key, value]) => [
+    key,
+    value.replace(/\n/g, "\r\n")
+  ])
+);
+assert.deepEqual(
+  buildAgencyArtifacts(crlfInputTexts),
+  buildAgencyArtifacts(lfInputTexts),
+  "logical snapshots must be invariant across CRLF and LF checkouts"
+);
 for (const collectionName of Object.keys(SNAPSHOT_PATHS)) {
   const reversed = buildAgencyArtifacts(reverseInput(inputTexts, collectionName));
   assert.deepEqual(
@@ -303,7 +321,7 @@ for (const row of parsedInputs.rows.scope.filter(
 const snapshotHashes = Object.fromEntries(
   Object.entries(SNAPSHOT_PATHS).map(([name, path]) => [
     path,
-    sha256(inputTexts[name])
+    logicalInputSha256(inputTexts[name])
   ])
 );
 for (const artifact of [agenciesFile, pilotSelectionFile]) {

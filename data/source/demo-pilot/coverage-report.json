@@ -5,7 +5,7 @@
   "source_artifact": {
     "path": "data/generated/viva-platform-demo.json",
     "contract_version": "2.4.0",
-    "sha256": "cc3634fe33e96c1e3411f7cb80fec8483ef6aff4bdd8161b03977e03d9871267",
+    "sha256": "d8937532109bab7ca72794f103359b41b9d9e12e1618bb3014aa90cb12121ce9",
     "byte_length": 7555094
   },
   "derivation": {

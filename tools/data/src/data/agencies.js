@@ -107,6 +107,17 @@ export function sha256(value) {
   return createHash("sha256").update(value, "utf8").digest("hex");
 }
 
+export function canonicalizeLogicalEol(value) {
+  if (typeof value !== "string") {
+    throw new TypeError("snapshot input must be text");
+  }
+  return value.replace(/\r\n?/g, "\n");
+}
+
+export function logicalInputSha256(value) {
+  return sha256(canonicalizeLogicalEol(value));
+}
+
 export function normalizeAgencyName(value) {
   if (typeof value !== "string" || !value.trim()) {
     throw new TypeError("agency name must be a non-empty string");
@@ -241,7 +252,7 @@ export function parseCsv(csvText) {
 function snapshotDescriptor(path, text) {
   return {
     path,
-    sha256: sha256(text)
+    sha256: logicalInputSha256(text)
   };
 }
 
@@ -252,18 +263,21 @@ export function parseAgencyInputs(inputTexts) {
       throw new TypeError(`missing CSV text for ${key}`);
     }
   }
+  const normalizedTexts = Object.fromEntries(
+    requiredKeys.map((key) => [key, canonicalizeLogicalEol(inputTexts[key])])
+  );
   return {
     rows: {
-      scope: parseCsv(inputTexts.scope),
-      discovery: parseCsv(inputTexts.discovery),
-      web: parseCsv(inputTexts.web),
-      nexo: parseCsv(inputTexts.nexo),
-      matching: parseCsv(inputTexts.matching)
+      scope: parseCsv(normalizedTexts.scope),
+      discovery: parseCsv(normalizedTexts.discovery),
+      web: parseCsv(normalizedTexts.web),
+      nexo: parseCsv(normalizedTexts.nexo),
+      matching: parseCsv(normalizedTexts.matching)
     },
     snapshots: Object.fromEntries(
       requiredKeys.map((key) => [
         key,
-        snapshotDescriptor(SNAPSHOT_PATHS[key], inputTexts[key])
+        snapshotDescriptor(SNAPSHOT_PATHS[key], normalizedTexts[key])
       ])
     )
   };

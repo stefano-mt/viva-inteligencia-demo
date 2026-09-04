@@ -3,23 +3,23 @@
   "source_snapshots": [
     {
       "path": "data/source/agency_web_discovery_matrix_validated.csv",
-      "sha256": "f0ccc9b022015a916d6f37e51bc161e24f08e1d2e4f1d352dfaa723bda7f3512"
+      "sha256": "1dfdc831fbc6a245994102f348fb0541eb051d0f6000246f01878a4e7214ecbc"
     },
     {
       "path": "data/source/nexo_web_project_match.csv",
-      "sha256": "035a1b9ff11c3c6b1955d4945abb38af081c4842e4aa8c32415f44dc1afa21df"
+      "sha256": "2ad09f63f8a880e706c4826f5a3784cbec4a127a8e6c601c3e834b45a2d64fe0"
     },
     {
       "path": "data/source/service_scope_matrix.csv",
-      "sha256": "7804e2b2756fa2b45bcfe217b934f169356103cc1512daa86816396da9095137"
+      "sha256": "16854ea93b4c0e17e0bf1af9e83a6e57a3fef375e0ba9efc515e1fab612fad16"
     },
     {
       "path": "data/source/viva_minimum_dataset_latest.csv",
-      "sha256": "b0a4a068e9f51a6047b033ce1c60b74f5b0da422d4d26036d912349586045d4c"
+      "sha256": "902747a251be63fd6ff6bd4662142145de7de584979ac793017f92fb97213de9"
     },
     {
       "path": "data/source/webs_propias_sample_dataset.csv",
-      "sha256": "5bf5369a17b27afd4e57d718991eb9b6f9891f1c5a9f351c9b8f68d3080de5b6"
+      "sha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc"
     }
   ],
   "agencies": [
