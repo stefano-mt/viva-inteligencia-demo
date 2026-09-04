@@ -1,0 +1,290 @@
+{
+  "case_id": "CT-B",
+  "classification": "controlled",
+  "description": "Dos fuentes controladas publican precios list incompatibles para la misma tipología sin selección automática de una verdad.",
+  "provenance": [
+    {
+      "provenance_id": "provenance:ct-b-controlled",
+      "classification": "controlled",
+      "source_path": "data/fixtures/ct-b.json",
+      "note": "Valores congelados exclusivamente para validar conflicto, delta y base porcentual."
+    }
+  ],
+  "input": {
+    "sources": [
+      {
+        "source_id": "source:ct-b-a",
+        "name": "Fuente controlada CT-B A",
+        "type": "controlled_fixture",
+        "base_url": null,
+        "legal_status": "cleared_for_demo",
+        "access_mode": "controlled_fixture"
+      },
+      {
+        "source_id": "source:ct-b-b",
+        "name": "Fuente controlada CT-B B",
+        "type": "controlled_fixture",
+        "base_url": null,
+        "legal_status": "cleared_for_demo",
+        "access_mode": "controlled_fixture"
+      }
+    ],
+    "agencies": [
+      {
+        "agency_id": "agency:ct-b-controlled",
+        "canonical_name": "Inmobiliaria controlada CT-B",
+        "normalized_name": "inmobiliaria-controlada-ct-b",
+        "domain": null,
+        "pilot_selected": false,
+        "coverage_tier": null,
+        "source_names": [
+          "Inmobiliaria controlada CT-B"
+        ],
+        "selection_reason": null
+      }
+    ],
+    "projects": [
+      {
+        "project_id": "project:ct-b-controlled",
+        "agency_id": "agency:ct-b-controlled",
+        "canonical_name": "Proyecto controlado CT-B",
+        "source_names": [
+          "Proyecto controlado CT-B"
+        ],
+        "location": {
+          "district": null,
+          "province": null,
+          "department": null,
+          "address": null,
+          "latitude": null,
+          "longitude": null
+        },
+        "status": "fixture",
+        "first_seen_at": "2026-01-01T00:00:00Z",
+        "last_seen_at": "2026-01-02T00:00:00Z",
+        "quality_status": "reviewable"
+      }
+    ],
+    "typologies": [
+      {
+        "typology_id": "typology:ct-b-controlled",
+        "project_id": "project:ct-b-controlled",
+        "model": "CT-B",
+        "floor_label_original": null,
+        "floor_min": null,
+        "floor_max": null,
+        "bedrooms_min": null,
+        "bedrooms_max": null,
+        "bathrooms_min": null,
+        "bathrooms_max": null,
+        "quality_status": "reviewable"
+      }
+    ],
+    "observations": [
+      {
+        "observation_id": "observation:ct-b-source-a",
+        "source_id": "source:ct-b-a",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-b-controlled",
+        "captured_at": "2026-01-01T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "controlled_fixture",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Fuente controlada sin activo externo."
+      },
+      {
+        "observation_id": "observation:ct-b-source-b",
+        "source_id": "source:ct-b-b",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-b-controlled",
+        "captured_at": "2026-01-02T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "controlled_fixture",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Fuente controlada sin activo externo."
+      },
+      {
+        "observation_id": "observation:ct-b-derived",
+        "source_id": "source:ct-b-a",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-b-controlled",
+        "captured_at": "2026-01-02T00:00:00Z",
+        "source_url": null,
+        "extraction_method": "deterministic_derivation",
+        "evidence_ids": [],
+        "evidence_status": "not_applicable",
+        "evidence_absence_reason": "Resultados derivados reproducibles desde las dos observaciones."
+      }
+    ],
+    "facts": [
+      {
+        "fact_id": "fact:ct-b-price-a",
+        "observation_id": "observation:ct-b-source-a",
+        "entity_id": "typology:ct-b-controlled",
+        "field_name": "list_price",
+        "original_value": 600000,
+        "normalized_value": 600000,
+        "unit": "PEN",
+        "value_kind": "observed",
+        "semantic_type": "price",
+        "area_type": null,
+        "price_type": "list",
+        "currency": "PEN",
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Conflicto de precio pendiente de revisión entre fuentes.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:ct-b-price-b",
+        "observation_id": "observation:ct-b-source-b",
+        "entity_id": "typology:ct-b-controlled",
+        "field_name": "list_price",
+        "original_value": 625000,
+        "normalized_value": 625000,
+        "unit": "PEN",
+        "value_kind": "observed",
+        "semantic_type": "price",
+        "area_type": null,
+        "price_type": "list",
+        "currency": "PEN",
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "reviewable",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Conflicto de precio pendiente de revisión entre fuentes.",
+        "derivation": null
+      },
+      {
+        "fact_id": "fact:ct-b-price-delta",
+        "observation_id": "observation:ct-b-derived",
+        "entity_id": "typology:ct-b-controlled",
+        "field_name": "list_price_source_delta",
+        "original_value": null,
+        "normalized_value": 25000,
+        "unit": "PEN",
+        "value_kind": "derived",
+        "semantic_type": "price",
+        "area_type": null,
+        "price_type": "list",
+        "currency": "PEN",
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "inconsistent",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Resultado derivado de dos precios incompatibles.",
+        "derivation": {
+          "formula": "price_b - price_a",
+          "input_fact_ids": [
+            "fact:ct-b-price-b",
+            "fact:ct-b-price-a"
+          ],
+          "rounding": {
+            "mode": "half_up",
+            "digits": 2
+          }
+        }
+      },
+      {
+        "fact_id": "fact:ct-b-price-delta-percent",
+        "observation_id": "observation:ct-b-derived",
+        "entity_id": "typology:ct-b-controlled",
+        "field_name": "list_price_source_delta_percent",
+        "original_value": null,
+        "normalized_value": 4.17,
+        "unit": "percent",
+        "value_kind": "derived",
+        "semantic_type": "percentage",
+        "area_type": null,
+        "price_type": null,
+        "currency": null,
+        "denominator_area_type": null,
+        "confidence": "high",
+        "quality_status": "inconsistent",
+        "benchmark_eligible": false,
+        "exclusion_reason": "Resultado derivado de dos precios incompatibles.",
+        "derivation": {
+          "formula": "((price_b - price_a) / price_a) * 100",
+          "input_fact_ids": [
+            "fact:ct-b-price-b",
+            "fact:ct-b-price-a"
+          ],
+          "rounding": {
+            "mode": "half_up",
+            "digits": 2
+          }
+        }
+      }
+    ],
+    "documents": [],
+    "evidence": [],
+    "issues": [
+      {
+        "issue_id": "issue:ct-b-price-source-conflict",
+        "entity_type": "typology",
+        "entity_id": "typology:ct-b-controlled",
+        "fact_ids": [
+          "fact:ct-b-price-a",
+          "fact:ct-b-price-b"
+        ],
+        "issue_code": "PRICE_SOURCE_CONFLICT",
+        "severity": "blocking",
+        "quality_status": "inconsistent",
+        "detail": "Dos fuentes controladas declaran precios list PEN distintos para la misma tipología.",
+        "next_action": "Conservar ambas observaciones y solicitar revisión; no elegir una fuente automáticamente.",
+        "benchmark_blocking": true
+      }
+    ],
+    "events": []
+  },
+  "expected": {
+    "assertions": [
+      {
+        "assertion_id": "assertion:ct-b-preserve-both",
+        "operation": "set_equals",
+        "fact_ids": [
+          "fact:ct-b-price-a",
+          "fact:ct-b-price-b"
+        ],
+        "expected_values": [
+          600000,
+          625000
+        ]
+      },
+      {
+        "assertion_id": "assertion:ct-b-delta",
+        "operation": "subtract",
+        "input_fact_ids": [
+          "fact:ct-b-price-b",
+          "fact:ct-b-price-a"
+        ],
+        "expected_value": 25000
+      },
+      {
+        "assertion_id": "assertion:ct-b-percent",
+        "operation": "relative_change_half_up_2",
+        "new_fact_id": "fact:ct-b-price-b",
+        "base_fact_id": "fact:ct-b-price-a",
+        "expected_value": 4.17
+      },
+      {
+        "assertion_id": "assertion:ct-b-no-truth-selection",
+        "operation": "equals",
+        "actual_path": "expected.result.selected_truth_fact_id",
+        "expected_value": null
+      }
+    ],
+    "result": {
+      "delta": 25000,
+      "delta_percent": 4.17,
+      "percentage_base_fact_id": "fact:ct-b-price-a",
+      "issue_code": "PRICE_SOURCE_CONFLICT",
+      "selected_truth_fact_id": null,
+      "benchmark_eligible": false
+    }
+  }
+}

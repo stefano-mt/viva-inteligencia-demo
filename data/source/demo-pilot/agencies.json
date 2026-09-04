@@ -1,0 +1,3597 @@
+{
+  "version": "demo-pilot-agencies-v1",
+  "source_snapshots": [
+    {
+      "path": "data/source/agency_web_discovery_matrix_validated.csv",
+      "sha256": "1dfdc831fbc6a245994102f348fb0541eb051d0f6000246f01878a4e7214ecbc"
+    },
+    {
+      "path": "data/source/nexo_web_project_match.csv",
+      "sha256": "2ad09f63f8a880e706c4826f5a3784cbec4a127a8e6c601c3e834b45a2d64fe0"
+    },
+    {
+      "path": "data/source/service_scope_matrix.csv",
+      "sha256": "16854ea93b4c0e17e0bf1af9e83a6e57a3fef375e0ba9efc515e1fab612fad16"
+    },
+    {
+      "path": "data/source/viva_minimum_dataset_latest.csv",
+      "sha256": "902747a251be63fd6ff6bd4662142145de7de584979ac793017f92fb97213de9"
+    },
+    {
+      "path": "data/source/webs_propias_sample_dataset.csv",
+      "sha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc"
+    }
+  ],
+  "agencies": [
+    {
+      "agency_id": "agency:2k-inmobiliaria",
+      "canonical_name": "2K INMOBILIARIA",
+      "normalized_name": "2k inmobiliaria",
+      "domain": "2kinmobiliaria.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "2K INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:abril-grupo-inmobiliario",
+      "canonical_name": "ABRIL GRUPO INMOBILIARIO",
+      "normalized_name": "abril grupo inmobiliario",
+      "domain": "abril.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ABRIL GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:actual",
+      "canonical_name": "ACTUAL",
+      "normalized_name": "actual",
+      "domain": "actual.pe",
+      "pilot_selected": true,
+      "coverage_tier": "deep",
+      "source_names": [
+        "ACTUAL"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join_and_versioned_structured_evidence"
+    },
+    {
+      "agency_id": "agency:alegra-inmobiliaria",
+      "canonical_name": "Alegra Inmobiliaria",
+      "normalized_name": "alegra inmobiliaria",
+      "domain": "marverde.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Alegra Inmobiliaria"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:amma-inmobiliaria",
+      "canonical_name": "AMMA INMOBILIARIA",
+      "normalized_name": "amma inmobiliaria",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "AMMA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:anden",
+      "canonical_name": "ANDEN",
+      "normalized_name": "anden",
+      "domain": "anden.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ANDEN"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:andiamo",
+      "canonical_name": "ANDIAMO",
+      "normalized_name": "andiamo",
+      "domain": "andiamo.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ANDIAMO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:antares-contratistas",
+      "canonical_name": "ANTARES CONTRATISTAS",
+      "normalized_name": "antares contratistas",
+      "domain": "antares.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ANTARES CONTRATISTAS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:arquimia",
+      "canonical_name": "ARQUIMIA",
+      "normalized_name": "arquimia",
+      "domain": "arquimia.pe",
+      "pilot_selected": true,
+      "coverage_tier": "base",
+      "source_names": [
+        "ARQUIMIA"
+      ],
+      "selection_reason": "mandatory_mvp; base_scope_only"
+    },
+    {
+      "agency_id": "agency:art-inmobiliaria",
+      "canonical_name": "ART INMOBILIARIA",
+      "normalized_name": "art inmobiliaria",
+      "domain": "artinmobiliaria.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ART INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:arteco",
+      "canonical_name": "ARTECO",
+      "normalized_name": "arteco",
+      "domain": "arteco.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ARTECO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:aster-homes",
+      "canonical_name": "ASTER HOMES",
+      "normalized_name": "aster homes",
+      "domain": "aster-homes.com",
+      "pilot_selected": true,
+      "coverage_tier": "deep",
+      "source_names": [
+        "ASTER HOMES"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join_and_versioned_structured_evidence"
+    },
+    {
+      "agency_id": "agency:aurora-grupo-inmobiliario",
+      "canonical_name": "AURORA GRUPO INMOBILIARIO",
+      "normalized_name": "aurora grupo inmobiliario",
+      "domain": "grupoaurora.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "AURORA GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:avenir-grupo-inmobiliario",
+      "canonical_name": "AVENIR GRUPO INMOBILIARIO",
+      "normalized_name": "avenir grupo inmobiliario",
+      "domain": "avenir.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "AVENIR GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:balance-grupo-inmobiliario",
+      "canonical_name": "BALANCE GRUPO INMOBILIARIO",
+      "normalized_name": "balance grupo inmobiliario",
+      "domain": "balance.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "BALANCE GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:barqueros-inmobiliaria",
+      "canonical_name": "BARQUEROS INMOBILIARIA",
+      "normalized_name": "barqueros inmobiliaria",
+      "domain": "barqueros.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "BARQUEROS INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:baumhaus",
+      "canonical_name": "BAUMHAUS",
+      "normalized_name": "baumhaus",
+      "domain": "optimainmobiliaria.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "BAUMHAUS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:beca-inmobiliaria",
+      "canonical_name": "BECA INMOBILIARIA",
+      "normalized_name": "beca inmobiliaria",
+      "domain": "beca.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "BECA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:becamm-inversiones-sac",
+      "canonical_name": "Becamm Inversiones SAC",
+      "normalized_name": "becamm inversiones sac",
+      "domain": "becamm.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Becamm Inversiones SAC"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:beeyond-grupo-inmobiliario",
+      "canonical_name": "Beeyond Grupo Inmobiliario",
+      "normalized_name": "beeyond grupo inmobiliario",
+      "domain": "bhi.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Beeyond Grupo Inmobiliario"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:belgica-edificaciones",
+      "canonical_name": "BELGICA EDIFICACIONES",
+      "normalized_name": "belgica edificaciones",
+      "domain": "belgica.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "BELGICA EDIFICACIONES"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:besco",
+      "canonical_name": "BESCO",
+      "normalized_name": "besco",
+      "domain": "besco.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "BESCO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:brazil-grupo-inmobiliario",
+      "canonical_name": "BRAZIL GRUPO INMOBILIARIO",
+      "normalized_name": "brazil grupo inmobiliario",
+      "domain": "brazilgrupoinmobiliario.com",
+      "pilot_selected": true,
+      "coverage_tier": "deep",
+      "source_names": [
+        "BRAZIL GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join_and_versioned_structured_evidence"
+    },
+    {
+      "agency_id": "agency:cadiz-inmobiliaria",
+      "canonical_name": "Cadiz Inmobiliaria",
+      "normalized_name": "cadiz inmobiliaria",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Cadiz Inmobiliaria"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:calicanto",
+      "canonical_name": "CALICANTO",
+      "normalized_name": "calicanto",
+      "domain": "grupocalicanto.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CALICANTO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:cambrils",
+      "canonical_name": "CAMBRILS",
+      "normalized_name": "cambrils",
+      "domain": "mirahome.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CAMBRILS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:cantabria",
+      "canonical_name": "CANTABRIA",
+      "normalized_name": "cantabria",
+      "domain": "inmobiliariacantabria.com",
+      "pilot_selected": true,
+      "coverage_tier": "deep",
+      "source_names": [
+        "CANTABRIA"
+      ],
+      "selection_reason": "mandatory_mvp; high_exact_join_and_versioned_structured_evidence"
+    },
+    {
+      "agency_id": "agency:casa-bonita",
+      "canonical_name": "CASA BONITA",
+      "normalized_name": "casa bonita",
+      "domain": "casabonita.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CASA BONITA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:casaideal-inmobiliaria",
+      "canonical_name": "CASAIDEAL INMOBILIARIA",
+      "normalized_name": "casaideal inmobiliaria",
+      "domain": "casaideal.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CASAIDEAL INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:cc17",
+      "canonical_name": "CC17",
+      "normalized_name": "cc17",
+      "domain": "cc17.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CC17"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:checor-inmobiliaria",
+      "canonical_name": "CHECOR INMOBILIARIA",
+      "normalized_name": "checor inmobiliaria",
+      "domain": "checor.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CHECOR INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:cissac",
+      "canonical_name": "CISSAC",
+      "normalized_name": "cissac",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CISSAC"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:ciudaris",
+      "canonical_name": "CIUDARIS",
+      "normalized_name": "ciudaris",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CIUDARIS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:concreta-grupo-inmobiliario",
+      "canonical_name": "CONCRETA GRUPO INMOBILIARIO",
+      "normalized_name": "concreta grupo inmobiliario",
+      "domain": "concretaconstruye.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CONCRETA GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:conforta-inmobiliaria",
+      "canonical_name": "CONFORTA INMOBILIARIA",
+      "normalized_name": "conforta inmobiliaria",
+      "domain": "confortainmobiliaria.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CONFORTA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:constructora-atlas",
+      "canonical_name": "CONSTRUCTORA ATLAS",
+      "normalized_name": "constructora atlas",
+      "domain": "constructoraatlas.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CONSTRUCTORA ATLAS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:constructora-framan",
+      "canonical_name": "CONSTRUCTORA FRAMAN",
+      "normalized_name": "constructora framan",
+      "domain": "framan.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CONSTRUCTORA FRAMAN"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:constructora-inarco",
+      "canonical_name": "CONSTRUCTORA INARCO",
+      "normalized_name": "constructora inarco",
+      "domain": "inarco.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CONSTRUCTORA INARCO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:constructora-mallorca",
+      "canonical_name": "CONSTRUCTORA MALLORCA",
+      "normalized_name": "constructora mallorca",
+      "domain": "constructoramallorca.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CONSTRUCTORA MALLORCA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:cosapi",
+      "canonical_name": "COSAPI",
+      "normalized_name": "cosapi",
+      "domain": "cosapiinmobiliaria.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "COSAPI"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:cp-building",
+      "canonical_name": "CP BUILDING",
+      "normalized_name": "cp building",
+      "domain": "cpbuilding.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "CP BUILDING"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:cygnus-grupo-inmobiliario",
+      "canonical_name": "Cygnus Grupo Inmobiliario",
+      "normalized_name": "cygnus grupo inmobiliario",
+      "domain": "constructoracygnus.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Cygnus Grupo Inmobiliario"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:dalia-inmobiliaria",
+      "canonical_name": "DALIA INMOBILIARIA",
+      "normalized_name": "dalia inmobiliaria",
+      "domain": "daliainmobiliaria.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "DALIA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:ditrenzzo",
+      "canonical_name": "DITRENZZO",
+      "normalized_name": "ditrenzzo",
+      "domain": "ditrenzzo.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "DITRENZZO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:dkasa",
+      "canonical_name": "DKASA",
+      "normalized_name": "dkasa",
+      "domain": "dkasa.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "DKASA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:domun-inmobiliaria",
+      "canonical_name": "DOMUN INMOBILIARIA",
+      "normalized_name": "domun inmobiliaria",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "DOMUN INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:ecohabitat-desarrollo-inmobiliario",
+      "canonical_name": "ECOHABITAT DESARROLLO INMOBILIARIO",
+      "normalized_name": "ecohabitat desarrollo inmobiliario",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ECOHABITAT DESARROLLO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:edifica",
+      "canonical_name": "EDIFICA",
+      "normalized_name": "edifica",
+      "domain": "edifica.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "EDIFICA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:edifikarte",
+      "canonical_name": "EDIFIKARTE",
+      "normalized_name": "edifikarte",
+      "domain": "edifikarte.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "EDIFIKARTE"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:ee-inmobiliaria",
+      "canonical_name": "EE INMOBILIARIA",
+      "normalized_name": "ee inmobiliaria",
+      "domain": "eeinmobiliaria.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "EE INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:eficaxx-grupo-inmobiliario",
+      "canonical_name": "EFICAXX GRUPO INMOBILIARIO",
+      "normalized_name": "eficaxx grupo inmobiliario",
+      "domain": "eficaxx.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "EFICAXX GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:efron-arquitectos",
+      "canonical_name": "EFRON ARQUITECTOS",
+      "normalized_name": "efron arquitectos",
+      "domain": "efronarq.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "EFRON ARQUITECTOS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:elsvan-construcciones-inmobiliarias",
+      "canonical_name": "ELSVAN CONSTRUCCIONES INMOBILIARIAS",
+      "normalized_name": "elsvan construcciones inmobiliarias",
+      "domain": "elsvan.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ELSVAN CONSTRUCCIONES INMOBILIARIAS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:enacorp",
+      "canonical_name": "ENACORP",
+      "normalized_name": "enacorp",
+      "domain": "enacorp.pe",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "ENACORP"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:eureka",
+      "canonical_name": "EUREKA",
+      "normalized_name": "eureka",
+      "domain": "inmobiliariaeureka.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "EUREKA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:evergran-grupo-inmobiliario",
+      "canonical_name": "EVERGRAN GRUPO INMOBILIARIO",
+      "normalized_name": "evergran grupo inmobiliario",
+      "domain": "evergran.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "EVERGRAN GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:fai-inmobiliaria",
+      "canonical_name": "FAI INMOBILIARIA",
+      "normalized_name": "fai inmobiliaria",
+      "domain": "flesan.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "FAI INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:flat",
+      "canonical_name": "FLAT",
+      "normalized_name": "flat",
+      "domain": "flat-peru.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "FLAT"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:fortem-gestora-inmobiliaria",
+      "canonical_name": "FORTEM GESTORA INMOBILIARIA",
+      "normalized_name": "fortem gestora inmobiliaria",
+      "domain": "fortem.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "FORTEM GESTORA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:franca-inmobiliaria",
+      "canonical_name": "FRANCA INMOBILIARIA",
+      "normalized_name": "franca inmobiliaria",
+      "domain": "francainmobiliaria.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "FRANCA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:franco-grupo-inmobiliario",
+      "canonical_name": "FRANCO GRUPO INMOBILIARIO",
+      "normalized_name": "franco grupo inmobiliario",
+      "domain": "gcfinmobiliaria.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "FRANCO GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:frontera",
+      "canonical_name": "FRONTERA",
+      "normalized_name": "frontera",
+      "domain": "frontera.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "FRONTERA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:galeon-inmobiliaria",
+      "canonical_name": "Galeon Inmobiliaria",
+      "normalized_name": "galeon inmobiliaria",
+      "domain": "galeon.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Galeon Inmobiliaria"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:galilea",
+      "canonical_name": "GALILEA",
+      "normalized_name": "galilea",
+      "domain": "galilea.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GALILEA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:gdc-inmobiliaria",
+      "canonical_name": "GDC INMOBILIARIA",
+      "normalized_name": "gdc inmobiliaria",
+      "domain": "gdcinmobiliaria.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GDC INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:ghs-constructora",
+      "canonical_name": "GHS CONSTRUCTORA",
+      "normalized_name": "ghs constructora",
+      "domain": "ghsconstructora.com",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "GHS CONSTRUCTORA"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:granadero-inmobiliaria",
+      "canonical_name": "GRANADERO INMOBILIARIA",
+      "normalized_name": "granadero inmobiliaria",
+      "domain": "granadero.com.pe",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "GRANADERO INMOBILIARIA"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:gratia-constructora",
+      "canonical_name": "GRATIA CONSTRUCTORA",
+      "normalized_name": "gratia constructora",
+      "domain": "gratia.com.pe",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "GRATIA CONSTRUCTORA"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:gratto-inmobiliaria",
+      "canonical_name": "Gratto Inmobiliaria",
+      "normalized_name": "gratto inmobiliaria",
+      "domain": "grattoinmobiliaria.com",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "Gratto Inmobiliaria"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:greal-inversiones",
+      "canonical_name": "GREAL INVERSIONES",
+      "normalized_name": "greal inversiones",
+      "domain": "grealinversiones.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GREAL INVERSIONES"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-binda",
+      "canonical_name": "GRUPO BINDA",
+      "normalized_name": "grupo binda",
+      "domain": "bindaingenieros.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GRUPO BINDA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-brocksa",
+      "canonical_name": "GRUPO BROCKSA",
+      "normalized_name": "grupo brocksa",
+      "domain": "grupobrocksa.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GRUPO BROCKSA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-caral",
+      "canonical_name": "GRUPO CARAL",
+      "normalized_name": "grupo caral",
+      "domain": "canal-soporte.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GRUPO CARAL"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-chacarilla-sur",
+      "canonical_name": "GRUPO CHACARILLA SUR",
+      "normalized_name": "grupo chacarilla sur",
+      "domain": "grupochacarillasur.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GRUPO CHACARILLA SUR"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-degol-sac",
+      "canonical_name": "Grupo DEGOL SAC",
+      "normalized_name": "grupo degol sac",
+      "domain": "grupodegol.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Grupo DEGOL SAC"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-lar",
+      "canonical_name": "GRUPO LAR",
+      "normalized_name": "grupo lar",
+      "domain": "grupolar.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GRUPO LAR"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-magbis",
+      "canonical_name": "Grupo Magbis",
+      "normalized_name": "grupo magbis",
+      "domain": "magbisconstrucciones.com",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "Grupo Magbis"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:grupo-mg",
+      "canonical_name": "GRUPO MG",
+      "normalized_name": "grupo mg",
+      "domain": "grupomg.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GRUPO MG"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-santa-maria",
+      "canonical_name": "Grupo Santa Maria",
+      "normalized_name": "grupo santa maria",
+      "domain": "gruposantamaria.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Grupo Santa Maria"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-sol",
+      "canonical_name": "GRUPO SOL",
+      "normalized_name": "grupo sol",
+      "domain": "gruposol.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GRUPO SOL"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-toscana",
+      "canonical_name": "GRUPO TOSCANA",
+      "normalized_name": "grupo toscana",
+      "domain": "constructoratoscana.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GRUPO TOSCANA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:grupo-tyc",
+      "canonical_name": "GRUPO T&C",
+      "normalized_name": "grupo t c",
+      "domain": "grupotyc.com",
+      "pilot_selected": true,
+      "coverage_tier": "base",
+      "source_names": [
+        "GRUPO T&C",
+        "GRUPO TyC"
+      ],
+      "selection_reason": "ct_g_required_alias_group; base_scope_only"
+    },
+    {
+      "agency_id": "agency:grv-corporativa",
+      "canonical_name": "GRV CORPORATIVA",
+      "normalized_name": "grv corporativa",
+      "domain": "grvcorp.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "GRV CORPORATIVA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:hl-desarrollos-inmobiliarios",
+      "canonical_name": "HL DESARROLLOS INMOBILIARIOS",
+      "normalized_name": "hl desarrollos inmobiliarios",
+      "domain": "hldi.pe",
+      "pilot_selected": true,
+      "coverage_tier": "base",
+      "source_names": [
+        "HL DESARROLLOS INMOBILIARIOS"
+      ],
+      "selection_reason": "mandatory_mvp; base_scope_only"
+    },
+    {
+      "agency_id": "agency:icasa-inmobiliaria",
+      "canonical_name": "ICASA INMOBILIARIA",
+      "normalized_name": "icasa inmobiliaria",
+      "domain": "icasa.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ICASA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:ifi-inmobiliaria",
+      "canonical_name": "IFI INMOBILIARIA",
+      "normalized_name": "ifi inmobiliaria",
+      "domain": "ifiperu.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "IFI INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:ilumina-inmobiliaria",
+      "canonical_name": "ILUMINA INMOBILIARIA",
+      "normalized_name": "ilumina inmobiliaria",
+      "domain": "ilumina.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ILUMINA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:imagina",
+      "canonical_name": "IMAGINA",
+      "normalized_name": "imagina",
+      "domain": "imagina.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "IMAGINA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:in-urban",
+      "canonical_name": "IN URBAN",
+      "normalized_name": "in urban",
+      "domain": "inurban.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "IN URBAN"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:infinity-group",
+      "canonical_name": "INFINITY GROUP",
+      "normalized_name": "infinity group",
+      "domain": "infinitygroup.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INFINITY GROUP"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:inhouse",
+      "canonical_name": "INHOUSE",
+      "normalized_name": "inhouse",
+      "domain": "inhouse.com.pe",
+      "pilot_selected": true,
+      "coverage_tier": "base",
+      "source_names": [
+        "INHOUSE"
+      ],
+      "selection_reason": "mandatory_mvp; base_scope_only"
+    },
+    {
+      "agency_id": "agency:initalia",
+      "canonical_name": "INITALIA",
+      "normalized_name": "initalia",
+      "domain": "initalia.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INITALIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:inmgenio",
+      "canonical_name": "INMGENIO",
+      "normalized_name": "inmgenio",
+      "domain": "inmgenio.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INMGENIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:inmobiliaria-ares",
+      "canonical_name": "INMOBILIARIA ARES",
+      "normalized_name": "inmobiliaria ares",
+      "domain": "inmobiliariaares.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INMOBILIARIA ARES"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:inmobiliaria-cesia",
+      "canonical_name": "INMOBILIARIA CESIA",
+      "normalized_name": "inmobiliaria cesia",
+      "domain": "icesia.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INMOBILIARIA CESIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:inmobiliaria-diegal",
+      "canonical_name": "INMOBILIARIA DIEGAL",
+      "normalized_name": "inmobiliaria diegal",
+      "domain": "inmobiliariadiegal.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INMOBILIARIA DIEGAL"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:inmobiliaria-klements",
+      "canonical_name": "INMOBILIARIA KLEMENTS",
+      "normalized_name": "inmobiliaria klements",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INMOBILIARIA KLEMENTS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:inmobiliaria-las-leyendas",
+      "canonical_name": "Inmobiliaria Las Leyendas",
+      "normalized_name": "inmobiliaria las leyendas",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Inmobiliaria Las Leyendas"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:inmovision",
+      "canonical_name": "INMOVISION",
+      "normalized_name": "inmovision",
+      "domain": "inmovision.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INMOVISION"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:invent-inmobiliaria",
+      "canonical_name": "INVENT INMOBILIARIA",
+      "normalized_name": "invent inmobiliaria",
+      "domain": "invent.com.pe",
+      "pilot_selected": true,
+      "coverage_tier": "base",
+      "source_names": [
+        "INVENT INMOBILIARIA"
+      ],
+      "selection_reason": "mandatory_mvp; base_scope_only"
+    },
+    {
+      "agency_id": "agency:inverdes",
+      "canonical_name": "INVERDES",
+      "normalized_name": "inverdes",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INVERDES"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:inverplus",
+      "canonical_name": "INVERPLUS",
+      "normalized_name": "inverplus",
+      "domain": "inverplus.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INVERPLUS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:inversiones-tierra-blanca",
+      "canonical_name": "INVERSIONES TIERRA BLANCA",
+      "normalized_name": "inversiones tierra blanca",
+      "domain": "tierrablanca.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "INVERSIONES TIERRA BLANCA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:jk-inversiones-inmobiliarias",
+      "canonical_name": "JK INVERSIONES INMOBILIARIAS",
+      "normalized_name": "jk inversiones inmobiliarias",
+      "domain": "jkinversiones.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "JK INVERSIONES INMOBILIARIAS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:jopesa",
+      "canonical_name": "JOPESA",
+      "normalized_name": "jopesa",
+      "domain": "jopesa.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "JOPESA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:kallpa",
+      "canonical_name": "KALLPA",
+      "normalized_name": "kallpa",
+      "domain": "constructorakallpa.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "KALLPA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:la-muralla",
+      "canonical_name": "LA MURALLA",
+      "normalized_name": "la muralla",
+      "domain": "lamuralla.com.pe",
+      "pilot_selected": true,
+      "coverage_tier": "base",
+      "source_names": [
+        "LA MURALLA"
+      ],
+      "selection_reason": "mandatory_mvp; base_scope_only"
+    },
+    {
+      "agency_id": "agency:la-venturosa",
+      "canonical_name": "LA VENTUROSA",
+      "normalized_name": "la venturosa",
+      "domain": "laventurosa.com",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "LA VENTUROSA"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:libre-inmobiliaria",
+      "canonical_name": "LIBRE INMOBILIARIA",
+      "normalized_name": "libre inmobiliaria",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "LIBRE INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:lider",
+      "canonical_name": "LIDER",
+      "normalized_name": "lider",
+      "domain": "lider.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "LIDER"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:lima-metro-cuadrado",
+      "canonical_name": "LIMA METRO CUADRADO",
+      "normalized_name": "lima metro cuadrado",
+      "domain": "limametrocuadrado.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "LIMA METRO CUADRADO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:lugano",
+      "canonical_name": "LUGANO",
+      "normalized_name": "lugano",
+      "domain": "luganosac.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "LUGANO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:maas-inmobiliaria",
+      "canonical_name": "MAAS INMOBILIARIA",
+      "normalized_name": "maas inmobiliaria",
+      "domain": "maas.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "MAAS INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:madrid-inmobiliaria",
+      "canonical_name": "MADRID INMOBILIARIA",
+      "normalized_name": "madrid inmobiliaria",
+      "domain": "madridinmobiliaria.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "MADRID INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:mahpsa-corporacion-inmobiliaria",
+      "canonical_name": "MAHPSA  CORPORACION INMOBILIARIA",
+      "normalized_name": "mahpsa corporacion inmobiliaria",
+      "domain": "mahpsa.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "MAHPSA  CORPORACION INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:marte",
+      "canonical_name": "MARTE",
+      "normalized_name": "marte",
+      "domain": "constructoramartesa.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "MARTE"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:maxx-grupo-inmobiliario",
+      "canonical_name": "MAXX GRUPO INMOBILIARIO",
+      "normalized_name": "maxx grupo inmobiliario",
+      "domain": "grupomaxx.pe",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "MAXX GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:mc-inversiones-inmobiliarias",
+      "canonical_name": "MC INVERSIONES INMOBILIARIAS",
+      "normalized_name": "mc inversiones inmobiliarias",
+      "domain": "mcinversionesinmobiliarias.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "MC INVERSIONES INMOBILIARIAS"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:mirano",
+      "canonical_name": "MIRANO",
+      "normalized_name": "mirano",
+      "domain": "mirano.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "MIRANO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:mohem-inmobiliaria",
+      "canonical_name": "Mohëm Inmobiliaria",
+      "normalized_name": "mohem inmobiliaria",
+      "domain": "fcmconstrucciones.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Mohëm Inmobiliaria"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:morada",
+      "canonical_name": "Morada",
+      "normalized_name": "morada",
+      "domain": "morada.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Morada"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:ms-inmobiliaria",
+      "canonical_name": "MS INMOBILIARIA",
+      "normalized_name": "ms inmobiliaria",
+      "domain": "msinmobiliaria.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "MS INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:multiurbe",
+      "canonical_name": "MULTIURBE",
+      "normalized_name": "multiurbe",
+      "domain": "multiurbe.com",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "MULTIURBE"
+      ],
+      "selection_reason": "mandatory_mvp; high_exact_join"
+    },
+    {
+      "agency_id": "agency:mundo-verde",
+      "canonical_name": "MUNDO VERDE",
+      "normalized_name": "mundo verde",
+      "domain": "inmobiliariamundoverde.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "MUNDO VERDE"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:mw-grupo-inmobiliario",
+      "canonical_name": "MW GRUPO INMOBILIARIO",
+      "normalized_name": "mw grupo inmobiliario",
+      "domain": "mwgrupoinmobiliario.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "MW GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:my-home",
+      "canonical_name": "MY HOME",
+      "normalized_name": "my home",
+      "domain": "myhomeoi.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "MY HOME"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:mye-grupo-inmobiliario",
+      "canonical_name": "MYE GRUPO INMOBILIARIO",
+      "normalized_name": "mye grupo inmobiliario",
+      "domain": "myegrupoinmobiliario.com",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "MYE GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:nadlan",
+      "canonical_name": "NADLAN",
+      "normalized_name": "nadlan",
+      "domain": "nadlan.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "NADLAN"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:nexo-ingenieria",
+      "canonical_name": "NEXO INGENIERÍA",
+      "normalized_name": "nexo ingenieria",
+      "domain": "nexoingenieria.com",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "NEXO INGENIERÍA"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:noi-inmobiliaria",
+      "canonical_name": "NOI INMOBILIARIA",
+      "normalized_name": "noi inmobiliaria",
+      "domain": "noi.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "NOI INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:odima-inmobiliaria",
+      "canonical_name": "ODIMA INMOBILIARIA",
+      "normalized_name": "odima inmobiliaria",
+      "domain": "odima.pe",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "ODIMA INMOBILIARIA"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:oled-inmobiliaria",
+      "canonical_name": "OLED INMOBILIARIA",
+      "normalized_name": "oled inmobiliaria",
+      "domain": "oledinmobiliaria.com",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "OLED INMOBILIARIA"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:orizzonte-grupo-inmobiliario",
+      "canonical_name": "ORIZZONTE GRUPO INMOBILIARIO",
+      "normalized_name": "orizzonte grupo inmobiliario",
+      "domain": "orizzonte.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "ORIZZONTE GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:ortiz-inmobiliaria",
+      "canonical_name": "ORTIZ INMOBILIARIA",
+      "normalized_name": "ortiz inmobiliaria",
+      "domain": "oiperu.com",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "ORTIZ INMOBILIARIA"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:padova",
+      "canonical_name": "PADOVA",
+      "normalized_name": "padova",
+      "domain": "padovasac.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "PADOVA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:palace",
+      "canonical_name": "PALACE",
+      "normalized_name": "palace",
+      "domain": "palacepropertiesperu.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "PALACE"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:paqari-inmobiliaria",
+      "canonical_name": "PAQARI INMOBILIARIA",
+      "normalized_name": "paqari inmobiliaria",
+      "domain": "grupopaqari.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "PAQARI INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:paz",
+      "canonical_name": "PAZ",
+      "normalized_name": "paz",
+      "domain": "paz.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "PAZ"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:pionero-inmobiliaria",
+      "canonical_name": "PIONERO INMOBILIARIA",
+      "normalized_name": "pionero inmobiliaria",
+      "domain": "pionero.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "PIONERO INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:pisonay-inmobiliaria",
+      "canonical_name": "PISONAY INMOBILIARIA",
+      "normalized_name": "pisonay inmobiliaria",
+      "domain": "pisonay.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "PISONAY INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:praga-desarrollo-inmobiliario",
+      "canonical_name": "PRAGA DESARROLLO INMOBILIARIO",
+      "normalized_name": "praga desarrollo inmobiliario",
+      "domain": "pragadi.com.pe",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "PRAGA DESARROLLO INMOBILIARIO"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:procity",
+      "canonical_name": "PROCITY",
+      "normalized_name": "procity",
+      "domain": "procity.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "PROCITY"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:promsal",
+      "canonical_name": "PROMSAL",
+      "normalized_name": "promsal",
+      "domain": "promsal.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "PROMSAL"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:proyec-inmobiliaria",
+      "canonical_name": "PROYEC INMOBILIARIA",
+      "normalized_name": "proyec inmobiliaria",
+      "domain": "proyec.com.pe",
+      "pilot_selected": true,
+      "coverage_tier": "base",
+      "source_names": [
+        "PROYEC INMOBILIARIA"
+      ],
+      "selection_reason": "mandatory_mvp; base_scope_only"
+    },
+    {
+      "agency_id": "agency:puerta-de-tierra",
+      "canonical_name": "PUERTA DE TIERRA",
+      "normalized_name": "puerta de tierra",
+      "domain": "puertadetierra.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "PUERTA DE TIERRA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:qolono-inmobiliaria",
+      "canonical_name": "QOLONO INMOBILIARIA",
+      "normalized_name": "qolono inmobiliaria",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "QOLONO INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:quark-grupo-inmobiliario",
+      "canonical_name": "QUARK GRUPO INMOBILIARIO",
+      "normalized_name": "quark grupo inmobiliario",
+      "domain": "quarkgrupoinmobiliario.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "QUARK GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:quatro-inmobiliaria",
+      "canonical_name": "QUATRO INMOBILIARIA",
+      "normalized_name": "quatro inmobiliaria",
+      "domain": "quatro.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "QUATRO INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:rb-grupo-inmobiliario",
+      "canonical_name": "RB GRUPO INMOBILIARIO",
+      "normalized_name": "rb grupo inmobiliario",
+      "domain": "rbgrupoinmobiliario.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "RB GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:real-inmobiliaria",
+      "canonical_name": "REAL INMOBILIARIA",
+      "normalized_name": "real inmobiliaria",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "REAL INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:redbay-inmobiliaria",
+      "canonical_name": "REDBAY INMOBILIARIA",
+      "normalized_name": "redbay inmobiliaria",
+      "domain": "redbayperu.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "REDBAY INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:reyna-inmobiliaria",
+      "canonical_name": "REYNA INMOBILIARIA",
+      "normalized_name": "reyna inmobiliaria",
+      "domain": "reynainmobiliaria.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "REYNA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:rosiam",
+      "canonical_name": "ROSIAM",
+      "normalized_name": "rosiam",
+      "domain": "rosiam.com",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "ROSIAM"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:san-charbel-edificaciones",
+      "canonical_name": "SAN CHARBEL EDIFICACIONES",
+      "normalized_name": "san charbel edificaciones",
+      "domain": "sancharbel.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "SAN CHARBEL EDIFICACIONES"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:sembra-inmobiliaria",
+      "canonical_name": "SEMBRA INMOBILIARIA",
+      "normalized_name": "sembra inmobiliaria",
+      "domain": "sembra.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "SEMBRA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:senda",
+      "canonical_name": "SENDA",
+      "normalized_name": "senda",
+      "domain": "senda.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "SENDA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:stella-inmobiliaria",
+      "canonical_name": "STELLA INMOBILIARIA",
+      "normalized_name": "stella inmobiliaria",
+      "domain": "stellainmobiliaria.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "STELLA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:tale-inmobiliaria",
+      "canonical_name": "TALE INMOBILIARIA",
+      "normalized_name": "tale inmobiliaria",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "TALE INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:tectonica-grupo-inmobiliario",
+      "canonical_name": "TECTONICA GRUPO INMOBILIARIO",
+      "normalized_name": "tectonica grupo inmobiliario",
+      "domain": "tectonica.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "TECTONICA GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:tempus-inmobiliaria",
+      "canonical_name": "Tempus Inmobiliaria",
+      "normalized_name": "tempus inmobiliaria",
+      "domain": "tempus.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Tempus Inmobiliaria"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:ter-inmobiliaria",
+      "canonical_name": "TER INMOBILIARIA",
+      "normalized_name": "ter inmobiliaria",
+      "domain": "terinmobiliaria.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "TER INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:tm-gestion-inmobiliaria",
+      "canonical_name": "TM GESTION INMOBILIARIA",
+      "normalized_name": "tm gestion inmobiliaria",
+      "domain": "tmgi.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "TM GESTION INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:toratto-grupo-inmobiliario",
+      "canonical_name": "TORATTO GRUPO INMOBILIARIO",
+      "normalized_name": "toratto grupo inmobiliario",
+      "domain": "grupotoratto.com",
+      "pilot_selected": true,
+      "coverage_tier": "deep",
+      "source_names": [
+        "TORATTO GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": "mandatory_mvp; high_exact_join_and_versioned_structured_evidence"
+    },
+    {
+      "agency_id": "agency:triada",
+      "canonical_name": "TRIADA",
+      "normalized_name": "triada",
+      "domain": "triada.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "TRIADA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:tribeca-inmobiliaria",
+      "canonical_name": "TRIBECA INMOBILIARIA",
+      "normalized_name": "tribeca inmobiliaria",
+      "domain": "tribeca.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "TRIBECA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:urbalima",
+      "canonical_name": "URBALIMA",
+      "normalized_name": "urbalima",
+      "domain": "urbalima.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "URBALIMA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:urbana-peru",
+      "canonical_name": "URBANA PERÚ",
+      "normalized_name": "urbana peru",
+      "domain": "mailparser.io",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "URBANA PERÚ"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:v-v-grupo-inmobiliario",
+      "canonical_name": "V&V GRUPO INMOBILIARIO",
+      "normalized_name": "v v grupo inmobiliario",
+      "domain": "vyv.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "V&V GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:val-grupo-inmobiliario",
+      "canonical_name": "Val Grupo Inmobiliario",
+      "normalized_name": "val grupo inmobiliario",
+      "domain": "val.com.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "Val Grupo Inmobiliario"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:valico",
+      "canonical_name": "VALICO",
+      "normalized_name": "valico",
+      "domain": "valico.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "VALICO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:verdant-inmobiliaria",
+      "canonical_name": "VERDANT INMOBILIARIA",
+      "normalized_name": "verdant inmobiliaria",
+      "domain": "verdant.pe",
+      "pilot_selected": true,
+      "coverage_tier": "base",
+      "source_names": [
+        "VERDANT INMOBILIARIA"
+      ],
+      "selection_reason": "mandatory_mvp; base_scope_only"
+    },
+    {
+      "agency_id": "agency:verones-grupo-inmobiliario",
+      "canonical_name": "VERONES GRUPO INMOBILIARIO",
+      "normalized_name": "verones grupo inmobiliario",
+      "domain": "grupo-verones.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "VERONES GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:vidarq",
+      "canonical_name": "VIDARQ",
+      "normalized_name": "vidarq",
+      "domain": "performanceperu.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "VIDARQ"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:vienna-grupo-inmobiliario",
+      "canonical_name": "VIENNA GRUPO INMOBILIARIO",
+      "normalized_name": "vienna grupo inmobiliario",
+      "domain": "vienna.pe",
+      "pilot_selected": true,
+      "coverage_tier": "enriched",
+      "source_names": [
+        "VIENNA GRUPO INMOBILIARIO"
+      ],
+      "selection_reason": "ranked_completion; high_exact_join"
+    },
+    {
+      "agency_id": "agency:vitain",
+      "canonical_name": "VITAIN",
+      "normalized_name": "vitain",
+      "domain": "vitain.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "VITAIN"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:vittoria-inmobiliaria",
+      "canonical_name": "VITTORIA INMOBILIARIA",
+      "normalized_name": "vittoria inmobiliaria",
+      "domain": "vittoriainmobiliaria.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "VITTORIA INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:vivans-inmobiliaria",
+      "canonical_name": "VIVANS INMOBILIARIA",
+      "normalized_name": "vivans inmobiliaria",
+      "domain": null,
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "VIVANS INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:vive-plm",
+      "canonical_name": "VIVE PLM",
+      "normalized_name": "vive plm",
+      "domain": "viveplm.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "VIVE PLM"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:xyz-inmobiliaria",
+      "canonical_name": "XYZ INMOBILIARIA",
+      "normalized_name": "xyz inmobiliaria",
+      "domain": "xyz.pe",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "XYZ INMOBILIARIA"
+      ],
+      "selection_reason": null
+    },
+    {
+      "agency_id": "agency:yoplac-asociados",
+      "canonical_name": "YOPLAC ASOCIADOS",
+      "normalized_name": "yoplac asociados",
+      "domain": "yoplacasociados.com",
+      "pilot_selected": false,
+      "coverage_tier": null,
+      "source_names": [
+        "YOPLAC ASOCIADOS"
+      ],
+      "selection_reason": null
+    }
+  ],
+  "agency_aliases": [
+    {
+      "alias_original": "2K INMOBILIARIA",
+      "alias_normalized": "2k inmobiliaria",
+      "agency_id": "agency:2k-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ABRIL GRUPO INMOBILIARIO",
+      "alias_normalized": "abril grupo inmobiliario",
+      "agency_id": "agency:abril-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ACTUAL",
+      "alias_normalized": "actual",
+      "agency_id": "agency:actual",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "AKAMAI",
+      "alias_normalized": "akamai",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ALBAMAR GRUPO INMOBILIARIO",
+      "alias_normalized": "albamar grupo inmobiliario",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ALERCES INMOBILIARIA",
+      "alias_normalized": "alerces inmobiliaria",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "AMMA INMOBILIARIA",
+      "alias_normalized": "amma inmobiliaria",
+      "agency_id": "agency:amma-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ANDEN",
+      "alias_normalized": "anden",
+      "agency_id": "agency:anden",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ANDIAMO",
+      "alias_normalized": "andiamo",
+      "agency_id": "agency:andiamo",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ANTARES CONTRATISTAS",
+      "alias_normalized": "antares contratistas",
+      "agency_id": "agency:antares-contratistas",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ARQUIMIA",
+      "alias_normalized": "arquimia",
+      "agency_id": "agency:arquimia",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ART INMOBILIARIA",
+      "alias_normalized": "art inmobiliaria",
+      "agency_id": "agency:art-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ARTECO",
+      "alias_normalized": "arteco",
+      "agency_id": "agency:arteco",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ASTER HOMES",
+      "alias_normalized": "aster homes",
+      "agency_id": "agency:aster-homes",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "AURORA GRUPO INMOBILIARIO",
+      "alias_normalized": "aurora grupo inmobiliario",
+      "agency_id": "agency:aurora-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "AVENIR GRUPO INMOBILIARIO",
+      "alias_normalized": "avenir grupo inmobiliario",
+      "agency_id": "agency:avenir-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Alegra Inmobiliaria",
+      "alias_normalized": "alegra inmobiliaria",
+      "agency_id": "agency:alegra-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "BALANCE GRUPO INMOBILIARIO",
+      "alias_normalized": "balance grupo inmobiliario",
+      "agency_id": "agency:balance-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "BARQUEROS INMOBILIARIA",
+      "alias_normalized": "barqueros inmobiliaria",
+      "agency_id": "agency:barqueros-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "BAUMHAUS",
+      "alias_normalized": "baumhaus",
+      "agency_id": "agency:baumhaus",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "BECA INMOBILIARIA",
+      "alias_normalized": "beca inmobiliaria",
+      "agency_id": "agency:beca-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "BELGICA EDIFICACIONES",
+      "alias_normalized": "belgica edificaciones",
+      "agency_id": "agency:belgica-edificaciones",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "BESCO",
+      "alias_normalized": "besco",
+      "agency_id": "agency:besco",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "BRAZIL GRUPO INMOBILIARIO",
+      "alias_normalized": "brazil grupo inmobiliario",
+      "agency_id": "agency:brazil-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Becamm Inversiones SAC",
+      "alias_normalized": "becamm inversiones sac",
+      "agency_id": "agency:becamm-inversiones-sac",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Beeyond Grupo Inmobiliario",
+      "alias_normalized": "beeyond grupo inmobiliario",
+      "agency_id": "agency:beeyond-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CALICANTO",
+      "alias_normalized": "calicanto",
+      "agency_id": "agency:calicanto",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CAMBRILS",
+      "alias_normalized": "cambrils",
+      "agency_id": "agency:cambrils",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CANTABRIA",
+      "alias_normalized": "cantabria",
+      "agency_id": "agency:cantabria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CASA BONITA",
+      "alias_normalized": "casa bonita",
+      "agency_id": "agency:casa-bonita",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CASAIDEAL INMOBILIARIA",
+      "alias_normalized": "casaideal inmobiliaria",
+      "agency_id": "agency:casaideal-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CC17",
+      "alias_normalized": "cc17",
+      "agency_id": "agency:cc17",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CHECOR INMOBILIARIA",
+      "alias_normalized": "checor inmobiliaria",
+      "agency_id": "agency:checor-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CISSAC",
+      "alias_normalized": "cissac",
+      "agency_id": "agency:cissac",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CIUDARIS",
+      "alias_normalized": "ciudaris",
+      "agency_id": "agency:ciudaris",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CONCRETA GRUPO INMOBILIARIO",
+      "alias_normalized": "concreta grupo inmobiliario",
+      "agency_id": "agency:concreta-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CONFORTA INMOBILIARIA",
+      "alias_normalized": "conforta inmobiliaria",
+      "agency_id": "agency:conforta-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CONSTRUCTORA ATLAS",
+      "alias_normalized": "constructora atlas",
+      "agency_id": "agency:constructora-atlas",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CONSTRUCTORA FRAMAN",
+      "alias_normalized": "constructora framan",
+      "agency_id": "agency:constructora-framan",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CONSTRUCTORA INARCO",
+      "alias_normalized": "constructora inarco",
+      "agency_id": "agency:constructora-inarco",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CONSTRUCTORA MALLORCA",
+      "alias_normalized": "constructora mallorca",
+      "agency_id": "agency:constructora-mallorca",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "COSAPI",
+      "alias_normalized": "cosapi",
+      "agency_id": "agency:cosapi",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "CP BUILDING",
+      "alias_normalized": "cp building",
+      "agency_id": "agency:cp-building",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Cadiz Inmobiliaria",
+      "alias_normalized": "cadiz inmobiliaria",
+      "agency_id": "agency:cadiz-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Cresiente",
+      "alias_normalized": "cresiente",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Cygnus Grupo Inmobiliario",
+      "alias_normalized": "cygnus grupo inmobiliario",
+      "agency_id": "agency:cygnus-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "DALIA INMOBILIARIA",
+      "alias_normalized": "dalia inmobiliaria",
+      "agency_id": "agency:dalia-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "DITRENZZO",
+      "alias_normalized": "ditrenzzo",
+      "agency_id": "agency:ditrenzzo",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "DKASA",
+      "alias_normalized": "dkasa",
+      "agency_id": "agency:dkasa",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "DOMUN INMOBILIARIA",
+      "alias_normalized": "domun inmobiliaria",
+      "agency_id": "agency:domun-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ECOHABITAT DESARROLLO INMOBILIARIO",
+      "alias_normalized": "ecohabitat desarrollo inmobiliario",
+      "agency_id": "agency:ecohabitat-desarrollo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "EDIFICA",
+      "alias_normalized": "edifica",
+      "agency_id": "agency:edifica",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "EDIFIKARTE",
+      "alias_normalized": "edifikarte",
+      "agency_id": "agency:edifikarte",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "EE INMOBILIARIA",
+      "alias_normalized": "ee inmobiliaria",
+      "agency_id": "agency:ee-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "EFICAXX GRUPO INMOBILIARIO",
+      "alias_normalized": "eficaxx grupo inmobiliario",
+      "agency_id": "agency:eficaxx-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "EFRON ARQUITECTOS",
+      "alias_normalized": "efron arquitectos",
+      "agency_id": "agency:efron-arquitectos",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ELSVAN CONSTRUCCIONES INMOBILIARIAS",
+      "alias_normalized": "elsvan construcciones inmobiliarias",
+      "agency_id": "agency:elsvan-construcciones-inmobiliarias",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ENACORP",
+      "alias_normalized": "enacorp",
+      "agency_id": "agency:enacorp",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ESPARQ EOM",
+      "alias_normalized": "esparq eom",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "EUREKA",
+      "alias_normalized": "eureka",
+      "agency_id": "agency:eureka",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "EVERGRAN GRUPO INMOBILIARIO",
+      "alias_normalized": "evergran grupo inmobiliario",
+      "agency_id": "agency:evergran-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "FAI INMOBILIARIA",
+      "alias_normalized": "fai inmobiliaria",
+      "agency_id": "agency:fai-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "FLAT",
+      "alias_normalized": "flat",
+      "agency_id": "agency:flat",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "FORTEM GESTORA INMOBILIARIA",
+      "alias_normalized": "fortem gestora inmobiliaria",
+      "agency_id": "agency:fortem-gestora-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "FRANCA INMOBILIARIA",
+      "alias_normalized": "franca inmobiliaria",
+      "agency_id": "agency:franca-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "FRANCO GRUPO INMOBILIARIO",
+      "alias_normalized": "franco grupo inmobiliario",
+      "agency_id": "agency:franco-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "FRONTERA",
+      "alias_normalized": "frontera",
+      "agency_id": "agency:frontera",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "FUNDAMENTA",
+      "alias_normalized": "fundamenta",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GALILEA",
+      "alias_normalized": "galilea",
+      "agency_id": "agency:galilea",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GDC INMOBILIARIA",
+      "alias_normalized": "gdc inmobiliaria",
+      "agency_id": "agency:gdc-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GHS CONSTRUCTORA",
+      "alias_normalized": "ghs constructora",
+      "agency_id": "agency:ghs-constructora",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRANADERO INMOBILIARIA",
+      "alias_normalized": "granadero inmobiliaria",
+      "agency_id": "agency:granadero-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRATIA CONSTRUCTORA",
+      "alias_normalized": "gratia constructora",
+      "agency_id": "agency:gratia-constructora",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GREAL INVERSIONES",
+      "alias_normalized": "greal inversiones",
+      "agency_id": "agency:greal-inversiones",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRUPO BINDA",
+      "alias_normalized": "grupo binda",
+      "agency_id": "agency:grupo-binda",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRUPO BROCKSA",
+      "alias_normalized": "grupo brocksa",
+      "agency_id": "agency:grupo-brocksa",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRUPO CARAL",
+      "alias_normalized": "grupo caral",
+      "agency_id": "agency:grupo-caral",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRUPO CHACARILLA SUR",
+      "alias_normalized": "grupo chacarilla sur",
+      "agency_id": "agency:grupo-chacarilla-sur",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRUPO LAR",
+      "alias_normalized": "grupo lar",
+      "agency_id": "agency:grupo-lar",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRUPO MG",
+      "alias_normalized": "grupo mg",
+      "agency_id": "agency:grupo-mg",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRUPO SOL",
+      "alias_normalized": "grupo sol",
+      "agency_id": "agency:grupo-sol",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRUPO T&C",
+      "alias_normalized": "grupo t c",
+      "agency_id": "agency:grupo-tyc",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRUPO TOSCANA",
+      "alias_normalized": "grupo toscana",
+      "agency_id": "agency:grupo-toscana",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRUPO TyC",
+      "alias_normalized": "grupo tyc",
+      "agency_id": "agency:grupo-tyc",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "GRV CORPORATIVA",
+      "alias_normalized": "grv corporativa",
+      "agency_id": "agency:grv-corporativa",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Galeon Inmobiliaria",
+      "alias_normalized": "galeon inmobiliaria",
+      "agency_id": "agency:galeon-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Gratto Inmobiliaria",
+      "alias_normalized": "gratto inmobiliaria",
+      "agency_id": "agency:gratto-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Grupo DEGOL SAC",
+      "alias_normalized": "grupo degol sac",
+      "agency_id": "agency:grupo-degol-sac",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Grupo Magbis",
+      "alias_normalized": "grupo magbis",
+      "agency_id": "agency:grupo-magbis",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Grupo Santa Maria",
+      "alias_normalized": "grupo santa maria",
+      "agency_id": "agency:grupo-santa-maria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "HL DESARROLLOS INMOBILIARIOS",
+      "alias_normalized": "hl desarrollos inmobiliarios",
+      "agency_id": "agency:hl-desarrollos-inmobiliarios",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ICASA INMOBILIARIA",
+      "alias_normalized": "icasa inmobiliaria",
+      "agency_id": "agency:icasa-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "IFI INMOBILIARIA",
+      "alias_normalized": "ifi inmobiliaria",
+      "agency_id": "agency:ifi-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ILUMINA INMOBILIARIA",
+      "alias_normalized": "ilumina inmobiliaria",
+      "agency_id": "agency:ilumina-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "IMAGINA",
+      "alias_normalized": "imagina",
+      "agency_id": "agency:imagina",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "IN URBAN",
+      "alias_normalized": "in urban",
+      "agency_id": "agency:in-urban",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INFINITY GROUP",
+      "alias_normalized": "infinity group",
+      "agency_id": "agency:infinity-group",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INHOUSE",
+      "alias_normalized": "inhouse",
+      "agency_id": "agency:inhouse",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INITALIA",
+      "alias_normalized": "initalia",
+      "agency_id": "agency:initalia",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INMGENIO",
+      "alias_normalized": "inmgenio",
+      "agency_id": "agency:inmgenio",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INMOBILIARIA ARES",
+      "alias_normalized": "inmobiliaria ares",
+      "agency_id": "agency:inmobiliaria-ares",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INMOBILIARIA CESIA",
+      "alias_normalized": "inmobiliaria cesia",
+      "agency_id": "agency:inmobiliaria-cesia",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INMOBILIARIA DIEGAL",
+      "alias_normalized": "inmobiliaria diegal",
+      "agency_id": "agency:inmobiliaria-diegal",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INMOBILIARIA HUANWIL",
+      "alias_normalized": "inmobiliaria huanwil",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INMOBILIARIA KLEMENTS",
+      "alias_normalized": "inmobiliaria klements",
+      "agency_id": "agency:inmobiliaria-klements",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INMOVISION",
+      "alias_normalized": "inmovision",
+      "agency_id": "agency:inmovision",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INVENT INMOBILIARIA",
+      "alias_normalized": "invent inmobiliaria",
+      "agency_id": "agency:invent-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INVERDES",
+      "alias_normalized": "inverdes",
+      "agency_id": "agency:inverdes",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INVERPLUS",
+      "alias_normalized": "inverplus",
+      "agency_id": "agency:inverplus",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "INVERSIONES TIERRA BLANCA",
+      "alias_normalized": "inversiones tierra blanca",
+      "agency_id": "agency:inversiones-tierra-blanca",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Inmobiliaria Las Leyendas",
+      "alias_normalized": "inmobiliaria las leyendas",
+      "agency_id": "agency:inmobiliaria-las-leyendas",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "JK INVERSIONES INMOBILIARIAS",
+      "alias_normalized": "jk inversiones inmobiliarias",
+      "agency_id": "agency:jk-inversiones-inmobiliarias",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "JOPESA",
+      "alias_normalized": "jopesa",
+      "agency_id": "agency:jopesa",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "KALLPA",
+      "alias_normalized": "kallpa",
+      "agency_id": "agency:kallpa",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "LA MURALLA",
+      "alias_normalized": "la muralla",
+      "agency_id": "agency:la-muralla",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "LA VENTUROSA",
+      "alias_normalized": "la venturosa",
+      "agency_id": "agency:la-venturosa",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "LIBRE INMOBILIARIA",
+      "alias_normalized": "libre inmobiliaria",
+      "agency_id": "agency:libre-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "LIDER",
+      "alias_normalized": "lider",
+      "agency_id": "agency:lider",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "LIMA METRO CUADRADO",
+      "alias_normalized": "lima metro cuadrado",
+      "agency_id": "agency:lima-metro-cuadrado",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "LOS PORTALES",
+      "alias_normalized": "los portales",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "LOS PORTALES DEPARTAMENTOS",
+      "alias_normalized": "los portales departamentos",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "LUGANO",
+      "alias_normalized": "lugano",
+      "agency_id": "agency:lugano",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MAAS INMOBILIARIA",
+      "alias_normalized": "maas inmobiliaria",
+      "agency_id": "agency:maas-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MADRID INMOBILIARIA",
+      "alias_normalized": "madrid inmobiliaria",
+      "agency_id": "agency:madrid-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MAHPSA  CORPORACION INMOBILIARIA",
+      "alias_normalized": "mahpsa corporacion inmobiliaria",
+      "agency_id": "agency:mahpsa-corporacion-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MARTE",
+      "alias_normalized": "marte",
+      "agency_id": "agency:marte",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MAXX GRUPO INMOBILIARIO",
+      "alias_normalized": "maxx grupo inmobiliario",
+      "agency_id": "agency:maxx-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MC INVERSIONES INMOBILIARIAS",
+      "alias_normalized": "mc inversiones inmobiliarias",
+      "agency_id": "agency:mc-inversiones-inmobiliarias",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MIRANO",
+      "alias_normalized": "mirano",
+      "agency_id": "agency:mirano",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MS INMOBILIARIA",
+      "alias_normalized": "ms inmobiliaria",
+      "agency_id": "agency:ms-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MULTIURBE",
+      "alias_normalized": "multiurbe",
+      "agency_id": "agency:multiurbe",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MUNDO VERDE",
+      "alias_normalized": "mundo verde",
+      "agency_id": "agency:mundo-verde",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MW GRUPO INMOBILIARIO",
+      "alias_normalized": "mw grupo inmobiliario",
+      "agency_id": "agency:mw-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MY HOME",
+      "alias_normalized": "my home",
+      "agency_id": "agency:my-home",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "MYE GRUPO INMOBILIARIO",
+      "alias_normalized": "mye grupo inmobiliario",
+      "agency_id": "agency:mye-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Mohëm Inmobiliaria",
+      "alias_normalized": "mohem inmobiliaria",
+      "agency_id": "agency:mohem-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Morada",
+      "alias_normalized": "morada",
+      "agency_id": "agency:morada",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "NADLAN",
+      "alias_normalized": "nadlan",
+      "agency_id": "agency:nadlan",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "NEXO INGENIERÍA",
+      "alias_normalized": "nexo ingenieria",
+      "agency_id": "agency:nexo-ingenieria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "NOI INMOBILIARIA",
+      "alias_normalized": "noi inmobiliaria",
+      "agency_id": "agency:noi-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ODIMA INMOBILIARIA",
+      "alias_normalized": "odima inmobiliaria",
+      "agency_id": "agency:odima-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "OLED INMOBILIARIA",
+      "alias_normalized": "oled inmobiliaria",
+      "agency_id": "agency:oled-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ORIZZONTE GRUPO INMOBILIARIO",
+      "alias_normalized": "orizzonte grupo inmobiliario",
+      "agency_id": "agency:orizzonte-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ORTIZ INMOBILIARIA",
+      "alias_normalized": "ortiz inmobiliaria",
+      "agency_id": "agency:ortiz-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PADOVA",
+      "alias_normalized": "padova",
+      "agency_id": "agency:padova",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PALACE",
+      "alias_normalized": "palace",
+      "agency_id": "agency:palace",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PAQARI INMOBILIARIA",
+      "alias_normalized": "paqari inmobiliaria",
+      "agency_id": "agency:paqari-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PAZ",
+      "alias_normalized": "paz",
+      "agency_id": "agency:paz",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PIONERO INMOBILIARIA",
+      "alias_normalized": "pionero inmobiliaria",
+      "agency_id": "agency:pionero-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PISONAY INMOBILIARIA",
+      "alias_normalized": "pisonay inmobiliaria",
+      "agency_id": "agency:pisonay-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PRAGA DESARROLLO INMOBILIARIO",
+      "alias_normalized": "praga desarrollo inmobiliario",
+      "agency_id": "agency:praga-desarrollo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PROCITY",
+      "alias_normalized": "procity",
+      "agency_id": "agency:procity",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PROMSAL",
+      "alias_normalized": "promsal",
+      "agency_id": "agency:promsal",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PROYEC INMOBILIARIA",
+      "alias_normalized": "proyec inmobiliaria",
+      "agency_id": "agency:proyec-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "PUERTA DE TIERRA",
+      "alias_normalized": "puerta de tierra",
+      "agency_id": "agency:puerta-de-tierra",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "QOLONO INMOBILIARIA",
+      "alias_normalized": "qolono inmobiliaria",
+      "agency_id": "agency:qolono-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "QUARK GRUPO INMOBILIARIO",
+      "alias_normalized": "quark grupo inmobiliario",
+      "agency_id": "agency:quark-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "QUATRO INMOBILIARIA",
+      "alias_normalized": "quatro inmobiliaria",
+      "agency_id": "agency:quatro-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "RB GRUPO INMOBILIARIO",
+      "alias_normalized": "rb grupo inmobiliario",
+      "agency_id": "agency:rb-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "REAL INMOBILIARIA",
+      "alias_normalized": "real inmobiliaria",
+      "agency_id": "agency:real-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "REDBAY INMOBILIARIA",
+      "alias_normalized": "redbay inmobiliaria",
+      "agency_id": "agency:redbay-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "REYNA INMOBILIARIA",
+      "alias_normalized": "reyna inmobiliaria",
+      "agency_id": "agency:reyna-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ROSIAM",
+      "alias_normalized": "rosiam",
+      "agency_id": "agency:rosiam",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "SAN CHARBEL EDIFICACIONES",
+      "alias_normalized": "san charbel edificaciones",
+      "agency_id": "agency:san-charbel-edificaciones",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "SEMBRA INMOBILIARIA",
+      "alias_normalized": "sembra inmobiliaria",
+      "agency_id": "agency:sembra-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "SENDA",
+      "alias_normalized": "senda",
+      "agency_id": "agency:senda",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "STELLA INMOBILIARIA",
+      "alias_normalized": "stella inmobiliaria",
+      "agency_id": "agency:stella-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "TALE INMOBILIARIA",
+      "alias_normalized": "tale inmobiliaria",
+      "agency_id": "agency:tale-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "TECTONICA GRUPO INMOBILIARIO",
+      "alias_normalized": "tectonica grupo inmobiliario",
+      "agency_id": "agency:tectonica-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "TER INMOBILIARIA",
+      "alias_normalized": "ter inmobiliaria",
+      "agency_id": "agency:ter-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "TM GESTION INMOBILIARIA",
+      "alias_normalized": "tm gestion inmobiliaria",
+      "agency_id": "agency:tm-gestion-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "TORATTO GRUPO INMOBILIARIO",
+      "alias_normalized": "toratto grupo inmobiliario",
+      "agency_id": "agency:toratto-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "TRIADA",
+      "alias_normalized": "triada",
+      "agency_id": "agency:triada",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "TRIBECA INMOBILIARIA",
+      "alias_normalized": "tribeca inmobiliaria",
+      "agency_id": "agency:tribeca-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Tempus Inmobiliaria",
+      "alias_normalized": "tempus inmobiliaria",
+      "agency_id": "agency:tempus-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "URBALIMA",
+      "alias_normalized": "urbalima",
+      "agency_id": "agency:urbalima",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "URBANA PERÚ",
+      "alias_normalized": "urbana peru",
+      "agency_id": "agency:urbana-peru",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "V&V GRUPO INMOBILIARIO",
+      "alias_normalized": "v v grupo inmobiliario",
+      "agency_id": "agency:v-v-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "VALICO",
+      "alias_normalized": "valico",
+      "agency_id": "agency:valico",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "VERDANT INMOBILIARIA",
+      "alias_normalized": "verdant inmobiliaria",
+      "agency_id": "agency:verdant-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "VERONES GRUPO INMOBILIARIO",
+      "alias_normalized": "verones grupo inmobiliario",
+      "agency_id": "agency:verones-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "VIBRANT",
+      "alias_normalized": "vibrant",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "VIDARQ",
+      "alias_normalized": "vidarq",
+      "agency_id": "agency:vidarq",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "VIENNA GRUPO INMOBILIARIO",
+      "alias_normalized": "vienna grupo inmobiliario",
+      "agency_id": "agency:vienna-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "VITAIN",
+      "alias_normalized": "vitain",
+      "agency_id": "agency:vitain",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "VITTORIA INMOBILIARIA",
+      "alias_normalized": "vittoria inmobiliaria",
+      "agency_id": "agency:vittoria-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "VIVANS INMOBILIARIA",
+      "alias_normalized": "vivans inmobiliaria",
+      "agency_id": "agency:vivans-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "VIVE PLM",
+      "alias_normalized": "vive plm",
+      "agency_id": "agency:vive-plm",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "Val Grupo Inmobiliario",
+      "alias_normalized": "val grupo inmobiliario",
+      "agency_id": "agency:val-grupo-inmobiliario",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "XYZ INMOBILIARIA",
+      "alias_normalized": "xyz inmobiliaria",
+      "agency_id": "agency:xyz-inmobiliaria",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "YOPLAC ASOCIADOS",
+      "alias_normalized": "yoplac asociados",
+      "agency_id": "agency:yoplac-asociados",
+      "resolution": "rule_based",
+      "evidence_ids": []
+    },
+    {
+      "alias_original": "ZAFIRA INMOBILIARIA",
+      "alias_normalized": "zafira inmobiliaria",
+      "agency_id": null,
+      "resolution": "manual_review",
+      "evidence_ids": []
+    }
+  ],
+  "consolidation_report": {
+    "raw_scope_record_count": 192,
+    "canonical_agency_count": 180,
+    "resolved_alias_count": 181,
+    "manual_review_alias_count": 11,
+    "manual_review_groups": [
+      {
+        "domain": "albamar.com.pe",
+        "source_names": [
+          "ALBAMAR GRUPO INMOBILIARIO",
+          "VIBRANT"
+        ]
+      },
+      {
+        "domain": "alpunto.com.pe",
+        "source_names": [
+          "AKAMAI",
+          "INMOBILIARIA HUANWIL"
+        ]
+      },
+      {
+        "domain": "esparq.com",
+        "source_names": [
+          "Cresiente",
+          "ESPARQ EOM"
+        ]
+      },
+      {
+        "domain": "evolta.pe",
+        "source_names": [
+          "ALERCES INMOBILIARIA",
+          "FUNDAMENTA",
+          "ZAFIRA INMOBILIARIA"
+        ]
+      },
+      {
+        "domain": "losportales.com.pe",
+        "source_names": [
+          "LOS PORTALES",
+          "LOS PORTALES DEPARTAMENTOS"
+        ]
+      }
+    ],
+    "rule_based_consolidations": [
+      {
+        "agency_id": "agency:grupo-tyc",
+        "source_names": [
+          "GRUPO T&C",
+          "GRUPO TyC"
+        ],
+        "resolution": "rule_based"
+      }
+    ],
+    "source_decision_counts": {
+      "Discovery pendiente": 20,
+      "Go": 10,
+      "Go condicionado": 128,
+      "No-go legal/operativo": 2,
+      "No-go técnico": 32
+    },
+    "selected_mandatory_mvp_count": 10,
+    "selected_ct_g_alias_group": true
+  }
+}

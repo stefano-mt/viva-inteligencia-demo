@@ -1,0 +1,131 @@
+{
+  "id": "CT-G-public",
+  "source_fixture": "data/fixtures/ct-g.json",
+  "classification": "observed",
+  "canonical_path": "#inspector/case/f3-ct-g-pardo",
+  "project_id": "project:nexo-2951",
+  "typology_id": "typology:pardo-coast-tipo-7",
+  "observations": [
+    {
+      "observation_id": "observation:pardo-coast-card",
+      "source_id": "source:nexo",
+      "captured_at": "2026-07-27T20:23:56-05:00",
+      "extraction_method": "user_provided_screenshot_transcription"
+    },
+    {
+      "observation_id": "observation:pardo-coast-plan",
+      "source_id": "source:ct-g-user-plan",
+      "captured_at": "2026-07-27T20:24:28-05:00",
+      "extraction_method": "user_provided_image_manual_transcription"
+    }
+  ],
+  "card": {
+    "document_id": "document:pardo-coast-card",
+    "evidence_id": "evidence:pardo-coast-card-metadata",
+    "area_fact_id": "fact:pardo-coast-card-area",
+    "floor_fact_id": "fact:pardo-coast-card-floor",
+    "area_original_value": "104.15 m²",
+    "area_normalized_value": 104.15,
+    "area_type": "unknown",
+    "floor_original_value": "Piso 1",
+    "floor_normalized_value": 1,
+    "quality_status": "inconsistent",
+    "benchmark_eligible": false,
+    "document_publish_permission": "pending",
+    "document_availability": "unavailable",
+    "evidence_publish_permission": "pending",
+    "evidence_availability": "unavailable",
+    "public_asset_path": null,
+    "fragment": null,
+    "document_sha256": "41ab273c521fcc66025653e8cfe44f894afb01b2f1b9be72847dcf87db2f2c4b",
+    "evidence_sha256": "41ab273c521fcc66025653e8cfe44f894afb01b2f1b9be72847dcf87db2f2c4b"
+  },
+  "plan": {
+    "document_id": "document:pardo-coast-plan",
+    "evidence_id": "evidence:pardo-coast-plan-metadata",
+    "area_fact_id": "fact:pardo-coast-plan-area",
+    "unit_range_fact_id": "fact:pardo-coast-plan-unit-range",
+    "area_original_value": "Área Total 53.37 m2",
+    "area_normalized_value": 53.37,
+    "area_type": "total",
+    "unit_range_original_value": "Dep. 807 AL 1007",
+    "unit_range_normalized_value": "807-1007",
+    "quality_status": "inconsistent",
+    "benchmark_eligible": false,
+    "document_publish_permission": "restricted",
+    "document_availability": "restricted",
+    "evidence_publish_permission": "restricted",
+    "evidence_availability": "restricted",
+    "public_asset_path": null,
+    "fragment": null,
+    "document_sha256": "3c108732cc1f9c0dbd884ed3d171a0abacffc96d9e80a95d994dc1d1a43bd60a",
+    "evidence_sha256": "3c108732cc1f9c0dbd884ed3d171a0abacffc96d9e80a95d994dc1d1a43bd60a"
+  },
+  "derived": {
+    "floor_min_fact_id": "fact:pardo-coast-inferred-floor-min",
+    "floor_min": 8,
+    "floor_max_fact_id": "fact:pardo-coast-inferred-floor-max",
+    "floor_max": 10,
+    "floor_confidence": "low",
+    "floor_quality_status": "reviewable",
+    "area_delta_fact_id": "fact:pardo-coast-area-delta",
+    "area_delta": 50.78,
+    "area_delta_type": "unknown",
+    "relative_difference_fact_id": "fact:pardo-coast-area-delta-percent",
+    "relative_difference_percent": 48.76,
+    "relative_difference_base_fact_id": "fact:pardo-coast-card-area",
+    "rounding_mode": "half_up",
+    "rounding_digits": 2
+  },
+  "issues": [
+    {
+      "issue_id": "issue:pardo-coast-area-source-conflict",
+      "issue_code": "AREA_SOURCE_CONFLICT",
+      "quality_status": "inconsistent",
+      "severity": "blocking",
+      "benchmark_blocking": true,
+      "fact_ids": [
+        "fact:pardo-coast-card-area",
+        "fact:pardo-coast-plan-area"
+      ]
+    },
+    {
+      "issue_id": "issue:pardo-coast-floor-range-conflict-review",
+      "issue_code": "FLOOR_RANGE_CONFLICT_REVIEW",
+      "quality_status": "reviewable",
+      "severity": "high",
+      "benchmark_blocking": true,
+      "fact_ids": [
+        "fact:pardo-coast-card-floor",
+        "fact:pardo-coast-plan-unit-range",
+        "fact:pardo-coast-inferred-floor-min",
+        "fact:pardo-coast-inferred-floor-max"
+      ]
+    }
+  ],
+  "publication": {
+    "assets": [],
+    "public_urls": [],
+    "binary_count": 0
+  },
+  "expected_result": {
+    "project_id": "project:nexo-2951",
+    "typology_id": "typology:pardo-coast-tipo-7",
+    "card_area": 104.15,
+    "card_area_type": "unknown",
+    "plan_area": 53.37,
+    "plan_area_type": "total",
+    "area_delta": 50.78,
+    "area_delta_type": "unknown",
+    "relative_difference_percent": 48.76,
+    "relative_difference_base_fact_id": "fact:pardo-coast-card-area",
+    "quality_status": "inconsistent",
+    "benchmark_eligible": false,
+    "selected_truth_fact_id": null,
+    "published_asset_count": 0,
+    "issue_codes": [
+      "AREA_SOURCE_CONFLICT",
+      "FLOOR_RANGE_CONFLICT_REVIEW"
+    ]
+  }
+}

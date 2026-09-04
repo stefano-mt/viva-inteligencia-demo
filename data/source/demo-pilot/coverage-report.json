@@ -1,0 +1,621 @@
+{
+  "report_version": "2.0.0",
+  "dataset_id": "dataset:viva-platform-demo-2026-07-28",
+  "cutoff_at": "2026-07-28T01:24:28Z",
+  "source_artifact": {
+    "path": "data/generated/viva-platform-demo.json",
+    "contract_version": "2.4.0",
+    "sha256": "d8937532109bab7ca72794f103359b41b9d9e12e1618bb3014aa90cb12121ce9",
+    "byte_length": 7555094
+  },
+  "derivation": {
+    "authority": "$.model, $.inspector, $.benchmark, $.history and $.assistant when present are authoritative; $.projects is the temporary legacy projection.",
+    "method": "All counts and distributions are recomputed offline from the deterministic 2.4.0 payload.",
+    "input_fingerprint_count": 52,
+    "counting_rules": [
+      {
+        "code": "MODEL_COLLECTION_COUNTS",
+        "source_path": "$.model",
+        "operation": "array_length_by_collection"
+      },
+      {
+        "code": "INSPECTOR_COVERAGE",
+        "source_path": "$.inspector",
+        "operation": "derive cases, provenance, typologies and authorized assets"
+      },
+      {
+        "code": "BENCHMARK_EXCLUSIONS",
+        "source_path": "$.model.facts",
+        "operation": "group benchmark_eligible independently by quality_status, value_kind and semantic_type"
+      },
+      {
+        "code": "HISTORY_REFERENCE_COVERAGE",
+        "source_path": "$.history",
+        "operation": "count events, indexes, status, exclusions and referenced model records"
+      }
+    ],
+    "interpretation_rules": [
+      "Counts grouped by different fact dimensions overlap and must not be added together.",
+      "Controlled fixtures and controlled visual representations are not market observations.",
+      "Visual evidence hashes identify raw binary bytes; textual fragment hashes identify canonical text."
+    ]
+  },
+  "universe": {
+    "legacy_projection": {
+      "project_count": 714,
+      "distinct_agency_name_count": 192,
+      "distinct_district_count": 45,
+      "currency_distribution": {
+        "PEN": 677,
+        "unknown": 37
+      }
+    },
+    "authoritative_model": {
+      "project_count": 676,
+      "resolved_nexo_project_count": 672,
+      "controlled_fixture_project_count": 4,
+      "canonical_agency_count": 184,
+      "market_canonical_agency_count": 180,
+      "controlled_fixture_agency_count": 4
+    },
+    "reconciliation": {
+      "unresolved_legacy_project_count": 42,
+      "manual_review_alias_count": 11,
+      "resolved_alias_count": 181
+    }
+  },
+  "pilot_coverage": {
+    "pilot_id": "pilot:viva-demo-2026-07-28",
+    "selected_agency_count": 30,
+    "selected_model_project_count": 118,
+    "exclusive_tier_counts": {
+      "base": 8,
+      "deep": 5,
+      "enriched": 17
+    },
+    "cumulative_tier_counts": {
+      "market_raw_count": 192,
+      "base_count": 30,
+      "enriched_count": 22,
+      "deep_count": 5
+    },
+    "selected_district_scope": [
+      "Cercado de lima",
+      "Jesus Maria",
+      "Magdalena Del Mar",
+      "Miraflores",
+      "San Isidro",
+      "San Miguel",
+      "Santiago De Surco"
+    ],
+    "references": [
+      "$.pilot",
+      "$.model.agencies[*].pilot_selected",
+      "$.model.agencies[*].coverage_tier",
+      "$.model.projects[*].agency_id"
+    ]
+  },
+  "inspector_coverage": {
+    "total_cases": 10,
+    "observed_cases": 1,
+    "controlled_cases": 9,
+    "simulated_cases": 0,
+    "inspectable_typologies": 10,
+    "authorized_visual_assets": 15,
+    "case_quality_distribution": {
+      "certified": 3,
+      "illegible": 1,
+      "inconsistent": 4,
+      "insufficient": 1,
+      "reviewable": 1
+    },
+    "benchmark_eligible_cases": 3,
+    "benchmark_excluded_cases": 7,
+    "asset_byte_length": 211834,
+    "reference": "$.inspector"
+  },
+  "benchmark_coverage": {
+    "indexed_project_count": 397,
+    "pairing_status_distribution": {
+      "conflicting": 1,
+      "missing": 26,
+      "project_minima_pair_unresolved": 370
+    },
+    "indicator_partitions": {
+      "attributes_announced": {
+        "input": 397,
+        "used": 386,
+        "missing": 11,
+        "excluded": 0
+      },
+      "parking_reported": {
+        "input": 397,
+        "used": 16,
+        "missing": 381,
+        "excluded": 0
+      },
+      "price_per_m2_total": {
+        "input": 397,
+        "used": 0,
+        "missing": 26,
+        "excluded": 371
+      },
+      "units_reported": {
+        "input": 397,
+        "used": 397,
+        "missing": 0,
+        "excluded": 0
+      }
+    },
+    "reference": "$.benchmark"
+  },
+  "history_coverage": {
+    "event_count": 36,
+    "project_index_count": 36,
+    "district_index_count": 15,
+    "certified_count": 31,
+    "reviewable_count": 5,
+    "excluded_count": 6,
+    "model_reference_counts": {
+      "observations": 72,
+      "facts": 72,
+      "documents": 1,
+      "evidence": 72
+    },
+    "input_fingerprint_count": 3,
+    "references": [
+      "$.history",
+      "$.model.observations",
+      "$.model.facts",
+      "$.model.documents",
+      "$.model.evidence"
+    ]
+  },
+  "source_observation_and_evidence_coverage": {
+    "sources": {
+      "count": 10,
+      "type_distribution": {
+        "controlled_fixture": 7,
+        "portal": 1,
+        "user_provided": 2
+      },
+      "legal_status_distribution": {
+        "cleared_for_demo": 7,
+        "pending_review": 1,
+        "restricted": 2
+      },
+      "access_mode_distribution": {
+        "controlled_fixture": 7,
+        "public_reference": 1,
+        "user_provided": 2
+      },
+      "records": [
+        {
+          "source_id": "source:ct-a-controlled",
+          "legal_status": "cleared_for_demo",
+          "access_mode": "controlled_fixture"
+        },
+        {
+          "source_id": "source:ct-b-a",
+          "legal_status": "cleared_for_demo",
+          "access_mode": "controlled_fixture"
+        },
+        {
+          "source_id": "source:ct-b-b",
+          "legal_status": "cleared_for_demo",
+          "access_mode": "controlled_fixture"
+        },
+        {
+          "source_id": "source:ct-d-authorized",
+          "legal_status": "cleared_for_demo",
+          "access_mode": "controlled_fixture"
+        },
+        {
+          "source_id": "source:ct-d-restricted",
+          "legal_status": "restricted",
+          "access_mode": "user_provided"
+        },
+        {
+          "source_id": "source:ct-e-controlled",
+          "legal_status": "cleared_for_demo",
+          "access_mode": "controlled_fixture"
+        },
+        {
+          "source_id": "source:ct-g-user-plan",
+          "legal_status": "restricted",
+          "access_mode": "user_provided"
+        },
+        {
+          "source_id": "source:f3-neutral-card",
+          "legal_status": "cleared_for_demo",
+          "access_mode": "controlled_fixture"
+        },
+        {
+          "source_id": "source:f3-neutral-measurement",
+          "legal_status": "cleared_for_demo",
+          "access_mode": "controlled_fixture"
+        },
+        {
+          "source_id": "source:nexo",
+          "legal_status": "pending_review",
+          "access_mode": "public_reference"
+        }
+      ],
+      "reference": "$.model.sources"
+    },
+    "observations": {
+      "count": 499,
+      "entity_type_distribution": {
+        "document": 1,
+        "project": 469,
+        "typology": 29
+      },
+      "with_evidence_ids_count": 90,
+      "without_evidence_ids_count": 409,
+      "extraction_method_distribution": {
+        "controlled_absence": 2,
+        "controlled_fixture": 9,
+        "controlled_illegible_field": 1,
+        "controlled_transcription": 11,
+        "deterministic_derivation": 4,
+        "structured_snapshot_history": 72,
+        "user_provided_image_manual_transcription": 1,
+        "user_provided_metadata_only": 1,
+        "user_provided_screenshot_transcription": 1,
+        "versioned_snapshot_materialization": 397
+      },
+      "reference": "$.model.observations"
+    },
+    "documents": {
+      "count": 20,
+      "type_distribution": {
+        "card": 9,
+        "other": 1,
+        "plan": 1,
+        "specification": 9
+      },
+      "availability_distribution": {
+        "available": 17,
+        "restricted": 2,
+        "unavailable": 1
+      },
+      "publish_permission_distribution": {
+        "authorized": 17,
+        "pending": 1,
+        "restricted": 2
+      },
+      "public_asset_path_count": 15,
+      "reference": "$.model.documents"
+    },
+    "evidence": {
+      "count": 91,
+      "kind_distribution": {
+        "fragment": 1,
+        "image_region": 15,
+        "metadata": 3,
+        "structured_value": 72
+      },
+      "availability_distribution": {
+        "available": 88,
+        "restricted": 2,
+        "unavailable": 1
+      },
+      "publish_permission_distribution": {
+        "authorized": 88,
+        "pending": 1,
+        "restricted": 2
+      },
+      "authorized_and_available_count": 88,
+      "reference": "$.model.evidence"
+    }
+  },
+  "model_coverage": {
+    "collection_counts": {
+      "sources": 10,
+      "agencies": 184,
+      "projects": 676,
+      "typologies": 11,
+      "observations": 499,
+      "facts": 4093,
+      "documents": 20,
+      "evidence": 91,
+      "issues": 10,
+      "events": 3
+    },
+    "sources": {
+      "type_distribution": {
+        "controlled_fixture": 7,
+        "portal": 1,
+        "user_provided": 2
+      },
+      "legal_status_distribution": {
+        "cleared_for_demo": 7,
+        "pending_review": 1,
+        "restricted": 2
+      },
+      "access_mode_distribution": {
+        "controlled_fixture": 7,
+        "public_reference": 1,
+        "user_provided": 2
+      }
+    },
+    "observations": {
+      "extraction_method_distribution": {
+        "controlled_absence": 2,
+        "controlled_fixture": 9,
+        "controlled_illegible_field": 1,
+        "controlled_transcription": 11,
+        "deterministic_derivation": 4,
+        "structured_snapshot_history": 72,
+        "user_provided_image_manual_transcription": 1,
+        "user_provided_metadata_only": 1,
+        "user_provided_screenshot_transcription": 1,
+        "versioned_snapshot_materialization": 397
+      },
+      "with_evidence_ids_count": 90,
+      "without_evidence_ids_count": 409
+    },
+    "documents": {
+      "type_distribution": {
+        "card": 9,
+        "other": 1,
+        "plan": 1,
+        "specification": 9
+      },
+      "availability_distribution": {
+        "available": 17,
+        "restricted": 2,
+        "unavailable": 1
+      },
+      "public_asset_path_count": 15
+    },
+    "evidence": {
+      "kind_distribution": {
+        "fragment": 1,
+        "image_region": 15,
+        "metadata": 3,
+        "structured_value": 72
+      },
+      "availability_distribution": {
+        "available": 88,
+        "restricted": 2,
+        "unavailable": 1
+      },
+      "authorized_and_available_count": 88
+    }
+  },
+  "analytical_quality_and_exclusions": {
+    "facts": {
+      "count": 4093,
+      "quality_status_distribution": {
+        "certified": 3655,
+        "illegible": 1,
+        "inconsistent": 10,
+        "insufficient": 2,
+        "reviewable": 425
+      },
+      "value_kind_distribution": {
+        "derived": 381,
+        "observed": 3711,
+        "simulated": 1
+      },
+      "benchmark_eligibility": {
+        "eligible": 3593,
+        "excluded": 500
+      },
+      "eligible_by_quality_status": {
+        "certified": 3593
+      },
+      "eligible_by_value_kind": {
+        "derived": 1,
+        "observed": 3592
+      },
+      "eligible_by_semantic_type": {
+        "area": 403,
+        "attribute": 2405,
+        "count": 413,
+        "price": 372
+      },
+      "excluded_by_quality_status": {
+        "certified": 62,
+        "illegible": 1,
+        "inconsistent": 10,
+        "insufficient": 2,
+        "reviewable": 425
+      },
+      "excluded_by_value_kind": {
+        "derived": 380,
+        "observed": 119,
+        "simulated": 1
+      },
+      "excluded_by_semantic_type": {
+        "area": 6,
+        "attribute": 1,
+        "count": 10,
+        "percentage": 2,
+        "price": 107,
+        "price_per_m2": 372,
+        "text": 2
+      }
+    },
+    "currency": {
+      "legacy_projection": {
+        "PEN": 677,
+        "unknown": 37
+      },
+      "model_monetary_facts": {
+        "count": 851,
+        "currency_distribution": {
+          "PEN": 825,
+          "unknown": 26
+        },
+        "eligible": 372,
+        "excluded": 479
+      }
+    },
+    "issues": {
+      "count": 10,
+      "benchmark_blocking_count": 10,
+      "quality_status_distribution": {
+        "illegible": 1,
+        "inconsistent": 4,
+        "insufficient": 1,
+        "reviewable": 4
+      },
+      "issue_code_distribution": {
+        "AREA_EVIDENCE_ILLEGIBLE": 1,
+        "AREA_SOURCE_CONFLICT": 1,
+        "BATHROOM_SOURCE_CONFLICT": 1,
+        "BEDROOM_SOURCE_CONFLICT": 1,
+        "EXTREME_CHANGE_REVIEW": 1,
+        "FLOOR_RANGE_CONFLICT_REVIEW": 1,
+        "FLOOR_RANGE_INFERENCE_REVIEW": 1,
+        "PERCENT_BASE_ZERO": 1,
+        "PRICE_SOURCE_CONFLICT": 1,
+        "SECOND_SOURCE_UNAVAILABLE": 1
+      }
+    },
+    "events": {
+      "count": 3,
+      "quality_status_distribution": {
+        "certified": 1,
+        "reviewable": 2
+      },
+      "cause_present_count": 0,
+      "cause_evidence_link_count": 0
+    }
+  },
+  "fixture_coverage": [
+    {
+      "case_id": "CT-A",
+      "source_path": "data/fixtures/ct-a.json",
+      "purpose": "Separate built, total and derived free area and calculate scenario price per compatible denominator.",
+      "model_result": {
+        "fact_count": 6,
+        "certified_eligible_area_fact_count": 3
+      }
+    },
+    {
+      "case_id": "CT-B",
+      "source_path": "data/fixtures/ct-b.json",
+      "purpose": "Preserve conflicting observed list prices without choosing a winner.",
+      "model_result": {
+        "fact_count": 4,
+        "benchmark_eligible_fact_count": 0
+      }
+    },
+    {
+      "case_id": "CT-D",
+      "source_path": "data/fixtures/ct-d.json",
+      "purpose": "Distinguish evidenced, unobserved and restricted qualitative attributes.",
+      "model_result": {
+        "fact_count": 2,
+        "authorized_available_evidence_count": 1
+      }
+    },
+    {
+      "case_id": "CT-E",
+      "source_path": "data/fixtures/ct-e.json",
+      "purpose": "Materialize deterministic history without inventing causes.",
+      "model_result": {
+        "fact_count": 6,
+        "event_count": 3
+      }
+    },
+    {
+      "case_id": "CT-G",
+      "source_path": "data/fixtures/ct-g.json",
+      "purpose": "Preserve the Pardo Coast Tipo 7 card and plan as incompatible observations.",
+      "model_result": {
+        "fact_count": 8,
+        "benchmark_eligible_fact_count": 0,
+        "public_original_asset_count": 0
+      }
+    },
+    {
+      "case_id": "CT-H",
+      "source_path": "data/fixtures/ct-h.json",
+      "purpose": "Demonstrate stable canonical IDs, conservative aliases and tiered pilot coverage.",
+      "model_result": {
+        "selected_agency_count": 30,
+        "cumulative_base_count": 30,
+        "cumulative_enriched_count": 22,
+        "cumulative_deep_count": 5,
+        "manual_review_alias_count": 11
+      }
+    }
+  ],
+  "geography_coverage": {
+    "public_artifact": {
+      "path": "data/generated/district-boundaries.geojson",
+      "sha256": "ef75b5deb43f2ed94cc9661c3f1926e94608e0b2e4a41c8ce9197dbea71b16c0",
+      "byte_length": 46650,
+      "crs": "EPSG:4326",
+      "feature_count": 7,
+      "simplification_tolerance_degrees": 0,
+      "maximum_displacement_meters": 0,
+      "area_change_pct_max": 0
+    },
+    "high_load_observed_project_count": 433,
+    "coordinate_valid_project_count": 433,
+    "polygon_valid_project_count": 422,
+    "outside_district_polygon_count": 11,
+    "authoritative_project_count": 406,
+    "unreconciled_project_count": 27,
+    "miraflores_gate": {
+      "district_id": "150122",
+      "observed_project_count": 90,
+      "coordinate_valid_count": 90,
+      "polygon_valid_count": 90,
+      "authoritative_project_count": 85,
+      "unreconciled_project_count": 5,
+      "quadrant_observed_counts": {
+        "NW": 40,
+        "NE": 5,
+        "SW": 5,
+        "SE": 40
+      }
+    },
+    "references": [
+      "$.geography",
+      "$.geography.districts",
+      "$.geography.assignments",
+      "$.geography.exclusions",
+      "data/source/geography/source-manifest.json#/derived"
+    ]
+  },
+  "phase_gaps": [
+    {
+      "gap_id": "GAP-F5-HISTORY-ASSISTANT",
+      "target_phase": "F5",
+      "severity": "blocking_for_phase",
+      "current_evidence": {
+        "history_event_count": 36,
+        "certified_history_event_count": 31,
+        "reviewable_history_event_count": 5,
+        "excluded_history_candidate_count": 6,
+        "assistant_intent_count": 7,
+        "event_with_observed_cause_count": 0,
+        "event_with_cause_evidence_count": 0,
+        "runtime_status": "not_materialized"
+      },
+      "required_outcome": "Implement the pure history and assistant engines, scenario integration and UI over the materialized 2.4 contract.",
+      "references": [
+        "$.history",
+        "$.model.observations",
+        "$.model.facts",
+        "$.model.evidence",
+        "$.assistant.intents"
+      ]
+    }
+  ],
+  "publication_safety": {
+    "is_public_source_artifact": true,
+    "source_pii_present": false,
+    "source_raw_records_present": false,
+    "restricted_assets_included": false,
+    "report_pii_present": false,
+    "report_raw_records_present": false,
+    "report_local_paths_present": false
+  }
+}

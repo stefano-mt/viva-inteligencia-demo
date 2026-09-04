@@ -1,0 +1,39 @@
+{
+  "name": "viva-inteligencia",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MVP cloud-agnostic de inteligencia comercial para Viva Inmobiliaria.",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c green,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "npm run dev --workspace @viva/api",
+    "dev:web": "npm run dev --workspace @viva/web",
+    "build": "npm run build:packages && npm run build:apps",
+    "build:packages": "npm run build --workspace @viva/contracts && npm run build --workspace @viva/domain && npm run build --workspace @viva/snapshot",
+    "build:apps": "npm run build --workspace @viva/api && npm run build --workspace @viva/web",
+    "check": "npm run build:packages && npm run check --workspace @viva/contracts && npm run check --workspace @viva/domain && npm run check --workspace @viva/snapshot && npm run check --workspace @viva/api && npm run typecheck --workspace @viva/web && npm run check --workspace @viva/web",
+    "test": "npm run test --workspace @viva/contracts && npm run test --workspace @viva/domain && npm run test --workspace @viva/snapshot && npm run test --workspace @viva/api && npm run test:unit --workspace @viva/web && npm run test:architecture --workspace @viva/web && npm run test:scenario --workspace @viva/web && npm run test:comparability --workspace @viva/web && npm run test:inspector:domain --workspace @viva/web && npm run test:benchmark:domain --workspace @viva/web && npm run test:history:domain --workspace @viva/web && npm run test:assistant:domain --workspace @viva/web && npm run test:data:determinism --workspace @viva/web && npm run test:data:privacy --workspace @viva/web",
+    "e2e": "npm run e2e:product",
+    "e2e:product": "npm run data:build && npm run build:packages && npm run build --workspace @viva/api && node tests/e2e/productized-e2e.mjs",
+    "e2e:legacy": "npm run test:e2e --workspace @viva/web",
+    "compose:up": "docker compose up --build",
+    "compose:down": "docker compose down",
+    "verify": "npm run data:build && npm run check && npm run test && npm run e2e && npm run build && npm audit --audit-level=high",
+    "verify:legacy": "npm run verify --workspace @viva/web",
+    "data:build": "npm run build --workspace @viva/data-tools"
+  },
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "concurrently": "^9.2.1",
+    "typescript": "^5.9.2"
+  }
+}

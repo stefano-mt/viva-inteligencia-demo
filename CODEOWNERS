@@ -1,0 +1,17 @@
+# Sustituir los alias por equipos reales al transferir el repositorio.
+* @stefano-mt
+
+/docs/business/ @stefano-mt
+/docs/product/ @stefano-mt
+/data/source/ @stefano-mt
+/packages/contracts/ @stefano-mt
+/packages/domain/ @stefano-mt
+/packages/snapshot/ @stefano-mt
+/apps/api/ @stefano-mt
+/apps/web/ @stefano-mt
+/.github/workflows/ @stefano-mt
+/infra/ @stefano-mt
+/compose.yml @stefano-mt
+/compose.prod.yml @stefano-mt
+/tests/ @stefano-mt
+/tools/data/ @stefano-mt
