@@ -236,7 +236,7 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Objetivo:** convertir la demo estática en un MVP frontend/backend desplegable, ordenado y delegable, preservando el contrato 2.4 y la paridad funcional.
 
-**Estado:** P8-00–P8-07 integrados mediante el PR [#22](https://github.com/stefano-mt/viva-inteligencia-demo/pull/22). El merge `65334e7fb2acbff0ca1fd0e225690c16269a4bf1` tiene CI, imágenes OCI y verificación independiente en `PASS`. P8-08 permanece abierto hasta ejecutar el entorno Compose de referencia y completar la única validación humana integral.
+**Estado:** P8-00–P8-07 integrados mediante el PR [#22](https://github.com/stefano-mt/viva-inteligencia-demo/pull/22). El merge `65334e7fb2acbff0ca1fd0e225690c16269a4bf1` tiene CI, imágenes OCI, verificación independiente y despliegue Compose del mismo tag SHA en `PASS`. P8-08 permanece abierto únicamente hasta completar la validación humana integral.
 
 ### Olas
 
@@ -249,9 +249,9 @@ Cada fase recorre `Discutir → UI-SPEC → Plan → Ejecutar → Verificar → 
 
 **Resultado técnico:** `npm.cmd run verify` pasa desde instalación limpia; CT-A–I/P, 14 superficies, responsive, teclado, zoom 200%, privacidad, determinismo y fallbacks están cubiertos. Los runs [33924328654](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/33924328654) y [33924328603](https://github.com/stefano-mt/viva-inteligencia-demo/actions/runs/33924328603) terminaron en `success`.
 
-**Gate de salida pendiente:** web y API del mismo tag SHA deben arrancar con Compose, responder health/metadata y superar el recorrido crítico; luego una persona independiente debe completar la rúbrica humana sin ayuda del equipo creador.
+**Gate de salida pendiente:** una persona independiente debe completar la rúbrica humana sin ayuda del equipo creador. Web y API del mismo tag SHA ya arrancaron con Compose, respondieron health/metadata y superaron el recorrido crítico.
 
-**Veredicto vigente:** `PASS técnico post-merge; cierre integral pendiente`.
+**Veredicto vigente:** `PASS técnico integral y despliegue verificado; aceptación humana pendiente`.
 
 ## Estrategia de PR
 

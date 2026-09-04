@@ -4,10 +4,7 @@
 
 P8-00–P8-07 están integrados en `main` mediante el PR [#22](https://github.com/stefano-mt/viva-inteligencia-demo/pull/22). La verificación técnica independiente de P8-08 terminó en `PASS` sobre el merge inmutable `65334e7fb2acbff0ca1fd0e225690c16269a4bf1`.
 
-P8-08 permanece **abierto** hasta completar dos actividades deliberadamente no simuladas:
-
-1. levantar el par de imágenes OCI del mismo SHA en el entorno Compose de referencia y verificar health, metadata y recorrido crítico;
-2. ejecutar la única validación humana integral con una persona independiente.
+P8-08 permanece **abierto** únicamente hasta ejecutar la validación humana integral con una persona independiente. El despliegue Compose del mismo SHA, sus health checks, metadata, rendimiento y recorrido crítico ya fueron verificados.
 
 ## Evidencia post-merge
 
@@ -53,11 +50,9 @@ Checksums post-merge:
 | Geografía | `ef75b5deb43f2ed94cc9661c3f1926e94608e0b2e4a41c8ce9197dbea71b16c0` |
 | Cobertura | `82afd4bb75dc14033769b6a60e19398a2d803403efc54a463224b6c3ef8f6478` |
 
-## Despliegue de referencia pendiente
+## Despliegue de referencia ejecutado
 
-Docker está instalado, pero el daemon no está disponible en esta sesión y Windows no permitió iniciar `com.docker.service` desde el agente. Esto no invalida CI ni las imágenes publicadas; impide únicamente afirmar que el entorno Compose local fue ejecutado.
-
-Una vez abierto Docker Desktop, el cierre debe usar el mismo SHA para ambos servicios:
+El `2026-09-04` se levantaron las dos imágenes inmutables con Docker Desktop `4.89.0`, cliente y motor Docker `29.7.2`, usando el mismo tag SHA:
 
 ```powershell
 $env:IMAGE_OWNER="stefano-mt"
@@ -65,10 +60,19 @@ $env:IMAGE_TAG="sha-65334e7fb2acbff0ca1fd0e225690c16269a4bf1"
 docker compose -f compose.yml -f compose.prod.yml up -d
 ```
 
-Luego deben comprobarse `/health/live`, `/health/ready`, `/api/v1/meta` y el recorrido crítico en `http://localhost:8080`.
+Resultado: **PASS**.
+
+- `web` y `api`: `healthy`.
+- Usuarios de ejecución: web `101`, API `node`; ambos no-root.
+- `GET /health/live`: `200`, `{"status":"ok"}`.
+- `GET /health/ready`: `200`, contrato `2.4.0` y dataset `dataset:viva-platform-demo-2026-07-28`.
+- `GET /api/v1/meta`: checksum de snapshot `d8937532109bab7ca72794f103359b41b9d9e12e1618bb3014aa90cb12121ce9`, 714 proyectos, 45 distritos y 30 agencias seleccionadas.
+- Rendimiento de `/api/v1/meta`: 40 muestras, mediana `5.18 ms`, p95 `6.43 ms`, máximo `15.62 ms`.
+- E2E contra `http://localhost:8080`: 14 superficies en PASS, sin errores de consola, hosts externos ni descarga del snapshot.
+- Logs: sin errores de aplicación o respuestas HTTP 5xx durante la verificación.
 
 ## Veredicto
 
-**PASS técnico post-merge / P8-08 pendiente de despliegue ejecutado y aceptación humana.**
+**PASS técnico integral y despliegue de referencia verificado / P8-08 pendiente solo de aceptación humana.**
 
-No se declara la Fase 8 cerrada ni validada por usuarios hasta incorporar evidencia real de ambas actividades pendientes.
+No se declara la Fase 8 cerrada ni validada por usuarios hasta incorporar la evidencia real de la sesión humana independiente.

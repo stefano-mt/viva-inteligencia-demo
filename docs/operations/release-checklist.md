@@ -14,9 +14,9 @@
 
 - [x] El workflow `Publish OCI images` publica ambos artefactos para el mismo SHA.
 - [x] Se registra el SHA inmutable de `web` y `api`; no se promueven imágenes mezcladas.
-- [ ] El entorno responde `200` en `/health/live` y `/health/ready`.
-- [ ] `/api/v1/meta` informa contrato `2.4.0` y el dataset esperado.
-- [ ] Se ejecuta el recorrido crítico sin llamadas a hosts externos ni descarga del snapshot.
+- [x] El entorno responde `200` en `/health/live` y `/health/ready`.
+- [x] `/api/v1/meta` informa contrato `2.4.0` y el dataset esperado.
+- [x] Se ejecuta el recorrido crítico sin llamadas a hosts externos ni descarga del snapshot.
 - [ ] Se realiza la validación humana final con las plantillas de `docs/business/human-validation`.
 
 ## Rollback

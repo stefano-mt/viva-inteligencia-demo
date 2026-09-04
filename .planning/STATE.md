@@ -6,7 +6,7 @@
 
 **Última fase con verificación técnica post-merge:** Fase 8 — productización lean
 
-**Estado:** Fase 8 fue fusionada mediante el PR #22. El merge `65334e7fb2acbff0ca1fd0e225690c16269a4bf1` pasó CI, construcción y publicación OCI, además de una repetición independiente completa de `npm.cmd run verify`. P8-08 tiene `PASS técnico post-merge`; permanece abierta hasta ejecutar las imágenes inmutables con Compose y completar la única validación humana integral. Fase 7 quedó cerrada documentalmente con el merge del PR #21.
+**Estado:** Fase 8 fue fusionada mediante el PR #22. El merge `65334e7fb2acbff0ca1fd0e225690c16269a4bf1` pasó CI, construcción y publicación OCI, una repetición independiente completa de `npm.cmd run verify` y el despliegue Compose de las imágenes inmutables. P8-08 tiene `PASS técnico integral`; permanece abierta únicamente hasta completar la validación humana independiente. Fase 7 quedó cerrada documentalmente con el merge del PR #21.
 
 **Rama activa:** `docs/phase-8-final-verification`.
 
@@ -337,15 +337,14 @@ fa9365ff83c9c72aefa15bf5f6fee952b83efdd6ba23c524cf2f92c88b78ada4
 - Repetición independiente desde instalación limpia: `npm.cmd run verify` en `PASS`; 190 paquetes auditados, 0 vulnerabilidades.
 - Snapshot 2.4: `d8937532109bab7ca72794f103359b41b9d9e12e1618bb3014aa90cb12121ce9`.
 - Cobertura: `82afd4bb75dc14033769b6a60e19398a2d803403efc54a463224b6c3ef8f6478`.
-- Estado P8-08: **`PASS técnico post-merge; despliegue Compose y validación humana pendientes`**.
-- No se declara la Fase 8 cerrada ni validada por usuarios mientras permanezcan esos dos pendientes.
+- Despliegue Compose del tag SHA: web y API `healthy`, contrato `2.4.0`, p95 de metadata `6.43 ms` y E2E de 14 superficies en `PASS`.
+- Estado P8-08: **`PASS técnico integral y despliegue verificado; validación humana pendiente`**.
+- No se declara la Fase 8 cerrada ni validada por usuarios mientras permanezca pendiente la rúbrica independiente.
 
 ## Próxima acción recomendada
 
-1. Abrir Docker Desktop y esperar a que el motor esté disponible.
-2. Desplegar web y API con el tag inmutable `sha-65334e7fb2acbff0ca1fd0e225690c16269a4bf1` y verificar health, metadata y recorrido crítico.
-3. Ejecutar una única sesión humana con una persona independiente mediante el paquete externo de P8-08.
-4. Registrar el resultado literal y preparar el PR documental final; el usuario realiza el merge.
+1. Ejecutar una única sesión humana con una persona independiente mediante el paquete externo de P8-08 y el entorno activo en `http://localhost:8080`.
+2. Registrar el resultado literal y preparar el PR documental final; el usuario realiza el merge.
 
 ## Regla para actualizar este archivo
 

@@ -15,6 +15,9 @@
 - `npm.cmd ci`: PASS, 190 paquetes auditados, 0 vulnerabilidades.
 - `npm.cmd run verify`: PASS sobre una copia limpia del merge.
 - Compose productivo: configuración válida.
+- Despliegue Compose con el tag SHA del merge: PASS; `web` y `api` en estado `healthy`.
+- E2E sobre las imágenes desplegadas: 14 superficies, sin errores de consola, hosts externos ni descarga del snapshot.
+- Rendimiento `/api/v1/meta`: p95 `6.43 ms` en 40 muestras.
 
 | Servicio | Imagen inmutable | Digest |
 |---|---|---|
@@ -28,18 +31,18 @@
 - Snapshot ausente de `apps/web/public` y no transferido al navegador.
 - CT-A–I/P, 14 superficies, responsive, teclado, zoom 200%, privacidad y determinismo en PASS.
 - Health checks, OpenAPI, seguridad, observabilidad y fallbacks cubiertos por pruebas.
+- Health y metadata confirmados por el mismo origen en `http://localhost:8080`; contrato `2.4.0` y dataset esperado.
+- Imágenes ejecutadas como usuarios no-root (`101` para web y `node` para API).
 - Rollback sin migraciones mediante SHA anterior o tag histórico `demo-static-v1`.
 
 ## Actividades pendientes
 
 | Actividad | Estado | Razón |
 |---|---|---|
-| Ejecutar imágenes inmutables con Compose | PENDING | Docker Desktop no estaba activo y el agente no pudo iniciar el servicio de Windows. |
-| Validar health, metadata y recorrido crítico | PENDING | Depende del entorno Compose en ejecución. |
 | Prueba humana integral independiente | PENDING | Debe ser realizada por una persona real; no se simula ni se infiere. |
 
 ## Veredicto vigente
 
-**PASS técnico post-merge / cierre integral pendiente.**
+**PASS técnico integral y despliegue verificado / aceptación humana pendiente.**
 
-La arquitectura y el código están verificados. La Fase 8 solo pasa a `FINAL — deployed and human validated` cuando el despliegue de referencia y la rúbrica humana queden completos y sin campos pendientes.
+La arquitectura, el código y el despliegue de referencia están verificados. La Fase 8 solo pasa a `FINAL — deployed and human validated` cuando la rúbrica humana quede completa y sin campos pendientes.

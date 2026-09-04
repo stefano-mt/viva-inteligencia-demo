@@ -2,7 +2,7 @@
 
 ## Resultado entregado
 
-La productización lean está integrada en `main` mediante el PR [#22](https://github.com/stefano-mt/viva-inteligencia-demo/pull/22). El merge `65334e7fb2acbff0ca1fd0e225690c16269a4bf1` pasó CI, verificación independiente y publicación de las imágenes OCI de web y API.
+La productización lean está integrada en `main` mediante el PR [#22](https://github.com/stefano-mt/viva-inteligencia-demo/pull/22). El merge `65334e7fb2acbff0ca1fd0e225690c16269a4bf1` pasó CI, verificación independiente, publicación OCI y despliegue Compose de las imágenes inmutables de web y API.
 
 La entrega separa frontend Vite, BFF Fastify, dominio puro, contratos, repositorio de snapshot, herramientas de datos, pruebas y documentación. El navegador ya no recibe el snapshot ni ejecuta reglas comerciales duplicadas.
 
@@ -29,11 +29,9 @@ No mezclar `latest` con tags SHA ni desplegar servicios de revisiones distintas.
 
 ## Próximo operador
 
-1. Abrir Docker Desktop y esperar a que el motor esté disponible.
-2. Levantar `compose.yml` + `compose.prod.yml` con `IMAGE_TAG=sha-65334e7fb2acbff0ca1fd0e225690c16269a4bf1`.
-3. Registrar health checks, metadata y recorrido crítico.
-4. Entregar el paquete externo preparado a una persona independiente y ejecutar una sola sesión humana, sin asistencia explicativa.
-5. Incorporar el resultado literal y el veredicto real en el reporte; si todo pasa, preparar el PR documental final. El usuario realiza el merge.
+1. Mantener el entorno de referencia disponible en `http://localhost:8080` para la sesión.
+2. Entregar el paquete externo preparado a una persona independiente y ejecutar una sola sesión humana, sin asistencia explicativa.
+3. Incorporar el resultado literal y el veredicto real en el reporte; si todo pasa, preparar el PR documental final. El usuario realiza el merge.
 
 ## Decisiones protegidas
 
@@ -46,6 +44,6 @@ No mezclar `latest` con tags SHA ni desplegar servicios de revisiones distintas.
 
 ## Estado de cierre
 
-`PASS técnico; despliegue Compose y validación humana pendientes`.
+`PASS técnico integral y despliegue Compose verificado; validación humana pendiente`.
 
-No declarar P8-08 como completado ni el MVP como validado por usuarios mientras esos campos sigan pendientes.
+No declarar P8-08 como completado ni el MVP como validado por usuarios mientras la rúbrica humana siga pendiente.
