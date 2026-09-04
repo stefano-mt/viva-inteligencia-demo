@@ -196,7 +196,7 @@ function render(): void {
       <button class="nav-scrim" type="button" data-action="close-nav" aria-label="Cerrar navegación"></button>
       <aside class="product-sidebar" id="product-sidebar" aria-label="Navegación principal">
         <header class="brand">
-          <img src="/viva-negocio-inmobiliario-logo.jpg" alt="VIVA" width="56" height="56" />
+          <img src="/assets/viva-negocio-inmobiliario-logo.jpg" alt="VIVA" width="56" height="56" />
           <span><strong>Inteligencia comercial</strong><small>Viva Inmobiliaria</small></span>
           <button class="icon-button mobile-only" type="button" data-action="close-nav" aria-label="Cerrar menú">×</button>
         </header>
@@ -235,7 +235,7 @@ function render(): void {
 }
 
 function renderLoading(): string {
-  return `<main class="startup-state" aria-busy="true"><img src="/viva-negocio-inmobiliario-logo.jpg" alt="VIVA" width="92" height="92" /><span class="loader"></span><h1>Preparando la lectura comercial</h1><p>Cargando catálogos y escenario inicial desde la API.</p></main>`;
+  return `<main class="startup-state" aria-busy="true"><img src="/assets/viva-negocio-inmobiliario-logo.jpg" alt="VIVA" width="92" height="92" /><span class="loader"></span><h1>Preparando la lectura comercial</h1><p>Cargando catálogos y escenario inicial desde la API.</p></main>`;
 }
 
 function renderFatalError(): string {

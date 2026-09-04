@@ -6,7 +6,20 @@ const appDirectory = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   root: appDirectory,
-  publicDir: path.join(appDirectory, "public", "assets"),
+  publicDir: false,
+  plugins: [
+    {
+      name: "copy-approved-assets",
+      async closeBundle() {
+        const { cp } = await import("node:fs/promises");
+        await cp(
+          path.join(appDirectory, "public", "assets"),
+          path.join(appDirectory, "dist", "assets"),
+          { recursive: true },
+        );
+      },
+    },
+  ],
   build: {
     outDir: path.join(appDirectory, "dist"),
     emptyOutDir: true,
