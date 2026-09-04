@@ -15,7 +15,7 @@ Cada JSON usa el mismo sobre:
 - `expected.assertions[]`: operaciones deterministas que el validador debe comprobar.
 - `expected.result`: salida semántica congelada para comparaciones directas.
 
-Los elementos de `input.sources`, `agencies`, `agency_aliases`, `projects`, `typologies`, `observations`, `facts`, `documents`, `evidence`, `issues` y `events` reutilizan los campos, enums e IDs namespaced de `apps/web/contracts/demo-v2.schema.json`. El sobre de fixture no reemplaza al documento raíz v2.
+Los elementos de `input.sources`, `agencies`, `agency_aliases`, `projects`, `typologies`, `observations`, `facts`, `documents`, `evidence`, `issues` y `events` reutilizan los campos, enums e IDs namespaced de `packages/contracts/schemas/demo-v2.schema.json`. El sobre de fixture no reemplaza al documento raíz v2.
 
 CT-C y CT-I usan los `$defs` 2.1 `scenarioCatalogs`, `scenarioDefaults` y `geography`. Sus cuadrantes, asignaciones y exclusiones también usan IDs namespaced. Son contratos congelados para los módulos puros posteriores; no deben copiarse al artefacto público como si fueran resultados calculados.
 

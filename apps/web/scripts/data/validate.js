@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 const SCRIPT_DIRECTORY = dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_SCHEMA_PATH = resolve(
   SCRIPT_DIRECTORY,
-  "../../contracts/demo-v2.schema.json"
+  "../../../../packages/contracts/schemas/demo-v2.schema.json"
 );
 
 const DEFINITION_BY_COLLECTION = Object.freeze({

@@ -14,7 +14,7 @@ async function readJson(relativePath) {
 
 const [data, source] = await Promise.all([
   readJson("../public/demo-data/viva-platform-demo.json"),
-  fs.readFile(new URL("../public/js/history.js", import.meta.url), "utf8"),
+  fs.readFile(new URL("../../../packages/domain/src/legacy/history.js", import.meta.url), "utf8"),
 ]);
 
 const clone = (value) => structuredClone(value);
@@ -336,3 +336,4 @@ assert.deepEqual(legacy.timeline, []);
 assert.equal(legacy.agenda[0].action, "history_unavailable");
 
 console.log("history domain unit tests passed");
+

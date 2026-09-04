@@ -7,263 +7,263 @@
     "input_fingerprints": [
       {
         "input_id": "input:001",
-        "path": "apps/web/contracts/demo-v2.schema.json",
-        "sha256": "e68fac27bc16aa8af1492d8358a7e11944fcedc1226f7f258f48fe2da09be39a"
-      },
-      {
-        "input_id": "input:002",
         "path": "apps/web/public/assets/evidence/f3-area-match-card.webp",
         "sha256": "b9963787a88880b3dc5f880bb830c16d0700369f7991629925a03287fc170bd8"
       },
       {
-        "input_id": "input:003",
+        "input_id": "input:002",
         "path": "apps/web/public/assets/evidence/f3-area-match-measurement.webp",
         "sha256": "3d323194b0803fefc47cba8e2b36dabd99b44506750dae68297c1aa4d2571720"
       },
       {
-        "input_id": "input:004",
+        "input_id": "input:003",
         "path": "apps/web/public/assets/evidence/f3-bathroom-conflict-card.webp",
         "sha256": "4f80198159c280e502450f0bb576092ab2a69bfa3d2b9ecf59fb1e0037f68998"
       },
       {
-        "input_id": "input:005",
+        "input_id": "input:004",
         "path": "apps/web/public/assets/evidence/f3-bathroom-conflict-measurement.webp",
         "sha256": "1d0959eae7159c77be8a8bb91bb45e3d45fdd267d5003517e7320c31308a1562"
       },
       {
-        "input_id": "input:006",
+        "input_id": "input:005",
         "path": "apps/web/public/assets/evidence/f3-bedroom-conflict-card.webp",
         "sha256": "8cd274db2b4df525823463d57ecdc751ec67e81a9bb23d8b2c70533384349d27"
       },
       {
-        "input_id": "input:007",
+        "input_id": "input:006",
         "path": "apps/web/public/assets/evidence/f3-bedroom-conflict-measurement.webp",
         "sha256": "33e7021fb8a88e54e8ae2301702a2854dace381351e2f7d97b7b87b0c7c0182c"
       },
       {
-        "input_id": "input:008",
+        "input_id": "input:007",
         "path": "apps/web/public/assets/evidence/f3-ct-a-card.webp",
         "sha256": "203bf07dc927c4fa6fcab6e572ae620b4551a801ef82417dc12a28e8872fe38f"
       },
       {
-        "input_id": "input:009",
+        "input_id": "input:008",
         "path": "apps/web/public/assets/evidence/f3-ct-a-measurement.webp",
         "sha256": "3b2ce8c3a6f07fcfd938574f252fa58733fba835af3aefa4b6d3eb6cafa311fd"
       },
       {
-        "input_id": "input:010",
+        "input_id": "input:009",
         "path": "apps/web/public/assets/evidence/f3-ct-b-source-a.webp",
         "sha256": "f2120188548a7365a33d1d311144377e97e8b028de5711a376cc60c8419e76a1"
       },
       {
-        "input_id": "input:011",
+        "input_id": "input:010",
         "path": "apps/web/public/assets/evidence/f3-ct-b-source-b.webp",
         "sha256": "6735eef1859fc1b838a74438ffe3ccdbb560f3eb67ce4d4910878e5f8e385df2"
       },
       {
-        "input_id": "input:012",
+        "input_id": "input:011",
         "path": "apps/web/public/assets/evidence/f3-floor-review-card.webp",
         "sha256": "58875cd8b4c6588ccf3c116d4bedc0120bce330ce6912774162b3d5cea243f65"
       },
       {
-        "input_id": "input:013",
+        "input_id": "input:012",
         "path": "apps/web/public/assets/evidence/f3-floor-review-measurement.webp",
         "sha256": "12b047235d5b79598f7aaf6163591e116bbbcdf561b562fd8728f4f6590362b3"
       },
       {
-        "input_id": "input:014",
+        "input_id": "input:013",
         "path": "apps/web/public/assets/evidence/f3-illegible-area-card.webp",
         "sha256": "a61efc8a19f6bc4336f7e2fda55bad5629b069c09e08e0c49ff944710aaf7682"
       },
       {
-        "input_id": "input:015",
+        "input_id": "input:014",
         "path": "apps/web/public/assets/evidence/f3-illegible-area-measurement.webp",
         "sha256": "8300dbbae35c766c72d0d7ccc0482b10b02b4466f7605d7c1bf5d76e258c539c"
       },
       {
-        "input_id": "input:016",
+        "input_id": "input:015",
         "path": "apps/web/public/assets/evidence/f3-insufficient-source-card.webp",
         "sha256": "76c29db8d49f90d7271b55597c61052aa9a3d79d0de958be9e9be16db6a97b51"
       },
       {
-        "input_id": "input:017",
+        "input_id": "input:016",
         "path": "data/source/agency_web_discovery_matrix_validated.csv",
         "sha256": "1dfdc831fbc6a245994102f348fb0541eb051d0f6000246f01878a4e7214ecbc"
       },
       {
-        "input_id": "input:018",
+        "input_id": "input:017",
         "path": "data/source/assistant_validation_latest.json",
         "sha256": "c36d89833378388879678205864a01f325691da69ab02e95bb5a3bb327a7ea53"
       },
       {
-        "input_id": "input:019",
+        "input_id": "input:018",
         "path": "data/source/data_quality_latest.json",
         "sha256": "d3960a53a19a34557bd869643da719f2f88bbdb316ba6ea8246effb2750a97a5"
       },
       {
-        "input_id": "input:020",
+        "input_id": "input:019",
         "path": "data/source/demo-pilot/agencies.json",
         "sha256": "eca38c24f7882611b2bbe502ecb3cbf0e6fb2c34e58bdf4371c586f9fe0f1bf0"
       },
       {
-        "input_id": "input:021",
+        "input_id": "input:020",
         "path": "data/source/demo-pilot/assistant-intent-catalog.json",
         "sha256": "2b57ab4fbe17c139a0e1e136ea71f7d00250951cac7cbff06c363fd7657a189a"
       },
       {
-        "input_id": "input:022",
+        "input_id": "input:021",
         "path": "data/source/demo-pilot/benchmark-attribute-catalog.json",
         "sha256": "0451be7a86665d5a89f0f2c17e6e04cdbc90953befc0e2c38fb9b6ea4dbb9726"
       },
       {
-        "input_id": "input:023",
+        "input_id": "input:022",
         "path": "data/source/demo-pilot/benchmark-policy.json",
         "sha256": "dfb9eaf33f5b245e49d59a013a492d9ec30dcad80d1db461a14e9393437a97e8"
       },
       {
-        "input_id": "input:024",
+        "input_id": "input:023",
         "path": "data/source/demo-pilot/documents.json",
         "sha256": "cf65a3066256b57372b328c10a0af4dc4aa0febd8e7ac9cbdaa0d52b98b47977"
       },
       {
-        "input_id": "input:025",
+        "input_id": "input:024",
         "path": "data/source/demo-pilot/events.json",
         "sha256": "aed14fa43ecb222b363b9df42910a478e126823b7dd2f7697d6551984e40ccf3"
       },
       {
-        "input_id": "input:026",
+        "input_id": "input:025",
         "path": "data/source/demo-pilot/evidence-manifest.json",
         "sha256": "fdbba2de62125ca3ff37a5cf918ad0ba51a2fc7366dd4057cfa8f361fd2a7c06"
       },
       {
-        "input_id": "input:027",
+        "input_id": "input:026",
         "path": "data/source/demo-pilot/evidence.json",
         "sha256": "79e790620be2e9e4ed8752bdb744cf72ddabc4d128cbcceb04c591595570ec93"
       },
       {
-        "input_id": "input:028",
+        "input_id": "input:027",
         "path": "data/source/demo-pilot/evidence/ct-d-countertop-fragment.txt",
         "sha256": "cc50af822071091c0ffa6ee08ba131e1e49c607fd31cd35cb0b5c8aa20b9baa8"
       },
       {
-        "input_id": "input:029",
+        "input_id": "input:028",
         "path": "data/source/demo-pilot/evidence/ct-g-transcriptions.json",
         "sha256": "bf0c423915e7dc78486364cf76397909806d45259e056c4dd464d5ff6c4fe487"
       },
       {
-        "input_id": "input:030",
+        "input_id": "input:029",
         "path": "data/source/demo-pilot/facts.json",
         "sha256": "c88fc76ae2ec4484a4c95b48c8ae3f604dcd5718ab751e24b0e8c6a006c70970"
       },
       {
-        "input_id": "input:031",
+        "input_id": "input:030",
         "path": "data/source/demo-pilot/fixtures/ct-a.json",
         "sha256": "06494057e36c9b8cefa21517451467e8331c5e19c289a1a8da7124fa72dee3ab"
       },
       {
-        "input_id": "input:032",
+        "input_id": "input:031",
         "path": "data/source/demo-pilot/fixtures/ct-b.json",
         "sha256": "16f90885b213db3d9c5d489b5964fa3ee245dd86ed0cb2fd1315a3624579c472"
       },
       {
-        "input_id": "input:033",
+        "input_id": "input:032",
         "path": "data/source/demo-pilot/fixtures/ct-c.json",
         "sha256": "591ffcef2b58379002e860054a2b5570e7528e2220ae71853e01707c52b952e4"
       },
       {
-        "input_id": "input:034",
+        "input_id": "input:033",
         "path": "data/source/demo-pilot/fixtures/ct-d.json",
         "sha256": "09f5cd2483cef8c3680b9ee6fc7a0e0446955c10cd0faafe6b852fa886975942"
       },
       {
-        "input_id": "input:035",
+        "input_id": "input:034",
         "path": "data/source/demo-pilot/fixtures/ct-e.json",
         "sha256": "fc5e26d9d132cd0da004b3524f4c45cf00072a6fa76b22f52a731b8d399fe219"
       },
       {
-        "input_id": "input:036",
+        "input_id": "input:035",
         "path": "data/source/demo-pilot/fixtures/ct-g.json",
         "sha256": "322faa31cb4d1a8eaf45a37eef5f6403d6417116b351c6f21af2e19f3bfdbc2f"
       },
       {
-        "input_id": "input:037",
+        "input_id": "input:036",
         "path": "data/source/demo-pilot/fixtures/ct-h.json",
         "sha256": "573c265a99b4efa099e81e50c0c22f87c5b7a03d49378c117728a230176f4aaa"
       },
       {
-        "input_id": "input:038",
+        "input_id": "input:037",
         "path": "data/source/demo-pilot/fixtures/ct-i.json",
         "sha256": "b9dfd156cb89fb4518ab5c16e1d3cb740f020a315b7dd036d874e4a988be77d5"
       },
       {
-        "input_id": "input:039",
+        "input_id": "input:038",
         "path": "data/source/demo-pilot/history-policy.json",
         "sha256": "b0d38104da0c5e75382a3724cd247b20f8dcf7a19456ec7f1ae7d57680360c89"
       },
       {
-        "input_id": "input:040",
+        "input_id": "input:039",
         "path": "data/source/demo-pilot/inspector-cases.json",
         "sha256": "ebbb7fd07b973a2740f0e8d4b5148b524b3687ab5834d5286f9fa4c2af840301"
       },
       {
-        "input_id": "input:041",
+        "input_id": "input:040",
         "path": "data/source/demo-pilot/issues.json",
         "sha256": "9935587f515e2a6b275a95374ad19f949d86d7849625879f77b02ae903138c0b"
       },
       {
-        "input_id": "input:042",
+        "input_id": "input:041",
         "path": "data/source/demo-pilot/observations.json",
         "sha256": "56a2e4afcde3c61fa85fb8c15e16fabf75b88d9bc0f5268a1372d26dbe6991f6"
       },
       {
-        "input_id": "input:043",
+        "input_id": "input:042",
         "path": "data/source/demo-pilot/pilot-selection.json",
         "sha256": "262fcad008392aaf998b8e8d2384c87e985a4f9210323fb2caf61ce943911a2a"
       },
       {
-        "input_id": "input:044",
+        "input_id": "input:043",
         "path": "data/source/demo-pilot/sources.json",
         "sha256": "fd8f8e68ab128ed1919b191d34568a50ee66f1280e3fc35eb75041cc29e47bbe"
       },
       {
-        "input_id": "input:045",
+        "input_id": "input:044",
         "path": "data/source/demo-pilot/typologies.json",
         "sha256": "9a6875f0f342f22ef851f8d9adb62a284b9911d5abe4efc0a57e556c9c1c3418"
       },
       {
-        "input_id": "input:046",
+        "input_id": "input:045",
         "path": "data/source/geography/district-boundaries-source.geojson",
         "sha256": "ef75b5deb43f2ed94cc9661c3f1926e94608e0b2e4a41c8ce9197dbea71b16c0"
       },
       {
-        "input_id": "input:047",
+        "input_id": "input:046",
         "path": "data/source/geography/source-manifest.json",
         "sha256": "e29578b23753db72851d2eec0faf2014781dc5c32ca5899790d2d12087014bbe"
       },
       {
-        "input_id": "input:048",
+        "input_id": "input:047",
         "path": "data/source/nexo_web_project_match.csv",
         "sha256": "2ad09f63f8a880e706c4826f5a3784cbec4a127a8e6c601c3e834b45a2d64fe0"
       },
       {
-        "input_id": "input:049",
+        "input_id": "input:048",
         "path": "data/source/service_scope_matrix.csv",
         "sha256": "16854ea93b4c0e17e0bf1af9e83a6e57a3fef375e0ba9efc515e1fab612fad16"
       },
       {
-        "input_id": "input:050",
+        "input_id": "input:049",
         "path": "data/source/viva_minimum_dataset_latest.csv",
         "sha256": "902747a251be63fd6ff6bd4662142145de7de584979ac793017f92fb97213de9"
       },
       {
-        "input_id": "input:051",
+        "input_id": "input:050",
         "path": "data/source/webs_propias_sample_dataset.csv",
         "sha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc"
       },
       {
-        "input_id": "input:052",
+        "input_id": "input:051",
         "path": "data/source/webs_propias_source_field_feasibility.csv",
         "sha256": "7282372aef6e0ca3a86348141ec719cedcd359acfb8b05767edfd8089f8c25df"
+      },
+      {
+        "input_id": "input:052",
+        "path": "packages/contracts/schemas/demo-v2.schema.json",
+        "sha256": "e68fac27bc16aa8af1492d8358a7e11944fcedc1226f7f258f48fe2da09be39a"
       }
     ],
     "publication": {
@@ -132889,17 +132889,17 @@
     },
     "fingerprints": [
       {
-        "input_id": "input:039",
+        "input_id": "input:038",
         "path": "data/source/demo-pilot/history-policy.json",
         "sha256": "b0d38104da0c5e75382a3724cd247b20f8dcf7a19456ec7f1ae7d57680360c89"
       },
       {
-        "input_id": "input:047",
+        "input_id": "input:046",
         "path": "data/source/geography/source-manifest.json",
         "sha256": "e29578b23753db72851d2eec0faf2014781dc5c32ca5899790d2d12087014bbe"
       },
       {
-        "input_id": "input:050",
+        "input_id": "input:049",
         "path": "data/source/viva_minimum_dataset_latest.csv",
         "sha256": "902747a251be63fd6ff6bd4662142145de7de584979ac793017f92fb97213de9"
       }

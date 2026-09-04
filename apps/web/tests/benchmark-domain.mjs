@@ -25,7 +25,7 @@ const [data, ctA, ctB, ctC, ctD, ctG, ctI, ctP, source] = await Promise.all([
   readJson("./e2e-scenarios/ct-g-benchmark.json"),
   readJson("./e2e-scenarios/ct-i-benchmark.json"),
   readJson("./e2e-scenarios/ct-p-benchmark.json"),
-  fs.readFile(new URL("../public/js/benchmark.js", import.meta.url), "utf8")
+  fs.readFile(new URL("../../../packages/domain/src/legacy/benchmark.js", import.meta.url), "utf8")
 ]);
 const methodology = data.benchmark.methodology;
 
@@ -1056,3 +1056,4 @@ console.log(
     `${mirafloresPrice.orientative.n} safe orientations, ` +
     `${mirafloresContext.qualitative.coverage.usedProjectIds.length} qualitative records.`
 );
+

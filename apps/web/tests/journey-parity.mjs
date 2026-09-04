@@ -118,7 +118,7 @@ assert.deepEqual(
 );
 
 const journeySource = await fs.readFile(
-  new URL("../public/js/journey.js", import.meta.url),
+  new URL("../../../packages/domain/src/legacy/journey.js", import.meta.url),
   "utf8",
 );
 const stateSource = await fs.readFile(
@@ -143,3 +143,4 @@ assert.equal(
 console.log(
   "Journey parity OK: six stages reuse authoritative scenario, dossier, benchmark, comparison, history, checklist and assistant outputs.",
 );
+

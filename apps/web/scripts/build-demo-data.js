@@ -54,7 +54,7 @@ export const GENERATED_AT = "2026-07-28T01:24:28Z";
 export const CUTOFF_AT = "2026-07-28T01:24:28Z";
 
 const PATHS = Object.freeze({
-  schema: "apps/web/contracts/demo-v2.schema.json",
+  schema: "packages/contracts/schemas/demo-v2.schema.json",
   nexo: "data/source/viva_minimum_dataset_latest.csv",
   scope: "data/source/service_scope_matrix.csv",
   discovery: "data/source/agency_web_discovery_matrix_validated.csv",

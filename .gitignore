@@ -3,6 +3,8 @@
 graphify-out/
 .planning/evidence/local/
 node_modules/
+.npm-cache/
+*.tsbuildinfo
 npm-debug.log*
 
 # Generated application outputs

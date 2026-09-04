@@ -444,7 +444,7 @@ assert.equal(
 assertFiniteTree(resetContext);
 
 const source = await readFile(
-  new URL("../public/js/comparability.js", import.meta.url),
+  new URL("../../../packages/domain/src/legacy/comparability.js", import.meta.url),
   "utf8",
 );
 assert.ok(
@@ -455,3 +455,4 @@ assert.doesNotMatch(source, /haversine|pointInPolygon|computeDistance/i);
 assert.doesNotMatch(source, /\b(?:latitude|longitude)\b/i);
 
 console.log("comparability.mjs: PASS");
+

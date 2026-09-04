@@ -20,7 +20,7 @@ async function readJson(relativePath) {
 
 const data = await readJson("../public/demo-data/viva-platform-demo.json");
 const source = await fs.readFile(
-  new URL("../public/js/assistant-engine.js", import.meta.url),
+  new URL("../../../packages/domain/src/legacy/assistant-engine.js", import.meta.url),
   "utf8",
 );
 
@@ -326,3 +326,4 @@ assert.deepEqual(
 assert.deepEqual(baseArguments, inputsBefore, "assistant engine must not mutate inputs");
 
 console.log("assistant semantic engine unit tests passed");
+

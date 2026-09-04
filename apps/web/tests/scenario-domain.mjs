@@ -521,7 +521,7 @@ assert.equal(emptyRadius.scope.geography_valid_project_count, 0);
 assert.equal(emptyRadius.geography_status, "ready");
 
 const sourceText = await fs.readFile(
-  new URL("../public/js/scenario.js", import.meta.url),
+  new URL("../../../packages/domain/src/legacy/scenario.js", import.meta.url),
   "utf8"
 );
 assert.doesNotMatch(
@@ -542,3 +542,4 @@ for (const forbidden of [
 console.log(
   `Scenario domain OK: URL/reducer pure, CT-C ${territorialC.geography_valid_project_ids.length}/${territorialC.observed_scope_project_ids.length}, CT-I ${districtI.geography_valid_project_ids.length}/${districtI.observed_scope_project_ids.length}, radial distance retained at full precision.`
 );
+

@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "public");
+const REPOSITORY_DIR = path.resolve(__dirname, "..", "..");
+const DOMAIN_DIR = path.join(REPOSITORY_DIR, "packages", "domain");
 const PORT = Number(process.env.PORT ?? 4173);
 
 const contentTypes = {
@@ -18,8 +20,14 @@ const server = http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host}`);
     const pathname = url.pathname === "/" ? "/index.html" : url.pathname;
-    const filePath = path.resolve(PUBLIC_DIR, pathname.replace(/^\/+/, ""));
-    if (!filePath.startsWith(PUBLIC_DIR)) return send(res, 403, "Forbidden", "text/plain; charset=utf-8");
+    const servesDomain = pathname.startsWith("/packages/domain/");
+    const rootDirectory = servesDomain ? REPOSITORY_DIR : PUBLIC_DIR;
+    const filePath = path.resolve(rootDirectory, pathname.replace(/^\/+/, ""));
+    const allowedDirectory = servesDomain ? DOMAIN_DIR : PUBLIC_DIR;
+    const relativePath = path.relative(allowedDirectory, filePath);
+    if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
+      return send(res, 403, "Forbidden", "text/plain; charset=utf-8");
+    }
 
     const data = await fs.readFile(filePath);
     const type = contentTypes[path.extname(filePath).toLowerCase()] ?? "application/octet-stream";

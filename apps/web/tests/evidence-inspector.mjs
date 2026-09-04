@@ -1193,7 +1193,7 @@ assert.throws(
 );
 
 const source = await readFile(
-  new URL("../public/js/evidence-inspector.js", import.meta.url),
+  new URL("../../../packages/domain/src/legacy/evidence-inspector.js", import.meta.url),
   "utf8",
 );
 assert.doesNotMatch(source, /\b(?:window|fetch)\b/u);
@@ -1216,3 +1216,4 @@ assert.doesNotMatch(
 console.log(
   "evidence-inspector.mjs: PASS — 10 dossiers, five-state roll-up, six presentation modes, ownership, purity and fail-closed paths verified.",
 );
+

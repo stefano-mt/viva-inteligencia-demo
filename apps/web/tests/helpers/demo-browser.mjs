@@ -11,8 +11,10 @@ const require = createRequire(import.meta.url);
 const { chromium } = require("playwright");
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
-const PROJECT_DIR = path.resolve(TEST_DIR, "..", "..");
+const PROJECT_DIR = path.resolve(TEST_DIR, "..");
+const REPOSITORY_DIR = path.resolve(PROJECT_DIR, "..", "..");
 const PUBLIC_DIR = path.join(PROJECT_DIR, "public");
+const DOMAIN_DIR = path.join(REPOSITORY_DIR, "packages", "domain");
 const SERVER_FILE = path.join(PROJECT_DIR, "server-static.js");
 const contentTypes = new Map([
   [".css", "text/css; charset=utf-8"],
@@ -131,7 +133,9 @@ export async function guardSameOrigin(page, baseUrl) {
     if (
       (requestUrl.protocol === "http:" || requestUrl.protocol === "https:") &&
       (requestUrl.origin !== allowedOrigin ||
-        (allowedPath !== "/" && !requestUrl.pathname.startsWith(allowedPath)))
+        (allowedPath !== "/" &&
+          !requestUrl.pathname.startsWith(allowedPath) &&
+          !requestUrl.pathname.startsWith("/packages/domain/")))
     ) {
       externalRequests.push(`${request.method()} ${request.url()}`);
       await route.abort("blockedbyclient");
@@ -176,9 +180,15 @@ async function startPagesStyleServer({ port, basePath }) {
         url.pathname === baseWithoutSlash || url.pathname === basePath
           ? "index.html"
           : url.pathname.slice(basePath.length);
-      const filePath = path.resolve(PUBLIC_DIR, relativePath);
-      const relativeToPublic = path.relative(PUBLIC_DIR, filePath);
-      if (relativeToPublic.startsWith("..") || path.isAbsolute(relativeToPublic)) {
+      const servesDomain = url.pathname.startsWith("/packages/domain/");
+      const rootDirectory = servesDomain ? REPOSITORY_DIR : PUBLIC_DIR;
+      const requestedPath = servesDomain
+        ? url.pathname.replace(/^\/+/, "")
+        : relativePath;
+      const filePath = path.resolve(rootDirectory, requestedPath);
+      const allowedDirectory = servesDomain ? DOMAIN_DIR : PUBLIC_DIR;
+      const relativeToAllowed = path.relative(allowedDirectory, filePath);
+      if (relativeToAllowed.startsWith("..") || path.isAbsolute(relativeToAllowed)) {
         return send(response, 403, "Forbidden", "text/plain; charset=utf-8");
       }
       const data = await fsPromises.readFile(filePath);
