@@ -6,7 +6,7 @@ import type { SnapshotData } from "./types.js";
 
 const snapshotPath = path.resolve(
   import.meta.dirname,
-  "../../../apps/web/public/demo-data/viva-platform-demo.json",
+  "../../../data/generated/viva-platform-demo.json",
 );
 const snapshot = JSON.parse(fs.readFileSync(snapshotPath, "utf8")) as SnapshotData;
 

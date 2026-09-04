@@ -30,6 +30,7 @@ export interface WorkspaceEvaluation {
   coverage: JsonObject;
   marketReading: JsonObject;
   priceDiagnosis: JsonObject;
+  benchmark: JsonObject;
   comparableProjectIds: string[];
   priceReferenceProjectIds: string[];
   internal: {

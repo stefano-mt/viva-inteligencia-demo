@@ -1,8 +1,10 @@
 import { Type } from "@sinclair/typebox";
 import type { Static } from "@sinclair/typebox";
 
-const NullableNumber = Type.Union([Type.Number(), Type.Null()]);
-const NullableString = Type.Union([Type.String(), Type.Null()]);
+// Keep null first: Fastify's Ajv coercion otherwise turns JSON null into 0/""
+// while evaluating the first union branch, changing a valid default scenario.
+const NullableNumber = Type.Union([Type.Null(), Type.Number()]);
+const NullableString = Type.Union([Type.Null(), Type.String()]);
 
 export const ScenarioSchema = Type.Object(
   {

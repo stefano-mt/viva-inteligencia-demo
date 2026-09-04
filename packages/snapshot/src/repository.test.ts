@@ -4,7 +4,7 @@ import { InMemorySnapshotRepository } from "./repository.js";
 import { loadAndValidateSnapshot, SnapshotValidationError } from "./validation.js";
 
 const root = path.resolve(import.meta.dirname, "../../..");
-const snapshotPath = path.join(root, "apps/web/public/demo-data/viva-platform-demo.json");
+const snapshotPath = path.join(root, "data/generated/viva-platform-demo.json");
 const schemaPath = path.join(root, "packages/contracts/schemas/demo-v2.schema.json");
 
 describe("snapshot repository", () => {

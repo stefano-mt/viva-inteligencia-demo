@@ -20,7 +20,7 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env): ApiCon
     corsOrigin: parseCors(environment.CORS_ORIGIN),
     snapshotPath: path.resolve(
       environment.SNAPSHOT_PATH?.trim() ||
-        path.join(repositoryRoot, "apps", "web", "public", "demo-data", "viva-platform-demo.json"),
+        path.join(repositoryRoot, "data", "generated", "viva-platform-demo.json"),
     ),
     schemaPath: path.resolve(
       environment.SNAPSHOT_SCHEMA_PATH?.trim() ||

@@ -76,11 +76,25 @@ export class InMemorySnapshotRepository implements DataRepository {
         id: String(district.district_id),
         name: String(district.district_name ?? district.source_name ?? ""),
         projectCount: Number(district.observed_project_count ?? 0),
+        centerLatitude: nullableNumber(district.median_latitude),
+        centerLongitude: nullableNumber(district.median_longitude),
         quadrants: ((district.quadrants as JsonObject[] | undefined) ?? []).map((quadrant) => ({
           id: String(quadrant.quadrant_id),
           label: String(quadrant.label),
         })),
       })),
+      inspectorCases: (((this.#data.inspector as JsonObject).cases as JsonObject[] | undefined) ?? [])
+        .map((item) => ({
+          id: String(item.case_id),
+          routeSlug: String(item.route_slug),
+          qualityStatus: String(item.expected_quality_status ?? "reviewable"),
+        })),
+      assistantIntents: (((this.#data.assistant as JsonObject).intents as JsonObject[] | undefined) ?? [])
+        .map((item) => ({
+          id: String(item.intent_id),
+          label: String(item.label),
+          question: String((item.suggested_questions as unknown[] | undefined)?.[0] ?? item.label ?? ""),
+        })),
     };
   }
 

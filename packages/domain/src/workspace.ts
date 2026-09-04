@@ -83,6 +83,16 @@ export function evaluateWorkspace(
     scenarioContext,
     filters: callNormalizeHistoryFilters(),
   });
+  const quantitative = benchmarkContext.quantitative?.pricePerM2Total ?? {};
+  const orientative = quantitative.orientative ?? {};
+  const attributes = (benchmarkContext.qualitative?.attributes ?? []).map((attribute: any) => ({
+    id: attribute.attributeId,
+    category: attribute.category,
+    label: attribute.label,
+    status: attribute.status,
+    announcedCount: attribute.announcedProjectIds?.length ?? 0,
+    documentedCount: attribute.documentedProjectIds?.length ?? 0,
+  }));
   return {
     scenario: structuredClone(validated.scenario),
     scenarioStatus: validated.scenario_status as "valid" | "invalid",
@@ -101,6 +111,28 @@ export function evaluateWorkspace(
       pricePosition: comparability.price_diagnosis.position,
     },
     priceDiagnosis: asJsonObject(comparability.price_diagnosis),
+    benchmark: {
+      status: benchmarkContext.status,
+      quantitative: {
+        status: quantitative.status,
+        n: quantitative.n,
+        p25: quantitative.p25,
+        median: quantitative.median,
+        p75: quantitative.p75,
+        orientative: {
+          status: orientative.status,
+          n: orientative.n,
+          p25: orientative.p25,
+          median: orientative.median,
+          p75: orientative.p75,
+        },
+      },
+      qualitative: {
+        status: benchmarkContext.qualitative?.status,
+        attributes,
+      },
+      methodology: structuredClone(benchmarkContext.methodology ?? {}),
+    },
     comparableProjectIds: [...comparability.comparable_project_ids],
     priceReferenceProjectIds: [...comparability.price_reference_project_ids],
     internal: {

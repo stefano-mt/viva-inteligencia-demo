@@ -10,7 +10,7 @@ let app: FastifyInstance;
 
 beforeAll(async () => {
   const config = readConfig({
-    SNAPSHOT_PATH: path.join(root, "apps/web/public/demo-data/viva-platform-demo.json"),
+    SNAPSHOT_PATH: path.join(root, "data/generated/viva-platform-demo.json"),
     SNAPSHOT_SCHEMA_PATH: path.join(root, "packages/contracts/schemas/demo-v2.schema.json"),
   });
   const loaded = await loadAndValidateSnapshot({
@@ -75,6 +75,8 @@ describe("Viva API", () => {
       payload: { scenario, input: "¿Qué debo priorizar?" },
     });
     expect(workspace.statusCode).toBe(200);
+    expect(workspace.json().scenarioStatus).toBe("valid");
+    expect(workspace.json().corrections).toEqual([]);
     expect(comparison.statusCode).toBe(200);
     expect(inspector.statusCode).toBe(200);
     expect(history.statusCode).toBe(200);

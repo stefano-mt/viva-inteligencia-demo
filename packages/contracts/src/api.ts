@@ -35,9 +35,25 @@ export const BootstrapResponseSchema = Type.Intersect([
         id: Type.String(),
         name: Type.String(),
         projectCount: Type.Integer({ minimum: 0 }),
+        centerLatitude: Type.Union([Type.Null(), Type.Number()]),
+        centerLongitude: Type.Union([Type.Null(), Type.Number()]),
         quadrants: Type.Array(
           Type.Object({ id: Type.String(), label: Type.String() }),
         ),
+      }),
+    ),
+    inspectorCases: Type.Array(
+      Type.Object({
+        id: Type.String(),
+        routeSlug: Type.String(),
+        qualityStatus: Type.String(),
+      }),
+    ),
+    assistantIntents: Type.Array(
+      Type.Object({
+        id: Type.String(),
+        label: Type.String(),
+        question: Type.String(),
       }),
     ),
   }),
@@ -57,6 +73,7 @@ export const WorkspaceEvaluateResponseSchema = Type.Intersect([
     coverage: Type.Record(Type.String(), Type.Unknown()),
     marketReading: Type.Record(Type.String(), Type.Unknown()),
     priceDiagnosis: Type.Record(Type.String(), Type.Unknown()),
+    benchmark: Type.Record(Type.String(), Type.Unknown()),
     comparableProjectIds: Type.Array(Type.String()),
     priceReferenceProjectIds: Type.Array(Type.String()),
   }),

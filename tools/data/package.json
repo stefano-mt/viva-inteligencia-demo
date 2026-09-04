@@ -1,0 +1,13 @@
+{
+  "name": "@viva/data-tools",
+  "version": "2.4.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node ../../apps/web/scripts/build-demo-data.js",
+    "check": "node --check ../../apps/web/scripts/build-demo-data.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

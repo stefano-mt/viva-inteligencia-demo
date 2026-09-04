@@ -220,10 +220,13 @@ export async function buildApp(dependencies: AppDependencies): Promise<FastifyIn
     const normalizedError = error as {
       validation?: unknown[];
       statusCode?: number;
+      code?: string;
     };
     const validation = normalizedError.validation;
     const statusCode = validation ? 400 : Math.max(400, Number(normalizedError.statusCode ?? 500));
-    const code = validation ? "REQUEST_INVALID" : statusCode >= 500 ? "INTERNAL_ERROR" : "REQUEST_FAILED";
+    const code = validation
+      ? "REQUEST_INVALID"
+      : normalizedError.code ?? (statusCode >= 500 ? "INTERNAL_ERROR" : "REQUEST_FAILED");
     if (statusCode >= 500) request.log.error({ err: error }, "request failed");
     return sendError(
       reply,
@@ -241,7 +244,7 @@ export async function buildApp(dependencies: AppDependencies): Promise<FastifyIn
 function requireRepository(dependencies: AppDependencies): DataRepository {
   if (!dependencies.repository) {
     const error = new Error(dependencies.startupError?.message ?? "Snapshot no disponible.");
-    Object.assign(error, { statusCode: 503 });
+    Object.assign(error, { statusCode: 503, code: "SNAPSHOT_UNAVAILABLE" });
     throw error;
   }
   return dependencies.repository;

@@ -27,18 +27,14 @@ const SCRIPT_DIRECTORY = path.dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_REPOSITORY_ROOT = path.resolve(SCRIPT_DIRECTORY, "../../..");
 export const DEFAULT_OUTPUT_PATH = path.join(
   DEFAULT_REPOSITORY_ROOT,
-  "apps",
-  "web",
-  "public",
-  "demo-data",
+  "data",
+  "generated",
   "viva-platform-demo.json"
 );
 export const DEFAULT_GEOJSON_OUTPUT_PATH = path.join(
   DEFAULT_REPOSITORY_ROOT,
-  "apps",
-  "web",
-  "public",
-  "demo-data",
+  "data",
+  "generated",
   "district-boundaries.geojson"
 );
 export const DEFAULT_COVERAGE_REPORT_OUTPUT_PATH = path.join(
@@ -2349,10 +2345,8 @@ export async function buildDemoData({
     outputPath ??
       path.join(
         root,
-        "apps",
-        "web",
-        "public",
-        "demo-data",
+        "data",
+        "generated",
         "viva-platform-demo.json"
       )
   );
@@ -2360,10 +2354,8 @@ export async function buildDemoData({
     geoJsonOutputPath ??
       path.join(
         root,
-        "apps",
-        "web",
-        "public",
-        "demo-data",
+        "data",
+        "generated",
         "district-boundaries.geojson"
       )
   );
@@ -2425,7 +2417,7 @@ async function main() {
   const result = await buildDemoData({ includeBenchmark: true });
   console.log(
     `Demo data written: ${path.relative(
-      path.join(DEFAULT_REPOSITORY_ROOT, "apps", "web"),
+      DEFAULT_REPOSITORY_ROOT,
       result.outputPath
     )}`
   );
