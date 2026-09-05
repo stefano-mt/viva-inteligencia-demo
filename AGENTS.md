@@ -4,7 +4,7 @@
 
 Mantener un MVP público y de solo lectura que transforme oferta inmobiliaria observada en decisiones comerciales geográficas, comparables y trazables para Viva Inmobiliaria.
 
-Fuera de alcance sin una decisión nueva: autenticación, CRM, scraping u OCR en vivo, escritura de usuarios, LLM, geolocalización personal, panel administrativo y base de datos.
+Fuera de alcance sin una decisión nueva: autenticación, CRM, scraping u OCR en tiempo de consulta, escritura de usuarios, LLM, geolocalización personal y panel administrativo. La ingesta batch y un almacén operacional están admitidos únicamente bajo ADR-0004: fuera del runtime público, con fuentes autorizadas, trazabilidad y publicación versionada.
 
 ## Lectura inicial
 
@@ -23,8 +23,9 @@ Fuera de alcance sin una decisión nueva: autenticación, CRM, scraping u OCR en
 - `packages/domain`: funciones puras; no importa DOM, Fastify, filesystem ni red.
 - `packages/snapshot`: validación, índices y el puerto `DataRepository`.
 - `tools/data`: generación determinista a partir de `data/source`.
+- `tools/ingestion`: descubrimiento offline, policy gates y futuros jobs autorizados; nunca se importa desde `apps/web` o el request path del API.
 
-No adoptes el SQL preliminar como modelo productivo. PostgreSQL requiere un ADR nuevo y una necesidad de persistencia o actualización incremental.
+No adoptes el SQL preliminar como modelo productivo. ADR-0004 autoriza diseñar PostgreSQL para actualización incremental, pero cada migración debe derivarse del contrato canónico y no del archivo preliminar.
 
 ## Reglas de datos y narrativa
 
@@ -33,6 +34,8 @@ No adoptes el SQL preliminar como modelo productivo. PostgreSQL requiere un ADR 
 - No llames “área techada” a un área declarada únicamente como total.
 - No atribuyas causas a señales si la fuente no las observa.
 - No expongas el snapshot completo, payloads fuente, PII ni evidencias restringidas.
+- Conserva observaciones discrepantes por fuente; no sobrescribas Nexo con una web propia ni viceversa.
+- “Precio publicado” y “precio real de cierre” son conceptos distintos. Este último requiere una fuente transaccional autorizada.
 - Toda respuesta API incluye `datasetVersion` y `contractVersion`.
 
 ## Interfaz

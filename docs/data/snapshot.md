@@ -22,4 +22,4 @@ Se conserva valor original, normalizado, unidad, fuente, captura y estado. Los c
 
 ## Evolución
 
-PostgreSQL se evaluará cuando existan escrituras, actualizaciones incrementales, usuarios o integraciones operativas. Hasta entonces agregaría costo sin resolver una necesidad del MVP.
+La actualización incremental y el contraste multifuente ya son una necesidad aprobada. ADR-0004 separa un futuro almacén operacional PostgreSQL de este read model: los jobs escriben observaciones privadas y la publicación materializa un snapshot inmutable validado. El navegador y los endpoints de consulta no acceden a capturas crudas.

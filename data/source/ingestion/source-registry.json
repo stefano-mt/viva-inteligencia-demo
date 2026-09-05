@@ -1,0 +1,33 @@
+{
+  "registryVersion": "1.0.0",
+  "sources": [
+    {
+      "sourceId": "nexo-authorized-feed",
+      "label": "Export o API autorizada de Nexo",
+      "sourceClass": "authorized_feed",
+      "purpose": "Fuente base para proyectos, tipologías y publicaciones de Nexo.",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "pending",
+      "robotsStatus": "not_applicable"
+    },
+    {
+      "sourceId": "nexo-public-website",
+      "label": "Sitio público de Nexo",
+      "sourceClass": "public_aggregator",
+      "purpose": "Contraste potencial sujeto a autorización contractual escrita.",
+      "url": "https://nexoinmobiliario.pe/",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "blocked",
+      "robotsStatus": "unknown"
+    },
+    {
+      "sourceId": "official-project-websites",
+      "label": "Webs oficiales de inmobiliarias",
+      "sourceClass": "official_project_website",
+      "purpose": "Enriquecimiento y contraste de información pública de cada proyecto.",
+      "officialDomainConfirmed": false,
+      "reviewStatus": "pending",
+      "robotsStatus": "unknown"
+    }
+  ]
+}

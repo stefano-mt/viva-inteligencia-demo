@@ -10,10 +10,11 @@
 
 1. `architecture/overview.md`: componentes y flujo.
 2. `data/snapshot.md`: construcción, privacidad y trazabilidad.
-3. `operations/runbook.md`: ejecución, health y rollback.
-4. `operations/ownership-map.md`: dónde cambiar cada responsabilidad.
-5. `operations/release-checklist.md`: promoción y rollback de una versión.
-6. `adr/`: decisiones que no deben reinterpretarse en silencio.
+3. `data/continuous-ingestion.md`: actualización, fuentes y discrepancias.
+4. `operations/runbook.md`: ejecución, health y rollback.
+5. `operations/ownership-map.md`: dónde cambiar cada responsabilidad.
+6. `operations/release-checklist.md`: promoción y rollback de una versión.
+7. `adr/`: decisiones que no deben reinterpretarse en silencio.
 
 ## Si vas a validar una release
 
