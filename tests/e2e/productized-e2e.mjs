@@ -138,6 +138,23 @@ try {
   );
   await page.screenshot({ path: path.join(outputDirectory, "projects-detail-1440x900.png"), fullPage: true });
   await page.getByRole("button", { name: "Cerrar ficha" }).click();
+
+  await page.goto(`${baseUrl}/#activity`, { waitUntil: "networkidle" });
+  await page.getByRole("heading", { level: 1, name: "Seguimiento comercial" }).waitFor();
+  assert.equal(await page.locator(".history-coverage__item").count(), 3, "Seguimiento debe declarar los tres tipos de alerta");
+  assert.equal(await page.locator(".history-signal").count(), 5, "Las cinco señales observadas deben aparecer en lenguaje comercial");
+  assert.doesNotMatch(await page.locator("#main-content").innerText(), /project:nexo-|published_price_from|certified/u, "Seguimiento no debe exponer vocabulario técnico");
+  assert.match(await page.locator(".history-priority").innerText(), /precio publicado/i, "La revisión sugerida debe explicar el cambio observado");
+  await page.locator("#history-direction-filter").selectOption("increase");
+  assert.equal(await page.locator(".history-signal").count(), 1, "El filtro de movimiento debe actualizar la lista");
+  await page.getByRole("button", { name: "Limpiar filtros" }).click();
+  assert.equal(await page.locator(".history-signal").count(), 5, "Limpiar filtros debe recuperar todas las señales");
+  await page.locator(".history-priority").getByRole("button", { name: "Abrir proyecto" }).click();
+  await page.locator("#project-detail-title").waitFor();
+  assert.equal(await hasHorizontalOverflow(page), false, "Seguimiento y ficha no deben desbordar en escritorio");
+  await page.getByRole("button", { name: "Cerrar ficha" }).click();
+  await page.screenshot({ path: path.join(outputDirectory, "activity-1440x900.png"), fullPage: true });
+
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
   assert.ok(await page.locator("path.district-boundary").count() === 1, "El mapa debe representar el contorno distrital");
   assert.match(await page.locator(".map-provenance").innerText(), /RENLIM/i);
@@ -178,6 +195,12 @@ try {
   await page.locator("#project-detail-title").waitFor();
   assert.equal(await hasHorizontalOverflow(page), false, "La ficha 390×844 no debe desbordar");
   await page.screenshot({ path: path.join(outputDirectory, "projects-detail-390x844.png"), fullPage: true });
+
+  await page.goto(`${baseUrl}/#activity`, { waitUntil: "networkidle" });
+  await page.getByRole("heading", { level: 1, name: "Seguimiento comercial" }).waitFor();
+  assert.equal(await hasHorizontalOverflow(page), false, "Seguimiento 390×844 no debe desbordar");
+  assert.equal(await page.locator(".history-signal").count(), 5, "Seguimiento móvil debe conservar las señales");
+  await page.screenshot({ path: path.join(outputDirectory, "activity-390x844.png"), fullPage: true });
 
   await page.setViewportSize({ width: 768, height: 1024 });
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });

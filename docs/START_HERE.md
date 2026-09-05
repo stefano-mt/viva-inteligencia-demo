@@ -5,6 +5,7 @@
 1. `business/demo-guide.md`: cómo recorrer la solución.
 2. `business/glossary.md`: significado de cifras y estados.
 3. `product/product-contract.md`: capacidades y límites.
+4. `product/monitoring-panel.md`: lectura y límites del seguimiento comercial.
 
 ## Si perteneces al equipo técnico
 

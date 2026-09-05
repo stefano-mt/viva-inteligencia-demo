@@ -32,6 +32,8 @@ interface AppState {
   projectScope: "scenario" | "all";
   projectQuery: string;
   projectSort: string;
+  historyDirection: "all" | "increase" | "decrease" | "unchanged";
+  historyValidity: "all" | "current" | "aging" | "historical" | "unknown";
   mapView: "geographic" | "positioning";
   selectedProjectIds: string[];
   inspectorSlug: string | null;
@@ -63,6 +65,8 @@ const state: AppState = {
   projectScope: "scenario",
   projectQuery: "",
   projectSort: "name",
+  historyDirection: "all",
+  historyValidity: "all",
   mapView: "geographic",
   selectedProjectIds: [],
   inspectorSlug: null,
@@ -73,6 +77,7 @@ const state: AppState = {
 window.addEventListener("hashchange", () => {
   state.route = parseRoute();
   state.navOpen = false;
+  state.projectDetail = null;
   void loadRouteData({ focus: true });
 });
 window.addEventListener("keydown", (event) => {
@@ -130,6 +135,8 @@ async function refreshWorkspace(): Promise<void> {
   state.projectScope = "scenario";
   state.projectQuery = "";
   state.projectSort = "name";
+  state.historyDirection = "all";
+  state.historyValidity = "all";
   writeScenarioToLocation(workspace.scenario);
   const [projects, history] = await Promise.all([
     provider.projects({
@@ -174,11 +181,20 @@ async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
       ]);
     }
     if (state.route.id === "activity" || state.route.id === "movement") {
-      state.history = await provider.history({
-        district: state.scenario.district_id,
-        page: 1,
-        pageSize: 20,
-      });
+      [state.history, state.projects] = await Promise.all([
+        provider.history({
+          district: state.scenario.district_id,
+          page: 1,
+          pageSize: 100,
+        }),
+        provider.projects({
+          district: state.scenario.district_id,
+          page: 1,
+          pageSize: 100,
+          typology: state.scenario.typology,
+          bedrooms: state.scenario.bedrooms,
+        }),
+      ]);
     }
     if (state.route.id === "inspector" || state.route.id === "quality") {
       const slug = state.route.id === "quality"
@@ -360,7 +376,7 @@ function renderDepthStage(): string {
 
 function renderMovementStage(): string {
   const total = state.history?.total ?? 0;
-  return `<section class="decision-strip"><span>Movimiento observado</span><strong>${formatNumber(total)} señales históricas cumplen la política del escenario.</strong><p>No se infiere causalidad: cada cambio conserva fechas, valores y evidencia.</p></section>${renderHistoryTable(5)}`;
+  return `<section class="decision-strip"><span>Movimiento observado</span><strong>${formatNumber(total)} señales históricas cumplen la política del escenario.</strong><p>No se infiere causalidad: cada cambio conserva fechas, valores y evidencia.</p></section>${renderHistorySignals(historyEvents().slice(0, 5), true)}`;
 }
 
 function renderDecisionStage(): string {
@@ -580,13 +596,144 @@ function renderAnswer(answer: JsonObject): string {
 }
 
 function renderHistory(): string {
-  return `${renderPageHeader("Seguimiento", "Señales del mercado", "Cambios publicados ordenados por fecha, sin inferir causas.", `<span class="status-pill">${formatNumber(state.history?.total)} señales</span>`)}${renderHistoryTable(20)}`;
+  const allEvents = state.history?.items ?? [];
+  const visibleEvents = historyEvents();
+  const latest = visibleEvents[0] ?? null;
+  const activeFilters = state.historyDirection !== "all" || state.historyValidity !== "all";
+  return `${renderPageHeader(
+    "Seguimiento",
+    "Seguimiento comercial",
+    "Detecta cambios publicados en el territorio activo y decide qué revisar primero.",
+    `<button class="button button--quiet" type="button" data-action="scenario">Cambiar distrito o zona</button>`,
+  )}
+    <section class="surface history-scope" aria-label="Territorio de seguimiento">
+      <div><span>Distrito</span><strong>${escapeHtml(districtName())}</strong></div>
+      <div><span>Zona comercial</span><strong>${escapeHtml(scopeLabel())}</strong></div>
+      <div><span>Corte de datos</span><strong>${formatDate(state.meta!.cutoffAt)}</strong></div>
+      <p>Las zonas son alcances comerciales del escenario; no se presentan como divisiones oficiales.</p>
+    </section>
+    <section class="history-coverage" aria-label="Cobertura actual de alertas">
+      ${renderHistoryCoverageItem("price", "Cambios de precio", allEvents.length, "Disponible", true)}
+      ${renderHistoryCoverageItem("unit", "Nuevas unidades", null, "Aún no monitoreado", false)}
+      ${renderHistoryCoverageItem("discount", "Descuentos publicados", null, "Aún no monitoreado", false)}
+    </section>
+    ${latest ? renderHistoryPriority(latest) : ""}
+    <section class="surface history-feed" aria-labelledby="history-feed-title">
+      <header class="section-heading history-feed__heading">
+        <div><span class="eyebrow">Cambios observados</span><h2 id="history-feed-title">Actividad del mercado</h2><p>${formatNumber(visibleEvents.length)} de ${formatNumber(allEvents.length)} señales visibles.</p></div>
+        ${activeFilters ? '<button class="button button--quiet" type="button" data-action="clear-history-filters">Limpiar filtros</button>' : ""}
+      </header>
+      <div class="history-filters">
+        <label for="history-direction-filter">Movimiento<select id="history-direction-filter" name="history_direction"><option value="all" ${state.historyDirection === "all" ? "selected" : ""}>Todos</option><option value="decrease" ${state.historyDirection === "decrease" ? "selected" : ""}>Bajó el precio</option><option value="increase" ${state.historyDirection === "increase" ? "selected" : ""}>Subió el precio</option><option value="unchanged" ${state.historyDirection === "unchanged" ? "selected" : ""}>Sin variación</option></select></label>
+        <label for="history-validity-filter">Vigencia<select id="history-validity-filter" name="history_validity"><option value="all" ${state.historyValidity === "all" ? "selected" : ""}>Todas</option><option value="current" ${state.historyValidity === "current" ? "selected" : ""}>Reciente</option><option value="aging" ${state.historyValidity === "aging" ? "selected" : ""}>En seguimiento</option><option value="historical" ${state.historyValidity === "historical" ? "selected" : ""}>Histórica</option><option value="unknown" ${state.historyValidity === "unknown" ? "selected" : ""}>Fecha por revisar</option></select></label>
+      </div>
+      ${renderHistorySignals(visibleEvents, false)}
+    </section>
+    <aside class="history-notice"><strong>Avisos automáticos</strong><p>La bandeja, las nuevas unidades y los descuentos se habilitarán cuando existan corridas periódicas autorizadas. Esta pantalla solo muestra cambios efectivamente observados.</p></aside>
+    ${state.projectDetail ? renderProjectDetail() : ""}`;
 }
 
-function renderHistoryTable(limit: number): string {
-  const events = (state.history?.items ?? []).slice(0, limit);
-  if (!events.length) return emptyState("No hay señales históricas para el escenario activo.", "Editar escenario", "#activity");
-  return `<section class="surface"><div class="table-scroll"><table><thead><tr><th>Fecha</th><th>Proyecto</th><th>Cambio</th><th>Estado</th><th>Evidencia</th></tr></thead><tbody>${events.map((event) => `<tr><td>${formatDate(event.detected_at)}</td><td><strong>${escapeHtml(event.project_id)}</strong><small>${escapeHtml(event.district_id)}</small></td><td>${escapeHtml(event.field)}<small>${formatNumber(event.previous_value)} → ${formatNumber(event.current_value)} ${escapeHtml(event.unit ?? "")}</small></td><td>${escapeHtml(event.status)}<small>${escapeHtml(event.cause ?? "Causa no inferida")}</small></td><td>${formatNumber(event.evidence_ids?.length)} refs.</td></tr>`).join("")}</tbody></table></div></section>`;
+function renderHistoryCoverageItem(icon: "price" | "unit" | "discount", label: string, value: number | null, status: string, available: boolean): string {
+  return `<article class="history-coverage__item ${available ? "is-available" : "is-pending"}">${monitoringIcon(icon)}<div><span>${escapeHtml(label)}</span><strong>${value == null ? "—" : formatNumber(value)}</strong><small>${escapeHtml(status)}</small></div></article>`;
+}
+
+function renderHistoryPriority(event: JsonObject): string {
+  const project = historyProject(event);
+  const movement = historyEventDirection(event);
+  const direction = historyDirectionLabel(movement);
+  return `<section class="surface history-priority" aria-labelledby="history-priority-title">
+    <div class="history-priority__marker">${monitoringIcon(movement === "increase" ? "increase" : "decrease")}</div>
+    <div class="history-priority__copy"><span class="eyebrow">Revisión sugerida</span><h2 id="history-priority-title">${escapeHtml(project?.name ?? "Proyecto observado")} ${escapeHtml(direction)} su precio publicado</h2><p>Es la señal visible más reciente. Contrasta el cambio y sus fuentes antes de usarlo en una conversación comercial.</p><div class="history-priority__meta"><span>${escapeHtml(project?.agency ?? "Inmobiliaria no informada")}</span><span>${escapeHtml(districtName())}</span><span>${formatDate(event.current_observed_at ?? event.detected_at)}</span></div></div>
+    <div class="history-priority__value"><span>Anterior</span><strong>${money(event.previous_value)}</strong><span>Nuevo</span><strong>${money(event.current_value)}</strong><b class="history-delta ${historyDeltaClass(event)}">${signedPercent(event.delta_pct)}</b></div>
+    <div class="history-priority__actions">${project ? `<button class="button button--primary" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir proyecto</button>` : ""}<a class="button button--quiet" href="#assistant">Preparar decisión</a></div>
+  </section>`;
+}
+
+function renderHistorySignals(events: JsonObject[], compact: boolean): string {
+  if (!events.length) {
+    return `<section class="history-empty"><span aria-hidden="true">○</span><h3>No hay cambios con estos filtros</h3><p>Amplía la vigencia o el movimiento. La ausencia de señales no demuestra que el mercado esté estable.</p></section>`;
+  }
+  return `<ol class="history-signals ${compact ? "history-signals--compact" : ""}">${events.map(renderHistorySignal).join("")}</ol>`;
+}
+
+function renderHistorySignal(event: JsonObject): string {
+  const project = historyProject(event);
+  const movement = historyEventDirection(event);
+  const direction = historyDirectionLabel(movement);
+  const evidenceCount = Array.isArray(event.evidence_ids) ? event.evidence_ids.length : 0;
+  const status = historyStatusLabel(event.status);
+  return `<li><article class="history-signal">
+    <div class="history-signal__icon ${historyDeltaClass(event)}">${monitoringIcon(movement === "increase" ? "increase" : "decrease")}</div>
+    <div class="history-signal__body"><div class="history-signal__heading"><div><span>${escapeHtml(project?.agency ?? "Inmobiliaria no informada")}</span><h3>${escapeHtml(project?.name ?? "Proyecto observado")} ${escapeHtml(direction)} su precio publicado</h3></div><span class="history-status">${escapeHtml(status)}</span></div>
+      <div class="history-value-flow"><span><small>Anterior</small><strong>${money(event.previous_value)}</strong></span><span aria-hidden="true">→</span><span><small>Nuevo</small><strong>${money(event.current_value)}</strong></span><b class="history-delta ${historyDeltaClass(event)}">${signedPercent(event.delta_pct)}</b></div>
+      <div class="history-signal__meta"><span>${escapeHtml(project?.district ?? districtName())}</span><span>${escapeHtml(scopeLabel())}</span><time datetime="${escapeAttr(event.current_observed_at ?? event.detected_at ?? "")}">${formatDate(event.current_observed_at ?? event.detected_at)}</time><span>${escapeHtml(historyValidityLabel(event.validity))}</span></div>
+      <p>No se observó la causa del cambio. El valor corresponde a precio publicado, no a precio de cierre.</p>
+      <div class="history-signal__actions">${project ? `<button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir proyecto</button>` : ""}<details class="history-evidence"><summary>Ver evidencia</summary><p>${formatNumber(evidenceCount)} referencias respaldan las observaciones anterior y nueva.</p></details></div>
+    </div>
+  </article></li>`;
+}
+
+function historyEvents(): JsonObject[] {
+  return (state.history?.items ?? []).filter((event) =>
+    (state.historyDirection === "all" || historyEventDirection(event) === state.historyDirection)
+    && (state.historyValidity === "all" || event.validity === state.historyValidity));
+}
+
+function historyProject(event: JsonObject): ProjectSummary | null {
+  const id = String(event.project_id ?? "").replace(/^project:nexo-/u, "").replace(/^nexo-/u, "");
+  return state.projects?.items.find((project) => String(project.id) === id) ?? null;
+}
+
+function historyDirectionLabel(value: unknown): string {
+  if (value === "increase") return "subió";
+  if (value === "decrease") return "bajó";
+  return "mantuvo";
+}
+
+function historyEventDirection(event: JsonObject): "increase" | "decrease" | "unchanged" {
+  if (["increase", "decrease", "unchanged"].includes(String(event.direction))) {
+    return event.direction as "increase" | "decrease" | "unchanged";
+  }
+  const delta = Number(event.delta_absolute);
+  if (delta > 0) return "increase";
+  if (delta < 0) return "decrease";
+  return "unchanged";
+}
+
+function historyStatusLabel(value: unknown): string {
+  if (value === "certified") return "Con evidencia";
+  if (value === "reviewable") return "Requiere revisión";
+  return "Evidencia insuficiente";
+}
+
+function historyValidityLabel(value: unknown): string {
+  if (value === "current") return "Reciente";
+  if (value === "aging") return "En seguimiento";
+  if (value === "historical") return "Histórica";
+  return "Fecha por revisar";
+}
+
+function historyDeltaClass(event: JsonObject): string {
+  const direction = historyEventDirection(event);
+  return direction === "increase" ? "is-increase" : direction === "decrease" ? "is-decrease" : "is-flat";
+}
+
+function signedPercent(value: unknown): string {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "—";
+  const sign = number > 0 ? "+" : number < 0 ? "−" : "";
+  return `${sign}${formatNumber(Math.abs(number))}%`;
+}
+
+function monitoringIcon(kind: "price" | "unit" | "discount" | "increase" | "decrease"): string {
+  const paths = {
+    price: '<path d="M4 7h8l4 4-8 8-4-4V7Z"/><circle cx="8" cy="11" r="1"/>',
+    unit: '<path d="M5 20V5h10v15M3 20h14M8 9h1M12 9h1M8 13h1M12 13h1"/>',
+    discount: '<circle cx="7" cy="7" r="2"/><circle cx="17" cy="17" r="2"/><path d="m6 18 12-12"/>',
+    increase: '<path d="M5 16 15 6M8 6h7v7"/>',
+    decrease: '<path d="m5 8 10 10M8 18h7v-7"/>',
+  };
+  return `<span class="monitoring-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${paths[kind]}</svg></span>`;
 }
 
 function renderCorrections(): string {
@@ -638,6 +785,12 @@ async function handleClick(event: MouseEvent): Promise<void> {
   if (action === "command") return openDialog("command-dialog", "command-input");
   if (action === "map-geographic") { state.mapView = "geographic"; render(); return; }
   if (action === "map-positioning") { state.mapView = "positioning"; render(); return; }
+  if (action === "clear-history-filters") {
+    state.historyDirection = "all";
+    state.historyValidity = "all";
+    render();
+    return;
+  }
   if (action === "reset" && state.bootstrap) {
     closeDialogs();
     state.scenario = structuredClone(state.bootstrap.initialScenario);
@@ -731,6 +884,16 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
 
 async function handleChange(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement | HTMLSelectElement;
+  if (target.name === "history_direction") {
+    state.historyDirection = target.value as AppState["historyDirection"];
+    render();
+    return;
+  }
+  if (target.name === "history_validity") {
+    state.historyValidity = target.value as AppState["historyValidity"];
+    render();
+    return;
+  }
   if (target.id === "inspector-case") {
     state.inspectorSlug = target.value;
     state.busyMessage = "Cargando expediente…"; render();
