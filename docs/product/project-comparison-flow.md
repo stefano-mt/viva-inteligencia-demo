@@ -12,6 +12,8 @@ Permitir que el equipo comercial revise la ficha de cada proyecto, elija conscie
 - La selección se conserva al navegar entre Proyectos y Comparador durante la sesión actual; no se almacena ni se envía como preferencia de usuario.
 - La ficha permite añadir o retirar el proyecto visible.
 - El Comparador presenta los proyectos en columnas, destaca filas diferentes y conserva los estados de evidencia en lenguaje comercial.
+- Las limitaciones generales del escenario aparecen separadas de las diferencias entre proyectos.
+- Cada diferencia prioritaria muestra el nombre y el valor observado de cada proyecto sin exigir una búsqueda previa en la matriz.
 - Los hallazgos, exclusiones y límites proceden del dominio y del contrato 2.4; la interfaz no decide qué alternativa es mejor.
 
 ## Criterios de aceptación
@@ -28,6 +30,7 @@ Permitir que el equipo comercial revise la ficha de cada proyecto, elija conscie
 
 - La selección es estado de interacción local y se pierde al recargar la aplicación.
 - “Diferencia” significa que los valores publicados no coinciden; no equivale a ventaja comercial.
+- Una advertencia metodológica describe lo que todavía no puede compararse; no es un diferencial del inmueble.
 - Los precios son publicados. No son precios reales de cierre.
 - La ausencia de un dato no significa que la característica no exista.
 

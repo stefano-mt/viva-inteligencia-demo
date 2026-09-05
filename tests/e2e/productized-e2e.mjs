@@ -111,7 +111,15 @@ try {
   await page.waitForURL(/#compare/u);
   await page.locator(".comparison-project-card").first().waitFor();
   assert.equal(await page.locator(".comparison-project-card").count(), 3, "El comparador debe conservar los tres proyectos elegidos");
-  assert.ok(await page.locator(".comparison-findings__grid article").count() >= 1, "El comparador debe priorizar diferenciales comerciales");
+  assert.equal(await page.locator(".comparison-guidance").count(), 1, "La limitación de precio por m² debe aparecer separada de las diferencias");
+  assert.match(await page.locator("#comparison-guidance-title").innerText(), /todavía no es comparable/i);
+  assert.ok(await page.locator(".comparison-difference-card").count() >= 1, "El comparador debe priorizar diferencias entre proyectos");
+  assert.equal(
+    await page.locator(".comparison-difference-card").first().locator(".comparison-finding-values > div").count(),
+    3,
+    "Cada diferencia debe mostrar un valor por proyecto seleccionado",
+  );
+  assert.match(await page.locator("#comparison-findings-title").innerText(), /Qué cambia entre los proyectos/i);
   assert.ok(await page.locator(".comparison-data-row").count() >= 9, "La matriz debe mostrar todos los grupos de datos disponibles");
   assert.doesNotMatch(await page.locator("#main-content").innerText(), /\b(observed|announced|excluded|unknown)\b/u, "La comparación no debe exponer estados técnicos");
   await page.screenshot({ path: path.join(outputDirectory, "comparison-1440x900.png"), fullPage: true });

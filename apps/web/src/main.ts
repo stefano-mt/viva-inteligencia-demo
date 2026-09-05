@@ -609,13 +609,46 @@ function renderComparisonModel(comparison: JsonObject): string {
   const selected = (comparison.selected ?? []) as JsonObject[];
   const groups = (comparison.groups ?? []) as JsonObject[];
   const findings = Array.isArray(comparison.conclusion) ? comparison.conclusion as JsonObject[] : [];
+  const comparisonWarnings = findings.filter((finding) => finding.id === "finding:price-insufficient");
+  const projectDifferences = findings.filter((finding) => finding.id !== "finding:price-insufficient");
   const differenceCount = groups.flatMap((group) => (group.rows ?? []) as JsonObject[]).filter((row) => row.hasDifference || row.hasExcluded).length;
   return `<section class="comparison-workspace" aria-label="Comparación de proyectos">
     <header class="comparison-workspace__header"><div><span class="eyebrow">Selección confirmada</span><h2>${selected.length} proyectos en paralelo</h2><p>Las columnas conservan el mismo orden en toda la pantalla.</p></div><span class="comparison-count">${formatNumber(differenceCount)} diferencias para revisar</span></header>
     <div class="comparison-projects comparison-projects--${selected.length}">${selected.map((project, index) => renderComparisonProject(project, index, groups)).join("")}</div>
   </section>
-  <section class="surface comparison-findings" aria-labelledby="comparison-findings-title"><header class="section-heading"><div><span class="eyebrow">Lectura para decidir</span><h2 id="comparison-findings-title">Diferenciales principales</h2><p>Empieza por estos hallazgos y comprueba después el dato en la matriz.</p></div></header><div class="comparison-findings__grid">${findings.map((finding, index) => `<article><span>${String(index + 1).padStart(2, "0")}</span><div><h3>${escapeHtml(finding.finding ?? "Diferencia observada")}</h3><p>${escapeHtml(finding.implication ?? "Revisa el dato publicado antes de decidir.")}</p><strong>Qué revisar</strong><p>${escapeHtml(finding.nextAction ?? "Contrastar las fuentes disponibles.")}</p></div></article>`).join("") || "<p>No se identificaron diferencias prioritarias en los campos disponibles.</p>"}</div></section>
+  ${renderComparisonWarnings(comparisonWarnings)}
+  ${renderProjectDifferences(projectDifferences, groups, selected)}
   <section class="surface comparison-matrix" aria-labelledby="comparison-matrix-title"><header class="section-heading"><div><span class="eyebrow">Comparación completa</span><h2 id="comparison-matrix-title">Datos publicados lado a lado</h2><p>“Diferencia” señala que los valores observados no coinciden; no determina por sí sola cuál proyecto es mejor.</p></div></header>${groups.map((group) => renderComparisonGroup(group, selected)).join("")}<details class="methodology"><summary>Ver límites de la comparación</summary><ul>${((comparison.limitations ?? []) as unknown[]).map((item) => `<li>${escapeHtml(typeof item === "string" ? item : JSON.stringify(item))}</li>`).join("") || "<li>La lectura se limita a los datos publicados y trazables del escenario.</li>"}</ul></details></section>`;
+}
+
+function renderComparisonWarnings(findings: JsonObject[]): string {
+  if (!findings.length) return "";
+  return `<aside class="comparison-guidance" aria-labelledby="comparison-guidance-title">
+    <span class="comparison-guidance__icon" aria-hidden="true">!</span>
+    <div><span class="eyebrow">Antes de comparar precios</span><h2 id="comparison-guidance-title">El precio por m² todavía no es comparable</h2><p>Hay precios y áreas publicados, pero no está demostrado que pertenezcan al mismo departamento o tipología. Dividirlos podría producir un valor engañoso.</p><dl><div><dt>Qué puedes usar</dt><dd>El precio y el área como referencias publicadas independientes.</dd></div><div><dt>Qué falta validar</dt><dd>${escapeHtml(findings[0]?.nextAction ?? "Vincular precio y área de la misma oferta o tipología.")}</dd></div></dl></div>
+  </aside>`;
+}
+
+function renderProjectDifferences(findings: JsonObject[], groups: JsonObject[], selected: JsonObject[]): string {
+  return `<section class="surface comparison-findings" aria-labelledby="comparison-findings-title"><header class="section-heading"><div><span class="eyebrow">Diferencias observadas</span><h2 id="comparison-findings-title">Qué cambia entre los proyectos</h2><p>Estos valores sí cambian en la selección actual. Una diferencia no determina por sí sola cuál proyecto es mejor.</p></div></header><div class="comparison-findings__grid">${findings.map((finding) => renderProjectDifference(finding, groups, selected)).join("") || '<p class="comparison-findings__empty">No se encontraron diferencias prioritarias en los datos disponibles.</p>'}</div></section>`;
+}
+
+function renderProjectDifference(finding: JsonObject, groups: JsonObject[], selected: JsonObject[]): string {
+  const rowId = String(finding.rowId ?? "");
+  const title = rowId === "areas.total"
+    ? "Tienen áreas publicadas diferentes"
+    : rowId === "common_areas.announced"
+      ? "Anuncian características distintas"
+      : String(finding.finding ?? "Diferencia observada");
+  const explanation = rowId === "areas.total"
+    ? "Compara el precio junto con el área total de cada proyecto; un precio mayor puede corresponder a un inmueble más amplio."
+    : rowId === "common_areas.announced"
+      ? "La información publicada cambia entre proyectos. “No informado” no significa que la característica no exista."
+      : String(finding.implication ?? "Revisa los valores publicados antes de decidir.");
+  return `<article class="comparison-difference-card" data-comparison-finding="${escapeAttr(finding.id ?? rowId)}"><div><span class="difference-badge">Diferencia observada</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(explanation)}</p></div><dl class="comparison-finding-values comparison-finding-values--${selected.length}">${selected.map((project) => {
+    const value = comparisonValueFor(groups, rowId, project.projectId);
+    return `<div><dt>${escapeHtml(project.name ?? "Proyecto")}</dt><dd>${formatComparisonValue(value)}</dd><small>${escapeHtml(comparisonStateLabel(value.state))}</small></div>`;
+  }).join("")}</dl><footer><strong>Antes de usarlo</strong><p>${escapeHtml(finding.nextAction ?? "Contrasta las fuentes disponibles.")}</p></footer></article>`;
 }
 
 function renderComparisonProject(project: JsonObject, index: number, groups: JsonObject[]): string {
