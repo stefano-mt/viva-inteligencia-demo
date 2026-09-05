@@ -94,10 +94,38 @@ try {
 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`${baseUrl}/#projects`, { waitUntil: "networkidle" });
-  await page.locator(".project-select-checkbox").first().waitFor();
+  await page.locator(".busy").waitFor({ state: "detached" });
+  await page.locator(".project-select-checkbox:not(:disabled)").first().waitFor();
   assert.ok(await page.locator("tbody tr").count() > 0, "Proyectos debe presentar filas");
-  const desktopCheckbox = await page.locator(".project-select-checkbox").first().boundingBox();
+  const desktopCheckbox = await page.locator(".project-select-checkbox:not(:disabled)").first().boundingBox();
   assert.ok(desktopCheckbox && desktopCheckbox.width <= 20 && desktopCheckbox.height <= 20, "El selector de comparación debe ser compacto");
+  assert.match(await page.locator("#comparison-selection-title").innerText(), /0\/3/, "La selección debe iniciar vacía y explícita");
+  assert.equal(await page.getByRole("button", { name: /Comparar proyectos/ }).isDisabled(), true, "Comparar requiere al menos dos proyectos");
+  for (let count = 1; count <= 3; count += 1) {
+    await page.locator(".project-select-checkbox:not(:disabled):not(:checked)").first().click();
+    await page.waitForFunction((expected) => document.querySelectorAll(".selection-chip").length === expected, count);
+  }
+  assert.match(await page.locator("#comparison-selection-title").innerText(), /3\/3/, "La bandeja debe confirmar tres proyectos");
+  assert.equal(await page.locator(".project-select-checkbox:not(:checked):not(:disabled)").count(), 0, "El cuarto proyecto debe quedar bloqueado al alcanzar el máximo");
+  await page.getByRole("button", { name: "Comparar 3 proyectos" }).click();
+  await page.waitForURL(/#compare/u);
+  await page.locator(".comparison-project-card").first().waitFor();
+  assert.equal(await page.locator(".comparison-project-card").count(), 3, "El comparador debe conservar los tres proyectos elegidos");
+  assert.ok(await page.locator(".comparison-findings__grid article").count() >= 1, "El comparador debe priorizar diferenciales comerciales");
+  assert.ok(await page.locator(".comparison-data-row").count() >= 9, "La matriz debe mostrar todos los grupos de datos disponibles");
+  assert.doesNotMatch(await page.locator("#main-content").innerText(), /\b(observed|announced|excluded|unknown)\b/u, "La comparación no debe exponer estados técnicos");
+  await page.screenshot({ path: path.join(outputDirectory, "comparison-1440x900.png"), fullPage: true });
+  await page.locator(".comparison-project-card").first().getByRole("button", { name: "Abrir ficha" }).click();
+  await page.locator("#project-detail-title").waitFor();
+  await page.getByRole("button", { name: "Cerrar ficha" }).click();
+  await page.locator(".comparison-project-card").first().getByRole("button", { name: /Quitar .* de la comparación/ }).click();
+  await page.waitForFunction(() => document.querySelectorAll(".comparison-project-card").length === 2);
+  assert.equal(await hasHorizontalOverflow(page), false, "La comparación dividida no debe desbordar en escritorio");
+  await page.getByRole("link", { name: "Cambiar selección" }).click();
+  await page.locator("#comparison-selection-title").waitFor();
+  assert.match(await page.locator("#comparison-selection-title").innerText(), /2\/3/, "La selección debe conservarse al volver a Proyectos");
+  await page.getByRole("button", { name: "Limpiar selección" }).click();
+  assert.match(await page.locator("#comparison-selection-title").innerText(), /0\/3/, "Limpiar debe retirar todos los proyectos");
   await page.locator('select[name="project_scope"]').selectOption("all");
   await page.waitForFunction(() => document.querySelector('select[name="project_scope"]')?.value === "all");
   assert.match(await page.locator(".catalog-note").innerText(), /catálogo completo/i);
@@ -188,9 +216,19 @@ try {
   await page.screenshot({ path: path.join(outputDirectory, "assistant-390x844.png"), fullPage: true });
 
   await page.goto(`${baseUrl}/#projects`, { waitUntil: "networkidle" });
-  await page.locator(".project-select-checkbox").first().waitFor();
-  const mobileCheckbox = await page.locator(".project-select-checkbox").first().boundingBox();
+  await page.locator(".busy").waitFor({ state: "detached" });
+  await page.locator(".project-select-checkbox:not(:disabled)").first().waitFor();
+  const mobileCheckbox = await page.locator(".project-select-checkbox:not(:disabled)").first().boundingBox();
   assert.ok(mobileCheckbox && mobileCheckbox.width <= 20 && mobileCheckbox.height <= 20, "El selector debe conservar tamaño compacto en móvil");
+  await page.locator(".project-select-checkbox:not(:disabled):not(:checked)").first().click();
+  await page.locator(".project-select-checkbox:not(:disabled):not(:checked)").first().click();
+  await page.getByRole("button", { name: "Comparar 2 proyectos" }).click();
+  await page.locator(".comparison-project-card").first().waitFor();
+  assert.equal(await page.locator(".comparison-project-card").count(), 2, "La selección móvil debe llegar al comparador");
+  assert.equal(await hasHorizontalOverflow(page), false, "La comparación 390×844 no debe desbordar");
+  await page.screenshot({ path: path.join(outputDirectory, "comparison-390x844.png"), fullPage: true });
+  await page.getByRole("link", { name: "Cambiar selección" }).click();
+  await page.locator(".project-select-checkbox").first().waitFor();
   await page.locator("[data-project-detail]").first().click();
   await page.locator("#project-detail-title").waitFor();
   assert.equal(await hasHorizontalOverflow(page), false, "La ficha 390×844 no debe desbordar");
@@ -278,6 +316,7 @@ async function assertNoUnboundButtons(targetPage, route) {
           "action",
           "projectDetail",
           "projectPage",
+          "projectRemove",
           "assistantIntent",
         ].some((key) => key in button.dataset);
       })

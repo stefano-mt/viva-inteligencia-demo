@@ -36,6 +36,8 @@ interface AppState {
   historyValidity: "all" | "current" | "aging" | "historical" | "unknown";
   mapView: "geographic" | "positioning";
   selectedProjectIds: string[];
+  selectedProjects: Record<string, ProjectSummary>;
+  selectionMessage: string;
   inspectorSlug: string | null;
   navOpen: boolean;
   busyMessage: string | null;
@@ -69,6 +71,8 @@ const state: AppState = {
   historyValidity: "all",
   mapView: "geographic",
   selectedProjectIds: [],
+  selectedProjects: {},
+  selectionMessage: "Selecciona entre dos y tres proyectos para compararlos.",
   inspectorSlug: null,
   navOpen: false,
   busyMessage: null,
@@ -130,7 +134,9 @@ async function refreshWorkspace(): Promise<void> {
   const workspace = await provider.evaluateWorkspace(state.scenario);
   state.scenario = workspace.scenario;
   state.workspace = workspace;
-  state.selectedProjectIds = workspace.comparableProjectIds.slice(0, 2);
+  state.selectedProjectIds = [];
+  state.selectedProjects = {};
+  state.selectionMessage = "Selecciona entre dos y tres proyectos para compararlos.";
   state.projectPage = 1;
   state.projectScope = "scenario";
   state.projectQuery = "";
@@ -202,8 +208,10 @@ async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
         : state.inspectorSlug;
       if (slug) state.inspector = await provider.inspector(slug);
     }
-    if ((state.route.id === "compare" || state.route.id === "depth") && state.selectedProjectIds.length >= 2) {
-      state.comparison = await provider.comparison(state.scenario, state.selectedProjectIds);
+    if (state.route.id === "compare" || state.route.id === "depth") {
+      state.comparison = state.selectedProjectIds.length >= 2
+        ? await provider.comparison(state.scenario, state.selectedProjectIds)
+        : null;
     }
     state.busyMessage = null;
     render();
@@ -454,6 +462,7 @@ function renderProjects(): string {
     ? "Explora el catálogo completo cargado; la ficha distingue fuentes y fecha de captura."
     : "Revisa la oferta compatible con los filtros del escenario activo.";
   return `${renderPageHeader("Proyectos", title, description, `<span class="status-pill">${formatNumber(page?.total)} resultados</span>`)}
+    ${renderComparisonSelection(items)}
     <section class="surface"><form class="filters project-filters" id="project-filter-form"><label>Vista<select name="project_scope"><option value="scenario" ${state.projectScope === "scenario" ? "selected" : ""}>Comparables del escenario</option><option value="all" ${state.projectScope === "all" ? "selected" : ""}>Todo el catálogo (${formatNumber(state.meta!.coverage.projects)})</option></select></label><label>Buscar<input name="query" type="search" value="${escapeAttr(state.projectQuery)}" placeholder="Proyecto, inmobiliaria o dirección" /></label><label>Orden<select name="sort"><option value="name" ${state.projectSort === "name" ? "selected" : ""}>Nombre</option><option value="price-asc" ${state.projectSort === "price-asc" ? "selected" : ""}>Menor precio publicado</option><option value="price-desc" ${state.projectSort === "price-desc" ? "selected" : ""}>Mayor precio publicado</option><option value="area-asc" ${state.projectSort === "area-asc" ? "selected" : ""}>Menor área</option><option value="area-desc" ${state.projectSort === "area-desc" ? "selected" : ""}>Mayor área</option></select></label><button class="button button--quiet" type="submit">Aplicar filtros</button></form>
       <p class="catalog-note">${state.projectScope === "all" ? "Catálogo completo. Cambia a comparables para aplicar distrito, tipología y dormitorios." : `Escenario: ${escapeHtml(districtName())} · ${escapeHtml(scopeLabel())}.`}</p>
       <div class="table-scroll"><table class="project-table"><thead><tr><th scope="col">Comparar</th><th scope="col">Proyecto</th><th scope="col">Producto</th><th scope="col">Precio publicado</th><th scope="col">Área</th><th scope="col">Entrega</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${items.map(renderProjectRow).join("")}</tbody></table></div>
@@ -465,7 +474,40 @@ function renderProjects(): string {
 function renderProjectRow(project: ProjectSummary): string {
   const canonicalId = canonicalProjectId(project.id);
   const checked = state.selectedProjectIds.includes(canonicalId);
-  return `<tr><td class="project-select-cell" data-label="Comparar"><input class="project-select-checkbox" type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} aria-label="Comparar ${escapeAttr(project.name)}" /></td><td data-label="Proyecto"><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></td><td data-label="Producto">${escapeHtml(project.typology ?? "Sin tipología")}<small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></td><td data-label="Precio publicado"><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m² orientativo</small></td><td data-label="Área">${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</td><td data-label="Entrega">${escapeHtml(project.phase ?? "Sin dato")}</td><td data-label="Ficha"><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir ficha</button></td></tr>`;
+  const eligible = state.workspace!.comparableProjectIds.includes(canonicalId);
+  const selectionFull = state.selectedProjectIds.length >= 3 && !checked;
+  const selectionLabel = eligible
+    ? `${checked ? "Quitar" : "Seleccionar"} ${project.name} para comparar`
+    : `${project.name} no pertenece al conjunto comparable del escenario`;
+  return `<tr class="${checked ? "is-selected" : ""}"><td class="project-select-cell" data-label="Comparar"><input class="project-select-checkbox" type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} ${!eligible || selectionFull ? "disabled" : ""} aria-label="${escapeAttr(selectionLabel)}" title="${escapeAttr(!eligible ? "No cumple los filtros del escenario activo" : selectionFull ? "Ya seleccionaste el máximo de tres proyectos" : "Añadir a la comparación")}" /></td><td data-label="Proyecto"><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></td><td data-label="Producto">${escapeHtml(project.typology ?? "Sin tipología")}<small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></td><td data-label="Precio publicado"><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m² orientativo</small></td><td data-label="Área">${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</td><td data-label="Entrega">${escapeHtml(project.phase ?? "Sin dato")}</td><td data-label="Ficha"><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir ficha</button></td></tr>`;
+}
+
+function renderComparisonSelection(items: ProjectSummary[]): string {
+  const selected = state.selectedProjectIds.map((id) => {
+    const visible = items.find((project) => canonicalProjectId(project.id) === id);
+    if (visible) state.selectedProjects[id] = visible;
+    return state.selectedProjects[id] ?? null;
+  });
+  const count = state.selectedProjectIds.length;
+  const guidance = count === 0
+    ? "Elige el primer proyecto que quieres contrastar."
+    : count === 1
+      ? "Elige un proyecto más para activar el comparador."
+      : count === 2
+        ? "La comparación está lista. Puedes añadir un tercer proyecto."
+        : "Selección completa: compara estos tres proyectos.";
+  return `<section class="comparison-selection surface" aria-labelledby="comparison-selection-title">
+    <div class="comparison-selection__intro"><span class="selection-step">1</span><div><span class="eyebrow">Arma tu comparación</span><h2 id="comparison-selection-title">Proyectos seleccionados <span>${count}/3</span></h2><p id="comparison-selection-status" aria-live="polite">${escapeHtml(state.selectionMessage || guidance)}</p></div></div>
+    <div class="comparison-selection__projects" aria-label="Selección actual">
+      ${[0, 1, 2].map((index) => {
+        const project = selected[index];
+        return project
+          ? `<article class="selection-chip"><span>${index + 1}</span><div><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)}</small></div><button class="icon-button icon-button--small" type="button" data-project-remove="${escapeAttr(state.selectedProjectIds[index])}" aria-label="Quitar ${escapeAttr(project.name)} de la comparación">${closeIcon()}</button></article>`
+          : `<div class="selection-slot"><span>${index + 1}</span><small>${index === 0 ? "Primer proyecto" : index === 1 ? "Segundo proyecto" : "Opcional"}</small></div>`;
+      }).join("")}
+    </div>
+    <div class="comparison-selection__actions"><button class="button button--quiet" type="button" data-action="clear-comparison" ${count ? "" : "disabled"}>Limpiar selección</button><button class="button button--primary" type="button" data-action="open-comparison" ${count >= 2 ? "" : "disabled"}><span class="selection-step selection-step--button">2</span>Comparar ${count >= 2 ? `${count} proyectos` : "proyectos"}</button></div>
+  </section>`;
 }
 
 function renderPagination(page: Page<ProjectSummary>): string {
@@ -479,7 +521,12 @@ function renderProjectDetail(): string {
   const sources = (trace.sources ?? []) as JsonObject[];
   const amenities = (project.amenities ?? []) as unknown[];
   const banks = (project.financingBanks ?? []) as unknown[];
-  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial multifuente</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">${closeIcon()}</button></header>
+  const canonicalId = canonicalProjectId(String(project.canonicalId ?? project.id));
+  const selected = state.selectedProjectIds.includes(canonicalId);
+  const eligible = state.workspace!.comparableProjectIds.includes(canonicalId);
+  const cannotAdd = !selected && (state.selectedProjectIds.length >= 3 || !eligible);
+  const selectionLabel = selected ? "Quitar de comparación" : eligible ? "Añadir a comparación" : "Fuera del escenario comparable";
+  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial multifuente</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><div class="project-detail-actions"><button class="button ${selected ? "button--quiet" : "button--primary"}" type="button" data-action="toggle-detail-comparison" ${cannotAdd ? "disabled" : ""}>${selectionLabel}</button><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">${closeIcon()}</button></div></header>
     <section class="detail-block detail-block--first" aria-labelledby="project-summary-title"><h3 id="project-summary-title">${detailIcon("summary")}<span>Resumen comercial</span></h3><dl class="project-detail-summary"><div class="detail-stat detail-stat--primary"><dt>${detailIcon("price")}<span>Precio publicado desde</span></dt><dd>${money(project.pricePen)}</dd></div><div class="detail-stat"><dt>${detailIcon("area")}<span>Área total publicada</span></dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div class="detail-stat"><dt>${detailIcon("ratio")}<span>Cociente publicado</span></dt><dd>${money(project.pricePerM2)} / m²</dd></div><div class="detail-stat"><dt>${detailIcon("calendar")}<span>Estado o entrega</span></dt><dd>${escapeHtml(project.phase ?? project.deliveryDate ?? "Sin dato")}</dd></div></dl>
       <p class="source-warning"><strong>Importante:</strong> son precios publicados, no precios reales de cierre. Cada diferencia entre fuentes se conserva para revisión.</p>
     </section>
@@ -552,15 +599,41 @@ function renderBenchmarkSummary(): string {
 
 function renderComparison(): string {
   const comparison = state.comparison?.comparison as JsonObject | undefined;
-  return `${renderPageHeader("Comparador", "Diferencias que cambian la decisión", "Selecciona de dos a tres proyectos; se priorizan precio, área y producto.", `<a class="button button--quiet" href="#projects">Cambiar selección</a>`)}${comparison ? renderComparisonModel(comparison) : emptyState("Selecciona al menos dos proyectos comparables.", "Ir a proyectos", "#projects")}`;
+  const content = comparison?.status === "ready"
+    ? renderComparisonModel(comparison)
+    : emptyState("Selecciona al menos dos proyectos comparables para ver sus diferencias.", "Elegir proyectos", "#projects");
+  return `${renderPageHeader("Comparador", "Compara proyecto por proyecto", "Contrasta en columnas el precio, área, producto, entrega y atributos publicados.", `<a class="button button--quiet" href="#projects">Cambiar selección</a>`)}${content}${state.projectDetail ? renderProjectDetail() : ""}`;
 }
 
 function renderComparisonModel(comparison: JsonObject): string {
   const selected = (comparison.selected ?? []) as JsonObject[];
-  const rows = ((comparison.groups ?? []) as JsonObject[]).flatMap((group) => (group.rows ?? []) as JsonObject[]);
-  const priority = new Set((comparison.priorityRows ?? []) as string[]);
-  const visible = rows.filter((row) => priority.has(row.id)).slice(0, 6);
-  return `<section class="decision-strip"><span>Conclusión ejecutiva</span><strong>${escapeHtml(comparison.conclusion?.headline ?? comparison.conclusion?.title ?? "La comparación está lista.")}</strong><p>${escapeHtml(comparison.conclusion?.detail ?? comparison.conclusion?.summary ?? "Revisa las diferencias prioritarias antes de decidir.")}</p></section><section class="surface"><div class="table-scroll"><table class="comparison-table"><thead><tr><th>Criterio</th>${selected.map((project) => `<th>${escapeHtml(project.name)}<small>${escapeHtml(project.agencyName)}</small></th>`).join("")}</tr></thead><tbody>${visible.map((row) => `<tr><th>${escapeHtml(row.label)}</th>${((row.values ?? []) as JsonObject[]).map((value) => `<td class="${value.state === "excluded" ? "is-excluded" : ""}">${formatComparisonValue(value)}<small>${escapeHtml(value.state)}</small></td>`).join("")}</tr>`).join("")}</tbody></table></div><details class="methodology"><summary>Ver límites de la comparación</summary><ul>${((comparison.limitations ?? []) as unknown[]).map((item) => `<li>${escapeHtml(typeof item === "string" ? item : JSON.stringify(item))}</li>`).join("")}</ul></details></section>`;
+  const groups = (comparison.groups ?? []) as JsonObject[];
+  const findings = Array.isArray(comparison.conclusion) ? comparison.conclusion as JsonObject[] : [];
+  const differenceCount = groups.flatMap((group) => (group.rows ?? []) as JsonObject[]).filter((row) => row.hasDifference || row.hasExcluded).length;
+  return `<section class="comparison-workspace" aria-label="Comparación de proyectos">
+    <header class="comparison-workspace__header"><div><span class="eyebrow">Selección confirmada</span><h2>${selected.length} proyectos en paralelo</h2><p>Las columnas conservan el mismo orden en toda la pantalla.</p></div><span class="comparison-count">${formatNumber(differenceCount)} diferencias para revisar</span></header>
+    <div class="comparison-projects comparison-projects--${selected.length}">${selected.map((project, index) => renderComparisonProject(project, index, groups)).join("")}</div>
+  </section>
+  <section class="surface comparison-findings" aria-labelledby="comparison-findings-title"><header class="section-heading"><div><span class="eyebrow">Lectura para decidir</span><h2 id="comparison-findings-title">Diferenciales principales</h2><p>Empieza por estos hallazgos y comprueba después el dato en la matriz.</p></div></header><div class="comparison-findings__grid">${findings.map((finding, index) => `<article><span>${String(index + 1).padStart(2, "0")}</span><div><h3>${escapeHtml(finding.finding ?? "Diferencia observada")}</h3><p>${escapeHtml(finding.implication ?? "Revisa el dato publicado antes de decidir.")}</p><strong>Qué revisar</strong><p>${escapeHtml(finding.nextAction ?? "Contrastar las fuentes disponibles.")}</p></div></article>`).join("") || "<p>No se identificaron diferencias prioritarias en los campos disponibles.</p>"}</div></section>
+  <section class="surface comparison-matrix" aria-labelledby="comparison-matrix-title"><header class="section-heading"><div><span class="eyebrow">Comparación completa</span><h2 id="comparison-matrix-title">Datos publicados lado a lado</h2><p>“Diferencia” señala que los valores observados no coinciden; no determina por sí sola cuál proyecto es mejor.</p></div></header>${groups.map((group) => renderComparisonGroup(group, selected)).join("")}<details class="methodology"><summary>Ver límites de la comparación</summary><ul>${((comparison.limitations ?? []) as unknown[]).map((item) => `<li>${escapeHtml(typeof item === "string" ? item : JSON.stringify(item))}</li>`).join("") || "<li>La lectura se limita a los datos publicados y trazables del escenario.</li>"}</ul></details></section>`;
+}
+
+function renderComparisonProject(project: JsonObject, index: number, groups: JsonObject[]): string {
+  const price = comparisonValueFor(groups, "price.published_from", project.projectId);
+  const area = comparisonValueFor(groups, "areas.total", project.projectId);
+  const delivery = comparisonValueFor(groups, "delivery.status", project.projectId);
+  return `<article class="comparison-project-card"><header><span class="comparison-project-card__index">${index + 1}</span><div><h3>${escapeHtml(project.name)}</h3><p>${escapeHtml(project.agencyName)}</p></div><button class="icon-button icon-button--small" type="button" data-project-remove="${escapeAttr(project.projectId)}" aria-label="Quitar ${escapeAttr(project.name)} de la comparación">${closeIcon()}</button></header><dl><div><dt>Precio publicado</dt><dd>${formatComparisonValue(price)}</dd></div><div><dt>Área total</dt><dd>${formatComparisonValue(area)}</dd></div><div><dt>Entrega</dt><dd>${formatComparisonValue(delivery)}</dd></div></dl><button class="link-button" type="button" data-project-detail="${escapeAttr(project.projectId)}">Abrir ficha</button></article>`;
+}
+
+function renderComparisonGroup(group: JsonObject, selected: JsonObject[]): string {
+  const rows = (group.rows ?? []) as JsonObject[];
+  const differences = rows.filter((row) => row.hasDifference || row.hasExcluded).length;
+  return `<section class="comparison-group" aria-labelledby="comparison-group-${escapeAttr(group.id)}"><header><h3 id="comparison-group-${escapeAttr(group.id)}">${escapeHtml(group.label)}</h3><span>${differences ? `${formatNumber(differences)} ${differences === 1 ? "diferencia" : "diferencias"}` : "Sin diferencias observadas"}</span></header>${rows.map((row) => `<div class="comparison-data-row comparison-data-row--${selected.length} ${row.hasDifference || row.hasExcluded ? "is-different" : ""}"><div class="comparison-criterion"><strong>${escapeHtml(row.label)}</strong>${row.hasDifference || row.hasExcluded ? '<span class="difference-badge">Diferencia</span>' : '<span class="same-badge">Coincide</span>'}</div>${((row.values ?? []) as JsonObject[]).map((value, index) => `<div class="comparison-value-cell ${comparisonStateClass(value.state)}" data-project="${escapeAttr(selected[index]?.name ?? "Proyecto")}">${formatComparisonValue(value)}<span class="comparison-value-state">${escapeHtml(comparisonStateLabel(value.state))}</span>${value.exclusionReason ? `<small>${escapeHtml(value.exclusionReason)}</small>` : ""}</div>`).join("")}</div>`).join("")}</section>`;
+}
+
+function comparisonValueFor(groups: JsonObject[], rowId: string, projectId: unknown): JsonObject {
+  const row = groups.flatMap((group) => (group.rows ?? []) as JsonObject[]).find((item) => item.id === rowId);
+  return ((row?.values ?? []) as JsonObject[]).find((value) => value.projectId === projectId) ?? {};
 }
 
 function renderChecklist(): string {
@@ -791,6 +864,24 @@ async function handleClick(event: MouseEvent): Promise<void> {
     render();
     return;
   }
+  if (action === "clear-comparison") {
+    state.selectedProjectIds = [];
+    state.selectedProjects = {};
+    state.comparison = null;
+    state.selectionMessage = "Selección limpia. Elige al menos dos proyectos.";
+    render();
+    return;
+  }
+  if (action === "open-comparison") {
+    if (state.selectedProjectIds.length < 2) {
+      state.selectionMessage = "Selecciona al menos dos proyectos para continuar.";
+      render();
+      return;
+    }
+    state.comparison = null;
+    window.location.hash = "#compare";
+    return;
+  }
   if (action === "reset" && state.bootstrap) {
     closeDialogs();
     state.scenario = structuredClone(state.bootstrap.initialScenario);
@@ -802,6 +893,30 @@ async function handleClick(event: MouseEvent): Promise<void> {
     return;
   }
   if (action === "close-detail") { state.projectDetail = null; render(); return; }
+  if (action === "toggle-detail-comparison" && state.projectDetail) {
+    const project = state.projectDetail.project as JsonObject;
+    const id = canonicalProjectId(String(project.canonicalId ?? project.id));
+    if (state.selectedProjectIds.includes(id)) removeProjectSelection(id);
+    else if (state.selectedProjectIds.length < 3) addProjectSelection(projectSummaryFromDetail(project));
+    if ((state.route.id === "compare" || state.route.id === "depth") && state.selectedProjectIds.length >= 2 && state.scenario) {
+      state.busyMessage = "Actualizando comparación…";
+      render();
+      try { state.comparison = await provider.comparison(state.scenario, state.selectedProjectIds); state.busyMessage = null; render(); }
+      catch (error) { fail(error); }
+    } else render();
+    return;
+  }
+  const removeId = target.closest<HTMLElement>("[data-project-remove]")?.dataset.projectRemove;
+  if (removeId) {
+    removeProjectSelection(removeId);
+    if ((state.route.id === "compare" || state.route.id === "depth") && state.selectedProjectIds.length >= 2 && state.scenario) {
+      state.busyMessage = "Actualizando comparación…";
+      render();
+      try { state.comparison = await provider.comparison(state.scenario, state.selectedProjectIds); state.busyMessage = null; render(); }
+      catch (error) { fail(error); }
+    } else render();
+    return;
+  }
   const page = target.closest<HTMLElement>("[data-project-page]")?.dataset.projectPage;
   if (page) {
     state.projectPage = Number(page);
@@ -904,8 +1019,12 @@ async function handleChange(event: Event): Promise<void> {
   if (target.matches("[data-compare-id]")) {
     const id = target.dataset.compareId!;
     if ((target as HTMLInputElement).checked) {
-      if (!state.selectedProjectIds.includes(id) && state.selectedProjectIds.length < 3) state.selectedProjectIds.push(id);
-    } else state.selectedProjectIds = state.selectedProjectIds.filter((item) => item !== id);
+      const project = state.projects?.items.find((item) => canonicalProjectId(item.id) === id);
+      if (project && !state.selectedProjectIds.includes(id) && state.selectedProjectIds.length < 3) addProjectSelection(project);
+      else (target as HTMLInputElement).checked = false;
+    } else removeProjectSelection(id);
+    state.comparison = null;
+    render();
     return;
   }
   if (target.name === "project_scope" && target.form?.id === "project-filter-form") {
@@ -1063,12 +1182,75 @@ function qualityLabel(value: unknown): string {
 }
 
 function formatComparisonValue(value: JsonObject): string {
+  if (!value || value.state === "unknown") return "Sin dato observado";
+  const original = value.originalValue;
   const raw = value.normalizedValue;
-  if (Array.isArray(raw)) return escapeHtml(raw.length ? `${raw.length} atributos` : "Sin dato");
+  const listed = Array.isArray(original) && original.length ? original : Array.isArray(raw) ? raw : null;
+  if (listed) return listed.length
+    ? `<ul class="comparison-tags">${listed.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+    : "Sin dato observado";
   if (value.currency === "PEN") return money(raw);
   if (value.unit === "PEN/m2") return `${money(raw)} / m²`;
   if (value.unit === "m2") return `${formatNumber(raw)} m²`;
-  return escapeHtml(raw ?? "—");
+  if (value.unit === "count") return `${formatNumber(raw)} ${Number(raw) === 1 ? "unidad reportada" : "unidades reportadas"}`;
+  if (original === "source:nexo") return "Nexo Inmobiliario";
+  return escapeHtml(original ?? raw ?? "Sin dato observado");
+}
+
+function comparisonStateLabel(value: unknown): string {
+  const labels: Record<string, string> = {
+    observed: "Dato publicado",
+    announced: "Anunciado",
+    excluded: "Orientativo; no comparable",
+    unknown: "Sin dato observado",
+  };
+  return labels[String(value)] ?? "Dato disponible";
+}
+
+function comparisonStateClass(value: unknown): string {
+  return ["observed", "announced", "excluded", "unknown"].includes(String(value))
+    ? `is-${String(value)}`
+    : "";
+}
+
+function addProjectSelection(project: ProjectSummary): void {
+  const id = canonicalProjectId(project.id);
+  if (state.selectedProjectIds.includes(id) || state.selectedProjectIds.length >= 3) return;
+  state.selectedProjectIds = [...state.selectedProjectIds, id];
+  state.selectedProjects[id] = project;
+  state.selectionMessage = state.selectedProjectIds.length === 1
+    ? `${project.name} seleccionado. Elige un proyecto más.`
+    : state.selectedProjectIds.length === 2
+      ? `${project.name} añadido. Ya puedes comparar.`
+      : `${project.name} añadido. Alcanzaste el máximo de tres proyectos.`;
+}
+
+function removeProjectSelection(id: string): void {
+  const projectName = state.selectedProjects[id]?.name ?? "Proyecto";
+  state.selectedProjectIds = state.selectedProjectIds.filter((item) => item !== id);
+  delete state.selectedProjects[id];
+  state.comparison = null;
+  state.selectionMessage = `${projectName} fue retirado. ${state.selectedProjectIds.length >= 2 ? "La comparación sigue disponible." : "Elige al menos dos proyectos."}`;
+}
+
+function projectSummaryFromDetail(project: JsonObject): ProjectSummary {
+  return {
+    ...project,
+    id: String(project.canonicalId ?? project.id),
+    name: String(project.name ?? project.canonicalName ?? "Proyecto"),
+    agency: String(project.agency?.name ?? project.agency ?? "Sin inmobiliaria"),
+    district: String(project.district ?? "Sin distrito"),
+    address: project.address == null ? null : String(project.address),
+    typology: project.typology == null ? null : String(project.typology),
+    bedrooms: project.bedrooms == null ? null : project.bedrooms,
+    areaM2: project.areaM2 == null ? null : Number(project.areaM2),
+    pricePen: project.pricePen == null ? null : Number(project.pricePen),
+    pricePerM2: project.pricePerM2 == null ? null : Number(project.pricePerM2),
+    phase: project.phase == null ? null : String(project.phase),
+    sourceUrl: project.sourceUrl == null ? null : String(project.sourceUrl),
+    latitude: project.latitude == null ? null : Number(project.latitude),
+    longitude: project.longitude == null ? null : Number(project.longitude),
+  };
 }
 
 function canonicalProjectId(value: string): string {
