@@ -91,8 +91,12 @@ try {
     await assertNoUnboundButtons(page, route);
   }
 
+  await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`${baseUrl}/#projects`, { waitUntil: "networkidle" });
+  await page.locator(".project-select-checkbox").first().waitFor();
   assert.ok(await page.locator("tbody tr").count() > 0, "Proyectos debe presentar filas");
+  const desktopCheckbox = await page.locator(".project-select-checkbox").first().boundingBox();
+  assert.ok(desktopCheckbox && desktopCheckbox.width <= 20 && desktopCheckbox.height <= 20, "El selector de comparación debe ser compacto");
   await page.locator('select[name="project_scope"]').selectOption("all");
   await page.waitForFunction(() => document.querySelector('select[name="project_scope"]')?.value === "all");
   assert.match(await page.locator(".catalog-note").innerText(), /catálogo completo/i);
@@ -102,8 +106,16 @@ try {
   await page.getByText(/Página 1 de/).waitFor();
   await page.locator("[data-project-detail]").first().click();
   await page.locator("#project-detail-title").waitFor();
+  assert.equal(await page.locator("#project-detail-title").evaluate((heading) => heading === document.activeElement), true, "Abrir ficha debe llevar el foco al detalle");
   assert.match(await page.locator(".source-warning").innerText(), /precios publicados/i);
+  assert.deepEqual(
+    await page.locator("#project-summary-title, #project-product-title, #project-features-title, #project-sources-title").allTextContents(),
+    ["Resumen comercial", "Producto y ubicación", "Información anunciada", "Fuentes y actualizaciones"],
+    "La ficha debe seguir una jerarquía comercial predecible",
+  );
   assert.ok(await page.locator(".source-list article").count() > 0, "La ficha debe declarar al menos una fuente");
+  assert.equal(await hasHorizontalOverflow(page), false, "La ficha 1440×900 no debe desbordar");
+  await page.screenshot({ path: path.join(outputDirectory, "projects-detail-1440x900.png"), fullPage: true });
   await page.getByRole("button", { name: "Cerrar ficha" }).click();
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
   assert.ok(await page.locator("path.district-boundary").count() === 1, "El mapa debe representar el contorno distrital");
@@ -136,6 +148,15 @@ try {
   await page.locator(".nav-scrim").click({ position: { x: 380, y: 20 } });
   assert.equal(await page.locator(".nav-scrim").isVisible(), false, "La capa debe cerrar el menú");
   await page.screenshot({ path: path.join(outputDirectory, "assistant-390x844.png"), fullPage: true });
+
+  await page.goto(`${baseUrl}/#projects`, { waitUntil: "networkidle" });
+  await page.locator(".project-select-checkbox").first().waitFor();
+  const mobileCheckbox = await page.locator(".project-select-checkbox").first().boundingBox();
+  assert.ok(mobileCheckbox && mobileCheckbox.width <= 20 && mobileCheckbox.height <= 20, "El selector debe conservar tamaño compacto en móvil");
+  await page.locator("[data-project-detail]").first().click();
+  await page.locator("#project-detail-title").waitFor();
+  assert.equal(await hasHorizontalOverflow(page), false, "La ficha 390×844 no debe desbordar");
+  await page.screenshot({ path: path.join(outputDirectory, "projects-detail-390x844.png"), fullPage: true });
 
   await page.setViewportSize({ width: 768, height: 1024 });
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });

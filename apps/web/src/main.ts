@@ -449,7 +449,7 @@ function renderProjects(): string {
 function renderProjectRow(project: ProjectSummary): string {
   const canonicalId = canonicalProjectId(project.id);
   const checked = state.selectedProjectIds.includes(canonicalId);
-  return `<tr><td data-label="Comparar"><input type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} aria-label="Comparar ${escapeAttr(project.name)}" /></td><td data-label="Proyecto"><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></td><td data-label="Producto">${escapeHtml(project.typology ?? "Sin tipología")}<small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></td><td data-label="Precio publicado"><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m² orientativo</small></td><td data-label="Área">${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</td><td data-label="Entrega">${escapeHtml(project.phase ?? "Sin dato")}</td><td data-label="Ficha"><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir ficha</button></td></tr>`;
+  return `<tr><td class="project-select-cell" data-label="Comparar"><input class="project-select-checkbox" type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} aria-label="Comparar ${escapeAttr(project.name)}" /></td><td data-label="Proyecto"><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></td><td data-label="Producto">${escapeHtml(project.typology ?? "Sin tipología")}<small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></td><td data-label="Precio publicado"><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m² orientativo</small></td><td data-label="Área">${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</td><td data-label="Entrega">${escapeHtml(project.phase ?? "Sin dato")}</td><td data-label="Ficha"><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir ficha</button></td></tr>`;
 }
 
 function renderPagination(page: Page<ProjectSummary>): string {
@@ -463,15 +463,19 @@ function renderProjectDetail(): string {
   const sources = (trace.sources ?? []) as JsonObject[];
   const amenities = (project.amenities ?? []) as unknown[];
   const banks = (project.financingBanks ?? []) as unknown[];
-  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="section-heading"><div><span class="eyebrow">Ficha multifuente</span><h2 id="project-detail-title">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">×</button></header>
-    <p class="source-warning"><strong>Lectura disponible:</strong> los importes son precios publicados; no representan precios reales de cierre. Las diferencias entre fuentes se conservan como observaciones separadas.</p>
-    <dl class="detail-grid"><div><dt>Precio publicado desde</dt><dd>${money(project.pricePen)}</dd></div><div><dt>Área total publicada</dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div><dt>Dormitorios</dt><dd>${escapeHtml(project.bedrooms ?? "Sin dato")}</dd></div><div><dt>Entrega</dt><dd>${escapeHtml(project.phase ?? "Sin dato")}</dd></div><div><dt>Unidades declaradas</dt><dd>${project.unitCount == null ? "—" : formatNumber(project.unitCount)}</dd></div><div><dt>Última captura</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div></dl>
-    ${project.description ? `<section class="detail-block"><h3>Descripción publicada</h3><p>${escapeHtml(project.description)}</p></section>` : ""}
-    <div class="detail-columns">
-      <section class="detail-block"><h3>Áreas comunes anunciadas</h3>${amenities.length ? `<ul class="tag-list">${amenities.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</section>
-      <section class="detail-block"><h3>Financiamiento anunciado</h3>${banks.length ? `<ul class="tag-list">${banks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</section>
+  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial multifuente</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">×</button></header>
+    <section class="detail-block detail-block--first" aria-labelledby="project-summary-title"><h3 id="project-summary-title">Resumen comercial</h3><dl class="project-detail-summary"><div class="detail-stat detail-stat--primary"><dt>Precio publicado desde</dt><dd>${money(project.pricePen)}</dd></div><div class="detail-stat"><dt>Área total publicada</dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div class="detail-stat"><dt>Cociente publicado</dt><dd>${money(project.pricePerM2)} / m²</dd></div><div class="detail-stat"><dt>Estado o entrega</dt><dd>${escapeHtml(project.phase ?? project.deliveryDate ?? "Sin dato")}</dd></div></dl>
+      <p class="source-warning"><strong>Importante:</strong> son precios publicados, no precios reales de cierre. Cada diferencia entre fuentes se conserva para revisión.</p>
+    </section>
+    <div class="project-detail-layout">
+      <section class="detail-card" aria-labelledby="project-product-title"><h3 id="project-product-title">Producto y ubicación</h3><dl class="detail-list"><div><dt>Tipo de inmueble</dt><dd>${escapeHtml(project.typology ?? "Sin dato")}</dd></div><div><dt>Dormitorios</dt><dd>${escapeHtml(project.bedrooms ?? "Sin dato")}</dd></div><div><dt>Unidades declaradas</dt><dd>${project.unitCount == null ? "—" : formatNumber(project.unitCount)}</dd></div><div><dt>Dirección publicada</dt><dd>${escapeHtml(project.address ?? "Sin dato")}</dd></div><div><dt>Última actualización observada</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div></dl></section>
+      ${project.description ? `<section class="detail-card detail-card--description" aria-labelledby="project-description-title"><h3 id="project-description-title">Descripción publicada</h3><p>${escapeHtml(project.description)}</p></section>` : ""}
     </div>
-    <section class="detail-block"><header class="section-heading"><div><h3>Fuentes y capturas</h3><p>${formatNumber(trace.sourceCount)} fuente(s) · ${formatNumber(trace.factIds?.length)} hechos trazables</p></div></header>
+    <section class="detail-block" aria-labelledby="project-features-title"><h3 id="project-features-title">Información anunciada</h3><div class="detail-columns">
+      <div><h4>Áreas comunes</h4>${amenities.length ? `<ul class="tag-list">${amenities.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
+      <div><h4>Financiamiento</h4>${banks.length ? `<ul class="tag-list">${banks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
+    </div></section>
+    <section class="detail-block" aria-labelledby="project-sources-title"><header class="section-heading"><div><h3 id="project-sources-title">Fuentes y actualizaciones</h3><p>${formatNumber(trace.sourceCount)} fuente(s) · ${formatNumber(trace.factIds?.length)} hechos trazables</p></div></header>
       <div class="source-list">${sources.map((source) => `<article><div><strong>${escapeHtml(source.name)}</strong><small>${formatDate(source.capturedAt)} · ${escapeHtml(source.evidenceStatus ?? "sin evidencia publicable")}</small></div><span class="status-pill">${source.legalStatus === "cleared_for_demo" ? "Autorizada" : "Revisión pendiente"}</span>${source.sourceUrl ? `<a href="${escapeAttr(source.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fuente pública</a>` : ""}</article>`).join("") || "<p>No hay capturas vinculadas.</p>"}</div>
     </section>
   </section>`;
@@ -633,7 +637,10 @@ async function handleClick(event: MouseEvent): Promise<void> {
   const projectId = target.closest<HTMLElement>("[data-project-detail]")?.dataset.projectDetail;
   if (projectId) {
     state.busyMessage = "Cargando ficha…"; render();
-    try { state.projectDetail = await provider.project(projectId); state.busyMessage = null; render(); }
+    try {
+      state.projectDetail = await provider.project(projectId); state.busyMessage = null; render();
+      requestAnimationFrame(() => document.querySelector<HTMLElement>("#project-detail-title")?.focus());
+    }
     catch (error) { fail(error); }
     return;
   }
