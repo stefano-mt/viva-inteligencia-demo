@@ -60,6 +60,25 @@ Un conflicto se abre cuando observaciones vigentes de la misma entidad/campo no 
 
 `npm run ingestion:plan` lee el registro y la matriz existente sin hacer solicitudes externas. Una salida `COLLECTION_ALLOWED` no reemplaza la revisión humana: demuestra que sus cuatro campos habilitantes quedaron registrados.
 
+## Importación del feed autorizado de Nexo
+
+El repositorio incluye un adaptador offline para un export CSV autorizado. No navega ni descarga el sitio público de Nexo. El adaptador:
+
+- exige exactamente el esquema de `data/source/viva_minimum_dataset_latest.csv`;
+- fusiona por `project_id`, actualiza valores informados y conserva el valor vigente cuando la nueva celda está vacía;
+- mantiene proyectos anteriores que no estén en una entrega parcial y añade proyectos nuevos;
+- elimina `project_contact`, `project_email`, `project_phone` y `project_whatsapp` del artefacto de staging;
+- genera un manifiesto con altas, actualizaciones, campos modificados y checksum SHA-256;
+- nunca sobrescribe directamente el dataset canónico.
+
+Antes de ejecutarlo, `nexo-authorized-feed` debe figurar como `approved` en `data/source/ingestion/source-registry.json` e incluir una `authorizationReference` auditable. Luego:
+
+```powershell
+npm run ingestion:nexo:stage -- --input C:\ruta\export-nexo-autorizado.csv
+```
+
+La salida queda en `data/staging/nexo-authorized-merged.csv` junto con su manifiesto. Para publicar la actualización se revisan los conflictos, se reemplaza el CSV canónico mediante un PR y se ejecutan `npm run data:build` y `npm run verify`. Si falta autorización, cambia el esquema, hay IDs duplicados o aparece una fila sin `project_id`, el proceso falla cerrado sin escribir la salida.
+
 ## Zonas y cuadrantes
 
 - Distrito: UBIGEO y límite contrastado con RENLIM; una geometría referencial conserva su atribución.
