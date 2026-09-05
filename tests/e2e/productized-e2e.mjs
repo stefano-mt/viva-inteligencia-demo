@@ -60,6 +60,7 @@ page.on("request", (request) => observedRequests.push(request.url()));
 try {
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
   await page.locator("h1").waitFor();
+  assert.equal(await page.locator(".brand img").evaluate((image) => image.complete && image.naturalWidth > 0), true, "El logo debe cargar");
   assert.match(await page.locator("h1").innerText(), /lectura comercial/i);
   assert.equal(await hasHorizontalOverflow(page), false, "Dashboard 1440×900 no debe desbordar");
   await page.screenshot({ path: path.join(outputDirectory, "dashboard-1440x900.png"), fullPage: true });
@@ -87,12 +88,29 @@ try {
     await page.goto(`${baseUrl}/#${route}`, { waitUntil: "networkidle" });
     await page.locator("h1").waitFor();
     assert.ok((await page.locator("h1").innerText()).trim(), `${route} debe tener h1 visible`);
+    await assertNoUnboundButtons(page, route);
   }
 
   await page.goto(`${baseUrl}/#projects`, { waitUntil: "networkidle" });
   assert.ok(await page.locator("tbody tr").count() > 0, "Proyectos debe presentar filas");
+  await page.locator('select[name="project_scope"]').selectOption("all");
+  await page.waitForFunction(() => document.querySelector('select[name="project_scope"]')?.value === "all");
+  assert.match(await page.locator(".catalog-note").innerText(), /catálogo completo/i);
+  await page.getByRole("button", { name: "Siguiente" }).click();
+  await page.getByText(/Página 2 de/).waitFor();
+  await page.getByRole("button", { name: "Anterior" }).click();
+  await page.getByText(/Página 1 de/).waitFor();
+  await page.locator("[data-project-detail]").first().click();
+  await page.locator("#project-detail-title").waitFor();
+  assert.match(await page.locator(".source-warning").innerText(), /precios publicados/i);
+  assert.ok(await page.locator(".source-list article").count() > 0, "La ficha debe declarar al menos una fuente");
+  await page.getByRole("button", { name: "Cerrar ficha" }).click();
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
-  assert.ok(await page.locator("svg.map-chart").count() === 1, "El mapa debe tener ejes y puntos accesibles");
+  assert.ok(await page.locator("path.district-boundary").count() === 1, "El mapa debe representar el contorno distrital");
+  assert.match(await page.locator(".map-provenance").innerText(), /RENLIM/i);
+  await page.getByRole("button", { name: "Área y precio publicado" }).click();
+  assert.match(await page.locator(".map-provenance").innerText(), /precio real de cierre/i);
+  await page.getByRole("button", { name: "Mapa del distrito" }).click();
 
   await page.evaluate(() => { document.documentElement.style.zoom = "2"; });
   assert.equal(await hasHorizontalOverflow(page), false, "El dashboard debe conservar reflow a zoom 200%");
@@ -103,7 +121,30 @@ try {
   await page.goto(`${baseUrl}/#assistant`, { waitUntil: "networkidle" });
   await page.locator("h1").waitFor();
   assert.equal(await hasHorizontalOverflow(page), false, "Asistente 390×844 no debe desbordar");
+  assert.equal(await page.locator(".nav-scrim").isVisible(), false, "La capa del menú debe iniciar oculta");
+  await page.locator("[data-assistant-intent]").first().click();
+  assert.ok((await page.locator("#assistant-input").inputValue()).length > 0, "El atajo debe completar la pregunta");
+  await page.getByRole("button", { name: "Generar respuesta" }).click();
+  await page.locator(".answer").waitFor();
+  await page.getByRole("button", { name: "Editar escenario" }).click();
+  await page.locator("#scenario-dialog[open]").waitFor();
+  await page.getByRole("button", { name: "Aplicar escenario" }).click();
+  await page.waitForFunction(() => !document.querySelector("#scenario-dialog")?.hasAttribute("open"));
+  await page.getByRole("button", { name: "Abrir menú" }).click();
+  await page.locator(".product-shell.nav-open").waitFor();
+  assert.equal(await page.locator(".nav-scrim").isVisible(), true, "La capa solo debe mostrarse con el menú abierto");
+  await page.locator(".nav-scrim").click({ position: { x: 380, y: 20 } });
+  assert.equal(await page.locator(".nav-scrim").isVisible(), false, "La capa debe cerrar el menú");
   await page.screenshot({ path: path.join(outputDirectory, "assistant-390x844.png"), fullPage: true });
+
+  await page.setViewportSize({ width: 768, height: 1024 });
+  await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
+  await page.locator("path.district-boundary").waitFor();
+  assert.equal(await hasHorizontalOverflow(page), false, "Panorama 768×1024 no debe desbordar");
+  await page.getByRole("button", { name: "Abrir menú" }).click();
+  assert.equal(await page.locator(".nav-scrim").isVisible(), true, "El menú debe funcionar en tablet");
+  await page.keyboard.press("Escape");
+  assert.equal(await page.locator(".nav-scrim").isVisible(), false, "Escape debe cerrar el menú en tablet");
 
   const unavailablePage = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   await unavailablePage.route("**/api/v1/meta", (route) => route.abort("failed"));
@@ -111,6 +152,10 @@ try {
   await unavailablePage.locator(".startup-state--error").waitFor();
   assert.match(await unavailablePage.locator("main").innerText(), /API no está disponible/i);
   assert.equal(await unavailablePage.getByRole("button", { name: "Reintentar" }).count(), 1);
+  await unavailablePage.unroute("**/api/v1/meta");
+  await unavailablePage.getByRole("button", { name: "Reintentar" }).click();
+  await unavailablePage.locator("h1").waitFor();
+  assert.equal(await unavailablePage.locator(".startup-state--error").count(), 0, "Reintentar debe recuperar el workspace");
   await unavailablePage.close();
 
   const incompatiblePage = await browser.newPage({ viewport: { width: 1280, height: 720 } });
@@ -155,4 +200,23 @@ async function hasHorizontalOverflow(targetPage) {
   return targetPage.evaluate(() =>
     document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
   );
+}
+
+async function assertNoUnboundButtons(targetPage, route) {
+  const buttons = await targetPage.locator("button:visible:not(:disabled)").evaluateAll((elements) =>
+    elements
+      .filter((button) => {
+        const type = button.getAttribute("type") ?? "submit";
+        if (type === "submit") return false;
+        if (button.getAttribute("value") === "cancel") return false;
+        return ![
+          "action",
+          "projectDetail",
+          "projectPage",
+          "assistantIntent",
+        ].some((key) => key in button.dataset);
+      })
+      .map((button) => button.textContent?.trim() || button.getAttribute("aria-label") || "sin nombre")
+  );
+  assert.deepEqual(buttons, [], `${route} no debe mostrar botones sin contrato de interacción`);
 }

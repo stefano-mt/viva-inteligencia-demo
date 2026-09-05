@@ -18,6 +18,13 @@ describe("snapshot repository", () => {
     expect(page.items).toHaveLength(5);
     expect(page.total).toBe(90);
     expect(page.items.every(({ district }) => district === "Miraflores")).toBe(true);
+    const geography = repository.districtGeography("150122");
+    expect(geography?.district).toMatchObject({ id: "150122", name: "Miraflores" });
+    expect(geography?.geometry).toMatchObject({ type: "Feature" });
+    expect(geography?.provenance).toMatchObject({ status: "referential", officialBoundaryRegistry: "RENLIM" });
+    const detail = repository.project(page.items[0]!.id);
+    expect(detail?.traceability.sources).toHaveLength(1);
+    expect(Array.isArray(detail?.project.amenities)).toBe(true);
   });
 
   it("fails closed on a checksum mismatch", async () => {

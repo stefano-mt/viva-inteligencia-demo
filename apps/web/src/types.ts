@@ -77,6 +77,19 @@ export interface ProjectSummary extends JsonObject {
   longitude: number | null;
 }
 
+export interface DistrictGeography extends JsonObject {
+  district: { id: string; name: string };
+  geometry: JsonObject;
+  provenance: {
+    source: string;
+    sourceId: string;
+    crs: string;
+    status: "referential";
+    officialBoundaryRegistry: "RENLIM";
+    notice: string;
+  };
+}
+
 export interface Page<T> extends JsonObject {
   items: T[];
   page: number;

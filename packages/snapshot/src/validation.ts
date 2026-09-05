@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import fs from "node:fs/promises";
+import path from "node:path";
 import Ajv2020Import from "ajv/dist/2020.js";
 import addFormatsImport from "ajv-formats";
 import type { JsonObject, SnapshotData } from "@viva/domain";
@@ -70,8 +71,31 @@ export async function loadAndValidateSnapshot(options: {
     );
   }
   validateSemantics(data);
+  const boundaryArtifact = String(data.geography.boundary_artifact_path ?? "");
+  const boundaryPath = path.join(path.dirname(options.snapshotPath), path.basename(boundaryArtifact));
+  let boundaryBuffer: Buffer;
+  let boundaryGeoJson: JsonObject;
+  try {
+    boundaryBuffer = await fs.readFile(boundaryPath);
+    boundaryGeoJson = JSON.parse(boundaryBuffer.toString("utf8")) as JsonObject;
+  } catch (error) {
+    throw new SnapshotValidationError("La geometría distrital no está disponible o no es JSON válido.", [
+      error instanceof Error ? error.message : String(error),
+    ]);
+  }
+  const boundaryChecksum = createHash("sha256").update(boundaryBuffer).digest("hex");
+  if (boundaryChecksum !== data.geography.boundary_artifact_sha256) {
+    throw new SnapshotValidationError("El checksum de la geometría distrital no coincide.", [
+      { expected: data.geography.boundary_artifact_sha256, actual: boundaryChecksum },
+    ]);
+  }
+  if (boundaryGeoJson.type !== "FeatureCollection" || !Array.isArray(boundaryGeoJson.features)) {
+    throw new SnapshotValidationError("La geometría distrital no es una colección GeoJSON válida.");
+  }
+  scanPrivacy(boundaryGeoJson, "$.boundaryGeoJson", new WeakSet<object>());
   return {
     data,
+    boundaryGeoJson,
     checksum,
     byteLength: buffer.byteLength,
     sourcePath: options.snapshotPath,

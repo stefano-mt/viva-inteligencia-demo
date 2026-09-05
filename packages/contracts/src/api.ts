@@ -115,6 +115,22 @@ export const ProjectDetailResponseSchema = Type.Intersect([
   }),
 ]);
 
+export const DistrictGeographyResponseSchema = Type.Intersect([
+  VersionedResponseSchema,
+  Type.Object({
+    district: Type.Object({ id: Type.String(), name: Type.String() }),
+    geometry: Type.Record(Type.String(), Type.Unknown()),
+    provenance: Type.Object({
+      source: Type.String(),
+      sourceId: Type.String(),
+      crs: Type.String(),
+      status: Type.Literal("referential"),
+      officialBoundaryRegistry: Type.Literal("RENLIM"),
+      notice: Type.String(),
+    }),
+  }),
+]);
+
 export const InspectorResponseSchema = Type.Intersect([
   VersionedResponseSchema,
   Type.Object({ dossier: Type.Record(Type.String(), Type.Unknown()) }),

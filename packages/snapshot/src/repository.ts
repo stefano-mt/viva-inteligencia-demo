@@ -23,15 +23,18 @@ const NAVIGATION = Object.freeze([
 export class InMemorySnapshotRepository implements DataRepository {
   readonly #data: SnapshotData;
   readonly #checksum: string;
+  readonly #boundaryGeoJson: JsonObject;
   readonly #legacyById = new Map<string, JsonObject>();
   readonly #modelById = new Map<string, JsonObject>();
   readonly #agencyById = new Map<string, JsonObject>();
   readonly #observationsByEntity = new Map<string, JsonObject[]>();
   readonly #factsByEntity = new Map<string, JsonObject[]>();
+  readonly #sourceById = new Map<string, JsonObject>();
 
   constructor(loaded: LoadedSnapshot) {
     this.#data = loaded.data;
     this.#checksum = loaded.checksum;
+    this.#boundaryGeoJson = loaded.boundaryGeoJson;
     for (const project of this.#data.projects) {
       const id = String(project.id ?? "");
       this.#legacyById.set(id, project);
@@ -48,6 +51,9 @@ export class InMemorySnapshotRepository implements DataRepository {
     }
     for (const fact of (this.#data.model.facts as JsonObject[] | undefined) ?? []) {
       append(this.#factsByEntity, String(fact.entity_id ?? ""), fact);
+    }
+    for (const source of (this.#data.model.sources as JsonObject[] | undefined) ?? []) {
+      this.#sourceById.set(String(source.source_id ?? ""), source);
     }
   }
 
@@ -154,6 +160,35 @@ export class InMemorySnapshotRepository implements DataRepository {
     const agency = model ? this.#agencyById.get(String(model.agency_id ?? "")) : null;
     const observations = this.#observationsByEntity.get(canonicalId) ?? [];
     const facts = this.#factsByEntity.get(canonicalId) ?? [];
+    const observationById = new Map(observations.map((item) => [String(item.observation_id ?? ""), item]));
+    const traceSources = observations.map((observation) => {
+      const source = this.#sourceById.get(String(observation.source_id ?? ""));
+      return {
+        id: observation.source_id,
+        name: source?.name ?? observation.source_id,
+        type: source?.type ?? null,
+        legalStatus: source?.legal_status ?? "pending_review",
+        accessMode: source?.access_mode ?? null,
+        capturedAt: observation.captured_at ?? null,
+        sourceUrl: observation.source_url ?? null,
+        extractionMethod: observation.extraction_method ?? null,
+        evidenceStatus: observation.evidence_status ?? null,
+      };
+    });
+    if (!traceSources.length && legacy) {
+      const source = this.#sourceById.get("source:nexo");
+      traceSources.push({
+        id: "source:nexo",
+        name: source?.name ?? legacy.source ?? "Nexo Inmobiliario",
+        type: source?.type ?? legacy.source_type ?? "portal",
+        legalStatus: source?.legal_status ?? "pending_review",
+        accessMode: source?.access_mode ?? "public_reference",
+        capturedAt: legacy.captured_at ?? null,
+        sourceUrl: legacy.source_url ?? null,
+        extractionMethod: legacy.extraction_method ?? null,
+        evidenceStatus: "unavailable",
+      });
+    }
     return {
       project: {
         ...(legacy ? toSummary(legacy) : {}),
@@ -164,12 +199,56 @@ export class InMemorySnapshotRepository implements DataRepository {
           id: agency.agency_id,
           name: agency.canonical_name,
         } : null,
+        description: legacy?.project_description ?? null,
+        financingBanks: Array.isArray(legacy?.financing_banks) ? legacy.financing_banks : [],
+        amenities: Array.isArray(legacy?.amenities) ? legacy.amenities : [],
+        unitCount: nullableNumber(legacy?.unit_count),
+        deliveryDate: legacy?.delivery_date ?? null,
+        capturedAt: legacy?.captured_at ?? null,
       },
       traceability: {
         observationIds: observations.map((item) => item.observation_id),
         factIds: facts.map((item) => item.fact_id),
-        sourceCount: new Set(observations.map((item) => item.source_id)).size,
+        sourceCount: new Set(traceSources.map((item) => item.id)).size,
         lastSeenAt: model?.last_seen_at ?? legacy?.captured_at ?? null,
+        sources: traceSources,
+        facts: facts.map((fact) => ({
+          id: fact.fact_id,
+          fieldName: fact.field_name,
+          originalValue: fact.original_value ?? null,
+          normalizedValue: fact.normalized_value ?? null,
+          unit: fact.unit ?? null,
+          valueKind: fact.value_kind ?? null,
+          qualityStatus: fact.quality_status ?? null,
+          sourceId: observationById.get(String(fact.observation_id ?? ""))?.source_id ?? null,
+        })),
+      },
+    };
+  }
+
+  districtGeography(districtId: string): JsonObject | null {
+    const district = (this.#data.geography.districts as JsonObject[]).find((item) =>
+      [item.district_id, item.district_name, item.source_name]
+        .some((value) => normalize(value) === normalize(districtId)));
+    if (!district) return null;
+    const relationId = Number(district.osm_relation_id);
+    const features = this.#boundaryGeoJson.features as JsonObject[];
+    const feature = features.find((item) =>
+      Number(((item.properties ?? {}) as JsonObject).osm_id) === relationId);
+    if (!feature) return null;
+    return {
+      district: {
+        id: String(district.district_id),
+        name: String(district.district_name ?? district.source_name ?? ""),
+      },
+      geometry: structuredClone(feature),
+      provenance: {
+        source: "OpenStreetMap contributors",
+        sourceId: this.#data.geography.source_id,
+        crs: this.#data.geography.crs,
+        status: "referential",
+        officialBoundaryRegistry: "RENLIM",
+        notice: "La geometría es referencial y no sustituye el límite oficial de RENLIM.",
       },
     };
   }

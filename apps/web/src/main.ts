@@ -3,6 +3,7 @@ import { ApiClientError, ApiDataProvider, type DataProvider } from "./api.js";
 import { JOURNEY_STAGES, parseRoute, routeHash } from "./routes.js";
 import type {
   Bootstrap,
+  DistrictGeography,
   JsonObject,
   Meta,
   Page,
@@ -26,7 +27,12 @@ interface AppState {
   comparison: JsonObject | null;
   assistant: JsonObject | null;
   projectDetail: JsonObject | null;
+  geography: DistrictGeography | null;
   projectPage: number;
+  projectScope: "scenario" | "all";
+  projectQuery: string;
+  projectSort: string;
+  mapView: "geographic" | "positioning";
   selectedProjectIds: string[];
   inspectorSlug: string | null;
   navOpen: boolean;
@@ -52,7 +58,12 @@ const state: AppState = {
   comparison: null,
   assistant: null,
   projectDetail: null,
+  geography: null,
   projectPage: 1,
+  projectScope: "scenario",
+  projectQuery: "",
+  projectSort: "name",
+  mapView: "geographic",
   selectedProjectIds: [],
   inspectorSlug: null,
   navOpen: false,
@@ -69,7 +80,10 @@ window.addEventListener("keydown", (event) => {
     event.preventDefault();
     openDialog("command-dialog", "command-input");
   }
-  if (event.key === "Escape") state.navOpen = false;
+  if (event.key === "Escape" && state.navOpen) {
+    state.navOpen = false;
+    render();
+  }
 });
 root.addEventListener("click", handleClick);
 root.addEventListener("submit", handleSubmit);
@@ -113,6 +127,9 @@ async function refreshWorkspace(): Promise<void> {
   state.workspace = workspace;
   state.selectedProjectIds = workspace.comparableProjectIds.slice(0, 2);
   state.projectPage = 1;
+  state.projectScope = "scenario";
+  state.projectQuery = "";
+  state.projectSort = "name";
   writeScenarioToLocation(workspace.scenario);
   const [projects, history] = await Promise.all([
     provider.projects({
@@ -141,14 +158,20 @@ async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
   try {
     state.busyMessage = routeLoadingLabel(state.route);
     render();
-    if (state.route.id === "projects" || state.route.id === "dashboard" || state.route.id === "geography") {
-      state.projects = await provider.projects({
-        district: state.scenario.district_id,
-        page: state.projectPage,
-        pageSize: state.route.id === "dashboard" || state.route.id === "geography" ? 100 : 18,
-        typology: state.scenario.typology,
-        bedrooms: state.scenario.bedrooms,
-      });
+    if (state.route.id === "projects") {
+      state.projects = await provider.projects(projectParameters(18));
+    }
+    if (state.route.id === "dashboard" || state.route.id === "geography") {
+      [state.projects, state.geography] = await Promise.all([
+        provider.projects({
+          district: state.scenario.district_id,
+          page: 1,
+          pageSize: 100,
+          typology: state.scenario.typology,
+          bedrooms: state.scenario.bedrooms,
+        }),
+        provider.districtGeography(state.scenario.district_id),
+      ]);
     }
     if (state.route.id === "activity" || state.route.id === "movement") {
       state.history = await provider.history({
@@ -354,34 +377,70 @@ function renderDashboard(): string {
 
 function renderMapSection(journey: boolean): string {
   const projects = state.projects?.items ?? [];
-  return `<section class="surface map-surface"><header class="section-heading"><div><span class="eyebrow">Territorio observado</span><h2>Mapa de posicionamiento geográfico</h2><p>Los ejes muestran coordenadas reales; cada punto identifica un proyecto.</p></div><span class="status-pill">${formatNumber(projects.length)} visibles</span></header>${renderScatter(projects)}${journey ? '<p class="method-note">Los cuadrantes son analíticos y no representan divisiones oficiales.</p>' : ""}</section>`;
+  const title = state.mapView === "geographic" ? "Mapa del distrito" : "Posicionamiento por área y precio";
+  const description = state.mapView === "geographic"
+    ? "Ubica la oferta sobre el contorno distrital disponible."
+    : "Contrasta área total y precio publicado sin tratarlos como precio de cierre.";
+  return `<section class="surface map-surface"><header class="section-heading"><div><span class="eyebrow">Territorio observado</span><h2>${title}</h2><p>${description}</p></div><span class="status-pill">${formatNumber(projects.length)} visibles</span></header>
+    <div class="map-switch" role="group" aria-label="Vista del mapa">
+      <button type="button" data-action="map-geographic" aria-pressed="${state.mapView === "geographic"}">Mapa del distrito</button>
+      <button type="button" data-action="map-positioning" aria-pressed="${state.mapView === "positioning"}">Área y precio publicado</button>
+    </div>
+    ${state.mapView === "geographic" ? renderGeographicMap(projects) : renderPositioningMap(projects)}
+    ${journey ? '<p class="method-note">La vista territorial no muestra cuadrantes comerciales hasta contar con una fuente autorizada. El precio mostrado es publicado, no de cierre.</p>' : ""}</section>`;
 }
 
-function renderScatter(projects: ProjectSummary[]): string {
+function renderGeographicMap(projects: ProjectSummary[]): string {
   const valid = projects.filter((project) => project.latitude != null && project.longitude != null);
-  if (!valid.length) return emptyState("No hay coordenadas válidas para este escenario.", "Editar escenario", "#dashboard");
-  const lats = valid.map(({ latitude }) => latitude!);
-  const lons = valid.map(({ longitude }) => longitude!);
+  const feature = state.geography?.geometry;
+  const geometry = feature?.geometry as JsonObject | undefined;
+  if (!valid.length || !geometry) return emptyState("No hay geometría y coordenadas válidas para este escenario.", "Editar escenario", "#dashboard");
+  const boundary = geometryCoordinates(geometry);
+  if (!boundary.length) return emptyState("El límite distrital no pudo representarse.", "Editar escenario", "#dashboard");
+  const allCoordinates = [...boundary, ...valid.map((project) => [project.longitude!, project.latitude!] as [number, number])];
+  const lats = allCoordinates.map(([, latitude]) => latitude);
+  const lons = allCoordinates.map(([longitude]) => longitude);
   const minLat = Math.min(...lats); const maxLat = Math.max(...lats);
   const minLon = Math.min(...lons); const maxLon = Math.max(...lons);
-  const width = 960; const height = 420; const left = 78; const right = 24; const top = 28; const bottom = 52;
-  const x = (value: number) => left + ((value - minLon) / Math.max(maxLon - minLon, 0.000001)) * (width - left - right);
-  const y = (value: number) => top + ((maxLat - value) / Math.max(maxLat - minLat, 0.000001)) * (height - top - bottom);
-  return `<div class="chart-scroll" tabindex="0" aria-label="Gráfico de proyectos por longitud y latitud"><svg class="map-chart" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="map-title map-description"><title id="map-title">Proyectos de ${escapeHtml(districtName())}</title><desc id="map-description">${valid.length} proyectos. Eje horizontal: longitud; eje vertical: latitud.</desc>
+  const width = 960; const height = 520; const padding = 34;
+  const x = (value: number) => padding + ((value - minLon) / Math.max(maxLon - minLon, 0.000001)) * (width - padding * 2);
+  const y = (value: number) => padding + ((maxLat - value) / Math.max(maxLat - minLat, 0.000001)) * (height - padding * 2);
+  return `<div class="map-frame"><svg class="map-chart map-chart--geographic" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="map-title map-description"><title id="map-title">Proyectos de ${escapeHtml(districtName())}</title><desc id="map-description">Contorno distrital referencial y ${valid.length} proyectos con coordenadas válidas.</desc>
+    <path class="district-boundary" d="${escapeAttr(geometryPath(geometry, x, y))}" fill-rule="evenodd"></path>
+    ${valid.map((project) => `<a href="#projects" aria-label="Abrir ${escapeAttr(project.name)} en el catálogo"><circle cx="${x(project.longitude!)}" cy="${y(project.latitude!)}" r="6"><title>${escapeHtml(project.name)} · ${escapeHtml(project.agency)} · ${money(project.pricePen)} publicado · ${formatNumber(project.areaM2)} m²</title></circle></a>`).join("")}
+  </svg></div><p class="map-provenance"><strong>Límite referencial:</strong> ${escapeHtml(state.geography!.provenance.source)}. La fuente vinculante de límites es ${escapeHtml(state.geography!.provenance.officialBoundaryRegistry)}. No se muestran zonas internas como oficiales.</p>`;
+}
+
+function renderPositioningMap(projects: ProjectSummary[]): string {
+  const valid = projects.filter((project) => project.areaM2 != null && project.pricePen != null);
+  if (!valid.length) return emptyState("No hay pares de área y precio publicado para este escenario.", "Ver proyectos", "#projects");
+  const areas = valid.map(({ areaM2 }) => areaM2!);
+  const prices = valid.map(({ pricePen }) => pricePen!);
+  const minArea = Math.min(...areas); const maxArea = Math.max(...areas);
+  const minPrice = Math.min(...prices); const maxPrice = Math.max(...prices);
+  const width = 960; const height = 480; const left = 86; const right = 24; const top = 28; const bottom = 58;
+  const x = (value: number) => left + ((value - minArea) / Math.max(maxArea - minArea, 1)) * (width - left - right);
+  const y = (value: number) => top + ((maxPrice - value) / Math.max(maxPrice - minPrice, 1)) * (height - top - bottom);
+  return `<div class="map-frame"><svg class="map-chart" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="position-title position-description"><title id="position-title">Área y precio publicado en ${escapeHtml(districtName())}</title><desc id="position-description">${valid.length} proyectos. Eje horizontal área total publicada; eje vertical precio publicado.</desc>
     <line x1="${left}" y1="${height - bottom}" x2="${width - right}" y2="${height - bottom}" />
     <line x1="${left}" y1="${top}" x2="${left}" y2="${height - bottom}" />
-    <text x="${left}" y="${height - 18}">${minLon.toFixed(4)}°</text><text x="${width - right}" y="${height - 18}" text-anchor="end">${maxLon.toFixed(4)}° longitud</text>
-    <text x="${left - 10}" y="${height - bottom}" text-anchor="end">${minLat.toFixed(4)}°</text><text x="${left - 10}" y="${top + 4}" text-anchor="end">${maxLat.toFixed(4)}° latitud</text>
-    ${valid.map((project) => `<circle cx="${x(project.longitude!)}" cy="${y(project.latitude!)}" r="6" tabindex="0"><title>${escapeHtml(project.name)} · ${escapeHtml(project.agency)} · ${money(project.pricePen)} · ${formatNumber(project.areaM2)} m²</title></circle>`).join("")}
-  </svg></div>`;
+    <text x="${left}" y="${height - 20}">${formatNumber(minArea)} m²</text><text x="${width - right}" y="${height - 20}" text-anchor="end">${formatNumber(maxArea)} m² de área total</text>
+    <text x="${left - 12}" y="${height - bottom}" text-anchor="end">${money(minPrice)}</text><text x="${left - 12}" y="${top + 4}" text-anchor="end">${money(maxPrice)}</text>
+    ${valid.map((project) => `<a href="#projects" aria-label="Abrir ${escapeAttr(project.name)} en el catálogo"><circle cx="${x(project.areaM2!)}" cy="${y(project.pricePen!)}" r="6"><title>${escapeHtml(project.name)} · ${money(project.pricePen)} publicado · ${formatNumber(project.areaM2)} m²</title></circle></a>`).join("")}
+  </svg></div><p class="map-provenance">Cada punto usa área total y precio publicados. No representa precio real de cierre ni una tasación.</p>`;
 }
 
 function renderProjects(): string {
   const page = state.projects;
   const items = page?.items ?? [];
-  return `${renderPageHeader("Proyectos", "Oferta comparable", "Filtra, revisa y selecciona proyectos en filas legibles.", `<span class="status-pill">${formatNumber(page?.total)} resultados</span>`)}
-    <section class="surface"><form class="filters" id="project-filter-form"><label>Buscar<input name="query" type="search" placeholder="Proyecto, inmobiliaria o dirección" /></label><label>Orden<select name="sort"><option value="name">Nombre</option><option value="price-asc">Menor precio</option><option value="price-desc">Mayor precio</option><option value="area-asc">Menor área</option><option value="area-desc">Mayor área</option></select></label><button class="button button--quiet" type="submit">Aplicar</button></form>
-      <div class="table-scroll"><table><thead><tr><th scope="col">Comparar</th><th scope="col">Proyecto</th><th scope="col">Producto</th><th scope="col">Precio</th><th scope="col">Área</th><th scope="col">Entrega</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${items.map(renderProjectRow).join("")}</tbody></table></div>
+  const title = state.projectScope === "all" ? "Todos los proyectos" : "Comparables del escenario";
+  const description = state.projectScope === "all"
+    ? "Explora el catálogo completo cargado; la ficha distingue fuentes y fecha de captura."
+    : "Revisa la oferta compatible con los filtros del escenario activo.";
+  return `${renderPageHeader("Proyectos", title, description, `<span class="status-pill">${formatNumber(page?.total)} resultados</span>`)}
+    <section class="surface"><form class="filters project-filters" id="project-filter-form"><label>Vista<select name="project_scope"><option value="scenario" ${state.projectScope === "scenario" ? "selected" : ""}>Comparables del escenario</option><option value="all" ${state.projectScope === "all" ? "selected" : ""}>Todo el catálogo (${formatNumber(state.meta!.coverage.projects)})</option></select></label><label>Buscar<input name="query" type="search" value="${escapeAttr(state.projectQuery)}" placeholder="Proyecto, inmobiliaria o dirección" /></label><label>Orden<select name="sort"><option value="name" ${state.projectSort === "name" ? "selected" : ""}>Nombre</option><option value="price-asc" ${state.projectSort === "price-asc" ? "selected" : ""}>Menor precio publicado</option><option value="price-desc" ${state.projectSort === "price-desc" ? "selected" : ""}>Mayor precio publicado</option><option value="area-asc" ${state.projectSort === "area-asc" ? "selected" : ""}>Menor área</option><option value="area-desc" ${state.projectSort === "area-desc" ? "selected" : ""}>Mayor área</option></select></label><button class="button button--quiet" type="submit">Aplicar filtros</button></form>
+      <p class="catalog-note">${state.projectScope === "all" ? "Catálogo completo. Cambia a comparables para aplicar distrito, tipología y dormitorios." : `Escenario: ${escapeHtml(districtName())} · ${escapeHtml(scopeLabel())}.`}</p>
+      <div class="table-scroll"><table class="project-table"><thead><tr><th scope="col">Comparar</th><th scope="col">Proyecto</th><th scope="col">Producto</th><th scope="col">Precio publicado</th><th scope="col">Área</th><th scope="col">Entrega</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${items.map(renderProjectRow).join("")}</tbody></table></div>
       ${items.length ? renderPagination(page!) : emptyState("No hay proyectos para los filtros activos.", "Editar escenario", "#projects")}
     </section>
     ${state.projectDetail ? renderProjectDetail() : ""}`;
@@ -390,7 +449,7 @@ function renderProjects(): string {
 function renderProjectRow(project: ProjectSummary): string {
   const canonicalId = canonicalProjectId(project.id);
   const checked = state.selectedProjectIds.includes(canonicalId);
-  return `<tr><td><input type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} aria-label="Comparar ${escapeAttr(project.name)}" /></td><td><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></td><td>${escapeHtml(project.typology ?? "Sin tipología")}<small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></td><td><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m²</small></td><td>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</td><td>${escapeHtml(project.phase ?? "Sin dato")}</td><td><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Ver ficha</button></td></tr>`;
+  return `<tr><td data-label="Comparar"><input type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} aria-label="Comparar ${escapeAttr(project.name)}" /></td><td data-label="Proyecto"><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></td><td data-label="Producto">${escapeHtml(project.typology ?? "Sin tipología")}<small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></td><td data-label="Precio publicado"><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m² orientativo</small></td><td data-label="Área">${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</td><td data-label="Entrega">${escapeHtml(project.phase ?? "Sin dato")}</td><td data-label="Ficha"><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir ficha</button></td></tr>`;
 }
 
 function renderPagination(page: Page<ProjectSummary>): string {
@@ -401,7 +460,21 @@ function renderProjectDetail(): string {
   const detail = state.projectDetail!;
   const project = detail.project as JsonObject;
   const trace = detail.traceability as JsonObject;
-  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="section-heading"><div><span class="eyebrow">Ficha y trazabilidad</span><h2 id="project-detail-title">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")}</p></div><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">×</button></header><dl class="detail-grid"><div><dt>Precio</dt><dd>${money(project.pricePen)}</dd></div><div><dt>Área</dt><dd>${formatNumber(project.areaM2)} m²</dd></div><div><dt>Calidad</dt><dd>${qualityLabel(project.qualityStatus)}</dd></div><div><dt>Última observación</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div><div><dt>Observaciones</dt><dd>${formatNumber(trace.observationIds?.length)}</dd></div><div><dt>Hechos</dt><dd>${formatNumber(trace.factIds?.length)}</dd></div></dl></section>`;
+  const sources = (trace.sources ?? []) as JsonObject[];
+  const amenities = (project.amenities ?? []) as unknown[];
+  const banks = (project.financingBanks ?? []) as unknown[];
+  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="section-heading"><div><span class="eyebrow">Ficha multifuente</span><h2 id="project-detail-title">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">×</button></header>
+    <p class="source-warning"><strong>Lectura disponible:</strong> los importes son precios publicados; no representan precios reales de cierre. Las diferencias entre fuentes se conservan como observaciones separadas.</p>
+    <dl class="detail-grid"><div><dt>Precio publicado desde</dt><dd>${money(project.pricePen)}</dd></div><div><dt>Área total publicada</dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div><dt>Dormitorios</dt><dd>${escapeHtml(project.bedrooms ?? "Sin dato")}</dd></div><div><dt>Entrega</dt><dd>${escapeHtml(project.phase ?? "Sin dato")}</dd></div><div><dt>Unidades declaradas</dt><dd>${project.unitCount == null ? "—" : formatNumber(project.unitCount)}</dd></div><div><dt>Última captura</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div></dl>
+    ${project.description ? `<section class="detail-block"><h3>Descripción publicada</h3><p>${escapeHtml(project.description)}</p></section>` : ""}
+    <div class="detail-columns">
+      <section class="detail-block"><h3>Áreas comunes anunciadas</h3>${amenities.length ? `<ul class="tag-list">${amenities.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</section>
+      <section class="detail-block"><h3>Financiamiento anunciado</h3>${banks.length ? `<ul class="tag-list">${banks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</section>
+    </div>
+    <section class="detail-block"><header class="section-heading"><div><h3>Fuentes y capturas</h3><p>${formatNumber(trace.sourceCount)} fuente(s) · ${formatNumber(trace.factIds?.length)} hechos trazables</p></div></header>
+      <div class="source-list">${sources.map((source) => `<article><div><strong>${escapeHtml(source.name)}</strong><small>${formatDate(source.capturedAt)} · ${escapeHtml(source.evidenceStatus ?? "sin evidencia publicable")}</small></div><span class="status-pill">${source.legalStatus === "cleared_for_demo" ? "Autorizada" : "Revisión pendiente"}</span>${source.sourceUrl ? `<a href="${escapeAttr(source.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fuente pública</a>` : ""}</article>`).join("") || "<p>No hay capturas vinculadas.</p>"}</div>
+    </section>
+  </section>`;
 }
 
 function renderInspector(): string {
@@ -538,6 +611,8 @@ async function handleClick(event: MouseEvent): Promise<void> {
   if (action === "close-nav") { state.navOpen = false; render(); return; }
   if (action === "scenario") return openDialog("scenario-dialog", "scenario-form");
   if (action === "command") return openDialog("command-dialog", "command-input");
+  if (action === "map-geographic") { state.mapView = "geographic"; render(); return; }
+  if (action === "map-positioning") { state.mapView = "positioning"; render(); return; }
   if (action === "reset" && state.bootstrap) {
     closeDialogs();
     state.scenario = structuredClone(state.bootstrap.initialScenario);
@@ -642,6 +717,12 @@ async function handleChange(event: Event): Promise<void> {
     } else state.selectedProjectIds = state.selectedProjectIds.filter((item) => item !== id);
     return;
   }
+  if (target.name === "project_scope" && target.form?.id === "project-filter-form") {
+    state.projectScope = target.value === "all" ? "all" : "scenario";
+    state.projectPage = 1;
+    await loadProjectsFromForm(target.form);
+    return;
+  }
   if (target.name === "scope_mode" && target.form?.id === "scenario-form") {
     const quadrant = target.form.elements.namedItem("quadrant_id") as HTMLSelectElement | null;
     const radius = target.form.elements.namedItem("radius_meters") as HTMLSelectElement | null;
@@ -653,19 +734,29 @@ async function handleChange(event: Event): Promise<void> {
 async function loadProjectsFromForm(form = document.querySelector<HTMLFormElement>("#project-filter-form")): Promise<void> {
   if (!state.scenario) return;
   const data = form ? new FormData(form) : new FormData();
+  state.projectScope = String(data.get("project_scope") ?? state.projectScope) === "all" ? "all" : "scenario";
+  state.projectQuery = String(data.get("query") ?? state.projectQuery);
+  state.projectSort = String(data.get("sort") ?? state.projectSort);
   state.busyMessage = "Actualizando proyectos…"; render();
   try {
-    state.projects = await provider.projects({
-      district: state.scenario.district_id,
-      page: state.projectPage,
-      pageSize: 18,
-      typology: state.scenario.typology,
-      bedrooms: state.scenario.bedrooms,
-      query: String(data.get("query") ?? ""),
-      sort: String(data.get("sort") ?? "name"),
-    });
+    state.projects = await provider.projects(projectParameters(18));
     state.busyMessage = null; render();
   } catch (error) { fail(error); }
+}
+
+function projectParameters(pageSize: number): Record<string, string | number | undefined> {
+  const scenario = state.scenario!;
+  return {
+    ...(state.projectScope === "scenario" ? {
+      district: scenario.district_id,
+      typology: scenario.typology,
+      bedrooms: scenario.bedrooms,
+    } : {}),
+    page: state.projectPage,
+    pageSize,
+    query: state.projectQuery,
+    sort: state.projectSort,
+  };
 }
 
 function scenarioFromLocation(initial: Scenario): Scenario {
@@ -825,6 +916,49 @@ function optionalNumber(value: FormDataEntryValue | string | null): number | nul
   if (value === null || String(value).trim() === "") return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function geometryCoordinates(geometry: JsonObject): Array<[number, number]> {
+  const coordinates: Array<[number, number]> = [];
+  visitCoordinates(geometry.coordinates, (longitude, latitude) => coordinates.push([longitude, latitude]));
+  return coordinates;
+}
+
+function visitCoordinates(value: unknown, visitor: (longitude: number, latitude: number) => void): void {
+  if (Array.isArray(value) && value.length >= 2 && Number.isFinite(value[0]) && Number.isFinite(value[1])) {
+    visitor(Number(value[0]), Number(value[1]));
+    return;
+  }
+  if (Array.isArray(value)) value.forEach((child) => visitCoordinates(child, visitor));
+}
+
+function geometryPath(
+  geometry: JsonObject,
+  x: (longitude: number) => number,
+  y: (latitude: number) => number,
+): string {
+  const polygons = geometry.type === "Polygon"
+    ? [geometry.coordinates]
+    : geometry.type === "MultiPolygon"
+      ? geometry.coordinates
+      : [];
+  return (polygons as unknown[]).flatMap((polygon) =>
+    (Array.isArray(polygon) ? polygon : []).map((ring) => ringPath(ring, x, y)))
+    .filter(Boolean)
+    .join(" ");
+}
+
+function ringPath(
+  ring: unknown,
+  x: (longitude: number) => number,
+  y: (latitude: number) => number,
+): string {
+  if (!Array.isArray(ring)) return "";
+  const points: Array<[number, number]> = ring
+    .filter((coordinate) => Array.isArray(coordinate) && Number.isFinite(coordinate[0]) && Number.isFinite(coordinate[1]))
+    .map((coordinate) => [x(Number(coordinate[0])), y(Number(coordinate[1]))] as [number, number]);
+  if (points.length < 3) return "";
+  return `${points.map(([projectedX, projectedY], index) => `${index ? "L" : "M"} ${projectedX.toFixed(2)} ${projectedY.toFixed(2)}`).join(" ")} Z`;
 }
 
 function escapeHtml(value: unknown): string {

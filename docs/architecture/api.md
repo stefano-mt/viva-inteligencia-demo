@@ -11,6 +11,7 @@ Base: `/api/v1`. Todos los datos son públicos y de solo lectura. Los `POST` son
 | POST | `/api/v1/workspace/evaluate` | Escenario normalizado y lectura comercial. |
 | GET | `/api/v1/projects` | Consulta paginada; máximo 100 registros. |
 | GET | `/api/v1/projects/:projectId` | Ficha y trazabilidad. |
+| GET | `/api/v1/geography/districts/:districtId` | Geometría distrital versionada y procedencia. |
 | GET | `/api/v1/inspector/cases/:routeSlug` | Expediente autorizado. |
 | POST | `/api/v1/comparisons/evaluate` | Comparación determinista. |
 | GET | `/api/v1/history` | Señales paginadas. |
