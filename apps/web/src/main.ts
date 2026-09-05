@@ -221,7 +221,7 @@ function render(): void {
         <header class="brand">
           <img src="/assets/viva-negocio-inmobiliario-logo.jpg" alt="VIVA" width="56" height="56" />
           <span><strong>Inteligencia comercial</strong><small>Viva Inmobiliaria</small></span>
-          <button class="icon-button mobile-only" type="button" data-action="close-nav" aria-label="Cerrar menú">×</button>
+          <button class="icon-button mobile-only" type="button" data-action="close-nav" aria-label="Cerrar menú">${closeIcon()}</button>
         </header>
         <button class="command-trigger" type="button" data-action="command">
           <span>Ir a…</span><kbd>Ctrl K</kbd>
@@ -463,22 +463,43 @@ function renderProjectDetail(): string {
   const sources = (trace.sources ?? []) as JsonObject[];
   const amenities = (project.amenities ?? []) as unknown[];
   const banks = (project.financingBanks ?? []) as unknown[];
-  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial multifuente</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">×</button></header>
-    <section class="detail-block detail-block--first" aria-labelledby="project-summary-title"><h3 id="project-summary-title">Resumen comercial</h3><dl class="project-detail-summary"><div class="detail-stat detail-stat--primary"><dt>Precio publicado desde</dt><dd>${money(project.pricePen)}</dd></div><div class="detail-stat"><dt>Área total publicada</dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div class="detail-stat"><dt>Cociente publicado</dt><dd>${money(project.pricePerM2)} / m²</dd></div><div class="detail-stat"><dt>Estado o entrega</dt><dd>${escapeHtml(project.phase ?? project.deliveryDate ?? "Sin dato")}</dd></div></dl>
+  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial multifuente</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">${closeIcon()}</button></header>
+    <section class="detail-block detail-block--first" aria-labelledby="project-summary-title"><h3 id="project-summary-title">${detailIcon("summary")}<span>Resumen comercial</span></h3><dl class="project-detail-summary"><div class="detail-stat detail-stat--primary"><dt>${detailIcon("price")}<span>Precio publicado desde</span></dt><dd>${money(project.pricePen)}</dd></div><div class="detail-stat"><dt>${detailIcon("area")}<span>Área total publicada</span></dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div class="detail-stat"><dt>${detailIcon("ratio")}<span>Cociente publicado</span></dt><dd>${money(project.pricePerM2)} / m²</dd></div><div class="detail-stat"><dt>${detailIcon("calendar")}<span>Estado o entrega</span></dt><dd>${escapeHtml(project.phase ?? project.deliveryDate ?? "Sin dato")}</dd></div></dl>
       <p class="source-warning"><strong>Importante:</strong> son precios publicados, no precios reales de cierre. Cada diferencia entre fuentes se conserva para revisión.</p>
     </section>
     <div class="project-detail-layout">
-      <section class="detail-card" aria-labelledby="project-product-title"><h3 id="project-product-title">Producto y ubicación</h3><dl class="detail-list"><div><dt>Tipo de inmueble</dt><dd>${escapeHtml(project.typology ?? "Sin dato")}</dd></div><div><dt>Dormitorios</dt><dd>${escapeHtml(project.bedrooms ?? "Sin dato")}</dd></div><div><dt>Unidades declaradas</dt><dd>${project.unitCount == null ? "—" : formatNumber(project.unitCount)}</dd></div><div><dt>Dirección publicada</dt><dd>${escapeHtml(project.address ?? "Sin dato")}</dd></div><div><dt>Última actualización observada</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div></dl></section>
-      ${project.description ? `<section class="detail-card detail-card--description" aria-labelledby="project-description-title"><h3 id="project-description-title">Descripción publicada</h3><p>${escapeHtml(project.description)}</p></section>` : ""}
+      <section class="detail-card" aria-labelledby="project-product-title"><h3 id="project-product-title">${detailIcon("building")}<span>Producto y ubicación</span></h3><dl class="detail-list"><div><dt>Tipo de inmueble</dt><dd>${escapeHtml(project.typology ?? "Sin dato")}</dd></div><div><dt>Dormitorios</dt><dd>${escapeHtml(project.bedrooms ?? "Sin dato")}</dd></div><div><dt>Unidades declaradas</dt><dd>${project.unitCount == null ? "—" : formatNumber(project.unitCount)}</dd></div><div><dt>Dirección publicada</dt><dd>${escapeHtml(project.address ?? "Sin dato")}</dd></div><div><dt>Última actualización observada</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div></dl></section>
+      ${project.description ? `<section class="detail-card detail-card--description" aria-labelledby="project-description-title"><h3 id="project-description-title">${detailIcon("document")}<span>Descripción publicada</span></h3><p>${escapeHtml(project.description)}</p></section>` : ""}
     </div>
-    <section class="detail-block" aria-labelledby="project-features-title"><h3 id="project-features-title">Información anunciada</h3><div class="detail-columns">
-      <div><h4>Áreas comunes</h4>${amenities.length ? `<ul class="tag-list">${amenities.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
-      <div><h4>Financiamiento</h4>${banks.length ? `<ul class="tag-list">${banks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
+    <section class="detail-block" aria-labelledby="project-features-title"><h3 id="project-features-title">${detailIcon("features")}<span>Información anunciada</span></h3><div class="detail-columns">
+      <div><h4>${detailIcon("amenities")}<span>Áreas comunes</span></h4>${amenities.length ? `<ul class="tag-list">${amenities.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
+      <div><h4>${detailIcon("bank")}<span>Financiamiento</span></h4>${banks.length ? `<ul class="tag-list">${banks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
     </div></section>
-    <section class="detail-block" aria-labelledby="project-sources-title"><header class="section-heading"><div><h3 id="project-sources-title">Fuentes y actualizaciones</h3><p>${formatNumber(trace.sourceCount)} fuente(s) · ${formatNumber(trace.factIds?.length)} hechos trazables</p></div></header>
+    <section class="detail-block" aria-labelledby="project-sources-title"><header class="section-heading"><div><h3 id="project-sources-title">${detailIcon("sources")}<span>Fuentes y actualizaciones</span></h3><p>${formatNumber(trace.sourceCount)} fuente(s) · ${formatNumber(trace.factIds?.length)} hechos trazables</p></div></header>
       <div class="source-list">${sources.map((source) => `<article><div><strong>${escapeHtml(source.name)}</strong><small>${formatDate(source.capturedAt)} · ${escapeHtml(source.evidenceStatus ?? "sin evidencia publicable")}</small></div><span class="status-pill">${source.legalStatus === "cleared_for_demo" ? "Autorizada" : "Revisión pendiente"}</span>${source.sourceUrl ? `<a href="${escapeAttr(source.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fuente pública</a>` : ""}</article>`).join("") || "<p>No hay capturas vinculadas.</p>"}</div>
     </section>
   </section>`;
+}
+
+function closeIcon(): string {
+  return '<span class="control-icon-frame" aria-hidden="true"><svg class="control-icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg></span>';
+}
+
+function detailIcon(name: string): string {
+  const paths: Record<string, string> = {
+    summary: '<path d="M5 5h14v14H5zM8 9h8M8 13h5" />',
+    price: '<circle cx="12" cy="12" r="8" /><path d="M14.5 9.5c-.5-.7-1.3-1-2.5-1-1.4 0-2.5.7-2.5 1.8 0 1.2 1 1.6 2.7 2 1.5.3 2.3.8 2.3 1.8 0 1.1-1 1.9-2.6 1.9-1.2 0-2.2-.4-2.9-1.2M12 6.8v10.4" />',
+    area: '<path d="M5 5h14v14H5zM8 8h3M8 8v3M16 16h-3M16 16v-3" />',
+    ratio: '<path d="M5 17 17 5l2 2L7 19zM10 12l2 2M13 9l2 2M7 15l2 2" />',
+    calendar: '<rect x="4" y="6" width="16" height="14" rx="2" /><path d="M8 4v4M16 4v4M4 10h16M8 14h3" />',
+    building: '<path d="M5 21V4h10v17M15 9h4v12M8 8h2M8 12h2M8 16h2M17 13h1M3 21h18" />',
+    document: '<path d="M6 3h8l4 4v14H6zM14 3v5h5M9 12h6M9 16h6" />',
+    features: '<path d="M12 3l1.2 4.3L17 9l-3.8 1.7L12 15l-1.2-4.3L7 9l3.8-1.7zM5 15l.7 2.3L8 18l-2.3.7L5 21l-.7-2.3L2 18l2.3-.7z" />',
+    amenities: '<path d="M4 19h16M6 19v-7h12v7M8 12V8h8v4M10 8V5h4v3" />',
+    bank: '<path d="M3 9h18L12 4zM5 10v7M9 10v7M15 10v7M19 10v7M3 20h18" />',
+    sources: '<path d="M9 15l6-6M7.5 17.5l-1 1a3.5 3.5 0 0 1-5-5l4-4a3.5 3.5 0 0 1 5 0M16.5 6.5l1-1a3.5 3.5 0 0 1 5 5l-4 4a3.5 3.5 0 0 1-5 0" />',
+  };
+  return `<span class="detail-symbol" aria-hidden="true"><svg viewBox="0 0 24 24">${paths[name] ?? paths.summary}</svg></span>`;
 }
 
 function renderInspector(): string {
@@ -576,7 +597,7 @@ function renderScenarioDialog(): string {
   const scenario = state.scenario!;
   const district = state.bootstrap!.districts.find(({ id }) => id === scenario.district_id);
   return `<dialog id="scenario-dialog" class="product-dialog">
-    <form method="dialog" class="dialog-header"><div><span class="eyebrow">Escenario</span><h2>Editar alcance comercial</h2><p>Los cambios recalculan la lectura sin guardar información.</p></div><button class="icon-button" value="cancel" aria-label="Cerrar">×</button></form>
+    <form method="dialog" class="dialog-header"><div><span class="eyebrow">Escenario</span><h2>Editar alcance comercial</h2><p>Los cambios recalculan la lectura sin guardar información.</p></div><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form>
     <form id="scenario-form" class="scenario-form">
       <label>Distrito<select name="district_id">${state.bootstrap!.districts.map((item) => `<option value="${escapeAttr(item.id)}" ${item.id === scenario.district_id ? "selected" : ""}>${escapeHtml(item.name)} · ${formatNumber(item.projectCount)}</option>`).join("")}</select></label>
       <label>Alcance<select name="scope_mode"><option value="district" ${scenario.scope_mode === "district" ? "selected" : ""}>Distrito completo</option><option value="quadrant" ${scenario.scope_mode === "quadrant" ? "selected" : ""} ${!district?.quadrants.length ? "disabled" : ""}>Cuadrante analítico</option><option value="radius" ${scenario.scope_mode === "radius" ? "selected" : ""}>Radio desde el centro distrital</option></select></label>
@@ -604,7 +625,7 @@ function renderCommandDialog(): string {
     { hash: "#assistant", label: "Decidir", hint: "Respuesta trazable" },
     { hash: "#activity", label: "Seguimiento", hint: "Cambios" },
   ];
-  return `<dialog id="command-dialog" class="command-dialog"><form method="dialog"><label for="command-input" class="sr-only">Buscar destino</label><input id="command-input" type="search" placeholder="Ir a una etapa o herramienta…" autocomplete="off" /><button class="icon-button" value="cancel" aria-label="Cerrar">×</button></form><nav>${destinations.map((item) => `<a href="${item.hash}" data-command-option><strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(item.hint)}</span></a>`).join("")}</nav></dialog>`;
+  return `<dialog id="command-dialog" class="command-dialog"><form method="dialog"><label for="command-input" class="sr-only">Buscar destino</label><input id="command-input" type="search" placeholder="Ir a una etapa o herramienta…" autocomplete="off" /><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form><nav>${destinations.map((item) => `<a href="${item.hash}" data-command-option><strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(item.hint)}</span></a>`).join("")}</nav></dialog>`;
 }
 
 async function handleClick(event: MouseEvent): Promise<void> {

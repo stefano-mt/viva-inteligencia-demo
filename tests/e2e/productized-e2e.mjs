@@ -89,6 +89,7 @@ try {
     await page.locator("h1").waitFor();
     assert.ok((await page.locator("h1").innerText()).trim(), `${route} debe tener h1 visible`);
     await assertNoUnboundButtons(page, route);
+    await assertInteractiveFeedback(page, route);
   }
 
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -113,8 +114,28 @@ try {
     ["Resumen comercial", "Producto y ubicación", "Información anunciada", "Fuentes y actualizaciones"],
     "La ficha debe seguir una jerarquía comercial predecible",
   );
+  assert.ok(await page.locator(".detail-symbol").count() >= 10, "La ficha debe identificar visualmente sus categorías");
   assert.ok(await page.locator(".source-list article").count() > 0, "La ficha debe declarar al menos una fuente");
   assert.equal(await hasHorizontalOverflow(page), false, "La ficha 1440×900 no debe desbordar");
+  const closeButton = page.getByRole("button", { name: "Cerrar ficha" });
+  assert.equal(await closeButton.evaluate((button) => {
+    const icon = button.querySelector(".control-icon-frame");
+    if (!icon) return false;
+    const buttonBox = button.getBoundingClientRect();
+    const iconBox = icon.getBoundingClientRect();
+    return Math.abs(buttonBox.x + buttonBox.width / 2 - (iconBox.x + iconBox.width / 2)) <= 2
+      && Math.abs(buttonBox.y + buttonBox.height / 2 - (iconBox.y + iconBox.height / 2)) <= 2;
+  }), true, "El icono de cierre debe estar centrado");
+  await closeButton.hover();
+  await page.waitForTimeout(220);
+  assert.deepEqual(
+    await closeButton.evaluate((button) => {
+      const style = getComputedStyle(button);
+      return { backgroundColor: style.backgroundColor, color: style.color };
+    }),
+    { backgroundColor: "rgb(0, 98, 84)", color: "rgb(255, 255, 255)" },
+    "El cierre debe responder al hover con el color Viva",
+  );
   await page.screenshot({ path: path.join(outputDirectory, "projects-detail-1440x900.png"), fullPage: true });
   await page.getByRole("button", { name: "Cerrar ficha" }).click();
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
@@ -240,4 +261,30 @@ async function assertNoUnboundButtons(targetPage, route) {
       .map((button) => button.textContent?.trim() || button.getAttribute("aria-label") || "sin nombre")
   );
   assert.deepEqual(buttons, [], `${route} no debe mostrar botones sin contrato de interacción`);
+}
+
+async function assertInteractiveFeedback(targetPage, route) {
+  await targetPage.waitForFunction(() => {
+    const elements = [...document.querySelectorAll("button:not(:disabled), a.button")]
+      .filter((element) => element instanceof HTMLElement && element.offsetParent !== null && !element.classList.contains("nav-scrim"));
+    return elements.length > 0 && elements.every((element) => {
+      const style = getComputedStyle(element);
+      return style.cursor === "pointer" && style.transitionDuration.split(",").some((value) => Number.parseFloat(value) > 0);
+    });
+  });
+  const violations = await targetPage.locator("button:visible:not(:disabled), a.button:visible").evaluateAll((elements) =>
+    elements
+      .filter((element) => !element.classList.contains("nav-scrim"))
+      .map((element) => {
+        const style = getComputedStyle(element);
+        const durations = style.transitionDuration.split(",").map((value) => Number.parseFloat(value));
+        return {
+          label: element.textContent?.trim() || element.getAttribute("aria-label") || "sin nombre",
+          cursor: style.cursor,
+          animated: durations.some((duration) => duration > 0),
+        };
+      })
+      .filter((item) => item.cursor !== "pointer" || !item.animated)
+  );
+  assert.deepEqual(violations, [], `${route} debe dar feedback visual en todos los botones interactivos`);
 }
