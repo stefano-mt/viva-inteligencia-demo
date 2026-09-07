@@ -6,6 +6,8 @@
 
 Entradas iguales deben producir bytes y SHA-256 iguales. El snapshot no se versiona, no se copia a `apps/web` y se genera antes de pruebas, imágenes o despliegue.
 
+La proyección pública incluye las observaciones estructuradas de la muestra de webs propias sin campos de contacto, rutas locales de evidencia ni payloads crudos. Solo una coincidencia de proyecto `match_high` sin revisión pendiente permite asociar una observación web a una ficha; Nexo y la web propia siguen siendo fuentes separadas.
+
 ## Controles de arranque
 
 - JSON Schema 2.4 y propiedades adicionales cerradas.

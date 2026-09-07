@@ -43,8 +43,13 @@ describe("Viva API", () => {
     expect(openapi.json().paths["/api/v1/geography/districts/{districtId}"]).toBeDefined();
     expect(geography.json()).toMatchObject({
       district: { id: "150122", name: "Miraflores" },
+      analysisZones: {
+        status: "internal_analytic",
+        method: "district_valid_point_coordinate_medians_v1",
+      },
       provenance: { status: "referential", officialBoundaryRegistry: "RENLIM" },
     });
+    expect(geography.json().analysisZones.zones).toHaveLength(4);
   });
 
   it("keeps bootstrap small and lists projects by page", async () => {

@@ -947,6 +947,41 @@ function normalizeMatching(rows) {
   }));
 }
 
+function normalizeWebObservations(rows) {
+  return rows.map((row, index) => ({
+    observation_id: `web-observation:${String(index + 1).padStart(4, "0")}`,
+    run_id: requiredText(row.run_id, `web observation ${index + 1}.run_id`),
+    captured_at: normalizeDateTime(
+      row.captured_at,
+      `web observation ${index + 1}.captured_at`
+    ),
+    source_url: publicText(row.source_url),
+    source_type: clean(row.source_type) ?? "agency_website",
+    extraction_method: clean(row.extraction_method),
+    extractor_version: clean(row.extractor_version),
+    agency_name: publicText(row.agency_name),
+    project_name: publicText(row.project_name),
+    district: publicText(row.district),
+    address: publicText(row.address),
+    latitude: number(row.latitude),
+    longitude: number(row.longitude),
+    typology: publicText(row.typology),
+    bedrooms: publicText(row.bedrooms),
+    total_area: publicText(row.total_area),
+    unit_status: publicText(row.unit_status),
+    unit_count: number(row.unit_count),
+    list_price_avg: number(row.list_price_avg),
+    currency: normalizeCurrency(clean(row.currency)),
+    delivery_year: number(row.delivery_year),
+    delivery_date: publicText(row.delivery_date),
+    description: publicText(row.description),
+    amenities: splitList(row.amenities),
+    financing_banks: splitList(row.financing_banks),
+    field_confidence: normalizeConfidence(row.field_confidence),
+    evidence_available: Boolean(clean(row.evidence_path))
+  }));
+}
+
 function countBy(rows, field) {
   const counts = new Map();
   for (const row of rows) {
@@ -1528,6 +1563,9 @@ async function buildDemoBundle({
   const matching = normalizeMatching(
     parseRequiredCsv(inputs, PATHS.matching)
   );
+  const webObservations = normalizeWebObservations(
+    parseRequiredCsv(inputs, PATHS.web)
+  );
   const feasibility = parseRequiredCsv(inputs, PATHS.feasibility).filter(
     (row) => !CONTACT_FIELD_NAMES.has(row.field_name)
   );
@@ -1633,7 +1671,8 @@ async function buildDemoBundle({
     scopeSummary: buildScopeSummary(scope),
     matching: {
       summary: countBy(matching, "match_class"),
-      rows: matching
+      rows: matching,
+      web_observations: webObservations
     },
     coverage: buildCoverage(feasibility),
     quality: normalizeQuality(quality),

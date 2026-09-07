@@ -5,8 +5,8 @@
   "source_artifact": {
     "path": "data/generated/viva-platform-demo.json",
     "contract_version": "2.4.0",
-    "sha256": "d8937532109bab7ca72794f103359b41b9d9e12e1618bb3014aa90cb12121ce9",
-    "byte_length": 7555094
+    "sha256": "dfb0841b439d0a03175a21a3c518a8c9b089039720cf7d9845abe676aea44081",
+    "byte_length": 7908356
   },
   "derivation": {
     "authority": "$.model, $.inspector, $.benchmark, $.history and $.assistant when present are authoritative; $.projects is the temporary legacy projection.",

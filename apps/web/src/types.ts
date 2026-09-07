@@ -80,6 +80,15 @@ export interface ProjectSummary extends JsonObject {
 export interface DistrictGeography extends JsonObject {
   district: { id: string; name: string };
   geometry: JsonObject;
+  analysisZones: {
+    status: "internal_analytic";
+    method: "district_valid_point_coordinate_medians_v1";
+    version: string;
+    medianLatitude: number;
+    medianLongitude: number;
+    notice: string;
+    zones: Array<{ id: string; label: string; projectCount: number }>;
+  };
   provenance: {
     source: string;
     sourceId: string;

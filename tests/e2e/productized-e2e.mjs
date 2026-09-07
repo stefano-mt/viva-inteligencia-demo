@@ -174,6 +174,17 @@ try {
   );
   await page.screenshot({ path: path.join(outputDirectory, "projects-detail-1440x900.png"), fullPage: true });
   await page.getByRole("button", { name: "Cerrar ficha" }).click();
+  await page.locator('input[name="query"]').fill("Los Tucanes");
+  await page.getByRole("button", { name: "Aplicar filtros" }).click();
+  await page.locator("[data-project-detail]").first().click();
+  await page.locator("#project-detail-title").waitFor();
+  assert.match(await page.locator(".source-coverage").innerText(), /Nexo Inmobiliario.*Web propia vinculada/is, "Una coincidencia verificada debe declarar Nexo y web propia por separado");
+  assert.equal(await page.locator(".source-type--agency_website").count(), 1, "La ficha debe identificar visualmente la web propia");
+  assert.match(await page.locator(".source-type--agency_website").innerText(), /Web propia/i);
+  assert.match(await page.locator(".source-type--agency_website").locator("xpath=ancestor::article").locator(".source-observed").innerText(), /Los Tucanes.*70 m².*Preventa.*parrilla/is, "La fuente propia debe mostrar los campos realmente recopilados de su web");
+  assert.match(await page.locator(".source-list").innerText(), /captura externa no forma parte del snapshot/i, "La cobertura web debe declarar el límite de su evidencia");
+  await page.screenshot({ path: path.join(outputDirectory, "multisource-detail-1440x900.png"), fullPage: true });
+  await page.getByRole("button", { name: "Cerrar ficha" }).click();
 
   await page.goto(`${baseUrl}/#activity`, { waitUntil: "networkidle" });
   await page.getByRole("heading", { level: 1, name: "Seguimiento comercial" }).waitFor();
@@ -193,9 +204,22 @@ try {
 
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
   assert.ok(await page.locator("path.district-boundary").count() === 1, "El mapa debe representar el contorno distrital");
+  assert.equal(await page.locator(".map-zone").count(), 4, "El mapa debe dividir el distrito en cuatro zonas analíticas internas");
+  assert.equal(await page.locator(".zone-divider").count(), 2, "Las medianas geográficas deben dividir las cuatro zonas");
+  assert.equal(await page.locator(".zone-legend li").count(), 4, "La leyenda debe explicar las cuatro zonas");
   assert.match(await page.locator(".map-provenance").innerText(), /RENLIM/i);
+  assert.match(await page.locator(".map-provenance").innerText(), /no son.*oficiales/i);
+  await page.locator("[data-map-project]").first().click();
+  await page.locator(".map-project-panel--selected").waitFor();
+  assert.match(await page.locator(".map-project-panel--selected").innerText(), /Precio publicado.*Área total.*Dirección/is, "El punto debe abrir un resumen comercial al lado del mapa");
+  await page.getByRole("button", { name: "Abrir ficha completa" }).click();
+  await page.locator("#project-detail-title").waitFor();
+  await page.getByRole("button", { name: "Cerrar ficha" }).click();
   await page.getByRole("button", { name: "Área y precio publicado" }).click();
+  assert.equal(await page.locator(".price-median-line").count(), 1, "El gráfico debe marcar la mediana horizontal de precios visibles");
+  assert.match(await page.locator(".price-median-label").textContent(), /Mediana publicada/i);
   assert.match(await page.locator(".map-provenance").innerText(), /precio real de cierre/i);
+  await page.screenshot({ path: path.join(outputDirectory, "positioning-1440x900.png"), fullPage: true });
   await page.getByRole("button", { name: "Mapa del distrito" }).click();
 
   await page.evaluate(() => { document.documentElement.style.zoom = "2"; });

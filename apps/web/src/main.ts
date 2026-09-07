@@ -27,6 +27,9 @@ interface AppState {
   comparison: JsonObject | null;
   assistant: JsonObject | null;
   projectDetail: JsonObject | null;
+  mapProjectId: string | null;
+  mapProjectDetail: JsonObject | null;
+  mapProjectStatus: "idle" | "loading" | "ready" | "error";
   geography: DistrictGeography | null;
   projectPage: number;
   projectScope: "scenario" | "all";
@@ -62,6 +65,9 @@ const state: AppState = {
   comparison: null,
   assistant: null,
   projectDetail: null,
+  mapProjectId: null,
+  mapProjectDetail: null,
+  mapProjectStatus: "idle",
   geography: null,
   projectPage: 1,
   projectScope: "scenario",
@@ -160,6 +166,9 @@ async function refreshWorkspace(): Promise<void> {
   state.comparison = null;
   state.assistant = null;
   state.projectDetail = null;
+  state.mapProjectId = null;
+  state.mapProjectDetail = null;
+  state.mapProjectStatus = "idle";
   state.busyMessage = null;
 }
 
@@ -403,15 +412,16 @@ function renderMapSection(journey: boolean): string {
   const projects = state.projects?.items ?? [];
   const title = state.mapView === "geographic" ? "Mapa del distrito" : "Posicionamiento por área y precio";
   const description = state.mapView === "geographic"
-    ? "Ubica la oferta sobre el contorno distrital disponible."
-    : "Contrasta área total y precio publicado sin tratarlos como precio de cierre.";
+    ? "Explora la oferta por cuatro zonas analíticas internas y abre cada proyecto desde el mapa."
+    : "Contrasta área total y precio publicado frente a la mediana visible.";
   return `<section class="surface map-surface"><header class="section-heading"><div><span class="eyebrow">Territorio observado</span><h2>${title}</h2><p>${description}</p></div><span class="status-pill">${formatNumber(projects.length)} visibles</span></header>
     <div class="map-switch" role="group" aria-label="Vista del mapa">
       <button type="button" data-action="map-geographic" aria-pressed="${state.mapView === "geographic"}">Mapa del distrito</button>
       <button type="button" data-action="map-positioning" aria-pressed="${state.mapView === "positioning"}">Área y precio publicado</button>
     </div>
     ${state.mapView === "geographic" ? renderGeographicMap(projects) : renderPositioningMap(projects)}
-    ${journey ? '<p class="method-note">La vista territorial no muestra cuadrantes comerciales hasta contar con una fuente autorizada. El precio mostrado es publicado, no de cierre.</p>' : ""}</section>`;
+    ${journey ? '<p class="method-note"><strong>Cómo leerlo:</strong> las cuatro zonas son una segmentación analítica interna, no límites oficiales. El precio mostrado es publicado, no de cierre.</p>' : ""}</section>
+    ${state.projectDetail ? renderProjectDetail() : ""}`;
 }
 
 function renderGeographicMap(projects: ProjectSummary[]): string {
@@ -429,10 +439,31 @@ function renderGeographicMap(projects: ProjectSummary[]): string {
   const width = 960; const height = 520; const padding = 34;
   const x = (value: number) => padding + ((value - minLon) / Math.max(maxLon - minLon, 0.000001)) * (width - padding * 2);
   const y = (value: number) => padding + ((maxLat - value) / Math.max(maxLat - minLat, 0.000001)) * (height - padding * 2);
-  return `<div class="map-frame"><svg class="map-chart map-chart--geographic" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="map-title map-description"><title id="map-title">Proyectos de ${escapeHtml(districtName())}</title><desc id="map-description">Contorno distrital referencial y ${valid.length} proyectos con coordenadas válidas.</desc>
-    <path class="district-boundary" d="${escapeAttr(geometryPath(geometry, x, y))}" fill-rule="evenodd"></path>
-    ${valid.map((project) => `<a href="#projects" aria-label="Abrir ${escapeAttr(project.name)} en el catálogo"><circle cx="${x(project.longitude!)}" cy="${y(project.latitude!)}" r="6"><title>${escapeHtml(project.name)} · ${escapeHtml(project.agency)} · ${money(project.pricePen)} publicado · ${formatNumber(project.areaM2)} m²</title></circle></a>`).join("")}
-  </svg></div><p class="map-provenance"><strong>Límite referencial:</strong> ${escapeHtml(state.geography!.provenance.source)}. La fuente vinculante de límites es ${escapeHtml(state.geography!.provenance.officialBoundaryRegistry)}. No se muestran zonas internas como oficiales.</p>`;
+  const zones = state.geography!.analysisZones;
+  const medianX = x(zones.medianLongitude);
+  const medianY = y(zones.medianLatitude);
+  const boundaryPath = geometryPath(geometry, x, y);
+  const zoneRects = [
+    { id: "NW", x: padding, y: padding, width: medianX - padding, height: medianY - padding, labelX: padding + 18, labelY: padding + 28 },
+    { id: "NE", x: medianX, y: padding, width: width - padding - medianX, height: medianY - padding, labelX: width - padding - 18, labelY: padding + 28 },
+    { id: "SW", x: padding, y: medianY, width: medianX - padding, height: height - padding - medianY, labelX: padding + 18, labelY: height - padding - 40 },
+    { id: "SE", x: medianX, y: medianY, width: width - padding - medianX, height: height - padding - medianY, labelX: width - padding - 18, labelY: height - padding - 40 },
+  ];
+  const visibleZoneCounts = Object.fromEntries(["NW", "NE", "SW", "SE"].map((id) => [
+    id,
+    valid.filter((project) => analyticZoneForProject(project) === id).length,
+  ]));
+  return `<div class="map-visual-layout"><div><div class="map-frame"><svg class="map-chart map-chart--geographic" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="map-title map-description"><title id="map-title">Proyectos y zonas analíticas de ${escapeHtml(districtName())}</title><desc id="map-description">Contorno distrital referencial dividido por medianas en cuatro zonas analíticas internas y ${valid.length} proyectos seleccionables.</desc>
+    <defs><clipPath id="district-zone-clip"><path d="${escapeAttr(boundaryPath)}" fill-rule="evenodd"></path></clipPath></defs>
+    <g clip-path="url(#district-zone-clip)" aria-hidden="true">${zoneRects.map((zone) => `<rect class="map-zone map-zone--${zone.id.toLowerCase()} ${state.scenario?.scope_mode === "quadrant" && state.scenario.quadrant_id === zone.id ? "is-active" : ""}" x="${zone.x}" y="${zone.y}" width="${Math.max(zone.width, 0)}" height="${Math.max(zone.height, 0)}"></rect>`).join("")}</g>
+    <path class="district-boundary" d="${escapeAttr(boundaryPath)}" fill-rule="evenodd"></path>
+    <line class="zone-divider" clip-path="url(#district-zone-clip)" x1="${medianX}" y1="${padding}" x2="${medianX}" y2="${height - padding}"></line>
+    <line class="zone-divider" clip-path="url(#district-zone-clip)" x1="${padding}" y1="${medianY}" x2="${width - padding}" y2="${medianY}"></line>
+    ${zoneRects.map((zone) => `<g class="zone-label" aria-hidden="true"><text x="${zone.labelX}" y="${zone.labelY}" text-anchor="${zone.id.endsWith("E") ? "end" : "start"}">${zone.id}</text><text class="zone-label__caption" x="${zone.labelX}" y="${zone.labelY + 18}" text-anchor="${zone.id.endsWith("E") ? "end" : "start"}">Zona analítica</text></g>`).join("")}
+    ${valid.map((project) => renderMapPoint(project, x(project.longitude!), y(project.latitude!), `${project.name} · ${analyticZoneLabel(analyticZoneForProject(project))} · ${money(project.pricePen)} publicado · ${formatNumber(project.areaM2)} m²`)).join("")}
+  </svg></div>
+  <ul class="zone-legend" aria-label="Proyectos visibles por zona analítica">${zones.zones.map((zone) => `<li class="${state.scenario?.scope_mode === "quadrant" && state.scenario.quadrant_id === zone.id ? "is-active" : ""}"><span>${escapeHtml(zone.id)}</span><strong>${escapeHtml(zone.label)}</strong><small>${formatNumber(visibleZoneCounts[zone.id] ?? 0)} visibles</small></li>`).join("")}</ul></div>${renderMapProjectPanel(valid)}</div>
+  <p class="map-provenance"><strong>Zonas analíticas internas:</strong> se calculan con las medianas de latitud y longitud de proyectos con ubicación válida; no son zonificación urbana ni límites oficiales. <strong>Límite distrital referencial:</strong> ${escapeHtml(state.geography!.provenance.source)}; registro vinculante ${escapeHtml(state.geography!.provenance.officialBoundaryRegistry)}.</p>`;
 }
 
 function renderPositioningMap(projects: ProjectSummary[]): string {
@@ -442,16 +473,61 @@ function renderPositioningMap(projects: ProjectSummary[]): string {
   const prices = valid.map(({ pricePen }) => pricePen!);
   const minArea = Math.min(...areas); const maxArea = Math.max(...areas);
   const minPrice = Math.min(...prices); const maxPrice = Math.max(...prices);
+  const medianPrice = median(prices);
   const width = 960; const height = 480; const left = 86; const right = 24; const top = 28; const bottom = 58;
   const x = (value: number) => left + ((value - minArea) / Math.max(maxArea - minArea, 1)) * (width - left - right);
   const y = (value: number) => top + ((maxPrice - value) / Math.max(maxPrice - minPrice, 1)) * (height - top - bottom);
-  return `<div class="map-frame"><svg class="map-chart" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="position-title position-description"><title id="position-title">Área y precio publicado en ${escapeHtml(districtName())}</title><desc id="position-description">${valid.length} proyectos. Eje horizontal área total publicada; eje vertical precio publicado.</desc>
+  const medianY = y(medianPrice);
+  return `<div class="map-visual-layout"><div class="map-frame"><svg class="map-chart" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="position-title position-description"><title id="position-title">Área y precio publicado en ${escapeHtml(districtName())}</title><desc id="position-description">${valid.length} proyectos. Eje horizontal área total publicada; eje vertical precio publicado. Una línea horizontal señala la mediana de ${money(medianPrice)}.</desc>
     <line x1="${left}" y1="${height - bottom}" x2="${width - right}" y2="${height - bottom}" />
     <line x1="${left}" y1="${top}" x2="${left}" y2="${height - bottom}" />
     <text x="${left}" y="${height - 20}">${formatNumber(minArea)} m²</text><text x="${width - right}" y="${height - 20}" text-anchor="end">${formatNumber(maxArea)} m² de área total</text>
     <text x="${left - 12}" y="${height - bottom}" text-anchor="end">${money(minPrice)}</text><text x="${left - 12}" y="${top + 4}" text-anchor="end">${money(maxPrice)}</text>
-    ${valid.map((project) => `<a href="#projects" aria-label="Abrir ${escapeAttr(project.name)} en el catálogo"><circle cx="${x(project.areaM2!)}" cy="${y(project.pricePen!)}" r="6"><title>${escapeHtml(project.name)} · ${money(project.pricePen)} publicado · ${formatNumber(project.areaM2)} m²</title></circle></a>`).join("")}
-  </svg></div><p class="map-provenance">Cada punto usa área total y precio publicados. No representa precio real de cierre ni una tasación.</p>`;
+    <line class="price-median-line" x1="${left}" y1="${medianY}" x2="${width - right}" y2="${medianY}"></line>
+    <rect class="price-median-label-bg" x="${left + 10}" y="${Math.max(top + 3, medianY - 24)}" width="220" height="22" rx="5"></rect>
+    <text class="price-median-label" x="${left + 20}" y="${Math.max(top + 18, medianY - 9)}">Mediana publicada ${money(medianPrice)}</text>
+    ${valid.map((project) => renderMapPoint(project, x(project.areaM2!), y(project.pricePen!), `${project.name} · ${money(project.pricePen)} publicado · ${formatNumber(project.areaM2)} m²`)).join("")}
+  </svg></div>${renderMapProjectPanel(valid)}</div><p class="map-provenance"><strong>Mediana visible:</strong> ${money(medianPrice)} entre ${formatNumber(valid.length)} precios publicados. Cada punto usa área total y precio publicados; no representa precio real de cierre ni una tasación.</p>`;
+}
+
+function renderMapPoint(project: ProjectSummary, x: number, y: number, description: string): string {
+  const selected = state.mapProjectId === canonicalProjectId(project.id);
+  const inScenario = state.workspace!.comparableProjectIds.includes(canonicalProjectId(project.id));
+  return `<a class="map-point ${selected ? "is-selected" : ""} ${inScenario ? "is-in-scenario" : "is-context-only"}" href="#projects" data-map-project="${escapeAttr(project.id)}" aria-label="Seleccionar ${escapeAttr(project.name)}"><circle cx="${x}" cy="${y}" r="7"><title>${escapeHtml(description)} · ${inScenario ? "Dentro del escenario comparable" : "Contexto distrital fuera del escenario"}</title></circle></a>`;
+}
+
+function renderMapProjectPanel(projects: ProjectSummary[]): string {
+  const project = projects.find((item) => canonicalProjectId(item.id) === state.mapProjectId);
+  if (!project) return `<aside class="map-project-panel" aria-live="polite"><span class="map-project-panel__marker" aria-hidden="true">●</span><span class="eyebrow">Detalle del mapa</span><h3>Selecciona un proyecto</h3><p>Toca un punto para ver su nombre, ubicación, precio, área y fuentes disponibles.</p></aside>`;
+  const trace = state.mapProjectDetail?.traceability as JsonObject | undefined;
+  const inScenario = state.workspace!.comparableProjectIds.includes(canonicalProjectId(project.id));
+  const sourceSummary = trace?.hasOwnWebsite
+    ? '<span class="source-chip source-chip--web">Nexo + web propia</span>'
+    : '<span class="source-chip">Nexo</span>';
+  const pendingSource = state.mapProjectStatus === "error"
+    ? '<span class="source-chip source-chip--error">Detalle no disponible</span>'
+    : '<span class="source-chip">Consultando…</span>';
+  return `<aside class="map-project-panel map-project-panel--selected" aria-live="polite"><span class="eyebrow">Proyecto seleccionado</span><h3>${escapeHtml(project.name)}</h3><p class="map-project-panel__agency">${escapeHtml(project.agency)}</p><dl><div><dt>Lectura</dt><dd><span class="map-scope-status ${inScenario ? "is-in" : "is-context"}">${inScenario ? "Dentro del escenario" : "Contexto del distrito"}</span></dd></div><div><dt>Zona</dt><dd>${escapeHtml(analyticZoneLabel(analyticZoneForProject(project)))}</dd></div><div><dt>Precio publicado</dt><dd>${money(project.pricePen)}</dd></div><div><dt>Área total</dt><dd>${project.areaM2 == null ? "Sin dato" : `${formatNumber(project.areaM2)} m²`}</dd></div><div><dt>Dirección</dt><dd>${escapeHtml(project.address ?? "Sin dato")}</dd></div></dl><div class="map-project-panel__sources"><span>Fuentes</span>${state.mapProjectDetail ? sourceSummary : pendingSource}${trace?.hasSocialSource ? '<span class="source-chip source-chip--social">Red social</span>' : ""}</div><button class="button button--primary" type="button" data-action="map-open-detail" ${state.mapProjectDetail ? "" : "disabled"}>Abrir ficha completa</button></aside>`;
+}
+
+function analyticZoneForProject(project: ProjectSummary): string | null {
+  const zones = state.geography?.analysisZones;
+  if (!zones || project.latitude == null || project.longitude == null) return null;
+  const north = project.latitude >= zones.medianLatitude;
+  const east = project.longitude >= zones.medianLongitude;
+  return `${north ? "N" : "S"}${east ? "E" : "W"}`;
+}
+
+function analyticZoneLabel(zoneId: string | null): string {
+  if (!zoneId) return "Sin zona analítica";
+  const label = state.geography?.analysisZones.zones.find((zone) => zone.id === zoneId)?.label;
+  return label ? `Zona ${label} (${zoneId})` : `Zona ${zoneId}`;
+}
+
+function median(values: number[]): number {
+  const ordered = [...values].sort((a, b) => a - b);
+  const midpoint = Math.floor(ordered.length / 2);
+  return ordered.length % 2 ? ordered[midpoint]! : (ordered[midpoint - 1]! + ordered[midpoint]!) / 2;
 }
 
 function renderProjects(): string {
@@ -526,6 +602,12 @@ function renderProjectDetail(): string {
   const eligible = state.workspace!.comparableProjectIds.includes(canonicalId);
   const cannotAdd = !selected && (state.selectedProjectIds.length >= 3 || !eligible);
   const selectionLabel = selected ? "Quitar de comparación" : eligible ? "Añadir a comparación" : "Fuera del escenario comparable";
+  const hasOwnWebsite = trace.hasOwnWebsite === true;
+  const hasSocialSource = trace.hasSocialSource === true;
+  const coverageTitle = hasOwnWebsite ? "Cobertura multifuente vinculada" : "Cobertura disponible: Nexo";
+  const coverageCopy = hasOwnWebsite
+    ? "Esta ficha combina la referencia de Nexo Inmobiliario con una coincidencia de alta confianza hacia la web propia de la inmobiliaria. Revisa cada fuente por separado antes de usar un dato."
+    : "No existe todavía una coincidencia de alta confianza con la web propia para este proyecto. La ficha conserva únicamente la referencia estructurada de Nexo.";
   return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial multifuente</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><div class="project-detail-actions"><button class="button ${selected ? "button--quiet" : "button--primary"}" type="button" data-action="toggle-detail-comparison" ${cannotAdd ? "disabled" : ""}>${selectionLabel}</button><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">${closeIcon()}</button></div></header>
     <section class="detail-block detail-block--first" aria-labelledby="project-summary-title"><h3 id="project-summary-title">${detailIcon("summary")}<span>Resumen comercial</span></h3><dl class="project-detail-summary"><div class="detail-stat detail-stat--primary"><dt>${detailIcon("price")}<span>Precio publicado desde</span></dt><dd>${money(project.pricePen)}</dd></div><div class="detail-stat"><dt>${detailIcon("area")}<span>Área total publicada</span></dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div class="detail-stat"><dt>${detailIcon("ratio")}<span>Cociente publicado</span></dt><dd>${money(project.pricePerM2)} / m²</dd></div><div class="detail-stat"><dt>${detailIcon("calendar")}<span>Estado o entrega</span></dt><dd>${escapeHtml(project.phase ?? project.deliveryDate ?? "Sin dato")}</dd></div></dl>
       <p class="source-warning"><strong>Importante:</strong> son precios publicados, no precios reales de cierre. Cada diferencia entre fuentes se conserva para revisión.</p>
@@ -539,9 +621,68 @@ function renderProjectDetail(): string {
       <div><h4>${detailIcon("bank")}<span>Financiamiento</span></h4>${banks.length ? `<ul class="tag-list">${banks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
     </div></section>
     <section class="detail-block" aria-labelledby="project-sources-title"><header class="section-heading"><div><h3 id="project-sources-title">${detailIcon("sources")}<span>Fuentes y actualizaciones</span></h3><p>${formatNumber(trace.sourceCount)} fuente(s) · ${formatNumber(trace.factIds?.length)} hechos trazables</p></div></header>
-      <div class="source-list">${sources.map((source) => `<article><div><strong>${escapeHtml(source.name)}</strong><small>${formatDate(source.capturedAt)} · ${escapeHtml(source.evidenceStatus ?? "sin evidencia publicable")}</small></div><span class="status-pill">${source.legalStatus === "cleared_for_demo" ? "Autorizada" : "Revisión pendiente"}</span>${source.sourceUrl ? `<a href="${escapeAttr(source.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fuente pública</a>` : ""}</article>`).join("") || "<p>No hay capturas vinculadas.</p>"}</div>
+      <aside class="source-coverage ${hasOwnWebsite ? "source-coverage--multi" : ""}"><div>${detailIcon(hasOwnWebsite ? "verified" : "sources")}<span><strong>${coverageTitle}</strong><small>${coverageCopy}</small></span></div><ul><li class="is-present">Nexo Inmobiliario</li><li class="${hasOwnWebsite ? "is-present" : "is-pending"}">Web propia ${hasOwnWebsite ? "vinculada" : "pendiente"}</li><li class="${hasSocialSource ? "is-present" : "is-pending"}">Red social ${hasSocialSource ? "vinculada" : "sin fuente estructurada"}</li></ul></aside>
+      <div class="source-list">${sources.map(renderSourceCard).join("") || "<p>No hay referencias vinculadas.</p>"}</div>
     </section>
   </section>`;
+}
+
+function renderSourceCard(source: JsonObject): string {
+  const type = sourceTypeLabel(source.type);
+  const status = sourceStatusLabel(source.legalStatus);
+  const evidence = source.evidenceStatus === "versioned_reference"
+    ? "Vinculación de alta confianza; la captura externa no forma parte del snapshot."
+    : source.evidenceStatus === "unavailable"
+      ? "Referencia estructurada; sin captura publicable en esta versión."
+      : String(source.evidenceStatus ?? "Evidencia no publicada.");
+  const score = source.matchScore == null ? "" : ` · coincidencia ${formatNumber(source.matchScore)}/100`;
+  return `<article><div class="source-list__identity"><span class="source-type source-type--${escapeAttr(String(source.type ?? "other"))}">${escapeHtml(type)}</span><strong>${escapeHtml(source.name)}</strong><small>${formatDate(source.capturedAt)} · ${escapeHtml(evidence)}${escapeHtml(score)}</small></div><span class="status-pill">${escapeHtml(status)}</span>${source.sourceUrl ? `<a class="button button--quiet" href="${escapeAttr(source.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fuente</a>` : ""}${renderSourceObservedData(source)}</article>`;
+}
+
+function renderSourceObservedData(source: JsonObject): string {
+  const data = source.observedData as JsonObject | null | undefined;
+  if (!data) return "";
+  const fields = [
+    ["Proyecto en la fuente", data.projectName],
+    ["Distrito", data.district],
+    ["Dirección", data.address],
+    ["Tipo de inmueble", data.typology],
+    ["Dormitorios", data.bedrooms],
+    ["Área publicada", formatSourceArea(data.totalArea)],
+    ["Estado publicado", data.unitStatus],
+    ["Unidades declaradas", data.unitCount == null ? null : formatNumber(data.unitCount)],
+    ["Precio publicado", data.listPrice == null ? null : money(data.listPrice)],
+    ["Entrega", data.deliveryDate == null ? null : formatDate(data.deliveryDate)],
+  ].filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== "" && value !== "—");
+  const amenities = Array.isArray(data.amenities) ? data.amenities : [];
+  const banks = Array.isArray(data.financingBanks) ? data.financingBanks : [];
+  if (!fields.length && !amenities.length && !banks.length && !data.description) return "";
+  return `<div class="source-observed"><span>Datos recopilados de esta fuente</span>${fields.length ? `<dl>${fields.map(([label, value]) => `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`).join("")}</dl>` : ""}${amenities.length ? `<div class="source-observed__list"><strong>Áreas comunes anunciadas</strong><p>${amenities.map(escapeHtml).join(" · ")}</p></div>` : ""}${banks.length ? `<div class="source-observed__list"><strong>Financiamiento anunciado</strong><p>${banks.map(escapeHtml).join(" · ")}</p></div>` : ""}${data.description ? `<details><summary>Ver descripción publicada en esta fuente</summary><p>${escapeHtml(data.description)}</p></details>` : ""}</div>`;
+}
+
+function formatSourceArea(value: unknown): string | null {
+  if (value === null || value === undefined || String(value).trim() === "") return null;
+  return typeof value === "number" ? `${formatNumber(value)} m²` : String(value);
+}
+
+function sourceTypeLabel(value: unknown): string {
+  const labels: Record<string, string> = {
+    agency_website: "Web propia",
+    social_network: "Red social",
+    portal: "Portal inmobiliario",
+    user_provided: "Documento aportado",
+  };
+  return labels[String(value)] ?? "Fuente de datos";
+}
+
+function sourceStatusLabel(value: unknown): string {
+  const labels: Record<string, string> = {
+    cleared_for_demo: "Autorizada para la demo",
+    referenced_for_demo: "Referencia versionada",
+    pending_review: "Pendiente de validación",
+    pending: "Revisión pendiente",
+  };
+  return labels[String(value)] ?? "Estado documentado";
 }
 
 function closeIcon(): string {
@@ -561,6 +702,7 @@ function detailIcon(name: string): string {
     amenities: '<path d="M4 19h16M6 19v-7h12v7M8 12V8h8v4M10 8V5h4v3" />',
     bank: '<path d="M3 9h18L12 4zM5 10v7M9 10v7M15 10v7M19 10v7M3 20h18" />',
     sources: '<path d="M9 15l6-6M7.5 17.5l-1 1a3.5 3.5 0 0 1-5-5l4-4a3.5 3.5 0 0 1 5 0M16.5 6.5l1-1a3.5 3.5 0 0 1 5 5l-4 4a3.5 3.5 0 0 1-5 0" />',
+    verified: '<path d="M12 3l7 3v5c0 4.7-3 8.2-7 10-4-1.8-7-5.3-7-10V6zM8.5 12l2.2 2.2 4.8-5" />',
   };
   return `<span class="detail-symbol" aria-hidden="true"><svg viewBox="0 0 24 24">${paths[name] ?? paths.summary}</svg></span>`;
 }
@@ -853,8 +995,8 @@ function renderScenarioDialog(): string {
     <form method="dialog" class="dialog-header"><div><span class="eyebrow">Escenario</span><h2>Editar alcance comercial</h2><p>Los cambios recalculan la lectura sin guardar información.</p></div><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form>
     <form id="scenario-form" class="scenario-form">
       <label>Distrito<select name="district_id">${state.bootstrap!.districts.map((item) => `<option value="${escapeAttr(item.id)}" ${item.id === scenario.district_id ? "selected" : ""}>${escapeHtml(item.name)} · ${formatNumber(item.projectCount)}</option>`).join("")}</select></label>
-      <label>Alcance<select name="scope_mode"><option value="district" ${scenario.scope_mode === "district" ? "selected" : ""}>Distrito completo</option><option value="quadrant" ${scenario.scope_mode === "quadrant" ? "selected" : ""} ${!district?.quadrants.length ? "disabled" : ""}>Cuadrante analítico</option><option value="radius" ${scenario.scope_mode === "radius" ? "selected" : ""}>Radio desde el centro distrital</option></select></label>
-      <label data-scope-field="quadrant">Cuadrante<select name="quadrant_id" ${scenario.scope_mode !== "quadrant" ? "disabled" : ""}>${district?.quadrants.map((item) => `<option value="${item.id}" ${item.id === scenario.quadrant_id ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("")}</select></label>
+      <label>Alcance<select name="scope_mode"><option value="district" ${scenario.scope_mode === "district" ? "selected" : ""}>Distrito completo</option><option value="quadrant" ${scenario.scope_mode === "quadrant" ? "selected" : ""} ${!district?.quadrants.length ? "disabled" : ""}>Zona analítica interna</option><option value="radius" ${scenario.scope_mode === "radius" ? "selected" : ""}>Radio desde el centro distrital</option></select></label>
+      <label data-scope-field="quadrant">Zona<select name="quadrant_id" ${scenario.scope_mode !== "quadrant" ? "disabled" : ""}>${district?.quadrants.map((item) => `<option value="${item.id}" ${item.id === scenario.quadrant_id ? "selected" : ""}>${escapeHtml(item.label)} (${escapeHtml(item.id)})</option>`).join("")}</select></label>
       <label data-scope-field="radius">Radio<select name="radius_meters" ${scenario.scope_mode !== "radius" ? "disabled" : ""}>${optionValues(state.bootstrap!.scenarioCatalogs.radius_meters, scenario.radius_meters ?? 1000)}</select></label>
       <label>Tipología<select name="typology">${optionValues(state.bootstrap!.scenarioCatalogs.typologies, scenario.typology)}</select></label>
       <label>Dormitorios<select name="bedrooms">${optionValues(state.bootstrap!.scenarioCatalogs.bedrooms, scenario.bedrooms)}</select></label>
@@ -883,6 +1025,23 @@ function renderCommandDialog(): string {
 
 async function handleClick(event: MouseEvent): Promise<void> {
   const target = event.target as HTMLElement;
+  const mapProjectId = target.closest<HTMLElement>("[data-map-project]")?.dataset.mapProject;
+  if (mapProjectId) {
+    event.preventDefault();
+    state.mapProjectId = canonicalProjectId(mapProjectId);
+    state.mapProjectDetail = null;
+    state.mapProjectStatus = "loading";
+    render();
+    try {
+      state.mapProjectDetail = await provider.project(mapProjectId);
+      state.mapProjectStatus = "ready";
+      render();
+    } catch {
+      state.mapProjectStatus = "error";
+      render();
+    }
+    return;
+  }
   const action = target.closest<HTMLElement>("[data-action]")?.dataset.action;
   if (action === "retry") return void initialize();
   if (action === "open-nav") { state.navOpen = true; render(); return; }
@@ -891,6 +1050,12 @@ async function handleClick(event: MouseEvent): Promise<void> {
   if (action === "command") return openDialog("command-dialog", "command-input");
   if (action === "map-geographic") { state.mapView = "geographic"; render(); return; }
   if (action === "map-positioning") { state.mapView = "positioning"; render(); return; }
+  if (action === "map-open-detail" && state.mapProjectDetail) {
+    state.projectDetail = state.mapProjectDetail;
+    render();
+    requestAnimationFrame(() => document.querySelector<HTMLElement>("#project-detail-title")?.focus());
+    return;
+  }
   if (action === "clear-history-filters") {
     state.historyDirection = "all";
     state.historyValidity = "all";
@@ -1170,7 +1335,11 @@ function districtName(): string {
 }
 
 function scopeLabel(): string {
-  if (state.scenario?.scope_mode === "quadrant") return `Cuadrante ${state.scenario.quadrant_id}`;
+  if (state.scenario?.scope_mode === "quadrant") {
+    const district = state.bootstrap?.districts.find(({ id }) => id === state.scenario?.district_id);
+    const zone = district?.quadrants.find(({ id }) => id === state.scenario?.quadrant_id);
+    return `Zona analítica ${zone?.label ?? state.scenario.quadrant_id} (${state.scenario.quadrant_id})`;
+  }
   if (state.scenario?.scope_mode === "radius") return `Radio ${formatNumber(state.scenario.radius_meters)} m`;
   return "Distrito completo";
 }
