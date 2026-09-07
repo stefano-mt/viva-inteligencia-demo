@@ -1,5 +1,6 @@
 import type {
   Bootstrap,
+  DistrictGeography,
   JsonObject,
   Meta,
   Page,
@@ -27,6 +28,7 @@ export interface DataProvider {
   evaluateWorkspace(scenario: Scenario): Promise<WorkspaceEvaluation>;
   projects(parameters?: Record<string, string | number | string[] | undefined>): Promise<Page<ProjectSummary>>;
   project(projectId: string): Promise<JsonObject>;
+  districtGeography(districtId: string): Promise<DistrictGeography>;
   inspector(routeSlug: string): Promise<JsonObject>;
   comparison(scenario: Scenario, projectIds: string[], includeTargetScenario?: boolean): Promise<JsonObject>;
   history(parameters?: Record<string, string | number | string[] | undefined>): Promise<Page<JsonObject>>;
@@ -61,6 +63,9 @@ export class ApiDataProvider implements DataProvider {
   }
   project(projectId: string) {
     return this.#request<JsonObject>(`/projects/${encodeURIComponent(projectId)}`);
+  }
+  districtGeography(districtId: string) {
+    return this.#request<DistrictGeography>(`/geography/districts/${encodeURIComponent(districtId)}`);
   }
   inspector(routeSlug: string) {
     return this.#request<JsonObject>(`/inspector/cases/${encodeURIComponent(routeSlug)}`);

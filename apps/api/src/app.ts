@@ -12,6 +12,7 @@ import {
   BootstrapResponseSchema,
   ComparisonRequestSchema,
   ComparisonResponseSchema,
+  DistrictGeographyResponseSchema,
   HistoryResponseSchema,
   InspectorResponseSchema,
   MetaResponseSchema,
@@ -149,6 +150,17 @@ export async function buildApp(dependencies: AppDependencies): Promise<FastifyIn
   }, async (request, reply) => {
     const result = requireRepository(dependencies).project(request.params.projectId);
     if (!result) return sendError(reply, request.id, 404, "PROJECT_NOT_FOUND", "No se encontró el proyecto.");
+    return { ...versioned(), ...result };
+  });
+
+  app.get<{ Params: { districtId: string } }>("/api/v1/geography/districts/:districtId", {
+    schema: {
+      params: { type: "object", required: ["districtId"], properties: { districtId: { type: "string", minLength: 1 } } },
+      response: { 200: DistrictGeographyResponseSchema, default: ApiErrorSchema },
+    },
+  }, async (request, reply) => {
+    const result = requireRepository(dependencies).districtGeography(request.params.districtId);
+    if (!result) return sendError(reply, request.id, 404, "DISTRICT_GEOGRAPHY_NOT_FOUND", "No se encontró la geometría del distrito.");
     return { ...versioned(), ...result };
   });
 

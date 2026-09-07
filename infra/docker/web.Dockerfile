@@ -9,6 +9,7 @@ COPY packages/contracts/package.json packages/contracts/package.json
 COPY packages/domain/package.json packages/domain/package.json
 COPY packages/snapshot/package.json packages/snapshot/package.json
 COPY tools/data/package.json tools/data/package.json
+COPY tools/ingestion/package.json tools/ingestion/package.json
 RUN npm ci --ignore-scripts
 
 COPY apps/web apps/web

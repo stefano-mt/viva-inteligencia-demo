@@ -29,16 +29,22 @@ afterAll(async () => app.close());
 
 describe("Viva API", () => {
   it("publishes live, ready, metadata and OpenAPI", async () => {
-    const [live, ready, meta, openapi] = await Promise.all([
+    const [live, ready, meta, openapi, geography] = await Promise.all([
       app.inject({ method: "GET", url: "/health/live" }),
       app.inject({ method: "GET", url: "/health/ready" }),
       app.inject({ method: "GET", url: "/api/v1/meta" }),
       app.inject({ method: "GET", url: "/openapi.json" }),
+      app.inject({ method: "GET", url: "/api/v1/geography/districts/150122" }),
     ]);
     expect(live.statusCode).toBe(200);
     expect(ready.json().status).toBe("ready");
     expect(meta.json().contractVersion).toBe("2.4.0");
     expect(openapi.json().paths["/api/v1/projects"]).toBeDefined();
+    expect(openapi.json().paths["/api/v1/geography/districts/{districtId}"]).toBeDefined();
+    expect(geography.json()).toMatchObject({
+      district: { id: "150122", name: "Miraflores" },
+      provenance: { status: "referential", officialBoundaryRegistry: "RENLIM" },
+    });
   });
 
   it("keeps bootstrap small and lists projects by page", async () => {

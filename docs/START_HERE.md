@@ -5,15 +5,18 @@
 1. `business/demo-guide.md`: cómo recorrer la solución.
 2. `business/glossary.md`: significado de cifras y estados.
 3. `product/product-contract.md`: capacidades y límites.
+4. `product/monitoring-panel.md`: lectura y límites del seguimiento comercial.
+5. `product/project-comparison-flow.md`: selección, fichas y lectura del comparador.
 
 ## Si perteneces al equipo técnico
 
 1. `architecture/overview.md`: componentes y flujo.
 2. `data/snapshot.md`: construcción, privacidad y trazabilidad.
-3. `operations/runbook.md`: ejecución, health y rollback.
-4. `operations/ownership-map.md`: dónde cambiar cada responsabilidad.
-5. `operations/release-checklist.md`: promoción y rollback de una versión.
-6. `adr/`: decisiones que no deben reinterpretarse en silencio.
+3. `data/continuous-ingestion.md`: actualización, fuentes y discrepancias.
+4. `operations/runbook.md`: ejecución, health y rollback.
+5. `operations/ownership-map.md`: dónde cambiar cada responsabilidad.
+6. `operations/release-checklist.md`: promoción y rollback de una versión.
+7. `adr/`: decisiones que no deben reinterpretarse en silencio.
 
 ## Si vas a validar una release
 

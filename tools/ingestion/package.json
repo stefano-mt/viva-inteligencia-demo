@@ -1,0 +1,16 @@
+{
+  "name": "@viva/ingestion-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --test dist/*.test.js",
+    "plan": "npm run build --silent && node dist/plan-sources.js",
+    "nexo:stage": "npm run build --silent && node dist/import-nexo.js"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

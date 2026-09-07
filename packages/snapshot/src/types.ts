@@ -39,12 +39,14 @@ export interface DataRepository {
   bootstrap(): JsonObject;
   projects(query?: ProjectQuery): Page<ProjectSummary>;
   project(projectId: string): { project: JsonObject; traceability: JsonObject } | null;
+  districtGeography(districtId: string): JsonObject | null;
   history(query?: ProjectQuery): Page<JsonObject>;
   snapshot(): SnapshotData;
 }
 
 export interface LoadedSnapshot {
   data: SnapshotData;
+  boundaryGeoJson: JsonObject;
   checksum: string;
   byteLength: number;
   sourcePath: string;

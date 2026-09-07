@@ -24,7 +24,7 @@ docker compose up --build
 
 La web queda disponible en `http://localhost:8080` y enruta `/api` hacia el servicio backend.
 
-La aplicación pública es de solo lectura. No contiene autenticación, escritura de usuarios, scraping vivo, CRM, LLM ni persistencia.
+La aplicación pública es de solo lectura. No contiene autenticación, escritura de usuarios, scraping en tiempo de consulta, CRM ni LLM. La actualización futura se prepara como ingesta operativa separada, autorizada y auditable; el API solo publica una versión validada.
 
 ## Mapa del repositorio
 
@@ -36,6 +36,7 @@ La aplicación pública es de solo lectura. No contiene autenticación, escritur
 | Reglas comerciales puras | `packages/domain` |
 | Acceso al snapshot | `packages/snapshot` |
 | Generación y validación de datos | `tools/data` y `data/source` |
+| Política de fuentes e ingesta | `tools/ingestion` y `docs/data/continuous-ingestion.md` |
 | Pruebas integrales | `tests` |
 | Explicación para negocio y tecnología | `docs` |
 | Contenedores y despliegue | `infra/docker`, `compose*.yml` |
@@ -51,7 +52,10 @@ npm test
 npm run e2e
 npm run build
 npm run verify
+npm run ingestion:plan
 ```
+
+El plan de ingesta es offline y no descarga páginas. Informa qué fuentes podrían pasar a una recolección controlada y cuáles permanecen bloqueadas por autorización o revisión.
 
 El baseline estático anterior a la productización está preservado por la etiqueta `demo-static-v1`.
 Las capturas históricas retiradas del árbol activo se recuperan desde esa etiqueta; no se reescribió el historial Git.

@@ -16,8 +16,8 @@
     "build": "npm run build:packages && npm run build:apps",
     "build:packages": "npm run build --workspace @viva/contracts && npm run build --workspace @viva/domain && npm run build --workspace @viva/snapshot",
     "build:apps": "npm run build --workspace @viva/api && npm run build --workspace @viva/web",
-    "check": "npm run build:packages && npm run check --workspace @viva/contracts && npm run check --workspace @viva/domain && npm run check --workspace @viva/snapshot && npm run check --workspace @viva/api && npm run typecheck --workspace @viva/web && npm run check --workspace @viva/web",
-    "test": "npm run test --workspace @viva/contracts && npm run test --workspace @viva/domain && npm run test --workspace @viva/snapshot && npm run test --workspace @viva/api && npm run test:unit --workspace @viva/web && npm run test:architecture --workspace @viva/web && npm run test:scenario --workspace @viva/web && npm run test:comparability --workspace @viva/web && npm run test:inspector:domain --workspace @viva/web && npm run test:benchmark:domain --workspace @viva/web && npm run test:history:domain --workspace @viva/web && npm run test:assistant:domain --workspace @viva/web && npm run test:data:determinism --workspace @viva/web && npm run test:data:privacy --workspace @viva/web",
+    "check": "npm run build:packages && npm run check --workspace @viva/contracts && npm run check --workspace @viva/domain && npm run check --workspace @viva/snapshot && npm run check --workspace @viva/api && npm run typecheck --workspace @viva/web && npm run check --workspace @viva/web && npm run check --workspace @viva/ingestion-tools",
+    "test": "npm run test --workspace @viva/contracts && npm run test --workspace @viva/domain && npm run test --workspace @viva/snapshot && npm run test --workspace @viva/api && npm run test:unit --workspace @viva/web && npm run test:architecture --workspace @viva/web && npm run test:scenario --workspace @viva/web && npm run test:comparability --workspace @viva/web && npm run test:inspector:domain --workspace @viva/web && npm run test:benchmark:domain --workspace @viva/web && npm run test:history:domain --workspace @viva/web && npm run test:assistant:domain --workspace @viva/web && npm run test:data:determinism --workspace @viva/web && npm run test:data:privacy --workspace @viva/web && npm run test --workspace @viva/ingestion-tools",
     "e2e": "npm run e2e:product",
     "e2e:product": "npm run data:build && npm run build:packages && npm run build --workspace @viva/api && node tests/e2e/productized-e2e.mjs",
     "e2e:legacy": "npm run test:e2e --workspace @viva/web",
@@ -25,7 +25,10 @@
     "compose:down": "docker compose down",
     "verify": "npm run data:build && npm run check && npm run test && npm run e2e && npm run build && npm audit --audit-level=high",
     "verify:legacy": "npm run verify --workspace @viva/web",
-    "data:build": "npm run build --workspace @viva/data-tools"
+    "data:build": "npm run build --workspace @viva/data-tools",
+    "ingestion:plan": "npm run plan --workspace @viva/ingestion-tools",
+    "ingestion:test": "npm run test --workspace @viva/ingestion-tools",
+    "ingestion:nexo:stage": "npm run nexo:stage --workspace @viva/ingestion-tools --"
   },
   "engines": {
     "node": ">=24",

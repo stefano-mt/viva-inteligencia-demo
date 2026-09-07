@@ -7,6 +7,7 @@
 | Una regla de comparabilidad | `packages/domain` | Producto + datos + QA |
 | Filtros o índices del snapshot | `packages/snapshot` | Backend + datos |
 | Fuente, normalización o policy | `data/source`, `tools/data` | Datos + privacidad |
+| Autorizar una fuente o programar una ingesta | `data/source/ingestion`, `tools/ingestion` | Datos + legal + plataforma |
 | Estilos o accesibilidad | `apps/web/src` | Frontend + QA |
 | Contenedores o pipeline | `infra`, `.github/workflows` | Plataforma + seguridad |
 | Cobertura de regresión | `tests`, pruebas de cada workspace | QA + propietario del dominio |

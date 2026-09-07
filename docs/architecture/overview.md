@@ -9,7 +9,9 @@ flowchart LR
   A --> D[Dominio puro]
   A --> R[DataRepository en memoria]
   R --> S[Snapshot 2.4 validado]
-  P[Pipeline determinista] --> S
+  P[Publicación determinista] --> S
+  O[(Almacén operacional privado)] --> P
+  I[Jobs de ingesta autorizados] --> O
 ```
 
 ## Contenedores
@@ -34,8 +36,11 @@ flowchart TB
 | `packages/domain` | reglas puras y deterministas | DOM, Fastify, archivos, red |
 | `packages/snapshot` | validación, índices y consultas | presentación o decisiones HTTP |
 | `tools/data` | insumos autorizados y materialización | runtime del usuario |
+| `tools/ingestion` | registro, policy gates y jobs batch | frontend y request path del API |
 
 `DataRepository` es el puerto de sustitución. Una futura implementación PostgreSQL no debe cambiar dominio, contratos ni endpoints.
+
+PostgreSQL se incorpora en el plano operacional aprobado por ADR-0004, no como dependencia directa del navegador. El runtime público puede continuar leyendo un snapshot publicado o sustituir el repositorio sin cambiar DTO ni reglas de dominio.
 
 ## Flujo de arranque
 

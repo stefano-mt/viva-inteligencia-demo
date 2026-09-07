@@ -3,6 +3,7 @@ import { ApiClientError, ApiDataProvider, type DataProvider } from "./api.js";
 import { JOURNEY_STAGES, parseRoute, routeHash } from "./routes.js";
 import type {
   Bootstrap,
+  DistrictGeography,
   JsonObject,
   Meta,
   Page,
@@ -26,8 +27,17 @@ interface AppState {
   comparison: JsonObject | null;
   assistant: JsonObject | null;
   projectDetail: JsonObject | null;
+  geography: DistrictGeography | null;
   projectPage: number;
+  projectScope: "scenario" | "all";
+  projectQuery: string;
+  projectSort: string;
+  historyDirection: "all" | "increase" | "decrease" | "unchanged";
+  historyValidity: "all" | "current" | "aging" | "historical" | "unknown";
+  mapView: "geographic" | "positioning";
   selectedProjectIds: string[];
+  selectedProjects: Record<string, ProjectSummary>;
+  selectionMessage: string;
   inspectorSlug: string | null;
   navOpen: boolean;
   busyMessage: string | null;
@@ -52,8 +62,17 @@ const state: AppState = {
   comparison: null,
   assistant: null,
   projectDetail: null,
+  geography: null,
   projectPage: 1,
+  projectScope: "scenario",
+  projectQuery: "",
+  projectSort: "name",
+  historyDirection: "all",
+  historyValidity: "all",
+  mapView: "geographic",
   selectedProjectIds: [],
+  selectedProjects: {},
+  selectionMessage: "Selecciona entre dos y tres proyectos para compararlos.",
   inspectorSlug: null,
   navOpen: false,
   busyMessage: null,
@@ -62,6 +81,7 @@ const state: AppState = {
 window.addEventListener("hashchange", () => {
   state.route = parseRoute();
   state.navOpen = false;
+  state.projectDetail = null;
   void loadRouteData({ focus: true });
 });
 window.addEventListener("keydown", (event) => {
@@ -69,7 +89,10 @@ window.addEventListener("keydown", (event) => {
     event.preventDefault();
     openDialog("command-dialog", "command-input");
   }
-  if (event.key === "Escape") state.navOpen = false;
+  if (event.key === "Escape" && state.navOpen) {
+    state.navOpen = false;
+    render();
+  }
 });
 root.addEventListener("click", handleClick);
 root.addEventListener("submit", handleSubmit);
@@ -111,8 +134,15 @@ async function refreshWorkspace(): Promise<void> {
   const workspace = await provider.evaluateWorkspace(state.scenario);
   state.scenario = workspace.scenario;
   state.workspace = workspace;
-  state.selectedProjectIds = workspace.comparableProjectIds.slice(0, 2);
+  state.selectedProjectIds = [];
+  state.selectedProjects = {};
+  state.selectionMessage = "Selecciona entre dos y tres proyectos para compararlos.";
   state.projectPage = 1;
+  state.projectScope = "scenario";
+  state.projectQuery = "";
+  state.projectSort = "name";
+  state.historyDirection = "all";
+  state.historyValidity = "all";
   writeScenarioToLocation(workspace.scenario);
   const [projects, history] = await Promise.all([
     provider.projects({
@@ -141,21 +171,36 @@ async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
   try {
     state.busyMessage = routeLoadingLabel(state.route);
     render();
-    if (state.route.id === "projects" || state.route.id === "dashboard" || state.route.id === "geography") {
-      state.projects = await provider.projects({
-        district: state.scenario.district_id,
-        page: state.projectPage,
-        pageSize: state.route.id === "dashboard" || state.route.id === "geography" ? 100 : 18,
-        typology: state.scenario.typology,
-        bedrooms: state.scenario.bedrooms,
-      });
+    if (state.route.id === "projects") {
+      state.projects = await provider.projects(projectParameters(18));
+    }
+    if (state.route.id === "dashboard" || state.route.id === "geography") {
+      [state.projects, state.geography] = await Promise.all([
+        provider.projects({
+          district: state.scenario.district_id,
+          page: 1,
+          pageSize: 100,
+          typology: state.scenario.typology,
+          bedrooms: state.scenario.bedrooms,
+        }),
+        provider.districtGeography(state.scenario.district_id),
+      ]);
     }
     if (state.route.id === "activity" || state.route.id === "movement") {
-      state.history = await provider.history({
-        district: state.scenario.district_id,
-        page: 1,
-        pageSize: 20,
-      });
+      [state.history, state.projects] = await Promise.all([
+        provider.history({
+          district: state.scenario.district_id,
+          page: 1,
+          pageSize: 100,
+        }),
+        provider.projects({
+          district: state.scenario.district_id,
+          page: 1,
+          pageSize: 100,
+          typology: state.scenario.typology,
+          bedrooms: state.scenario.bedrooms,
+        }),
+      ]);
     }
     if (state.route.id === "inspector" || state.route.id === "quality") {
       const slug = state.route.id === "quality"
@@ -163,8 +208,10 @@ async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
         : state.inspectorSlug;
       if (slug) state.inspector = await provider.inspector(slug);
     }
-    if ((state.route.id === "compare" || state.route.id === "depth") && state.selectedProjectIds.length >= 2) {
-      state.comparison = await provider.comparison(state.scenario, state.selectedProjectIds);
+    if (state.route.id === "compare" || state.route.id === "depth") {
+      state.comparison = state.selectedProjectIds.length >= 2
+        ? await provider.comparison(state.scenario, state.selectedProjectIds)
+        : null;
     }
     state.busyMessage = null;
     render();
@@ -198,7 +245,7 @@ function render(): void {
         <header class="brand">
           <img src="/assets/viva-negocio-inmobiliario-logo.jpg" alt="VIVA" width="56" height="56" />
           <span><strong>Inteligencia comercial</strong><small>Viva Inmobiliaria</small></span>
-          <button class="icon-button mobile-only" type="button" data-action="close-nav" aria-label="Cerrar menú">×</button>
+          <button class="icon-button mobile-only" type="button" data-action="close-nav" aria-label="Cerrar menú">${closeIcon()}</button>
         </header>
         <button class="command-trigger" type="button" data-action="command">
           <span>Ir a…</span><kbd>Ctrl K</kbd>
@@ -337,7 +384,7 @@ function renderDepthStage(): string {
 
 function renderMovementStage(): string {
   const total = state.history?.total ?? 0;
-  return `<section class="decision-strip"><span>Movimiento observado</span><strong>${formatNumber(total)} señales históricas cumplen la política del escenario.</strong><p>No se infiere causalidad: cada cambio conserva fechas, valores y evidencia.</p></section>${renderHistoryTable(5)}`;
+  return `<section class="decision-strip"><span>Movimiento observado</span><strong>${formatNumber(total)} señales históricas cumplen la política del escenario.</strong><p>No se infiere causalidad: cada cambio conserva fechas, valores y evidencia.</p></section>${renderHistorySignals(historyEvents().slice(0, 5), true)}`;
 }
 
 function renderDecisionStage(): string {
@@ -354,34 +401,71 @@ function renderDashboard(): string {
 
 function renderMapSection(journey: boolean): string {
   const projects = state.projects?.items ?? [];
-  return `<section class="surface map-surface"><header class="section-heading"><div><span class="eyebrow">Territorio observado</span><h2>Mapa de posicionamiento geográfico</h2><p>Los ejes muestran coordenadas reales; cada punto identifica un proyecto.</p></div><span class="status-pill">${formatNumber(projects.length)} visibles</span></header>${renderScatter(projects)}${journey ? '<p class="method-note">Los cuadrantes son analíticos y no representan divisiones oficiales.</p>' : ""}</section>`;
+  const title = state.mapView === "geographic" ? "Mapa del distrito" : "Posicionamiento por área y precio";
+  const description = state.mapView === "geographic"
+    ? "Ubica la oferta sobre el contorno distrital disponible."
+    : "Contrasta área total y precio publicado sin tratarlos como precio de cierre.";
+  return `<section class="surface map-surface"><header class="section-heading"><div><span class="eyebrow">Territorio observado</span><h2>${title}</h2><p>${description}</p></div><span class="status-pill">${formatNumber(projects.length)} visibles</span></header>
+    <div class="map-switch" role="group" aria-label="Vista del mapa">
+      <button type="button" data-action="map-geographic" aria-pressed="${state.mapView === "geographic"}">Mapa del distrito</button>
+      <button type="button" data-action="map-positioning" aria-pressed="${state.mapView === "positioning"}">Área y precio publicado</button>
+    </div>
+    ${state.mapView === "geographic" ? renderGeographicMap(projects) : renderPositioningMap(projects)}
+    ${journey ? '<p class="method-note">La vista territorial no muestra cuadrantes comerciales hasta contar con una fuente autorizada. El precio mostrado es publicado, no de cierre.</p>' : ""}</section>`;
 }
 
-function renderScatter(projects: ProjectSummary[]): string {
+function renderGeographicMap(projects: ProjectSummary[]): string {
   const valid = projects.filter((project) => project.latitude != null && project.longitude != null);
-  if (!valid.length) return emptyState("No hay coordenadas válidas para este escenario.", "Editar escenario", "#dashboard");
-  const lats = valid.map(({ latitude }) => latitude!);
-  const lons = valid.map(({ longitude }) => longitude!);
+  const feature = state.geography?.geometry;
+  const geometry = feature?.geometry as JsonObject | undefined;
+  if (!valid.length || !geometry) return emptyState("No hay geometría y coordenadas válidas para este escenario.", "Editar escenario", "#dashboard");
+  const boundary = geometryCoordinates(geometry);
+  if (!boundary.length) return emptyState("El límite distrital no pudo representarse.", "Editar escenario", "#dashboard");
+  const allCoordinates = [...boundary, ...valid.map((project) => [project.longitude!, project.latitude!] as [number, number])];
+  const lats = allCoordinates.map(([, latitude]) => latitude);
+  const lons = allCoordinates.map(([longitude]) => longitude);
   const minLat = Math.min(...lats); const maxLat = Math.max(...lats);
   const minLon = Math.min(...lons); const maxLon = Math.max(...lons);
-  const width = 960; const height = 420; const left = 78; const right = 24; const top = 28; const bottom = 52;
-  const x = (value: number) => left + ((value - minLon) / Math.max(maxLon - minLon, 0.000001)) * (width - left - right);
-  const y = (value: number) => top + ((maxLat - value) / Math.max(maxLat - minLat, 0.000001)) * (height - top - bottom);
-  return `<div class="chart-scroll" tabindex="0" aria-label="Gráfico de proyectos por longitud y latitud"><svg class="map-chart" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="map-title map-description"><title id="map-title">Proyectos de ${escapeHtml(districtName())}</title><desc id="map-description">${valid.length} proyectos. Eje horizontal: longitud; eje vertical: latitud.</desc>
+  const width = 960; const height = 520; const padding = 34;
+  const x = (value: number) => padding + ((value - minLon) / Math.max(maxLon - minLon, 0.000001)) * (width - padding * 2);
+  const y = (value: number) => padding + ((maxLat - value) / Math.max(maxLat - minLat, 0.000001)) * (height - padding * 2);
+  return `<div class="map-frame"><svg class="map-chart map-chart--geographic" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="map-title map-description"><title id="map-title">Proyectos de ${escapeHtml(districtName())}</title><desc id="map-description">Contorno distrital referencial y ${valid.length} proyectos con coordenadas válidas.</desc>
+    <path class="district-boundary" d="${escapeAttr(geometryPath(geometry, x, y))}" fill-rule="evenodd"></path>
+    ${valid.map((project) => `<a href="#projects" aria-label="Abrir ${escapeAttr(project.name)} en el catálogo"><circle cx="${x(project.longitude!)}" cy="${y(project.latitude!)}" r="6"><title>${escapeHtml(project.name)} · ${escapeHtml(project.agency)} · ${money(project.pricePen)} publicado · ${formatNumber(project.areaM2)} m²</title></circle></a>`).join("")}
+  </svg></div><p class="map-provenance"><strong>Límite referencial:</strong> ${escapeHtml(state.geography!.provenance.source)}. La fuente vinculante de límites es ${escapeHtml(state.geography!.provenance.officialBoundaryRegistry)}. No se muestran zonas internas como oficiales.</p>`;
+}
+
+function renderPositioningMap(projects: ProjectSummary[]): string {
+  const valid = projects.filter((project) => project.areaM2 != null && project.pricePen != null);
+  if (!valid.length) return emptyState("No hay pares de área y precio publicado para este escenario.", "Ver proyectos", "#projects");
+  const areas = valid.map(({ areaM2 }) => areaM2!);
+  const prices = valid.map(({ pricePen }) => pricePen!);
+  const minArea = Math.min(...areas); const maxArea = Math.max(...areas);
+  const minPrice = Math.min(...prices); const maxPrice = Math.max(...prices);
+  const width = 960; const height = 480; const left = 86; const right = 24; const top = 28; const bottom = 58;
+  const x = (value: number) => left + ((value - minArea) / Math.max(maxArea - minArea, 1)) * (width - left - right);
+  const y = (value: number) => top + ((maxPrice - value) / Math.max(maxPrice - minPrice, 1)) * (height - top - bottom);
+  return `<div class="map-frame"><svg class="map-chart" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="position-title position-description"><title id="position-title">Área y precio publicado en ${escapeHtml(districtName())}</title><desc id="position-description">${valid.length} proyectos. Eje horizontal área total publicada; eje vertical precio publicado.</desc>
     <line x1="${left}" y1="${height - bottom}" x2="${width - right}" y2="${height - bottom}" />
     <line x1="${left}" y1="${top}" x2="${left}" y2="${height - bottom}" />
-    <text x="${left}" y="${height - 18}">${minLon.toFixed(4)}°</text><text x="${width - right}" y="${height - 18}" text-anchor="end">${maxLon.toFixed(4)}° longitud</text>
-    <text x="${left - 10}" y="${height - bottom}" text-anchor="end">${minLat.toFixed(4)}°</text><text x="${left - 10}" y="${top + 4}" text-anchor="end">${maxLat.toFixed(4)}° latitud</text>
-    ${valid.map((project) => `<circle cx="${x(project.longitude!)}" cy="${y(project.latitude!)}" r="6" tabindex="0"><title>${escapeHtml(project.name)} · ${escapeHtml(project.agency)} · ${money(project.pricePen)} · ${formatNumber(project.areaM2)} m²</title></circle>`).join("")}
-  </svg></div>`;
+    <text x="${left}" y="${height - 20}">${formatNumber(minArea)} m²</text><text x="${width - right}" y="${height - 20}" text-anchor="end">${formatNumber(maxArea)} m² de área total</text>
+    <text x="${left - 12}" y="${height - bottom}" text-anchor="end">${money(minPrice)}</text><text x="${left - 12}" y="${top + 4}" text-anchor="end">${money(maxPrice)}</text>
+    ${valid.map((project) => `<a href="#projects" aria-label="Abrir ${escapeAttr(project.name)} en el catálogo"><circle cx="${x(project.areaM2!)}" cy="${y(project.pricePen!)}" r="6"><title>${escapeHtml(project.name)} · ${money(project.pricePen)} publicado · ${formatNumber(project.areaM2)} m²</title></circle></a>`).join("")}
+  </svg></div><p class="map-provenance">Cada punto usa área total y precio publicados. No representa precio real de cierre ni una tasación.</p>`;
 }
 
 function renderProjects(): string {
   const page = state.projects;
   const items = page?.items ?? [];
-  return `${renderPageHeader("Proyectos", "Oferta comparable", "Filtra, revisa y selecciona proyectos en filas legibles.", `<span class="status-pill">${formatNumber(page?.total)} resultados</span>`)}
-    <section class="surface"><form class="filters" id="project-filter-form"><label>Buscar<input name="query" type="search" placeholder="Proyecto, inmobiliaria o dirección" /></label><label>Orden<select name="sort"><option value="name">Nombre</option><option value="price-asc">Menor precio</option><option value="price-desc">Mayor precio</option><option value="area-asc">Menor área</option><option value="area-desc">Mayor área</option></select></label><button class="button button--quiet" type="submit">Aplicar</button></form>
-      <div class="table-scroll"><table><thead><tr><th scope="col">Comparar</th><th scope="col">Proyecto</th><th scope="col">Producto</th><th scope="col">Precio</th><th scope="col">Área</th><th scope="col">Entrega</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${items.map(renderProjectRow).join("")}</tbody></table></div>
+  const title = state.projectScope === "all" ? "Todos los proyectos" : "Comparables del escenario";
+  const description = state.projectScope === "all"
+    ? "Explora el catálogo completo cargado; la ficha distingue fuentes y fecha de captura."
+    : "Revisa la oferta compatible con los filtros del escenario activo.";
+  return `${renderPageHeader("Proyectos", title, description, `<span class="status-pill">${formatNumber(page?.total)} resultados</span>`)}
+    ${renderComparisonSelection(items)}
+    <section class="surface"><form class="filters project-filters" id="project-filter-form"><label>Vista<select name="project_scope"><option value="scenario" ${state.projectScope === "scenario" ? "selected" : ""}>Comparables del escenario</option><option value="all" ${state.projectScope === "all" ? "selected" : ""}>Todo el catálogo (${formatNumber(state.meta!.coverage.projects)})</option></select></label><label>Buscar<input name="query" type="search" value="${escapeAttr(state.projectQuery)}" placeholder="Proyecto, inmobiliaria o dirección" /></label><label>Orden<select name="sort"><option value="name" ${state.projectSort === "name" ? "selected" : ""}>Nombre</option><option value="price-asc" ${state.projectSort === "price-asc" ? "selected" : ""}>Menor precio publicado</option><option value="price-desc" ${state.projectSort === "price-desc" ? "selected" : ""}>Mayor precio publicado</option><option value="area-asc" ${state.projectSort === "area-asc" ? "selected" : ""}>Menor área</option><option value="area-desc" ${state.projectSort === "area-desc" ? "selected" : ""}>Mayor área</option></select></label><button class="button button--quiet" type="submit">Aplicar filtros</button></form>
+      <p class="catalog-note">${state.projectScope === "all" ? "Catálogo completo. Cambia a comparables para aplicar distrito, tipología y dormitorios." : `Escenario: ${escapeHtml(districtName())} · ${escapeHtml(scopeLabel())}.`}</p>
+      <div class="table-scroll"><table class="project-table"><thead><tr><th scope="col">Comparar</th><th scope="col">Proyecto</th><th scope="col">Producto</th><th scope="col">Precio publicado</th><th scope="col">Área</th><th scope="col">Entrega</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${items.map(renderProjectRow).join("")}</tbody></table></div>
       ${items.length ? renderPagination(page!) : emptyState("No hay proyectos para los filtros activos.", "Editar escenario", "#projects")}
     </section>
     ${state.projectDetail ? renderProjectDetail() : ""}`;
@@ -390,7 +474,40 @@ function renderProjects(): string {
 function renderProjectRow(project: ProjectSummary): string {
   const canonicalId = canonicalProjectId(project.id);
   const checked = state.selectedProjectIds.includes(canonicalId);
-  return `<tr><td><input type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} aria-label="Comparar ${escapeAttr(project.name)}" /></td><td><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></td><td>${escapeHtml(project.typology ?? "Sin tipología")}<small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></td><td><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m²</small></td><td>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</td><td>${escapeHtml(project.phase ?? "Sin dato")}</td><td><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Ver ficha</button></td></tr>`;
+  const eligible = state.workspace!.comparableProjectIds.includes(canonicalId);
+  const selectionFull = state.selectedProjectIds.length >= 3 && !checked;
+  const selectionLabel = eligible
+    ? `${checked ? "Quitar" : "Seleccionar"} ${project.name} para comparar`
+    : `${project.name} no pertenece al conjunto comparable del escenario`;
+  return `<tr class="${checked ? "is-selected" : ""}"><td class="project-select-cell" data-label="Comparar"><input class="project-select-checkbox" type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} ${!eligible || selectionFull ? "disabled" : ""} aria-label="${escapeAttr(selectionLabel)}" title="${escapeAttr(!eligible ? "No cumple los filtros del escenario activo" : selectionFull ? "Ya seleccionaste el máximo de tres proyectos" : "Añadir a la comparación")}" /></td><td data-label="Proyecto"><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></td><td data-label="Producto">${escapeHtml(project.typology ?? "Sin tipología")}<small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></td><td data-label="Precio publicado"><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m² orientativo</small></td><td data-label="Área">${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</td><td data-label="Entrega">${escapeHtml(project.phase ?? "Sin dato")}</td><td data-label="Ficha"><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir ficha</button></td></tr>`;
+}
+
+function renderComparisonSelection(items: ProjectSummary[]): string {
+  const selected = state.selectedProjectIds.map((id) => {
+    const visible = items.find((project) => canonicalProjectId(project.id) === id);
+    if (visible) state.selectedProjects[id] = visible;
+    return state.selectedProjects[id] ?? null;
+  });
+  const count = state.selectedProjectIds.length;
+  const guidance = count === 0
+    ? "Elige el primer proyecto que quieres contrastar."
+    : count === 1
+      ? "Elige un proyecto más para activar el comparador."
+      : count === 2
+        ? "La comparación está lista. Puedes añadir un tercer proyecto."
+        : "Selección completa: compara estos tres proyectos.";
+  return `<section class="comparison-selection surface" aria-labelledby="comparison-selection-title">
+    <div class="comparison-selection__intro"><span class="selection-step">1</span><div><span class="eyebrow">Arma tu comparación</span><h2 id="comparison-selection-title">Proyectos seleccionados <span>${count}/3</span></h2><p id="comparison-selection-status" aria-live="polite">${escapeHtml(state.selectionMessage || guidance)}</p></div></div>
+    <div class="comparison-selection__projects" aria-label="Selección actual">
+      ${[0, 1, 2].map((index) => {
+        const project = selected[index];
+        return project
+          ? `<article class="selection-chip"><span>${index + 1}</span><div><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)}</small></div><button class="icon-button icon-button--small" type="button" data-project-remove="${escapeAttr(state.selectedProjectIds[index])}" aria-label="Quitar ${escapeAttr(project.name)} de la comparación">${closeIcon()}</button></article>`
+          : `<div class="selection-slot"><span>${index + 1}</span><small>${index === 0 ? "Primer proyecto" : index === 1 ? "Segundo proyecto" : "Opcional"}</small></div>`;
+      }).join("")}
+    </div>
+    <div class="comparison-selection__actions"><button class="button button--quiet" type="button" data-action="clear-comparison" ${count ? "" : "disabled"}>Limpiar selección</button><button class="button button--primary" type="button" data-action="open-comparison" ${count >= 2 ? "" : "disabled"}><span class="selection-step selection-step--button">2</span>Comparar ${count >= 2 ? `${count} proyectos` : "proyectos"}</button></div>
+  </section>`;
 }
 
 function renderPagination(page: Page<ProjectSummary>): string {
@@ -401,7 +518,51 @@ function renderProjectDetail(): string {
   const detail = state.projectDetail!;
   const project = detail.project as JsonObject;
   const trace = detail.traceability as JsonObject;
-  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="section-heading"><div><span class="eyebrow">Ficha y trazabilidad</span><h2 id="project-detail-title">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")}</p></div><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">×</button></header><dl class="detail-grid"><div><dt>Precio</dt><dd>${money(project.pricePen)}</dd></div><div><dt>Área</dt><dd>${formatNumber(project.areaM2)} m²</dd></div><div><dt>Calidad</dt><dd>${qualityLabel(project.qualityStatus)}</dd></div><div><dt>Última observación</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div><div><dt>Observaciones</dt><dd>${formatNumber(trace.observationIds?.length)}</dd></div><div><dt>Hechos</dt><dd>${formatNumber(trace.factIds?.length)}</dd></div></dl></section>`;
+  const sources = (trace.sources ?? []) as JsonObject[];
+  const amenities = (project.amenities ?? []) as unknown[];
+  const banks = (project.financingBanks ?? []) as unknown[];
+  const canonicalId = canonicalProjectId(String(project.canonicalId ?? project.id));
+  const selected = state.selectedProjectIds.includes(canonicalId);
+  const eligible = state.workspace!.comparableProjectIds.includes(canonicalId);
+  const cannotAdd = !selected && (state.selectedProjectIds.length >= 3 || !eligible);
+  const selectionLabel = selected ? "Quitar de comparación" : eligible ? "Añadir a comparación" : "Fuera del escenario comparable";
+  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial multifuente</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><div class="project-detail-actions"><button class="button ${selected ? "button--quiet" : "button--primary"}" type="button" data-action="toggle-detail-comparison" ${cannotAdd ? "disabled" : ""}>${selectionLabel}</button><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">${closeIcon()}</button></div></header>
+    <section class="detail-block detail-block--first" aria-labelledby="project-summary-title"><h3 id="project-summary-title">${detailIcon("summary")}<span>Resumen comercial</span></h3><dl class="project-detail-summary"><div class="detail-stat detail-stat--primary"><dt>${detailIcon("price")}<span>Precio publicado desde</span></dt><dd>${money(project.pricePen)}</dd></div><div class="detail-stat"><dt>${detailIcon("area")}<span>Área total publicada</span></dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div class="detail-stat"><dt>${detailIcon("ratio")}<span>Cociente publicado</span></dt><dd>${money(project.pricePerM2)} / m²</dd></div><div class="detail-stat"><dt>${detailIcon("calendar")}<span>Estado o entrega</span></dt><dd>${escapeHtml(project.phase ?? project.deliveryDate ?? "Sin dato")}</dd></div></dl>
+      <p class="source-warning"><strong>Importante:</strong> son precios publicados, no precios reales de cierre. Cada diferencia entre fuentes se conserva para revisión.</p>
+    </section>
+    <div class="project-detail-layout">
+      <section class="detail-card" aria-labelledby="project-product-title"><h3 id="project-product-title">${detailIcon("building")}<span>Producto y ubicación</span></h3><dl class="detail-list"><div><dt>Tipo de inmueble</dt><dd>${escapeHtml(project.typology ?? "Sin dato")}</dd></div><div><dt>Dormitorios</dt><dd>${escapeHtml(project.bedrooms ?? "Sin dato")}</dd></div><div><dt>Unidades declaradas</dt><dd>${project.unitCount == null ? "—" : formatNumber(project.unitCount)}</dd></div><div><dt>Dirección publicada</dt><dd>${escapeHtml(project.address ?? "Sin dato")}</dd></div><div><dt>Última actualización observada</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div></dl></section>
+      ${project.description ? `<section class="detail-card detail-card--description" aria-labelledby="project-description-title"><h3 id="project-description-title">${detailIcon("document")}<span>Descripción publicada</span></h3><p>${escapeHtml(project.description)}</p></section>` : ""}
+    </div>
+    <section class="detail-block" aria-labelledby="project-features-title"><h3 id="project-features-title">${detailIcon("features")}<span>Información anunciada</span></h3><div class="detail-columns">
+      <div><h4>${detailIcon("amenities")}<span>Áreas comunes</span></h4>${amenities.length ? `<ul class="tag-list">${amenities.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
+      <div><h4>${detailIcon("bank")}<span>Financiamiento</span></h4>${banks.length ? `<ul class="tag-list">${banks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
+    </div></section>
+    <section class="detail-block" aria-labelledby="project-sources-title"><header class="section-heading"><div><h3 id="project-sources-title">${detailIcon("sources")}<span>Fuentes y actualizaciones</span></h3><p>${formatNumber(trace.sourceCount)} fuente(s) · ${formatNumber(trace.factIds?.length)} hechos trazables</p></div></header>
+      <div class="source-list">${sources.map((source) => `<article><div><strong>${escapeHtml(source.name)}</strong><small>${formatDate(source.capturedAt)} · ${escapeHtml(source.evidenceStatus ?? "sin evidencia publicable")}</small></div><span class="status-pill">${source.legalStatus === "cleared_for_demo" ? "Autorizada" : "Revisión pendiente"}</span>${source.sourceUrl ? `<a href="${escapeAttr(source.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fuente pública</a>` : ""}</article>`).join("") || "<p>No hay capturas vinculadas.</p>"}</div>
+    </section>
+  </section>`;
+}
+
+function closeIcon(): string {
+  return '<span class="control-icon-frame" aria-hidden="true"><svg class="control-icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg></span>';
+}
+
+function detailIcon(name: string): string {
+  const paths: Record<string, string> = {
+    summary: '<path d="M5 5h14v14H5zM8 9h8M8 13h5" />',
+    price: '<circle cx="12" cy="12" r="8" /><path d="M14.5 9.5c-.5-.7-1.3-1-2.5-1-1.4 0-2.5.7-2.5 1.8 0 1.2 1 1.6 2.7 2 1.5.3 2.3.8 2.3 1.8 0 1.1-1 1.9-2.6 1.9-1.2 0-2.2-.4-2.9-1.2M12 6.8v10.4" />',
+    area: '<path d="M5 5h14v14H5zM8 8h3M8 8v3M16 16h-3M16 16v-3" />',
+    ratio: '<path d="M5 17 17 5l2 2L7 19zM10 12l2 2M13 9l2 2M7 15l2 2" />',
+    calendar: '<rect x="4" y="6" width="16" height="14" rx="2" /><path d="M8 4v4M16 4v4M4 10h16M8 14h3" />',
+    building: '<path d="M5 21V4h10v17M15 9h4v12M8 8h2M8 12h2M8 16h2M17 13h1M3 21h18" />',
+    document: '<path d="M6 3h8l4 4v14H6zM14 3v5h5M9 12h6M9 16h6" />',
+    features: '<path d="M12 3l1.2 4.3L17 9l-3.8 1.7L12 15l-1.2-4.3L7 9l3.8-1.7zM5 15l.7 2.3L8 18l-2.3.7L5 21l-.7-2.3L2 18l2.3-.7z" />',
+    amenities: '<path d="M4 19h16M6 19v-7h12v7M8 12V8h8v4M10 8V5h4v3" />',
+    bank: '<path d="M3 9h18L12 4zM5 10v7M9 10v7M15 10v7M19 10v7M3 20h18" />',
+    sources: '<path d="M9 15l6-6M7.5 17.5l-1 1a3.5 3.5 0 0 1-5-5l4-4a3.5 3.5 0 0 1 5 0M16.5 6.5l1-1a3.5 3.5 0 0 1 5 5l-4 4a3.5 3.5 0 0 1-5 0" />',
+  };
+  return `<span class="detail-symbol" aria-hidden="true"><svg viewBox="0 0 24 24">${paths[name] ?? paths.summary}</svg></span>`;
 }
 
 function renderInspector(): string {
@@ -438,15 +599,74 @@ function renderBenchmarkSummary(): string {
 
 function renderComparison(): string {
   const comparison = state.comparison?.comparison as JsonObject | undefined;
-  return `${renderPageHeader("Comparador", "Diferencias que cambian la decisión", "Selecciona de dos a tres proyectos; se priorizan precio, área y producto.", `<a class="button button--quiet" href="#projects">Cambiar selección</a>`)}${comparison ? renderComparisonModel(comparison) : emptyState("Selecciona al menos dos proyectos comparables.", "Ir a proyectos", "#projects")}`;
+  const content = comparison?.status === "ready"
+    ? renderComparisonModel(comparison)
+    : emptyState("Selecciona al menos dos proyectos comparables para ver sus diferencias.", "Elegir proyectos", "#projects");
+  return `${renderPageHeader("Comparador", "Compara proyecto por proyecto", "Contrasta en columnas el precio, área, producto, entrega y atributos publicados.", `<a class="button button--quiet" href="#projects">Cambiar selección</a>`)}${content}${state.projectDetail ? renderProjectDetail() : ""}`;
 }
 
 function renderComparisonModel(comparison: JsonObject): string {
   const selected = (comparison.selected ?? []) as JsonObject[];
-  const rows = ((comparison.groups ?? []) as JsonObject[]).flatMap((group) => (group.rows ?? []) as JsonObject[]);
-  const priority = new Set((comparison.priorityRows ?? []) as string[]);
-  const visible = rows.filter((row) => priority.has(row.id)).slice(0, 6);
-  return `<section class="decision-strip"><span>Conclusión ejecutiva</span><strong>${escapeHtml(comparison.conclusion?.headline ?? comparison.conclusion?.title ?? "La comparación está lista.")}</strong><p>${escapeHtml(comparison.conclusion?.detail ?? comparison.conclusion?.summary ?? "Revisa las diferencias prioritarias antes de decidir.")}</p></section><section class="surface"><div class="table-scroll"><table class="comparison-table"><thead><tr><th>Criterio</th>${selected.map((project) => `<th>${escapeHtml(project.name)}<small>${escapeHtml(project.agencyName)}</small></th>`).join("")}</tr></thead><tbody>${visible.map((row) => `<tr><th>${escapeHtml(row.label)}</th>${((row.values ?? []) as JsonObject[]).map((value) => `<td class="${value.state === "excluded" ? "is-excluded" : ""}">${formatComparisonValue(value)}<small>${escapeHtml(value.state)}</small></td>`).join("")}</tr>`).join("")}</tbody></table></div><details class="methodology"><summary>Ver límites de la comparación</summary><ul>${((comparison.limitations ?? []) as unknown[]).map((item) => `<li>${escapeHtml(typeof item === "string" ? item : JSON.stringify(item))}</li>`).join("")}</ul></details></section>`;
+  const groups = (comparison.groups ?? []) as JsonObject[];
+  const findings = Array.isArray(comparison.conclusion) ? comparison.conclusion as JsonObject[] : [];
+  const comparisonWarnings = findings.filter((finding) => finding.id === "finding:price-insufficient");
+  const projectDifferences = findings.filter((finding) => finding.id !== "finding:price-insufficient");
+  const differenceCount = groups.flatMap((group) => (group.rows ?? []) as JsonObject[]).filter((row) => row.hasDifference || row.hasExcluded).length;
+  return `<section class="comparison-workspace" aria-label="Comparación de proyectos">
+    <header class="comparison-workspace__header"><div><span class="eyebrow">Selección confirmada</span><h2>${selected.length} proyectos en paralelo</h2><p>Las columnas conservan el mismo orden en toda la pantalla.</p></div><span class="comparison-count">${formatNumber(differenceCount)} diferencias para revisar</span></header>
+    <div class="comparison-projects comparison-projects--${selected.length}">${selected.map((project, index) => renderComparisonProject(project, index, groups)).join("")}</div>
+  </section>
+  ${renderComparisonWarnings(comparisonWarnings)}
+  ${renderProjectDifferences(projectDifferences, groups, selected)}
+  <section class="surface comparison-matrix" aria-labelledby="comparison-matrix-title"><header class="section-heading"><div><span class="eyebrow">Comparación completa</span><h2 id="comparison-matrix-title">Datos publicados lado a lado</h2><p>“Diferencia” señala que los valores observados no coinciden; no determina por sí sola cuál proyecto es mejor.</p></div></header>${groups.map((group) => renderComparisonGroup(group, selected)).join("")}<details class="methodology"><summary>Ver límites de la comparación</summary><ul>${((comparison.limitations ?? []) as unknown[]).map((item) => `<li>${escapeHtml(typeof item === "string" ? item : JSON.stringify(item))}</li>`).join("") || "<li>La lectura se limita a los datos publicados y trazables del escenario.</li>"}</ul></details></section>`;
+}
+
+function renderComparisonWarnings(findings: JsonObject[]): string {
+  if (!findings.length) return "";
+  return `<aside class="comparison-guidance" aria-labelledby="comparison-guidance-title">
+    <span class="comparison-guidance__icon" aria-hidden="true">!</span>
+    <div><span class="eyebrow">Antes de comparar precios</span><h2 id="comparison-guidance-title">El precio por m² todavía no es comparable</h2><p>Hay precios y áreas publicados, pero no está demostrado que pertenezcan al mismo departamento o tipología. Dividirlos podría producir un valor engañoso.</p><dl><div><dt>Qué puedes usar</dt><dd>El precio y el área como referencias publicadas independientes.</dd></div><div><dt>Qué falta validar</dt><dd>${escapeHtml(findings[0]?.nextAction ?? "Vincular precio y área de la misma oferta o tipología.")}</dd></div></dl></div>
+  </aside>`;
+}
+
+function renderProjectDifferences(findings: JsonObject[], groups: JsonObject[], selected: JsonObject[]): string {
+  return `<section class="surface comparison-findings" aria-labelledby="comparison-findings-title"><header class="section-heading"><div><span class="eyebrow">Diferencias observadas</span><h2 id="comparison-findings-title">Qué cambia entre los proyectos</h2><p>Estos valores sí cambian en la selección actual. Una diferencia no determina por sí sola cuál proyecto es mejor.</p></div></header><div class="comparison-findings__grid">${findings.map((finding) => renderProjectDifference(finding, groups, selected)).join("") || '<p class="comparison-findings__empty">No se encontraron diferencias prioritarias en los datos disponibles.</p>'}</div></section>`;
+}
+
+function renderProjectDifference(finding: JsonObject, groups: JsonObject[], selected: JsonObject[]): string {
+  const rowId = String(finding.rowId ?? "");
+  const title = rowId === "areas.total"
+    ? "Tienen áreas publicadas diferentes"
+    : rowId === "common_areas.announced"
+      ? "Anuncian características distintas"
+      : String(finding.finding ?? "Diferencia observada");
+  const explanation = rowId === "areas.total"
+    ? "Compara el precio junto con el área total de cada proyecto; un precio mayor puede corresponder a un inmueble más amplio."
+    : rowId === "common_areas.announced"
+      ? "La información publicada cambia entre proyectos. “No informado” no significa que la característica no exista."
+      : String(finding.implication ?? "Revisa los valores publicados antes de decidir.");
+  return `<article class="comparison-difference-card" data-comparison-finding="${escapeAttr(finding.id ?? rowId)}"><div><span class="difference-badge">Diferencia observada</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(explanation)}</p></div><dl class="comparison-finding-values comparison-finding-values--${selected.length}">${selected.map((project) => {
+    const value = comparisonValueFor(groups, rowId, project.projectId);
+    return `<div><dt>${escapeHtml(project.name ?? "Proyecto")}</dt><dd>${formatComparisonValue(value)}</dd><small>${escapeHtml(comparisonStateLabel(value.state))}</small></div>`;
+  }).join("")}</dl><footer><strong>Antes de usarlo</strong><p>${escapeHtml(finding.nextAction ?? "Contrasta las fuentes disponibles.")}</p></footer></article>`;
+}
+
+function renderComparisonProject(project: JsonObject, index: number, groups: JsonObject[]): string {
+  const price = comparisonValueFor(groups, "price.published_from", project.projectId);
+  const area = comparisonValueFor(groups, "areas.total", project.projectId);
+  const delivery = comparisonValueFor(groups, "delivery.status", project.projectId);
+  return `<article class="comparison-project-card"><header><span class="comparison-project-card__index">${index + 1}</span><div><h3>${escapeHtml(project.name)}</h3><p>${escapeHtml(project.agencyName)}</p></div><button class="icon-button icon-button--small" type="button" data-project-remove="${escapeAttr(project.projectId)}" aria-label="Quitar ${escapeAttr(project.name)} de la comparación">${closeIcon()}</button></header><dl><div><dt>Precio publicado</dt><dd>${formatComparisonValue(price)}</dd></div><div><dt>Área total</dt><dd>${formatComparisonValue(area)}</dd></div><div><dt>Entrega</dt><dd>${formatComparisonValue(delivery)}</dd></div></dl><button class="link-button" type="button" data-project-detail="${escapeAttr(project.projectId)}">Abrir ficha</button></article>`;
+}
+
+function renderComparisonGroup(group: JsonObject, selected: JsonObject[]): string {
+  const rows = (group.rows ?? []) as JsonObject[];
+  const differences = rows.filter((row) => row.hasDifference || row.hasExcluded).length;
+  return `<section class="comparison-group" aria-labelledby="comparison-group-${escapeAttr(group.id)}"><header><h3 id="comparison-group-${escapeAttr(group.id)}">${escapeHtml(group.label)}</h3><span>${differences ? `${formatNumber(differences)} ${differences === 1 ? "diferencia" : "diferencias"}` : "Sin diferencias observadas"}</span></header>${rows.map((row) => `<div class="comparison-data-row comparison-data-row--${selected.length} ${row.hasDifference || row.hasExcluded ? "is-different" : ""}"><div class="comparison-criterion"><strong>${escapeHtml(row.label)}</strong>${row.hasDifference || row.hasExcluded ? '<span class="difference-badge">Diferencia</span>' : '<span class="same-badge">Coincide</span>'}</div>${((row.values ?? []) as JsonObject[]).map((value, index) => `<div class="comparison-value-cell ${comparisonStateClass(value.state)}" data-project="${escapeAttr(selected[index]?.name ?? "Proyecto")}">${formatComparisonValue(value)}<span class="comparison-value-state">${escapeHtml(comparisonStateLabel(value.state))}</span>${value.exclusionReason ? `<small>${escapeHtml(value.exclusionReason)}</small>` : ""}</div>`).join("")}</div>`).join("")}</section>`;
+}
+
+function comparisonValueFor(groups: JsonObject[], rowId: string, projectId: unknown): JsonObject {
+  const row = groups.flatMap((group) => (group.rows ?? []) as JsonObject[]).find((item) => item.id === rowId);
+  return ((row?.values ?? []) as JsonObject[]).find((value) => value.projectId === projectId) ?? {};
 }
 
 function renderChecklist(): string {
@@ -482,13 +702,144 @@ function renderAnswer(answer: JsonObject): string {
 }
 
 function renderHistory(): string {
-  return `${renderPageHeader("Seguimiento", "Señales del mercado", "Cambios publicados ordenados por fecha, sin inferir causas.", `<span class="status-pill">${formatNumber(state.history?.total)} señales</span>`)}${renderHistoryTable(20)}`;
+  const allEvents = state.history?.items ?? [];
+  const visibleEvents = historyEvents();
+  const latest = visibleEvents[0] ?? null;
+  const activeFilters = state.historyDirection !== "all" || state.historyValidity !== "all";
+  return `${renderPageHeader(
+    "Seguimiento",
+    "Seguimiento comercial",
+    "Detecta cambios publicados en el territorio activo y decide qué revisar primero.",
+    `<button class="button button--quiet" type="button" data-action="scenario">Cambiar distrito o zona</button>`,
+  )}
+    <section class="surface history-scope" aria-label="Territorio de seguimiento">
+      <div><span>Distrito</span><strong>${escapeHtml(districtName())}</strong></div>
+      <div><span>Zona comercial</span><strong>${escapeHtml(scopeLabel())}</strong></div>
+      <div><span>Corte de datos</span><strong>${formatDate(state.meta!.cutoffAt)}</strong></div>
+      <p>Las zonas son alcances comerciales del escenario; no se presentan como divisiones oficiales.</p>
+    </section>
+    <section class="history-coverage" aria-label="Cobertura actual de alertas">
+      ${renderHistoryCoverageItem("price", "Cambios de precio", allEvents.length, "Disponible", true)}
+      ${renderHistoryCoverageItem("unit", "Nuevas unidades", null, "Aún no monitoreado", false)}
+      ${renderHistoryCoverageItem("discount", "Descuentos publicados", null, "Aún no monitoreado", false)}
+    </section>
+    ${latest ? renderHistoryPriority(latest) : ""}
+    <section class="surface history-feed" aria-labelledby="history-feed-title">
+      <header class="section-heading history-feed__heading">
+        <div><span class="eyebrow">Cambios observados</span><h2 id="history-feed-title">Actividad del mercado</h2><p>${formatNumber(visibleEvents.length)} de ${formatNumber(allEvents.length)} señales visibles.</p></div>
+        ${activeFilters ? '<button class="button button--quiet" type="button" data-action="clear-history-filters">Limpiar filtros</button>' : ""}
+      </header>
+      <div class="history-filters">
+        <label for="history-direction-filter">Movimiento<select id="history-direction-filter" name="history_direction"><option value="all" ${state.historyDirection === "all" ? "selected" : ""}>Todos</option><option value="decrease" ${state.historyDirection === "decrease" ? "selected" : ""}>Bajó el precio</option><option value="increase" ${state.historyDirection === "increase" ? "selected" : ""}>Subió el precio</option><option value="unchanged" ${state.historyDirection === "unchanged" ? "selected" : ""}>Sin variación</option></select></label>
+        <label for="history-validity-filter">Vigencia<select id="history-validity-filter" name="history_validity"><option value="all" ${state.historyValidity === "all" ? "selected" : ""}>Todas</option><option value="current" ${state.historyValidity === "current" ? "selected" : ""}>Reciente</option><option value="aging" ${state.historyValidity === "aging" ? "selected" : ""}>En seguimiento</option><option value="historical" ${state.historyValidity === "historical" ? "selected" : ""}>Histórica</option><option value="unknown" ${state.historyValidity === "unknown" ? "selected" : ""}>Fecha por revisar</option></select></label>
+      </div>
+      ${renderHistorySignals(visibleEvents, false)}
+    </section>
+    <aside class="history-notice"><strong>Avisos automáticos</strong><p>La bandeja, las nuevas unidades y los descuentos se habilitarán cuando existan corridas periódicas autorizadas. Esta pantalla solo muestra cambios efectivamente observados.</p></aside>
+    ${state.projectDetail ? renderProjectDetail() : ""}`;
 }
 
-function renderHistoryTable(limit: number): string {
-  const events = (state.history?.items ?? []).slice(0, limit);
-  if (!events.length) return emptyState("No hay señales históricas para el escenario activo.", "Editar escenario", "#activity");
-  return `<section class="surface"><div class="table-scroll"><table><thead><tr><th>Fecha</th><th>Proyecto</th><th>Cambio</th><th>Estado</th><th>Evidencia</th></tr></thead><tbody>${events.map((event) => `<tr><td>${formatDate(event.detected_at)}</td><td><strong>${escapeHtml(event.project_id)}</strong><small>${escapeHtml(event.district_id)}</small></td><td>${escapeHtml(event.field)}<small>${formatNumber(event.previous_value)} → ${formatNumber(event.current_value)} ${escapeHtml(event.unit ?? "")}</small></td><td>${escapeHtml(event.status)}<small>${escapeHtml(event.cause ?? "Causa no inferida")}</small></td><td>${formatNumber(event.evidence_ids?.length)} refs.</td></tr>`).join("")}</tbody></table></div></section>`;
+function renderHistoryCoverageItem(icon: "price" | "unit" | "discount", label: string, value: number | null, status: string, available: boolean): string {
+  return `<article class="history-coverage__item ${available ? "is-available" : "is-pending"}">${monitoringIcon(icon)}<div><span>${escapeHtml(label)}</span><strong>${value == null ? "—" : formatNumber(value)}</strong><small>${escapeHtml(status)}</small></div></article>`;
+}
+
+function renderHistoryPriority(event: JsonObject): string {
+  const project = historyProject(event);
+  const movement = historyEventDirection(event);
+  const direction = historyDirectionLabel(movement);
+  return `<section class="surface history-priority" aria-labelledby="history-priority-title">
+    <div class="history-priority__marker">${monitoringIcon(movement === "increase" ? "increase" : "decrease")}</div>
+    <div class="history-priority__copy"><span class="eyebrow">Revisión sugerida</span><h2 id="history-priority-title">${escapeHtml(project?.name ?? "Proyecto observado")} ${escapeHtml(direction)} su precio publicado</h2><p>Es la señal visible más reciente. Contrasta el cambio y sus fuentes antes de usarlo en una conversación comercial.</p><div class="history-priority__meta"><span>${escapeHtml(project?.agency ?? "Inmobiliaria no informada")}</span><span>${escapeHtml(districtName())}</span><span>${formatDate(event.current_observed_at ?? event.detected_at)}</span></div></div>
+    <div class="history-priority__value"><span>Anterior</span><strong>${money(event.previous_value)}</strong><span>Nuevo</span><strong>${money(event.current_value)}</strong><b class="history-delta ${historyDeltaClass(event)}">${signedPercent(event.delta_pct)}</b></div>
+    <div class="history-priority__actions">${project ? `<button class="button button--primary" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir proyecto</button>` : ""}<a class="button button--quiet" href="#assistant">Preparar decisión</a></div>
+  </section>`;
+}
+
+function renderHistorySignals(events: JsonObject[], compact: boolean): string {
+  if (!events.length) {
+    return `<section class="history-empty"><span aria-hidden="true">○</span><h3>No hay cambios con estos filtros</h3><p>Amplía la vigencia o el movimiento. La ausencia de señales no demuestra que el mercado esté estable.</p></section>`;
+  }
+  return `<ol class="history-signals ${compact ? "history-signals--compact" : ""}">${events.map(renderHistorySignal).join("")}</ol>`;
+}
+
+function renderHistorySignal(event: JsonObject): string {
+  const project = historyProject(event);
+  const movement = historyEventDirection(event);
+  const direction = historyDirectionLabel(movement);
+  const evidenceCount = Array.isArray(event.evidence_ids) ? event.evidence_ids.length : 0;
+  const status = historyStatusLabel(event.status);
+  return `<li><article class="history-signal">
+    <div class="history-signal__icon ${historyDeltaClass(event)}">${monitoringIcon(movement === "increase" ? "increase" : "decrease")}</div>
+    <div class="history-signal__body"><div class="history-signal__heading"><div><span>${escapeHtml(project?.agency ?? "Inmobiliaria no informada")}</span><h3>${escapeHtml(project?.name ?? "Proyecto observado")} ${escapeHtml(direction)} su precio publicado</h3></div><span class="history-status">${escapeHtml(status)}</span></div>
+      <div class="history-value-flow"><span><small>Anterior</small><strong>${money(event.previous_value)}</strong></span><span aria-hidden="true">→</span><span><small>Nuevo</small><strong>${money(event.current_value)}</strong></span><b class="history-delta ${historyDeltaClass(event)}">${signedPercent(event.delta_pct)}</b></div>
+      <div class="history-signal__meta"><span>${escapeHtml(project?.district ?? districtName())}</span><span>${escapeHtml(scopeLabel())}</span><time datetime="${escapeAttr(event.current_observed_at ?? event.detected_at ?? "")}">${formatDate(event.current_observed_at ?? event.detected_at)}</time><span>${escapeHtml(historyValidityLabel(event.validity))}</span></div>
+      <p>No se observó la causa del cambio. El valor corresponde a precio publicado, no a precio de cierre.</p>
+      <div class="history-signal__actions">${project ? `<button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir proyecto</button>` : ""}<details class="history-evidence"><summary>Ver evidencia</summary><p>${formatNumber(evidenceCount)} referencias respaldan las observaciones anterior y nueva.</p></details></div>
+    </div>
+  </article></li>`;
+}
+
+function historyEvents(): JsonObject[] {
+  return (state.history?.items ?? []).filter((event) =>
+    (state.historyDirection === "all" || historyEventDirection(event) === state.historyDirection)
+    && (state.historyValidity === "all" || event.validity === state.historyValidity));
+}
+
+function historyProject(event: JsonObject): ProjectSummary | null {
+  const id = String(event.project_id ?? "").replace(/^project:nexo-/u, "").replace(/^nexo-/u, "");
+  return state.projects?.items.find((project) => String(project.id) === id) ?? null;
+}
+
+function historyDirectionLabel(value: unknown): string {
+  if (value === "increase") return "subió";
+  if (value === "decrease") return "bajó";
+  return "mantuvo";
+}
+
+function historyEventDirection(event: JsonObject): "increase" | "decrease" | "unchanged" {
+  if (["increase", "decrease", "unchanged"].includes(String(event.direction))) {
+    return event.direction as "increase" | "decrease" | "unchanged";
+  }
+  const delta = Number(event.delta_absolute);
+  if (delta > 0) return "increase";
+  if (delta < 0) return "decrease";
+  return "unchanged";
+}
+
+function historyStatusLabel(value: unknown): string {
+  if (value === "certified") return "Con evidencia";
+  if (value === "reviewable") return "Requiere revisión";
+  return "Evidencia insuficiente";
+}
+
+function historyValidityLabel(value: unknown): string {
+  if (value === "current") return "Reciente";
+  if (value === "aging") return "En seguimiento";
+  if (value === "historical") return "Histórica";
+  return "Fecha por revisar";
+}
+
+function historyDeltaClass(event: JsonObject): string {
+  const direction = historyEventDirection(event);
+  return direction === "increase" ? "is-increase" : direction === "decrease" ? "is-decrease" : "is-flat";
+}
+
+function signedPercent(value: unknown): string {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "—";
+  const sign = number > 0 ? "+" : number < 0 ? "−" : "";
+  return `${sign}${formatNumber(Math.abs(number))}%`;
+}
+
+function monitoringIcon(kind: "price" | "unit" | "discount" | "increase" | "decrease"): string {
+  const paths = {
+    price: '<path d="M4 7h8l4 4-8 8-4-4V7Z"/><circle cx="8" cy="11" r="1"/>',
+    unit: '<path d="M5 20V5h10v15M3 20h14M8 9h1M12 9h1M8 13h1M12 13h1"/>',
+    discount: '<circle cx="7" cy="7" r="2"/><circle cx="17" cy="17" r="2"/><path d="m6 18 12-12"/>',
+    increase: '<path d="M5 16 15 6M8 6h7v7"/>',
+    decrease: '<path d="m5 8 10 10M8 18h7v-7"/>',
+  };
+  return `<span class="monitoring-icon" aria-hidden="true"><svg viewBox="0 0 24 24">${paths[kind]}</svg></span>`;
 }
 
 function renderCorrections(): string {
@@ -499,7 +850,7 @@ function renderScenarioDialog(): string {
   const scenario = state.scenario!;
   const district = state.bootstrap!.districts.find(({ id }) => id === scenario.district_id);
   return `<dialog id="scenario-dialog" class="product-dialog">
-    <form method="dialog" class="dialog-header"><div><span class="eyebrow">Escenario</span><h2>Editar alcance comercial</h2><p>Los cambios recalculan la lectura sin guardar información.</p></div><button class="icon-button" value="cancel" aria-label="Cerrar">×</button></form>
+    <form method="dialog" class="dialog-header"><div><span class="eyebrow">Escenario</span><h2>Editar alcance comercial</h2><p>Los cambios recalculan la lectura sin guardar información.</p></div><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form>
     <form id="scenario-form" class="scenario-form">
       <label>Distrito<select name="district_id">${state.bootstrap!.districts.map((item) => `<option value="${escapeAttr(item.id)}" ${item.id === scenario.district_id ? "selected" : ""}>${escapeHtml(item.name)} · ${formatNumber(item.projectCount)}</option>`).join("")}</select></label>
       <label>Alcance<select name="scope_mode"><option value="district" ${scenario.scope_mode === "district" ? "selected" : ""}>Distrito completo</option><option value="quadrant" ${scenario.scope_mode === "quadrant" ? "selected" : ""} ${!district?.quadrants.length ? "disabled" : ""}>Cuadrante analítico</option><option value="radius" ${scenario.scope_mode === "radius" ? "selected" : ""}>Radio desde el centro distrital</option></select></label>
@@ -527,7 +878,7 @@ function renderCommandDialog(): string {
     { hash: "#assistant", label: "Decidir", hint: "Respuesta trazable" },
     { hash: "#activity", label: "Seguimiento", hint: "Cambios" },
   ];
-  return `<dialog id="command-dialog" class="command-dialog"><form method="dialog"><label for="command-input" class="sr-only">Buscar destino</label><input id="command-input" type="search" placeholder="Ir a una etapa o herramienta…" autocomplete="off" /><button class="icon-button" value="cancel" aria-label="Cerrar">×</button></form><nav>${destinations.map((item) => `<a href="${item.hash}" data-command-option><strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(item.hint)}</span></a>`).join("")}</nav></dialog>`;
+  return `<dialog id="command-dialog" class="command-dialog"><form method="dialog"><label for="command-input" class="sr-only">Buscar destino</label><input id="command-input" type="search" placeholder="Ir a una etapa o herramienta…" autocomplete="off" /><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form><nav>${destinations.map((item) => `<a href="${item.hash}" data-command-option><strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(item.hint)}</span></a>`).join("")}</nav></dialog>`;
 }
 
 async function handleClick(event: MouseEvent): Promise<void> {
@@ -538,6 +889,32 @@ async function handleClick(event: MouseEvent): Promise<void> {
   if (action === "close-nav") { state.navOpen = false; render(); return; }
   if (action === "scenario") return openDialog("scenario-dialog", "scenario-form");
   if (action === "command") return openDialog("command-dialog", "command-input");
+  if (action === "map-geographic") { state.mapView = "geographic"; render(); return; }
+  if (action === "map-positioning") { state.mapView = "positioning"; render(); return; }
+  if (action === "clear-history-filters") {
+    state.historyDirection = "all";
+    state.historyValidity = "all";
+    render();
+    return;
+  }
+  if (action === "clear-comparison") {
+    state.selectedProjectIds = [];
+    state.selectedProjects = {};
+    state.comparison = null;
+    state.selectionMessage = "Selección limpia. Elige al menos dos proyectos.";
+    render();
+    return;
+  }
+  if (action === "open-comparison") {
+    if (state.selectedProjectIds.length < 2) {
+      state.selectionMessage = "Selecciona al menos dos proyectos para continuar.";
+      render();
+      return;
+    }
+    state.comparison = null;
+    window.location.hash = "#compare";
+    return;
+  }
   if (action === "reset" && state.bootstrap) {
     closeDialogs();
     state.scenario = structuredClone(state.bootstrap.initialScenario);
@@ -549,6 +926,30 @@ async function handleClick(event: MouseEvent): Promise<void> {
     return;
   }
   if (action === "close-detail") { state.projectDetail = null; render(); return; }
+  if (action === "toggle-detail-comparison" && state.projectDetail) {
+    const project = state.projectDetail.project as JsonObject;
+    const id = canonicalProjectId(String(project.canonicalId ?? project.id));
+    if (state.selectedProjectIds.includes(id)) removeProjectSelection(id);
+    else if (state.selectedProjectIds.length < 3) addProjectSelection(projectSummaryFromDetail(project));
+    if ((state.route.id === "compare" || state.route.id === "depth") && state.selectedProjectIds.length >= 2 && state.scenario) {
+      state.busyMessage = "Actualizando comparación…";
+      render();
+      try { state.comparison = await provider.comparison(state.scenario, state.selectedProjectIds); state.busyMessage = null; render(); }
+      catch (error) { fail(error); }
+    } else render();
+    return;
+  }
+  const removeId = target.closest<HTMLElement>("[data-project-remove]")?.dataset.projectRemove;
+  if (removeId) {
+    removeProjectSelection(removeId);
+    if ((state.route.id === "compare" || state.route.id === "depth") && state.selectedProjectIds.length >= 2 && state.scenario) {
+      state.busyMessage = "Actualizando comparación…";
+      render();
+      try { state.comparison = await provider.comparison(state.scenario, state.selectedProjectIds); state.busyMessage = null; render(); }
+      catch (error) { fail(error); }
+    } else render();
+    return;
+  }
   const page = target.closest<HTMLElement>("[data-project-page]")?.dataset.projectPage;
   if (page) {
     state.projectPage = Number(page);
@@ -558,7 +959,10 @@ async function handleClick(event: MouseEvent): Promise<void> {
   const projectId = target.closest<HTMLElement>("[data-project-detail]")?.dataset.projectDetail;
   if (projectId) {
     state.busyMessage = "Cargando ficha…"; render();
-    try { state.projectDetail = await provider.project(projectId); state.busyMessage = null; render(); }
+    try {
+      state.projectDetail = await provider.project(projectId); state.busyMessage = null; render();
+      requestAnimationFrame(() => document.querySelector<HTMLElement>("#project-detail-title")?.focus());
+    }
     catch (error) { fail(error); }
     return;
   }
@@ -628,6 +1032,16 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
 
 async function handleChange(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement | HTMLSelectElement;
+  if (target.name === "history_direction") {
+    state.historyDirection = target.value as AppState["historyDirection"];
+    render();
+    return;
+  }
+  if (target.name === "history_validity") {
+    state.historyValidity = target.value as AppState["historyValidity"];
+    render();
+    return;
+  }
   if (target.id === "inspector-case") {
     state.inspectorSlug = target.value;
     state.busyMessage = "Cargando expediente…"; render();
@@ -638,8 +1052,18 @@ async function handleChange(event: Event): Promise<void> {
   if (target.matches("[data-compare-id]")) {
     const id = target.dataset.compareId!;
     if ((target as HTMLInputElement).checked) {
-      if (!state.selectedProjectIds.includes(id) && state.selectedProjectIds.length < 3) state.selectedProjectIds.push(id);
-    } else state.selectedProjectIds = state.selectedProjectIds.filter((item) => item !== id);
+      const project = state.projects?.items.find((item) => canonicalProjectId(item.id) === id);
+      if (project && !state.selectedProjectIds.includes(id) && state.selectedProjectIds.length < 3) addProjectSelection(project);
+      else (target as HTMLInputElement).checked = false;
+    } else removeProjectSelection(id);
+    state.comparison = null;
+    render();
+    return;
+  }
+  if (target.name === "project_scope" && target.form?.id === "project-filter-form") {
+    state.projectScope = target.value === "all" ? "all" : "scenario";
+    state.projectPage = 1;
+    await loadProjectsFromForm(target.form);
     return;
   }
   if (target.name === "scope_mode" && target.form?.id === "scenario-form") {
@@ -653,19 +1077,29 @@ async function handleChange(event: Event): Promise<void> {
 async function loadProjectsFromForm(form = document.querySelector<HTMLFormElement>("#project-filter-form")): Promise<void> {
   if (!state.scenario) return;
   const data = form ? new FormData(form) : new FormData();
+  state.projectScope = String(data.get("project_scope") ?? state.projectScope) === "all" ? "all" : "scenario";
+  state.projectQuery = String(data.get("query") ?? state.projectQuery);
+  state.projectSort = String(data.get("sort") ?? state.projectSort);
   state.busyMessage = "Actualizando proyectos…"; render();
   try {
-    state.projects = await provider.projects({
-      district: state.scenario.district_id,
-      page: state.projectPage,
-      pageSize: 18,
-      typology: state.scenario.typology,
-      bedrooms: state.scenario.bedrooms,
-      query: String(data.get("query") ?? ""),
-      sort: String(data.get("sort") ?? "name"),
-    });
+    state.projects = await provider.projects(projectParameters(18));
     state.busyMessage = null; render();
   } catch (error) { fail(error); }
+}
+
+function projectParameters(pageSize: number): Record<string, string | number | undefined> {
+  const scenario = state.scenario!;
+  return {
+    ...(state.projectScope === "scenario" ? {
+      district: scenario.district_id,
+      typology: scenario.typology,
+      bedrooms: scenario.bedrooms,
+    } : {}),
+    page: state.projectPage,
+    pageSize,
+    query: state.projectQuery,
+    sort: state.projectSort,
+  };
 }
 
 function scenarioFromLocation(initial: Scenario): Scenario {
@@ -781,12 +1215,75 @@ function qualityLabel(value: unknown): string {
 }
 
 function formatComparisonValue(value: JsonObject): string {
+  if (!value || value.state === "unknown") return "Sin dato observado";
+  const original = value.originalValue;
   const raw = value.normalizedValue;
-  if (Array.isArray(raw)) return escapeHtml(raw.length ? `${raw.length} atributos` : "Sin dato");
+  const listed = Array.isArray(original) && original.length ? original : Array.isArray(raw) ? raw : null;
+  if (listed) return listed.length
+    ? `<ul class="comparison-tags">${listed.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+    : "Sin dato observado";
   if (value.currency === "PEN") return money(raw);
   if (value.unit === "PEN/m2") return `${money(raw)} / m²`;
   if (value.unit === "m2") return `${formatNumber(raw)} m²`;
-  return escapeHtml(raw ?? "—");
+  if (value.unit === "count") return `${formatNumber(raw)} ${Number(raw) === 1 ? "unidad reportada" : "unidades reportadas"}`;
+  if (original === "source:nexo") return "Nexo Inmobiliario";
+  return escapeHtml(original ?? raw ?? "Sin dato observado");
+}
+
+function comparisonStateLabel(value: unknown): string {
+  const labels: Record<string, string> = {
+    observed: "Dato publicado",
+    announced: "Anunciado",
+    excluded: "Orientativo; no comparable",
+    unknown: "Sin dato observado",
+  };
+  return labels[String(value)] ?? "Dato disponible";
+}
+
+function comparisonStateClass(value: unknown): string {
+  return ["observed", "announced", "excluded", "unknown"].includes(String(value))
+    ? `is-${String(value)}`
+    : "";
+}
+
+function addProjectSelection(project: ProjectSummary): void {
+  const id = canonicalProjectId(project.id);
+  if (state.selectedProjectIds.includes(id) || state.selectedProjectIds.length >= 3) return;
+  state.selectedProjectIds = [...state.selectedProjectIds, id];
+  state.selectedProjects[id] = project;
+  state.selectionMessage = state.selectedProjectIds.length === 1
+    ? `${project.name} seleccionado. Elige un proyecto más.`
+    : state.selectedProjectIds.length === 2
+      ? `${project.name} añadido. Ya puedes comparar.`
+      : `${project.name} añadido. Alcanzaste el máximo de tres proyectos.`;
+}
+
+function removeProjectSelection(id: string): void {
+  const projectName = state.selectedProjects[id]?.name ?? "Proyecto";
+  state.selectedProjectIds = state.selectedProjectIds.filter((item) => item !== id);
+  delete state.selectedProjects[id];
+  state.comparison = null;
+  state.selectionMessage = `${projectName} fue retirado. ${state.selectedProjectIds.length >= 2 ? "La comparación sigue disponible." : "Elige al menos dos proyectos."}`;
+}
+
+function projectSummaryFromDetail(project: JsonObject): ProjectSummary {
+  return {
+    ...project,
+    id: String(project.canonicalId ?? project.id),
+    name: String(project.name ?? project.canonicalName ?? "Proyecto"),
+    agency: String(project.agency?.name ?? project.agency ?? "Sin inmobiliaria"),
+    district: String(project.district ?? "Sin distrito"),
+    address: project.address == null ? null : String(project.address),
+    typology: project.typology == null ? null : String(project.typology),
+    bedrooms: project.bedrooms == null ? null : project.bedrooms,
+    areaM2: project.areaM2 == null ? null : Number(project.areaM2),
+    pricePen: project.pricePen == null ? null : Number(project.pricePen),
+    pricePerM2: project.pricePerM2 == null ? null : Number(project.pricePerM2),
+    phase: project.phase == null ? null : String(project.phase),
+    sourceUrl: project.sourceUrl == null ? null : String(project.sourceUrl),
+    latitude: project.latitude == null ? null : Number(project.latitude),
+    longitude: project.longitude == null ? null : Number(project.longitude),
+  };
 }
 
 function canonicalProjectId(value: string): string {
@@ -825,6 +1322,49 @@ function optionalNumber(value: FormDataEntryValue | string | null): number | nul
   if (value === null || String(value).trim() === "") return null;
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+function geometryCoordinates(geometry: JsonObject): Array<[number, number]> {
+  const coordinates: Array<[number, number]> = [];
+  visitCoordinates(geometry.coordinates, (longitude, latitude) => coordinates.push([longitude, latitude]));
+  return coordinates;
+}
+
+function visitCoordinates(value: unknown, visitor: (longitude: number, latitude: number) => void): void {
+  if (Array.isArray(value) && value.length >= 2 && Number.isFinite(value[0]) && Number.isFinite(value[1])) {
+    visitor(Number(value[0]), Number(value[1]));
+    return;
+  }
+  if (Array.isArray(value)) value.forEach((child) => visitCoordinates(child, visitor));
+}
+
+function geometryPath(
+  geometry: JsonObject,
+  x: (longitude: number) => number,
+  y: (latitude: number) => number,
+): string {
+  const polygons = geometry.type === "Polygon"
+    ? [geometry.coordinates]
+    : geometry.type === "MultiPolygon"
+      ? geometry.coordinates
+      : [];
+  return (polygons as unknown[]).flatMap((polygon) =>
+    (Array.isArray(polygon) ? polygon : []).map((ring) => ringPath(ring, x, y)))
+    .filter(Boolean)
+    .join(" ");
+}
+
+function ringPath(
+  ring: unknown,
+  x: (longitude: number) => number,
+  y: (latitude: number) => number,
+): string {
+  if (!Array.isArray(ring)) return "";
+  const points: Array<[number, number]> = ring
+    .filter((coordinate) => Array.isArray(coordinate) && Number.isFinite(coordinate[0]) && Number.isFinite(coordinate[1]))
+    .map((coordinate) => [x(Number(coordinate[0])), y(Number(coordinate[1]))] as [number, number]);
+  if (points.length < 3) return "";
+  return `${points.map(([projectedX, projectedY], index) => `${index ? "L" : "M"} ${projectedX.toFixed(2)} ${projectedY.toFixed(2)}`).join(" ")} Z`;
 }
 
 function escapeHtml(value: unknown): string {
