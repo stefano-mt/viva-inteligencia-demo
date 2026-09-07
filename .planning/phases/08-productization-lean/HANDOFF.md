@@ -2,7 +2,9 @@
 
 ## Resultado entregado
 
-La demo dejó de ser un sitio estático acoplado al dataset. La rama implementa un monorepo Node.js 24/TypeScript con frontend Vite, BFF Fastify, dominio puro, contratos compartidos, repositorio de snapshot, dos imágenes OCI y documentación separada para negocio, producto, datos, arquitectura y operación.
+La productización lean está integrada en `main` mediante el PR [#22](https://github.com/stefano-mt/viva-inteligencia-demo/pull/22). El merge `65334e7fb2acbff0ca1fd0e225690c16269a4bf1` pasó CI, verificación independiente, publicación OCI y despliegue Compose de las imágenes inmutables de web y API.
+
+La entrega separa frontend Vite, BFF Fastify, dominio puro, contratos, repositorio de snapshot, herramientas de datos, pruebas y documentación. El navegador ya no recibe el snapshot ni ejecuta reglas comerciales duplicadas.
 
 ## Fuentes de verdad
 
@@ -15,30 +17,33 @@ La demo dejó de ser un sitio estático acoplado al dataset. La rama implementa 
 | Datos | `docs/data/snapshot.md` |
 | Operación | `docs/operations/runbook.md` |
 | Responsables | `CODEOWNERS` y `docs/operations/ownership-map.md` |
-| Instrucciones para agentes | `AGENTS.md` |
-| Release | `docs/operations/release-checklist.md` |
+| Validación humana | `docs/business/human-validation` |
+| Verificación P8-08 | `.planning/phases/08-productization-lean/VERIFICATION.md` |
 
-## Comandos
+## Artefacto que debe desplegarse
 
-```powershell
-npm ci
-npm run data:build
-npm run dev
-npm run verify
-docker compose up --build
-```
+- Web: `ghcr.io/stefano-mt/viva-inteligencia-web:sha-65334e7fb2acbff0ca1fd0e225690c16269a4bf1`
+- API: `ghcr.io/stefano-mt/viva-inteligencia-api:sha-65334e7fb2acbff0ca1fd0e225690c16269a4bf1`
 
-## Decisiones que no deben revertirse accidentalmente
-
-- El snapshot 2.4 es backend-only; no copiarlo a `apps/web/public`.
-- Toda regla comercial reside en `packages/domain`; ni Fastify ni la vista deben duplicarla.
-- `packages/contracts` es la fuente única de DTO, schemas y OpenAPI.
-- La API es pública, de solo lectura y no persiste escenarios ni respuestas.
-- PostgreSQL, autenticación, scraping vivo, CRM y LLM están fuera de esta fase.
-- La etiqueta `demo-static-v1` es el rollback histórico; no reescribir Git para reducir tamaño.
+No mezclar `latest` con tags SHA ni desplegar servicios de revisiones distintas.
 
 ## Próximo operador
 
-Debe publicar `feat/phase-8-productization-lean`, abrir un PR contra `main`, esperar todos los checks y revisar especialmente los jobs de imágenes. Tras el merge, debe desplegar `web` y `api` del mismo SHA y completar la única validación humana final documentada en `docs/business/human-validation`.
+1. Mantener el entorno de referencia disponible en `http://localhost:8080` para la sesión.
+2. Entregar el paquete externo preparado a una persona independiente y ejecutar una sola sesión humana, sin asistencia explicativa.
+3. Incorporar el resultado literal y el veredicto real en el reporte; si todo pasa, preparar el PR documental final. El usuario realiza el merge.
 
-No se debe declarar P8-08 totalmente aceptado hasta completar el CI OCI y esa validación humana.
+## Decisiones protegidas
+
+- El snapshot 2.4 es backend-only.
+- Toda regla comercial reside en `packages/domain`.
+- `packages/contracts` es la fuente única de DTO, schemas y OpenAPI.
+- La API es pública, de solo lectura y no persiste escenarios ni respuestas.
+- PostgreSQL, autenticación, scraping vivo, CRM y LLM quedan fuera de esta fase.
+- `demo-static-v1` es el rollback histórico; no se reescribe el historial Git.
+
+## Estado de cierre
+
+`PASS técnico integral y despliegue Compose verificado; validación humana pendiente`.
+
+No declarar P8-08 como completado ni el MVP como validado por usuarios mientras la rúbrica humana siga pendiente.
