@@ -534,7 +534,9 @@ tbody tr:hover { background: #f7faf8; }
 .agency-coverage > summary::after { content: "+"; display: grid; width: 26px; height: 26px; place-items: center; border-radius: 7px; background: var(--viva-pale); }
 .agency-coverage[open] > summary::after { content: "−"; }
 .agency-coverage > summary:hover { background: var(--viva-pale); }
-.agency-coverage__body { padding: 0 1rem 1rem; }
+.agency-coverage:not([open]) > .agency-coverage__body { display: none; }
+.agency-coverage__body { min-width: 0; max-width: 100%; padding: 0 1rem 1rem; overflow: hidden; }
+.agency-coverage__body > .table-scroll { min-width: 0; max-width: 100%; }
 .agency-coverage td strong, .agency-coverage td small { display: block; }
 .agency-coverage td small { margin-top: .16rem; color: var(--muted); font-size: .67rem; }
 .agency-source-status { display: inline-flex; padding: .23rem .4rem; border-radius: 6px; background: var(--soft); color: var(--muted); font-size: .66rem; font-weight: 800; }
