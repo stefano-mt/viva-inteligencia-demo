@@ -1,6 +1,24 @@
 # Checklist de release
 
-## Antes del merge
+## Baseline integrado en `main` (`web` y `api`)
+
+- [x] La rama partió de `main` y no incluyó archivos locales, logs, capturas ni secretos.
+- [x] `npm ci` completó desde una clonación limpia.
+- [x] `npm run verify` finalizó sin errores.
+- [x] `docker compose config --quiet` validó la composición.
+- [x] CI construyó las imágenes `web` y `api`.
+- [x] El cambio de contrato incluyó pruebas compatibles y documentación OpenAPI.
+- [x] Los cambios de datos conservaron determinismo, privacidad y trazabilidad.
+- [x] `Publish OCI images` publicó ambos artefactos para el mismo SHA.
+- [x] Se registró el SHA inmutable de `web` y `api` sin promover imágenes mezcladas.
+- [x] El entorno respondió `200` en `/health/live` y `/health/ready`.
+- [x] `/api/v1/meta` informó el contrato `2.4.0` y el dataset esperado.
+- [x] El recorrido crítico se ejecutó sin llamadas a hosts externos ni descarga del snapshot.
+- [ ] Se realiza la validación humana final con las plantillas de `docs/business/human-validation`.
+
+## Release actual con `apps/ops`
+
+### Antes del merge
 
 - [ ] La rama parte de `main` y no incluye archivos locales, logs, capturas ni secretos.
 - [ ] `npm ci` completa desde una clonación limpia.
@@ -12,7 +30,7 @@
 - [ ] `DATA_REFRESH_ENABLED` permanece en `false`, salvo que exista un cambio operativo aprobado con `apps/ops` desplegado, secretos rotables, fuentes autorizadas y rollback probado.
 - [ ] Si la release incluye `apps/ops`, su build, tipado y pruebas se ejecutan explícitamente; readiness funciona primero con `DATA_REFRESH_EXECUTE=false` y cero solicitudes de red.
 
-## Después del merge
+### Después del merge
 
 - [ ] El workflow `Publish OCI images` publica los tres artefactos para el mismo SHA.
 - [ ] Se registra el SHA inmutable de `web`, `api` y `ops`; no se promueven imágenes mezcladas.
