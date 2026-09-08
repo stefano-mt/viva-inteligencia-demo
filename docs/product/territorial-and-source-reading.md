@@ -26,3 +26,14 @@ Las fuentes permanecen separadas. `Nexo Inmobiliario` identifica la observación
 La etiqueta `Referencia versionada` significa que la URL y el resultado de matching están en los insumos versionados. Cuando la captura externa no forma parte del snapshot, la interfaz lo declara expresamente. Una red social solo se muestra si existe una observación estructurada de tipo `social_network`; el producto no infiere ni inventa esa cobertura.
 
 Toda discrepancia entre Nexo, documentos Nexo, web propia o una fuente social futura debe conservar ambas observaciones y pasar por las reglas de conflicto y publicación descritas en `docs/data/continuous-ingestion.md`.
+
+## Verificación dentro de la ficha
+
+La capacidad histórica del Inspector se presenta al usuario comercial como “Verificación de datos” dentro de la ficha del proyecto. No constituye una herramienta paralela que el usuario deba consultar por separado.
+
+- Si las fuentes coinciden, la ficha muestra una confirmación resumida.
+- Si difieren, conserva los valores por fuente, explica cuál puede utilizarse y señala la acción pendiente.
+- Si falta evidencia, informa “Dato por validar” sin convertir la ausencia en una negación.
+- Los códigos de expediente, estados internos y metodología detallada quedan en un nivel secundario de auditoría.
+
+La ruta histórica `#inspector` y su endpoint permanecen disponibles por compatibilidad técnica y para usos especializados de calidad de datos.

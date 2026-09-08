@@ -20,6 +20,9 @@ flowchart LR
 flowchart TB
   B[Navegador] -->|:8080| N[Nginx no-root / web]
   N -->|/api y /health| F[Fastify no-root / api]
+  F -->|despacho autenticado| Q[Fastify no-root / ops]
+  Q --> I[ingesta autorizada]
+  I --> T[(staging + manifiesto)]
   F --> C[contracts]
   F --> D[domain]
   F --> R[snapshot repository]
@@ -32,6 +35,7 @@ flowchart TB
 |---|---|---|
 | `apps/web` | DTO públicos, navegación, presentación | snapshot completo, reglas comerciales, filesystem |
 | `apps/api` | HTTP, seguridad, casos de uso | HTML y estado de interfaz |
+| `apps/ops` | ejecución batch, staging, manifiestos y policy gates | navegador, publicación automática, datos sin autorización |
 | `packages/contracts` | schemas, DTO, versiones | datos o frameworks de UI |
 | `packages/domain` | reglas puras y deterministas | DOM, Fastify, archivos, red |
 | `packages/snapshot` | validación, índices y consultas | presentación o decisiones HTTP |

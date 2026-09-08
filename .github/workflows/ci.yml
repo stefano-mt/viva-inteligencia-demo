@@ -52,3 +52,11 @@ jobs:
           tags: viva-inteligencia-web:ci
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/ops.Dockerfile
+          push: false
+          tags: viva-inteligencia-ops:ci
+          cache-from: type=gha,scope=ops
+          cache-to: type=gha,mode=max,scope=ops

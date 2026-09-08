@@ -19,6 +19,8 @@ jobs:
             dockerfile: infra/docker/api.Dockerfile
           - name: web
             dockerfile: infra/docker/web.Dockerfile
+          - name: ops
+            dockerfile: infra/docker/ops.Dockerfile
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3

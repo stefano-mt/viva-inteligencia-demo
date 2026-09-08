@@ -54,4 +54,31 @@ describe("ApiDataProvider", () => {
     await vi.advanceTimersByTimeAsync(25);
     await rejection;
   });
+
+  it("uses the protected refresh contract without exposing the operator key in the payload", async () => {
+    const fetchMock = vi.fn(async (_input: string | URL | Request, _init?: RequestInit) => new Response(JSON.stringify({
+      accepted: true,
+      run: {
+        runId: "refresh-1",
+        state: "queued",
+        requestedAt: "2026-09-08T00:00:00.000Z",
+        completedAt: null,
+        message: "Solicitud aceptada.",
+        published: false,
+      },
+    }), { status: 202, headers: { "content-type": "application/json" } }));
+    globalThis.fetch = fetchMock;
+    const provider = new ApiDataProvider("https://api.test/api/v1", 100);
+    await provider.requestDataRefresh({
+      scope: "active_district",
+      districtIds: ["150122"],
+      channels: ["official_websites"],
+    }, "operator-secret");
+    const firstCall = fetchMock.mock.calls[0];
+    expect(firstCall).toBeDefined();
+    const [url, init] = firstCall!;
+    expect(url).toBe("https://api.test/api/v1/data-refresh");
+    expect(init?.headers).toMatchObject({ "x-data-refresh-key": "operator-secret" });
+    expect(String(init?.body)).not.toContain("operator-secret");
+  });
 });

@@ -62,6 +62,13 @@ try {
   await page.locator("h1").waitFor();
   assert.equal(await page.locator(".brand img").evaluate((image) => image.complete && image.naturalWidth > 0), true, "El logo debe cargar");
   assert.match(await page.locator("h1").innerText(), /lectura comercial/i);
+  await page.getByRole("heading", { name: "Precios y oferta de la zona" }).waitFor();
+  assert.deepEqual(
+    await page.locator(".product-nav .nav-link strong").allTextContents(),
+    ["Panorama", "Proyectos", "Comparar", "Seguimiento", "Decidir", "Recorrido"],
+    "La navegación debe priorizar cinco tareas comerciales y dejar el recorrido como guía opcional",
+  );
+  assert.equal(await page.locator(".expert-nav").count(), 0, "No debe existir un menú paralelo de herramientas técnicas");
   assert.equal(await hasHorizontalOverflow(page), false, "Dashboard 1440×900 no debe desbordar");
   await page.screenshot({ path: path.join(outputDirectory, "dashboard-1440x900.png"), fullPage: true });
 
@@ -81,7 +88,7 @@ try {
   assert.equal(await page.locator("#command-dialog").evaluate((dialog) => dialog.hasAttribute("open")), false);
 
   const routes = [
-    "dashboard", "projects", "inspector", "market", "compare", "trust", "assistant", "activity",
+    "dashboard", "projects", "compare", "assistant", "activity",
     "journey/scale", "journey/geography", "journey/quality", "journey/depth", "journey/movement", "journey/decision",
   ];
   for (const route of routes) {
@@ -91,6 +98,41 @@ try {
     await assertNoUnboundButtons(page, route);
     await assertInteractiveFeedback(page, route);
   }
+
+  const legacyRoutes = [
+    ["market", "dashboard"],
+    ["inspector", "journey/quality"],
+    ["trust", "assistant"],
+  ];
+  for (const [legacyRoute, canonicalRoute] of legacyRoutes) {
+    await page.goto(`${baseUrl}/#${legacyRoute}`, { waitUntil: "networkidle" });
+    await page.waitForURL(new RegExp(`#${canonicalRoute}$`, "u"));
+    await page.locator("h1").waitFor();
+  }
+
+  await page.goto(`${baseUrl}/#journey/quality`, { waitUntil: "networkidle" });
+  const qualityVerificationCase = page.locator("#quality-verification-case");
+  await qualityVerificationCase.waitFor();
+  const qualityCases = await qualityVerificationCase.locator("option").evaluateAll((options) =>
+    options.map((option) => ({ value: option.value, label: option.textContent?.trim() ?? "" })).filter(({ value }) => value),
+  );
+  assert.ok(qualityCases.length >= 2, "La guía de Calidad debe permitir revisar múltiples ejemplos");
+  await page.locator(".quality-verification-result").waitFor();
+  const firstQualityResult = await page.locator(".quality-verification-result").innerText();
+  const currentQualityCase = await qualityVerificationCase.inputValue();
+  const alternateQualityCase = qualityCases.find(({ value }) => value !== currentQualityCase);
+  assert.ok(alternateQualityCase, "La guía debe ofrecer un ejemplo alternativo de verificación");
+  await qualityVerificationCase.selectOption(alternateQualityCase.value);
+  await page.locator(".busy").waitFor({ state: "detached" });
+  await page.waitForFunction(
+    (previousText) => document.querySelector(".quality-verification-result")?.textContent?.trim() !== previousText.trim(),
+    firstQualityResult,
+  );
+  assert.match(
+    await page.locator(".quality-verification-result").innerText(),
+    /Listo para usar|Puede utilizarse|Revisar antes de usar/i,
+    "Cambiar el ejemplo debe actualizar la revisión dentro de la etapa Calidad",
+  );
 
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto(`${baseUrl}/#projects`, { waitUntil: "networkidle" });
@@ -122,6 +164,7 @@ try {
   assert.match(await page.locator("#comparison-findings-title").innerText(), /Qué cambia entre los proyectos/i);
   assert.ok(await page.locator(".comparison-data-row").count() >= 9, "La matriz debe mostrar todos los grupos de datos disponibles");
   assert.doesNotMatch(await page.locator("#main-content").innerText(), /\b(observed|announced|excluded|unknown)\b/u, "La comparación no debe exponer estados técnicos");
+  assert.doesNotMatch(await page.locator("#main-content").innerText(), /mínimos de proyecto|vínculo de oferta|pairing|benchmark|exclusion_reason/iu, "La comparación no debe repetir explicaciones internas en cada celda");
   await page.screenshot({ path: path.join(outputDirectory, "comparison-1440x900.png"), fullPage: true });
   await page.locator(".comparison-project-card").first().getByRole("button", { name: "Abrir ficha" }).click();
   await page.locator("#project-detail-title").waitFor();
@@ -147,11 +190,14 @@ try {
   assert.match(await page.locator(".source-warning").innerText(), /precios publicados/i);
   assert.deepEqual(
     await page.locator("#project-summary-title, #project-product-title, #project-features-title, #project-sources-title").allTextContents(),
-    ["Resumen comercial", "Producto y ubicación", "Información anunciada", "Fuentes y actualizaciones"],
+    ["Resumen comercial", "Producto y ubicación", "Información anunciada", "Verificación de datos"],
     "La ficha debe seguir una jerarquía comercial predecible",
   );
+  assert.match(await page.locator("#project-sources-title").innerText(), /Verificación de datos/i);
   assert.ok(await page.locator(".detail-symbol").count() >= 10, "La ficha debe identificar visualmente sus categorías");
   assert.ok(await page.locator(".source-list article").count() > 0, "La ficha debe declarar al menos una fuente");
+  assert.equal(await page.locator(".source-matrix tr").count(), 9, "La ficha debe separar ocho campos entre Nexo, web y red oficial");
+  assert.equal(await page.locator("#project-verification-case").count(), 0, "La ficha no debe mezclar ejemplos de otros proyectos");
   assert.equal(await hasHorizontalOverflow(page), false, "La ficha 1440×900 no debe desbordar");
   const closeButton = page.getByRole("button", { name: "Cerrar ficha" });
   assert.equal(await closeButton.evaluate((button) => {
@@ -178,11 +224,13 @@ try {
   await page.getByRole("button", { name: "Aplicar filtros" }).click();
   await page.locator("[data-project-detail]").first().click();
   await page.locator("#project-detail-title").waitFor();
-  assert.match(await page.locator(".source-coverage").innerText(), /Nexo Inmobiliario.*Web propia vinculada/is, "Una coincidencia verificada debe declarar Nexo y web propia por separado");
   assert.equal(await page.locator(".source-type--agency_website").count(), 1, "La ficha debe identificar visualmente la web propia");
+  const sourceDetails = page.locator(".source-detail-disclosure").filter({ has: page.getByText("Ver fuentes y fechas") });
+  await sourceDetails.getByText("Ver fuentes y fechas").click();
   assert.match(await page.locator(".source-type--agency_website").innerText(), /Web propia/i);
   assert.match(await page.locator(".source-type--agency_website").locator("xpath=ancestor::article").locator(".source-observed").innerText(), /Los Tucanes.*70 m².*Preventa.*parrilla/is, "La fuente propia debe mostrar los campos realmente recopilados de su web");
-  assert.match(await page.locator(".source-list").innerText(), /captura externa no forma parte del snapshot/i, "La cobertura web debe declarar el límite de su evidencia");
+  assert.match(await sourceDetails.locator(".source-list").innerText(), /Página del proyecto revisada/i, "La cobertura web debe declarar el alcance real de la vinculación");
+  assert.match(await page.locator(".source-matrix").innerText(), /Nexo Inmobiliario.*Web oficial.*Red oficial.*Resultado/is, "La matriz debe diferenciar cada canal de datos");
   await page.screenshot({ path: path.join(outputDirectory, "multisource-detail-1440x900.png"), fullPage: true });
   await page.getByRole("button", { name: "Cerrar ficha" }).click();
 
@@ -203,12 +251,18 @@ try {
   await page.screenshot({ path: path.join(outputDirectory, "activity-1440x900.png"), fullPage: true });
 
   await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
+  assert.match(await page.locator(".source-channel-chart").innerText(), /Nexo Inmobiliario.*Web oficial con datos.*Redes oficiales/is, "El tablero debe mostrar cobertura por canal");
+  assert.equal(await page.locator(".price-band__median").count(), 1, "El tablero debe mostrar la mediana de precios publicados");
+  await page.getByRole("button", { name: "Actualizar datos" }).click();
+  await page.locator("#data-refresh-dialog[open]").waitFor();
+  assert.match(await page.locator("#data-refresh-dialog").innerText(), /no está disponible.*accesos y permisos/is, "Sin configuración operativa la actualización debe fallar cerrada");
+  await page.getByRole("button", { name: "Entendido" }).click();
   assert.ok(await page.locator("path.district-boundary").count() === 1, "El mapa debe representar el contorno distrital");
-  assert.equal(await page.locator(".map-zone").count(), 4, "El mapa debe dividir el distrito en cuatro zonas analíticas internas");
+  assert.equal(await page.locator(".map-zone").count(), 4, "El mapa debe dividir el distrito en cuatro zonas de comparación");
   assert.equal(await page.locator(".zone-divider").count(), 2, "Las medianas geográficas deben dividir las cuatro zonas");
   assert.equal(await page.locator(".zone-legend li").count(), 4, "La leyenda debe explicar las cuatro zonas");
-  assert.match(await page.locator(".map-provenance").innerText(), /RENLIM/i);
-  assert.match(await page.locator(".map-provenance").innerText(), /no son.*oficiales/i);
+  assert.match(await page.locator(".map-provenance").innerText(), /no representan límites urbanos oficiales/i);
+  assert.match(await page.locator(".map-provenance").innerText(), /contorno distrital es referencial/i);
   await page.locator("[data-map-project]").first().click();
   await page.locator(".map-project-panel--selected").waitFor();
   assert.match(await page.locator(".map-project-panel--selected").innerText(), /Precio publicado.*Área total.*Dirección/is, "El punto debe abrir un resumen comercial al lado del mapa");
@@ -223,19 +277,92 @@ try {
   await page.getByRole("button", { name: "Mapa del distrito" }).click();
 
   await page.evaluate(() => { document.documentElement.style.zoom = "2"; });
-  assert.equal(await hasHorizontalOverflow(page), false, "El dashboard debe conservar reflow a zoom 200%");
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const dashboardZoomOverflow = await horizontalOverflowReport(page);
+  assert.equal(
+    dashboardZoomOverflow.overflow,
+    false,
+    `El dashboard debe conservar reflow a zoom 200%: ${JSON.stringify(dashboardZoomOverflow)}`,
+  );
   await page.screenshot({ path: path.join(outputDirectory, "dashboard-zoom-200.png"), fullPage: true });
   await page.evaluate(() => { document.documentElement.style.zoom = ""; });
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${baseUrl}/#assistant`, { waitUntil: "networkidle" });
   await page.locator("h1").waitFor();
+  assert.equal(await page.locator("[data-assistant-category]").count(), 4, "Decidir debe organizar las preguntas por cuatro decisiones comerciales");
+  assert.deepEqual(
+    await page.locator("[data-assistant-category]").allTextContents(),
+    ["↗Mercado y precio", "◇Competencia", "↕Movimientos", "✓Preparar argumento"],
+    "Las categorías deben usar lenguaje del equipo comercial",
+  );
+  assert.equal(await page.locator("[data-assistant-intent]").count(), 3, "Cada tema debe mostrar una selección breve de preguntas");
+  await page.getByRole("heading", { name: "Antes de compartir" }).waitFor();
+  const questionPanelBox = await page.locator(".assistant-question-panel").boundingBox();
+  const readinessBox = await page.locator(".decision-readiness").boundingBox();
+  assert.ok(questionPanelBox && readinessBox && questionPanelBox.y < readinessBox.y, "La pregunta debe aparecer antes que las reglas de uso");
+  const safeguards = page.locator(".decision-safeguards");
+  await safeguards.waitFor();
+  await safeguards.locator("summary").click();
+  const safeguardsText = await safeguards.innerText();
+  assert.match(
+    safeguardsText,
+    /anunciad[oa]s?.*(?:confirmar|confirmad[oa]s?)/is,
+    "Antes de compartir debe distinguir lo anunciado de lo confirmado",
+  );
+  assert.match(
+    safeguardsText,
+    /datos personales|privacidad/is,
+    "Antes de compartir debe recordar la protección de datos personales",
+  );
+  assert.match(
+    safeguardsText,
+    /(?:no (?:permite|podemos) afirmar|no afirmar)/i,
+    "Antes de compartir debe impedir inferir demanda, causa o intención",
+  );
+  assert.match(safeguardsText, /demanda/i, "La salvaguarda debe cubrir inferencias sobre demanda");
+  assert.match(safeguardsText, /causa/i, "La salvaguarda debe cubrir inferencias sobre causas");
+  assert.match(safeguardsText, /intención/i, "La salvaguarda debe cubrir inferencias sobre intención");
+  assert.doesNotMatch(
+    await page.locator("#main-content").innerText(),
+    /señal certificada|evidencia autorizada|atributos documentados|checklist/i,
+    "Decidir debe hablar en lenguaje comercial",
+  );
   assert.equal(await hasHorizontalOverflow(page), false, "Asistente 390×844 no debe desbordar");
   assert.equal(await page.locator(".nav-scrim").isVisible(), false, "La capa del menú debe iniciar oculta");
+  await page.getByRole("button", { name: /Competencia/ }).click();
+  assert.equal(await page.locator("[data-assistant-intent]:disabled").count(), 2, "La comparación debe pedir una selección previa");
+  assert.match(await page.locator(".assistant-selection-note").innerText(), /selecciona entre dos y tres proyectos/i);
+  await page.getByRole("button", { name: /Mercado y precio/ }).click();
   await page.locator("[data-assistant-intent]").first().click();
   assert.ok((await page.locator("#assistant-input").inputValue()).length > 0, "El atajo debe completar la pregunta");
-  await page.getByRole("button", { name: "Generar respuesta" }).click();
+  assert.match(await page.locator("#assistant-character-count").innerText(), /\d+ \/ 500/u, "El campo debe declarar el límite real del contrato");
+  await page.locator("#assistant-input").pressSequentially(" adicional");
+  assert.equal(await page.locator("#assistant-intent").inputValue(), "", "Editar una pregunta sugerida debe limpiar su clasificación previa");
+  await page.locator("[data-assistant-intent]").first().click();
+  await page.getByRole("button", { name: "Preparar respuesta" }).click();
   await page.locator(".answer").waitFor();
+  assert.equal(await page.locator(".answer-facts article").count(), 3, "La respuesta debe mostrar hasta tres datos clave del contrato");
+  assert.equal(await page.locator(".answer__action").count(), 1, "El próximo paso debe ser una acción navegable");
+  assert.match(await page.locator(".answer__sources summary").innerText(), /fuentes y fecha/i, "Las fuentes deben quedar disponibles bajo demanda");
+  assert.doesNotMatch(
+    await page.locator(".answer").innerText(),
+    /benchmark|pairing|dataset|trazabilidad|cocientes orientativos|expediente activo|evidencia autorizada|señal elegible/iu,
+    "La respuesta generada debe conservar lenguaje comercial",
+  );
+  await page.getByRole("button", { name: /Movimientos/ }).click();
+  await page.locator("[data-assistant-intent]").nth(1).click();
+  await page.getByRole("button", { name: "Preparar respuesta" }).click();
+  await page.locator(".answer").waitFor();
+  assert.equal(await page.locator(".answer-facts article").count(), 1, "La prioridad debe mostrar el competidor que conviene revisar");
+  assert.equal(await page.locator('.answer__action[href="#activity"]').count(), 1, "La respuesta de movimientos debe llevar a Seguimiento");
+  assert.doesNotMatch(await page.locator(".answer").innerText(), /señal elegible|calidad-primero|motor histórico/iu, "La prioridad no debe exponer criterios internos");
+  await page.getByRole("button", { name: /Preparar argumento/ }).click();
+  await page.locator("[data-assistant-intent]").first().click();
+  await page.getByRole("button", { name: "Preparar respuesta" }).click();
+  await page.locator(".answer").waitFor();
+  assert.match(await page.locator(".answer").innerText(), /zonas.*cambios publicados.*comparaciones/is, "El asistente debe explicar su alcance en lenguaje comercial");
+  assert.doesNotMatch(await page.locator(".answer").innerText(), /dataset|trazabilidad|evidencia autorizada/iu, "El alcance no debe exponer arquitectura técnica");
   await page.getByRole("button", { name: "Editar escenario" }).click();
   await page.locator("#scenario-dialog[open]").waitFor();
   await page.getByRole("button", { name: "Aplicar escenario" }).click();
@@ -301,7 +428,7 @@ try {
   });
   await incompatiblePage.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
   await incompatiblePage.locator(".startup-state--error").waitFor();
-  assert.match(await incompatiblePage.locator("main").innerText(), /contrato incompatible/i);
+  assert.match(await incompatiblePage.locator("main").innerText(), /no son compatibles/i);
   await incompatiblePage.close();
 
   const emptyPage = await browser.newPage({ viewport: { width: 1280, height: 720 } });
@@ -337,6 +464,34 @@ async function hasHorizontalOverflow(targetPage) {
   );
 }
 
+async function horizontalOverflowReport(targetPage) {
+  return targetPage.evaluate(() => {
+    const root = document.documentElement;
+    const viewportWidth = root.clientWidth;
+    const offenders = [...document.body.querySelectorAll("*")]
+      .filter((element) => element instanceof HTMLElement || element instanceof SVGElement)
+      .map((element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          element: `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ""}${element.classList.length ? `.${[...element.classList].join(".")}` : ""}`,
+          left: Math.round(rect.left),
+          right: Math.round(rect.right),
+          width: Math.round(rect.width),
+          scrollWidth: element instanceof HTMLElement ? element.scrollWidth : null,
+        };
+      })
+      .filter(({ left, right }) => left < -1 || right > viewportWidth + 1)
+      .sort((left, right) => right.right - left.right)
+      .slice(0, 12);
+    return {
+      overflow: root.scrollWidth > viewportWidth + 1,
+      viewportWidth,
+      scrollWidth: root.scrollWidth,
+      offenders,
+    };
+  });
+}
+
 async function assertNoUnboundButtons(targetPage, route) {
   const buttons = await targetPage.locator("button:visible:not(:disabled)").evaluateAll((elements) =>
     elements
@@ -349,6 +504,7 @@ async function assertNoUnboundButtons(targetPage, route) {
           "projectDetail",
           "projectPage",
           "projectRemove",
+          "assistantCategory",
           "assistantIntent",
         ].some((key) => key in button.dataset);
       })

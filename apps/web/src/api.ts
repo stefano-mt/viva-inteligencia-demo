@@ -1,11 +1,13 @@
 import type {
   Bootstrap,
+  DataRefreshStatus,
   DistrictGeography,
   JsonObject,
   Meta,
   Page,
   ProjectSummary,
   Scenario,
+  SourceCoverage,
   WorkspaceEvaluation,
 } from "./types.js";
 
@@ -29,6 +31,13 @@ export interface DataProvider {
   projects(parameters?: Record<string, string | number | string[] | undefined>): Promise<Page<ProjectSummary>>;
   project(projectId: string): Promise<JsonObject>;
   districtGeography(districtId: string): Promise<DistrictGeography>;
+  sourceCoverage(districtId?: string): Promise<SourceCoverage>;
+  dataRefreshStatus(): Promise<DataRefreshStatus>;
+  requestDataRefresh(payload: {
+    scope: "active_district" | "demo_districts";
+    districtIds?: string[];
+    channels: Array<"nexo_authorized_feed" | "official_websites" | "social_official_apis">;
+  }, operatorKey: string): Promise<{ accepted: true; run: DataRefreshStatus["run"] }>;
   inspector(routeSlug: string): Promise<JsonObject>;
   comparison(scenario: Scenario, projectIds: string[], includeTargetScenario?: boolean): Promise<JsonObject>;
   history(parameters?: Record<string, string | number | string[] | undefined>): Promise<Page<JsonObject>>;
@@ -66,6 +75,23 @@ export class ApiDataProvider implements DataProvider {
   }
   districtGeography(districtId: string) {
     return this.#request<DistrictGeography>(`/geography/districts/${encodeURIComponent(districtId)}`);
+  }
+  sourceCoverage(districtId?: string) {
+    return this.#request<SourceCoverage>(`/source-coverage${queryString({ district: districtId })}`);
+  }
+  dataRefreshStatus() {
+    return this.#request<DataRefreshStatus>("/data-refresh/status");
+  }
+  requestDataRefresh(payload: {
+    scope: "active_district" | "demo_districts";
+    districtIds?: string[];
+    channels: Array<"nexo_authorized_feed" | "official_websites" | "social_official_apis">;
+  }, operatorKey: string) {
+    return this.#request<{ accepted: true; run: DataRefreshStatus["run"] }>("/data-refresh", {
+      method: "POST",
+      headers: { "x-data-refresh-key": operatorKey },
+      body: JSON.stringify(payload),
+    });
   }
   inspector(routeSlug: string) {
     return this.#request<JsonObject>(`/inspector/cases/${encodeURIComponent(routeSlug)}`);
