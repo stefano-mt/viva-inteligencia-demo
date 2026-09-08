@@ -277,7 +277,13 @@ try {
   await page.getByRole("button", { name: "Mapa del distrito" }).click();
 
   await page.evaluate(() => { document.documentElement.style.zoom = "2"; });
-  assert.equal(await hasHorizontalOverflow(page), false, "El dashboard debe conservar reflow a zoom 200%");
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  const dashboardZoomOverflow = await horizontalOverflowReport(page);
+  assert.equal(
+    dashboardZoomOverflow.overflow,
+    false,
+    `El dashboard debe conservar reflow a zoom 200%: ${JSON.stringify(dashboardZoomOverflow)}`,
+  );
   await page.screenshot({ path: path.join(outputDirectory, "dashboard-zoom-200.png"), fullPage: true });
   await page.evaluate(() => { document.documentElement.style.zoom = ""; });
 
@@ -456,6 +462,34 @@ async function hasHorizontalOverflow(targetPage) {
   return targetPage.evaluate(() =>
     document.documentElement.scrollWidth > document.documentElement.clientWidth + 1
   );
+}
+
+async function horizontalOverflowReport(targetPage) {
+  return targetPage.evaluate(() => {
+    const root = document.documentElement;
+    const viewportWidth = root.clientWidth;
+    const offenders = [...document.body.querySelectorAll("*")]
+      .filter((element) => element instanceof HTMLElement || element instanceof SVGElement)
+      .map((element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          element: `${element.tagName.toLowerCase()}${element.id ? `#${element.id}` : ""}${element.classList.length ? `.${[...element.classList].join(".")}` : ""}`,
+          left: Math.round(rect.left),
+          right: Math.round(rect.right),
+          width: Math.round(rect.width),
+          scrollWidth: element instanceof HTMLElement ? element.scrollWidth : null,
+        };
+      })
+      .filter(({ left, right }) => left < -1 || right > viewportWidth + 1)
+      .sort((left, right) => right.right - left.right)
+      .slice(0, 12);
+    return {
+      overflow: root.scrollWidth > viewportWidth + 1,
+      viewportWidth,
+      scrollWidth: root.scrollWidth,
+      offenders,
+    };
+  });
 }
 
 async function assertNoUnboundButtons(targetPage, route) {
