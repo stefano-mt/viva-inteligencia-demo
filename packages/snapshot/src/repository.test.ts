@@ -22,9 +22,38 @@ describe("snapshot repository", () => {
     expect(geography?.district).toMatchObject({ id: "150122", name: "Miraflores" });
     expect(geography?.geometry).toMatchObject({ type: "Feature" });
     expect(geography?.provenance).toMatchObject({ status: "referential", officialBoundaryRegistry: "RENLIM" });
+    expect(geography?.analysisZones).toMatchObject({
+      status: "internal_analytic",
+      method: "district_valid_point_coordinate_medians_v1",
+    });
+    expect((geography?.analysisZones as { zones: unknown[] } | undefined)?.zones).toHaveLength(4);
     const detail = repository.project(page.items[0]!.id);
-    expect(detail?.traceability.sources).toHaveLength(1);
+    expect((detail?.traceability.sources as unknown[] | undefined)?.length).toBeGreaterThanOrEqual(1);
     expect(Array.isArray(detail?.project.amenities)).toBe(true);
+  });
+
+  it("exposes only verified own-website matches as a separate source", async () => {
+    const loaded = await loadAndValidateSnapshot({ snapshotPath, schemaPath });
+    const repository = new InMemorySnapshotRepository(loaded);
+    const detail = repository.project("3863");
+    expect(detail?.traceability).toMatchObject({ hasOwnWebsite: true, hasSocialSource: false });
+    expect(detail?.traceability.sourceTypes).toEqual(expect.arrayContaining(["portal", "agency_website"]));
+    expect(detail?.traceability.sources).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        type: "agency_website",
+        legalStatus: "referenced_for_demo",
+        evidenceStatus: "versioned_reference",
+        sourceUrl: "https://rosiam.com/proyectos-venta/los-tucanes",
+        matchClass: "match_high",
+        observedData: expect.objectContaining({
+          projectName: "Los Tucanes",
+          district: "San Isidro",
+          totalArea: "70 m²",
+          unitStatus: "Preventa",
+          amenities: ["parrilla", "terraza"],
+        }),
+      }),
+    ]));
   });
 
   it("fails closed on a checksum mismatch", async () => {

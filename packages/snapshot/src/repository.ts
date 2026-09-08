@@ -30,6 +30,8 @@ export class InMemorySnapshotRepository implements DataRepository {
   readonly #observationsByEntity = new Map<string, JsonObject[]>();
   readonly #factsByEntity = new Map<string, JsonObject[]>();
   readonly #sourceById = new Map<string, JsonObject>();
+  readonly #verifiedWebByProject = new Map<string, JsonObject[]>();
+  readonly #webObservationsByUrl = new Map<string, JsonObject[]>();
 
   constructor(loaded: LoadedSnapshot) {
     this.#data = loaded.data;
@@ -54,6 +56,21 @@ export class InMemorySnapshotRepository implements DataRepository {
     }
     for (const source of (this.#data.model.sources as JsonObject[] | undefined) ?? []) {
       this.#sourceById.set(String(source.source_id ?? ""), source);
+    }
+    const matchingRows = (((this.#data.matching as JsonObject | undefined)?.rows as JsonObject[] | undefined) ?? []);
+    for (const match of matchingRows) {
+      if (
+        match.match_class !== "match_high" ||
+        match.requires_human_review !== false ||
+        !match.nexo_project_id ||
+        !match.web_project_url
+      ) continue;
+      append(this.#verifiedWebByProject, `project:nexo-${String(match.nexo_project_id)}`, match);
+    }
+    const webObservations = (((this.#data.matching as JsonObject | undefined)?.web_observations as JsonObject[] | undefined) ?? []);
+    for (const observation of webObservations) {
+      if (!observation.source_url) continue;
+      append(this.#webObservationsByUrl, String(observation.source_url), observation);
     }
   }
 
@@ -161,7 +178,7 @@ export class InMemorySnapshotRepository implements DataRepository {
     const observations = this.#observationsByEntity.get(canonicalId) ?? [];
     const facts = this.#factsByEntity.get(canonicalId) ?? [];
     const observationById = new Map(observations.map((item) => [String(item.observation_id ?? ""), item]));
-    const traceSources = observations.map((observation) => {
+    const traceSources: JsonObject[] = observations.map((observation) => {
       const source = this.#sourceById.get(String(observation.source_id ?? ""));
       return {
         id: observation.source_id,
@@ -173,9 +190,12 @@ export class InMemorySnapshotRepository implements DataRepository {
         sourceUrl: observation.source_url ?? null,
         extractionMethod: observation.extraction_method ?? null,
         evidenceStatus: observation.evidence_status ?? null,
+        observedData: observation.source_id === "source:nexo" && legacy
+          ? sourceObservationFromLegacy(legacy)
+          : null,
       };
     });
-    if (!traceSources.length && legacy) {
+    if (!traceSources.some((item) => item.id === "source:nexo") && legacy) {
       const source = this.#sourceById.get("source:nexo");
       traceSources.push({
         id: "source:nexo",
@@ -187,8 +207,34 @@ export class InMemorySnapshotRepository implements DataRepository {
         sourceUrl: legacy.source_url ?? null,
         extractionMethod: legacy.extraction_method ?? null,
         evidenceStatus: "unavailable",
+        observedData: sourceObservationFromLegacy(legacy),
       });
     }
+    for (const match of this.#verifiedWebByProject.get(canonicalId) ?? []) {
+      const domain = String(match.domain ?? new URL(String(match.web_project_url)).hostname).replace(/^www\./u, "");
+      const webObservation = latestWebObservation(
+        this.#webObservationsByUrl.get(String(match.web_project_url)) ?? [],
+      );
+      traceSources.push({
+        id: `source:web:${domain}`,
+        name: `Web propia de ${agency?.canonical_name ?? match.agency_name ?? "la inmobiliaria"}`,
+        type: "agency_website",
+        legalStatus: "referenced_for_demo",
+        accessMode: "versioned_public_reference",
+        capturedAt: capturedAtFromRunId(String(match.run_id ?? "")),
+        sourceUrl: String(match.web_project_url),
+        extractionMethod: "versioned_project_match",
+        evidenceStatus: "versioned_reference",
+        matchScore: match.match_score,
+        matchClass: match.match_class,
+        matchedProjectName: match.web_project_name,
+        observedData: webObservation ? sourceObservationFromWeb(webObservation) : null,
+      });
+    }
+    const uniqueTraceSources = [...new Map(traceSources.map((item) => [
+      `${String(item.id)}|${String(item.sourceUrl ?? "")}`,
+      item,
+    ])).values()];
     return {
       project: {
         ...(legacy ? toSummary(legacy) : {}),
@@ -209,9 +255,12 @@ export class InMemorySnapshotRepository implements DataRepository {
       traceability: {
         observationIds: observations.map((item) => item.observation_id),
         factIds: facts.map((item) => item.fact_id),
-        sourceCount: new Set(traceSources.map((item) => item.id)).size,
+        sourceCount: new Set(uniqueTraceSources.map((item) => item.id)).size,
+        sourceTypes: [...new Set(uniqueTraceSources.map((item) => item.type).filter(Boolean))],
+        hasOwnWebsite: uniqueTraceSources.some((item) => item.type === "agency_website"),
+        hasSocialSource: uniqueTraceSources.some((item) => item.type === "social_network"),
         lastSeenAt: model?.last_seen_at ?? legacy?.captured_at ?? null,
-        sources: traceSources,
+        sources: uniqueTraceSources,
         facts: facts.map((fact) => ({
           id: fact.fact_id,
           fieldName: fact.field_name,
@@ -242,6 +291,19 @@ export class InMemorySnapshotRepository implements DataRepository {
         name: String(district.district_name ?? district.source_name ?? ""),
       },
       geometry: structuredClone(feature),
+      analysisZones: {
+        status: "internal_analytic",
+        method: "district_valid_point_coordinate_medians_v1",
+        version: "analytic-zones-v1",
+        medianLatitude: Number(district.median_latitude),
+        medianLongitude: Number(district.median_longitude),
+        notice: "Las cuatro zonas son una segmentación analítica interna por medianas de coordenadas; no son límites oficiales ni zonificación urbana.",
+        zones: ((district.quadrants as JsonObject[] | undefined) ?? []).map((zone) => ({
+          id: String(zone.quadrant_id),
+          label: String(zone.label),
+          projectCount: ((zone.authoritative_project_ids as unknown[] | undefined) ?? []).length,
+        })),
+      },
       provenance: {
         source: "OpenStreetMap contributors",
         sourceId: this.#data.geography.source_id,
@@ -280,6 +342,56 @@ export class InMemorySnapshotRepository implements DataRepository {
   snapshot(): SnapshotData {
     return this.#data;
   }
+}
+
+function capturedAtFromRunId(runId: string): string | null {
+  const match = runId.match(/_(\d{4}-\d{2}-\d{2})T(\d{2})-(\d{2})-(\d{2})-(\d{3})Z$/u);
+  return match ? `${match[1]}T${match[2]}:${match[3]}:${match[4]}.${match[5]}Z` : null;
+}
+
+function latestWebObservation(observations: JsonObject[]): JsonObject | null {
+  return [...observations].sort((left, right) =>
+    String(right.captured_at ?? "").localeCompare(String(left.captured_at ?? "")))[0] ?? null;
+}
+
+function sourceObservationFromLegacy(project: JsonObject): JsonObject {
+  return {
+    projectName: project.project_name ?? null,
+    district: project.district ?? null,
+    address: project.address ?? null,
+    typology: project.typology ?? null,
+    bedrooms: project.bedrooms ?? null,
+    totalArea: project.total_area ?? project.total_area_min ?? null,
+    unitStatus: project.unit_status ?? project.project_phase ?? null,
+    unitCount: project.unit_count ?? null,
+    listPrice: project.list_price_avg ?? project.price_min ?? null,
+    currency: project.currency ?? null,
+    deliveryDate: project.delivery_date ?? null,
+    description: project.project_description ?? null,
+    amenities: project.amenities ?? [],
+    financingBanks: project.financing_banks ?? [],
+  };
+}
+
+function sourceObservationFromWeb(observation: JsonObject): JsonObject {
+  return {
+    projectName: observation.project_name ?? null,
+    district: observation.district ?? null,
+    address: observation.address ?? null,
+    typology: observation.typology ?? null,
+    bedrooms: observation.bedrooms ?? null,
+    totalArea: observation.total_area ?? null,
+    unitStatus: observation.unit_status ?? null,
+    unitCount: observation.unit_count ?? null,
+    listPrice: observation.list_price_avg ?? null,
+    currency: observation.currency ?? null,
+    deliveryDate: observation.delivery_date ?? observation.delivery_year ?? null,
+    description: observation.description ?? null,
+    amenities: observation.amenities ?? [],
+    financingBanks: observation.financing_banks ?? [],
+    fieldConfidence: observation.field_confidence ?? null,
+    evidenceAvailable: observation.evidence_available === true,
+  };
 }
 
 function append(map: Map<string, JsonObject[]>, key: string, value: JsonObject): void {

@@ -120,6 +120,19 @@ export const DistrictGeographyResponseSchema = Type.Intersect([
   Type.Object({
     district: Type.Object({ id: Type.String(), name: Type.String() }),
     geometry: Type.Record(Type.String(), Type.Unknown()),
+    analysisZones: Type.Object({
+      status: Type.Literal("internal_analytic"),
+      method: Type.Literal("district_valid_point_coordinate_medians_v1"),
+      version: Type.String(),
+      medianLatitude: Type.Number(),
+      medianLongitude: Type.Number(),
+      notice: Type.String(),
+      zones: Type.Array(Type.Object({
+        id: Type.String(),
+        label: Type.String(),
+        projectCount: Type.Integer({ minimum: 0 }),
+      })),
+    }),
     provenance: Type.Object({
       source: Type.String(),
       sourceId: Type.String(),

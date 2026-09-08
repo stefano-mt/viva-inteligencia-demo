@@ -7,6 +7,7 @@
 3. `product/product-contract.md`: capacidades y límites.
 4. `product/monitoring-panel.md`: lectura y límites del seguimiento comercial.
 5. `product/project-comparison-flow.md`: selección, fichas y lectura del comparador.
+6. `product/territorial-and-source-reading.md`: zonas internas, mapas y trazabilidad multifuente.
 
 ## Si perteneces al equipo técnico
 
