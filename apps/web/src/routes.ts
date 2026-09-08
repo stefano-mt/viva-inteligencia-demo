@@ -12,16 +12,19 @@ export const JOURNEY_STAGES = [
 export const MODULES = new Set([
   "dashboard",
   "projects",
-  "inspector",
-  "market",
   "compare",
-  "trust",
   "assistant",
   "activity",
 ]);
 
+const LEGACY_MODULE_ALIASES: Record<string, string> = {
+  market: "dashboard",
+  trust: "assistant",
+};
+
 export function parseRoute(hash = window.location.hash): Route {
   const value = hash.replace(/^#/u, "");
+  if (value === "inspector") return { kind: "journey", id: "quality" };
   if (value.startsWith("journey/")) {
     const requested = value.split("/")[1] ?? "scale";
     return {
@@ -29,7 +32,8 @@ export function parseRoute(hash = window.location.hash): Route {
       id: JOURNEY_STAGES.some(({ id }) => id === requested) ? requested : "scale",
     };
   }
-  return { kind: "module", id: MODULES.has(value) ? value : "dashboard" };
+  const moduleId = LEGACY_MODULE_ALIASES[value] ?? value;
+  return { kind: "module", id: MODULES.has(moduleId) ? moduleId : "dashboard" };
 }
 
 export function routeHash(route: Route): string {

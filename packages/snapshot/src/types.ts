@@ -40,6 +40,7 @@ export interface DataRepository {
   projects(query?: ProjectQuery): Page<ProjectSummary>;
   project(projectId: string): { project: JsonObject; traceability: JsonObject } | null;
   districtGeography(districtId: string): JsonObject | null;
+  sourceCoverage(districtId?: string): JsonObject;
   history(query?: ProjectQuery): Page<JsonObject>;
   snapshot(): SnapshotData;
 }

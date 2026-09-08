@@ -315,6 +315,127 @@ export class InMemorySnapshotRepository implements DataRepository {
     };
   }
 
+  sourceCoverage(districtId?: string): JsonObject {
+    const district = districtId
+      ? (this.#data.geography.districts as JsonObject[]).find((item) =>
+        [item.district_id, item.district_name, item.source_name]
+          .some((value) => normalize(value) === normalize(districtId)))
+      : null;
+    const districtName = district
+      ? String(district.district_name ?? district.source_name ?? "")
+      : null;
+    const projects = this.#data.projects.filter((project) =>
+      !districtName || normalize(project.district) === normalize(districtName));
+    const agencyRows = new Map<string, {
+      id: string;
+      name: string;
+      projectCount: number;
+      officialWebLinkedProjects: number;
+      officialWebObservedProjects: number;
+      socialProjects: number;
+    }>();
+    let officialWebLinkedProjects = 0;
+    let officialWebObservedProjects = 0;
+    let socialProjects = 0;
+    const capturedAtValues: string[] = [];
+    const linkedCapturedAtValues: string[] = [];
+    const observedCapturedAtValues: string[] = [];
+    const socialCapturedAtValues: string[] = [];
+
+    for (const project of projects) {
+      const canonicalId = `project:nexo-${String(project.id ?? "")}`;
+      const model = this.#modelById.get(canonicalId);
+      const agency = model ? this.#agencyById.get(String(model.agency_id ?? "")) : null;
+      const agencyId = String(agency?.agency_id ?? model?.agency_id ?? `agency:legacy:${normalize(project.agency_name)}`);
+      const agencyName = String(agency?.canonical_name ?? project.agency_name ?? "Inmobiliaria no informada");
+      const row = agencyRows.get(agencyId) ?? {
+        id: agencyId,
+        name: agencyName,
+        projectCount: 0,
+        officialWebLinkedProjects: 0,
+        officialWebObservedProjects: 0,
+        socialProjects: 0,
+      };
+      row.projectCount += 1;
+      if (project.captured_at) capturedAtValues.push(String(project.captured_at));
+
+      const webMatches = this.#verifiedWebByProject.get(canonicalId) ?? [];
+      const hasLinkedWeb = webMatches.length > 0;
+      const observedWeb = webMatches
+        .map((match) => latestWebObservation(this.#webObservationsByUrl.get(String(match.web_project_url)) ?? []))
+        .filter((item): item is JsonObject => item !== null && hasUsefulWebObservation(item));
+      if (hasLinkedWeb) {
+        officialWebLinkedProjects += 1;
+        row.officialWebLinkedProjects += 1;
+        for (const match of webMatches) {
+          const capturedAt = capturedAtFromRunId(String(match.run_id ?? ""));
+          if (capturedAt) linkedCapturedAtValues.push(capturedAt);
+        }
+      }
+      if (observedWeb.length > 0) {
+        officialWebObservedProjects += 1;
+        row.officialWebObservedProjects += 1;
+        for (const observation of observedWeb) {
+          if (observation.captured_at) observedCapturedAtValues.push(String(observation.captured_at));
+        }
+      }
+
+      const socialObservations = (this.#observationsByEntity.get(canonicalId) ?? []).filter((observation) =>
+        this.#sourceById.get(String(observation.source_id ?? ""))?.type === "social_network");
+      if (socialObservations.length > 0) {
+        socialProjects += 1;
+        row.socialProjects += 1;
+        for (const observation of socialObservations) {
+          if (observation.captured_at) socialCapturedAtValues.push(String(observation.captured_at));
+        }
+      }
+      agencyRows.set(agencyId, row);
+    }
+
+    const total = projects.length;
+    const agencies = [...agencyRows.values()]
+      .map((row) => ({
+        ...row,
+        coverageStatus: row.officialWebObservedProjects > 0
+          ? "observed"
+          : row.officialWebLinkedProjects > 0
+            ? "linked"
+            : "nexo_only",
+      }))
+      .sort((left, right) =>
+        right.officialWebObservedProjects - left.officialWebObservedProjects
+        || right.officialWebLinkedProjects - left.officialWebLinkedProjects
+        || right.projectCount - left.projectCount
+        || left.name.localeCompare(right.name, "es"));
+    const prices = projects
+      .map((project) => nullableNumber(project.list_price_avg ?? project.price_min))
+      .filter((value): value is number => value !== null && value > 0)
+      .sort((left, right) => left - right);
+    return {
+      scope: {
+        districtId: district ? String(district.district_id) : null,
+        districtName,
+      },
+      totals: { projects: total, agencies: agencyRows.size },
+      channels: {
+        nexo: sourceChannel(total, total, "available", latestIso(capturedAtValues)),
+        officialWebLinked: sourceChannel(officialWebLinkedProjects, total, officialWebLinkedProjects ? "partial" : "pending_authorization", latestIso(linkedCapturedAtValues)),
+        officialWebObserved: sourceChannel(officialWebObservedProjects, total, officialWebObservedProjects ? "partial" : "pending_authorization", latestIso(observedCapturedAtValues)),
+        social: sourceChannel(socialProjects, total, socialProjects ? "partial" : "pending_authorization", latestIso(socialCapturedAtValues)),
+      },
+      priceDistribution: {
+        count: prices.length,
+        min: quantile(prices, 0),
+        q1: quantile(prices, 0.25),
+        median: quantile(prices, 0.5),
+        q3: quantile(prices, 0.75),
+        max: quantile(prices, 1),
+      },
+      agencies,
+      notice: "La cobertura distingue datos Nexo, coincidencias con webs oficiales y observaciones estructuradas. Una URL vinculada no equivale a un dato validado. Las redes sociales requieren integración autorizada.",
+    };
+  }
+
   history(query: ProjectQuery = {}): Page<JsonObject> {
     const district = normalize(query.district);
     const selectedIds = query.projectIds?.length ? new Set(query.projectIds.flatMap(idVariants)) : null;
@@ -352,6 +473,49 @@ function capturedAtFromRunId(runId: string): string | null {
 function latestWebObservation(observations: JsonObject[]): JsonObject | null {
   return [...observations].sort((left, right) =>
     String(right.captured_at ?? "").localeCompare(String(left.captured_at ?? "")))[0] ?? null;
+}
+
+function hasUsefulWebObservation(observation: JsonObject): boolean {
+  return [
+    observation.project_name,
+    observation.address,
+    observation.total_area,
+    observation.list_price_avg,
+    observation.unit_status,
+    observation.delivery_date,
+    observation.description,
+  ].some((value) => value !== null && value !== undefined && String(value).trim() !== "")
+    || (Array.isArray(observation.amenities) && observation.amenities.length > 0)
+    || (Array.isArray(observation.financing_banks) && observation.financing_banks.length > 0);
+}
+
+function sourceChannel(
+  projectCount: number,
+  total: number,
+  status: "available" | "partial" | "pending_authorization" | "not_available",
+  lastCapturedAt: string | null,
+): JsonObject {
+  return {
+    projectCount,
+    coveragePct: total === 0 ? 0 : Number(((projectCount / total) * 100).toFixed(1)),
+    status,
+    lastCapturedAt,
+  };
+}
+
+function latestIso(values: string[]): string | null {
+  return [...values].filter(Boolean).sort((left, right) => right.localeCompare(left))[0] ?? null;
+}
+
+function quantile(values: number[], probability: number): number | null {
+  if (!values.length) return null;
+  if (values.length === 1) return values[0]!;
+  const index = (values.length - 1) * probability;
+  const lower = Math.floor(index);
+  const weight = index - lower;
+  const lowerValue = values[lower]!;
+  const upperValue = values[Math.min(lower + 1, values.length - 1)]!;
+  return lowerValue + weight * (upperValue - lowerValue);
 }
 
 function sourceObservationFromLegacy(project: JsonObject): JsonObject {

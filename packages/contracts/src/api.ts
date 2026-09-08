@@ -144,6 +144,106 @@ export const DistrictGeographyResponseSchema = Type.Intersect([
   }),
 ]);
 
+const SourceChannelCoverageSchema = Type.Object({
+  projectCount: Type.Integer({ minimum: 0 }),
+  coveragePct: Type.Number({ minimum: 0, maximum: 100 }),
+  status: Type.Union([
+    Type.Literal("available"),
+    Type.Literal("partial"),
+    Type.Literal("pending_authorization"),
+    Type.Literal("not_available"),
+  ]),
+  lastCapturedAt: Type.Union([Type.String({ format: "date-time" }), Type.Null()]),
+});
+
+export const SourceCoverageResponseSchema = Type.Intersect([
+  VersionedResponseSchema,
+  Type.Object({
+    scope: Type.Object({
+      districtId: Type.Union([Type.String(), Type.Null()]),
+      districtName: Type.Union([Type.String(), Type.Null()]),
+    }),
+    totals: Type.Object({
+      projects: Type.Integer({ minimum: 0 }),
+      agencies: Type.Integer({ minimum: 0 }),
+    }),
+    channels: Type.Object({
+      nexo: SourceChannelCoverageSchema,
+      officialWebLinked: SourceChannelCoverageSchema,
+      officialWebObserved: SourceChannelCoverageSchema,
+      social: SourceChannelCoverageSchema,
+    }),
+    priceDistribution: Type.Object({
+      count: Type.Integer({ minimum: 0 }),
+      min: Type.Union([Type.Number(), Type.Null()]),
+      q1: Type.Union([Type.Number(), Type.Null()]),
+      median: Type.Union([Type.Number(), Type.Null()]),
+      q3: Type.Union([Type.Number(), Type.Null()]),
+      max: Type.Union([Type.Number(), Type.Null()]),
+    }),
+    agencies: Type.Array(Type.Object({
+      id: Type.String(),
+      name: Type.String(),
+      projectCount: Type.Integer({ minimum: 0 }),
+      officialWebLinkedProjects: Type.Integer({ minimum: 0 }),
+      officialWebObservedProjects: Type.Integer({ minimum: 0 }),
+      socialProjects: Type.Integer({ minimum: 0 }),
+      coverageStatus: Type.Union([
+        Type.Literal("observed"),
+        Type.Literal("linked"),
+        Type.Literal("nexo_only"),
+      ]),
+    })),
+    notice: Type.String(),
+  }),
+]);
+
+const DataRefreshRunSchema = Type.Object({
+  runId: Type.Union([Type.String(), Type.Null()]),
+  state: Type.Union([
+    Type.Literal("idle"),
+    Type.Literal("queued"),
+    Type.Literal("running"),
+    Type.Literal("succeeded"),
+    Type.Literal("blocked"),
+    Type.Literal("failed"),
+  ]),
+  requestedAt: Type.Union([Type.String({ format: "date-time" }), Type.Null()]),
+  completedAt: Type.Union([Type.String({ format: "date-time" }), Type.Null()]),
+  message: Type.String(),
+  published: Type.Boolean(),
+});
+
+export const DataRefreshRequestSchema = Type.Object({
+  scope: Type.Optional(Type.Union([
+    Type.Literal("active_district"),
+    Type.Literal("demo_districts"),
+  ])),
+  districtIds: Type.Optional(Type.Array(Type.String({ minLength: 1 }), { maxItems: 20 })),
+  channels: Type.Optional(Type.Array(Type.Union([
+    Type.Literal("nexo_authorized_feed"),
+    Type.Literal("official_websites"),
+    Type.Literal("social_official_apis"),
+  ]), { minItems: 1, maxItems: 3, uniqueItems: true })),
+});
+
+export const DataRefreshStatusResponseSchema = Type.Intersect([
+  VersionedResponseSchema,
+  Type.Object({
+    enabled: Type.Boolean(),
+    lastPublishedAt: Type.String({ format: "date-time" }),
+    run: DataRefreshRunSchema,
+  }),
+]);
+
+export const DataRefreshAcceptedResponseSchema = Type.Intersect([
+  VersionedResponseSchema,
+  Type.Object({
+    accepted: Type.Literal(true),
+    run: DataRefreshRunSchema,
+  }),
+]);
+
 export const InspectorResponseSchema = Type.Intersect([
   VersionedResponseSchema,
   Type.Object({ dossier: Type.Record(Type.String(), Type.Unknown()) }),
@@ -192,5 +292,7 @@ export type MetaResponse = Static<typeof MetaResponseSchema>;
 export type BootstrapResponse = Static<typeof BootstrapResponseSchema>;
 export type WorkspaceEvaluateRequest = Static<typeof WorkspaceEvaluateRequestSchema>;
 export type ProjectSummary = Static<typeof ProjectSummarySchema>;
+export type SourceCoverageResponse = Static<typeof SourceCoverageResponseSchema>;
+export type DataRefreshRequest = Static<typeof DataRefreshRequestSchema>;
 export type ComparisonRequest = Static<typeof ComparisonRequestSchema>;
 export type AssistantRequest = Static<typeof AssistantRequestSchema>;

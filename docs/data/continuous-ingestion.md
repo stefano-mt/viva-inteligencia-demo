@@ -4,6 +4,14 @@
 
 Actualizar el catálogo sin introducir scraping en el request path ni perder el origen de un dato. Nexo aporta el universo base mediante un canal autorizado; las webs oficiales aportan observaciones complementarias. Los documentos de Nexo constituyen otra captura de la misma fuente y se contrastan sin asumir que coinciden con la ficha.
 
+## Baseline publicado y límites de lectura
+
+El snapshot empaquetado de la demo contiene 7 distritos, 433 proyectos y 157 inmobiliarias. En ese artefacto, 433 proyectos tienen una observación de origen Nexo, 15 tienen datos estructurados observados en una web oficial y 0 tienen observaciones estructuradas de una red social.
+
+Estas cifras son cobertura verificada del artefacto versionado, no una consulta en vivo ni evidencia de scraping reciente. Deben acompañarse del `datasetVersion`. Una observación Nexo pertenece al agregador/base y no confirma el dato como declaración de la inmobiliaria. Una URL oficial vinculada tampoco cuenta como observación oficial: solo cuentan los campos estructurados cuya coincidencia y evidencia fueron validadas. Las discrepancias se conservan por fuente.
+
+El registro vigente mantiene `nexo-authorized-feed` en `pending`, el sitio público de Nexo en `blocked` y la entrada genérica de webs oficiales en `pending`; no registra un canal social aprobado. Por eso el baseline no autoriza, por sí mismo, una nueva recolección.
+
 ## Flujo
 
 ```mermaid
@@ -59,6 +67,20 @@ Un conflicto se abre cuando observaciones vigentes de la misma entidad/campo no 
 - captura solo de información necesaria para el contrato comercial.
 
 `npm run ingestion:plan` lee el registro y la matriz existente sin hacer solicitudes externas. Una salida `COLLECTION_ALLOWED` no reemplaza la revisión humana: demuestra que sus cuatro campos habilitantes quedaron registrados.
+
+## Despacho desde el tablero
+
+`Actualizar Data` es una superficie de operación protegida, no un collector en el navegador. Está deshabilitada por defecto. `GET /api/v1/data-refresh/status` solo informa `enabled: true` cuando el API tiene el flag, la clave de operador, la URL del orquestador y el token interno. Con una clave válida, `POST /api/v1/data-refresh` crea un `runId` y despacha alcance/canales al `POST /runs` de un servicio privado.
+
+`apps/ops` implementa ese servicio como worker interno. Valida el token y el payload, encola fuera del request path, reaplica el policy gate y escribe staging/manifiesto sanitizados. Usa `DATA_REFRESH_EXECUTE=false` por defecto, por lo que realiza cero solicitudes de red. No publica datasets y todos sus resultados conservan `published: false`. El estado del API y del worker vive en memoria; un despacho aceptado no significa que exista una versión nueva. La guía completa de habilitación, seguridad, criterios y rollback está en `docs/operations/data-dashboard-and-refresh.md`.
+
+Los canales tienen este soporte actual:
+
+- `official_websites`: existe un batch controlado; usa `dry-run` por defecto y solo `--execute` sobre fuentes individuales aprobadas con targets explícitos;
+- `nexo_authorized_feed`: existe un adaptador de archivo offline, pero el feed sigue no operativo hasta registrar autorización y recibir la entrega autorizada;
+- `social_official_apis`: solo está reservado en el contrato de despacho; no existe collector ni fuente aprobada.
+
+Si falta cualquiera de esas condiciones, el botón, API o job deben fallar cerrados y el runtime debe conservar el último snapshot aprobado.
 
 ## Importación del feed autorizado de Nexo
 

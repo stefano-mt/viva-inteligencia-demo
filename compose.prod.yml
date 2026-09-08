@@ -3,6 +3,10 @@ services:
     image: ghcr.io/${IMAGE_OWNER:-stefano-mt}/viva-inteligencia-api:${IMAGE_TAG:-latest}
     build: !reset null
 
+  ops:
+    image: ghcr.io/${IMAGE_OWNER:-stefano-mt}/viva-inteligencia-ops:${IMAGE_TAG:-latest}
+    build: !reset null
+
   web:
     image: ghcr.io/${IMAGE_OWNER:-stefano-mt}/viva-inteligencia-web:${IMAGE_TAG:-latest}
     build: !reset null

@@ -22,7 +22,7 @@ export default defineConfig({
             const file = await stat(filePath);
             if (!file.isFile()) return next();
             const extension = path.extname(filePath).toLowerCase();
-            response.setHeader("content-type", extension === ".webp" ? "image/webp" : extension === ".jpg" || extension === ".jpeg" ? "image/jpeg" : "application/octet-stream");
+            response.setHeader("content-type", extension === ".webp" ? "image/webp" : extension === ".png" ? "image/png" : extension === ".jpg" || extension === ".jpeg" ? "image/jpeg" : "application/octet-stream");
             createReadStream(filePath).pipe(response);
           } catch {
             next();

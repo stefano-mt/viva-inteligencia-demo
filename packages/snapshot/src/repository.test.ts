@@ -27,6 +27,18 @@ describe("snapshot repository", () => {
       method: "district_valid_point_coordinate_medians_v1",
     });
     expect((geography?.analysisZones as { zones: unknown[] } | undefined)?.zones).toHaveLength(4);
+    const coverage = repository.sourceCoverage("150122");
+    expect(coverage).toMatchObject({
+      scope: { districtId: "150122", districtName: "Miraflores" },
+      totals: { projects: 90 },
+      channels: {
+        nexo: { projectCount: 90, coveragePct: 100, status: "available" },
+        social: { projectCount: 0, coveragePct: 0, status: "pending_authorization" },
+      },
+    });
+    expect((coverage.agencies as unknown[]).length).toBeGreaterThan(0);
+    expect((coverage.priceDistribution as { count: number }).count).toBeGreaterThan(0);
+    expect((coverage.priceDistribution as { min: number }).min).toBeGreaterThan(0);
     const detail = repository.project(page.items[0]!.id);
     expect((detail?.traceability.sources as unknown[] | undefined)?.length).toBeGreaterThanOrEqual(1);
     expect(Array.isArray(detail?.project.amenities)).toBe(true);

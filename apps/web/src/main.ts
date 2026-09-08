@@ -3,6 +3,7 @@ import { ApiClientError, ApiDataProvider, type DataProvider } from "./api.js";
 import { JOURNEY_STAGES, parseRoute, routeHash } from "./routes.js";
 import type {
   Bootstrap,
+  DataRefreshStatus,
   DistrictGeography,
   JsonObject,
   Meta,
@@ -10,8 +11,21 @@ import type {
   ProjectSummary,
   Route,
   Scenario,
+  SourceCoverage,
   WorkspaceEvaluation,
 } from "./types.js";
+
+type AssistantCategoryId = "market" | "competition" | "movement" | "argument";
+
+interface AssistantQuestion {
+  id: string;
+  category: AssistantCategoryId;
+  intentId: string;
+  title: string;
+  question: string;
+  description: string;
+  requiresSelection?: boolean;
+}
 
 interface AppState {
   status: "loading" | "ready" | "error";
@@ -26,11 +40,19 @@ interface AppState {
   inspector: JsonObject | null;
   comparison: JsonObject | null;
   assistant: JsonObject | null;
+  assistantCategory: AssistantCategoryId;
+  assistantDraft: string;
+  assistantIntentId: string | null;
+  assistantQuestionTitle: string | null;
+  assistantError: string | null;
   projectDetail: JsonObject | null;
   mapProjectId: string | null;
   mapProjectDetail: JsonObject | null;
   mapProjectStatus: "idle" | "loading" | "ready" | "error";
   geography: DistrictGeography | null;
+  sourceCoverage: SourceCoverage | null;
+  refreshStatus: DataRefreshStatus | null;
+  refreshNotice: { tone: "success" | "warning" | "error"; message: string } | null;
   projectPage: number;
   projectScope: "scenario" | "all";
   projectQuery: string;
@@ -54,7 +76,7 @@ const provider: DataProvider = new ApiDataProvider();
 const state: AppState = {
   status: "loading",
   error: null,
-  route: parseRoute(),
+  route: routeFromLocation(),
   bootstrap: null,
   meta: null,
   scenario: null,
@@ -64,11 +86,19 @@ const state: AppState = {
   inspector: null,
   comparison: null,
   assistant: null,
+  assistantCategory: "market",
+  assistantDraft: "",
+  assistantIntentId: null,
+  assistantQuestionTitle: null,
+  assistantError: null,
   projectDetail: null,
   mapProjectId: null,
   mapProjectDetail: null,
   mapProjectStatus: "idle",
   geography: null,
+  sourceCoverage: null,
+  refreshStatus: null,
+  refreshNotice: null,
   projectPage: 1,
   projectScope: "scenario",
   projectQuery: "",
@@ -85,9 +115,10 @@ const state: AppState = {
 };
 
 window.addEventListener("hashchange", () => {
-  state.route = parseRoute();
+  state.route = routeFromLocation();
   state.navOpen = false;
   state.projectDetail = null;
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
   void loadRouteData({ focus: true });
 });
 window.addEventListener("keydown", (event) => {
@@ -103,9 +134,19 @@ window.addEventListener("keydown", (event) => {
 root.addEventListener("click", handleClick);
 root.addEventListener("submit", handleSubmit);
 root.addEventListener("change", handleChange);
+root.addEventListener("input", handleInput);
 
 render();
 void initialize();
+
+function routeFromLocation(): Route {
+  const route = parseRoute();
+  const requested = window.location.hash.replace(/^#/u, "");
+  if (["inspector", "market", "trust"].includes(requested)) {
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${routeHash(route)}`);
+  }
+  return route;
+}
 
 async function initialize(): Promise<void> {
   state.status = "loading";
@@ -115,7 +156,7 @@ async function initialize(): Promise<void> {
     const [meta, bootstrap] = await Promise.all([provider.meta(), provider.bootstrap()]);
     if (meta.contractVersion !== "2.4.0" || bootstrap.contractVersion !== meta.contractVersion) {
       throw new ApiClientError(
-        "La API usa un contrato incompatible con esta versión del frontend.",
+        "La aplicación y el servicio de datos no son compatibles. Actualiza la página o solicita soporte.",
         "CONTRACT_INCOMPATIBLE",
         409,
         null,
@@ -124,7 +165,9 @@ async function initialize(): Promise<void> {
     state.meta = meta;
     state.bootstrap = bootstrap;
     state.scenario = scenarioFromLocation(bootstrap.initialScenario);
-    state.inspectorSlug = bootstrap.inspectorCases[0]?.routeSlug ?? null;
+    state.inspectorSlug = bootstrap.inspectorCases.find(({ routeSlug }) => routeSlug === "f3-ct-g-pardo")?.routeSlug
+      ?? bootstrap.inspectorCases[0]?.routeSlug
+      ?? null;
     await refreshWorkspace();
     state.status = "ready";
     await loadRouteData();
@@ -150,7 +193,7 @@ async function refreshWorkspace(): Promise<void> {
   state.historyDirection = "all";
   state.historyValidity = "all";
   writeScenarioToLocation(workspace.scenario);
-  const [projects, history] = await Promise.all([
+  const [projects, history, sourceCoverage, refreshStatus] = await Promise.all([
     provider.projects({
       district: workspace.scenario.district_id,
       page: 1,
@@ -159,12 +202,20 @@ async function refreshWorkspace(): Promise<void> {
       bedrooms: workspace.scenario.bedrooms,
     }),
     provider.history({ district: workspace.scenario.district_id, page: 1, pageSize: 20 }),
+    provider.sourceCoverage(workspace.scenario.district_id).catch(() => null),
+    provider.dataRefreshStatus().catch(() => null),
   ]);
   state.projects = projects;
   state.history = history;
+  state.sourceCoverage = sourceCoverage;
+  state.refreshStatus = refreshStatus;
   state.inspector = null;
   state.comparison = null;
   state.assistant = null;
+  state.assistantDraft = "";
+  state.assistantIntentId = null;
+  state.assistantQuestionTitle = null;
+  state.assistantError = null;
   state.projectDetail = null;
   state.mapProjectId = null;
   state.mapProjectDetail = null;
@@ -184,7 +235,7 @@ async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
       state.projects = await provider.projects(projectParameters(18));
     }
     if (state.route.id === "dashboard" || state.route.id === "geography") {
-      [state.projects, state.geography] = await Promise.all([
+      const [projects, geography, sourceCoverage, refreshStatus] = await Promise.all([
         provider.projects({
           district: state.scenario.district_id,
           page: 1,
@@ -193,7 +244,13 @@ async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
           bedrooms: state.scenario.bedrooms,
         }),
         provider.districtGeography(state.scenario.district_id),
+        provider.sourceCoverage(state.scenario.district_id).catch(() => null),
+        provider.dataRefreshStatus().catch(() => null),
       ]);
+      state.projects = projects;
+      state.geography = geography;
+      state.sourceCoverage = sourceCoverage ?? state.sourceCoverage;
+      state.refreshStatus = refreshStatus ?? state.refreshStatus;
     }
     if (state.route.id === "activity" || state.route.id === "movement") {
       [state.history, state.projects] = await Promise.all([
@@ -211,10 +268,8 @@ async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
         }),
       ]);
     }
-    if (state.route.id === "inspector" || state.route.id === "quality") {
-      const slug = state.route.id === "quality"
-        ? (state.bootstrap.inspectorCases.find(({ routeSlug }) => routeSlug === "f3-ct-g-pardo")?.routeSlug ?? state.inspectorSlug)
-        : state.inspectorSlug;
+    if (state.route.id === "quality") {
+      const slug = state.inspectorSlug ?? state.bootstrap.inspectorCases[0]?.routeSlug;
       if (slug) state.inspector = await provider.inspector(slug);
     }
     if (state.route.id === "compare" || state.route.id === "depth") {
@@ -224,7 +279,10 @@ async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
     }
     state.busyMessage = null;
     render();
-    if (options.focus) requestAnimationFrame(() => document.querySelector<HTMLElement>("#main-content")?.focus());
+    if (options.focus) requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.querySelector<HTMLElement>(".page-header h1")?.focus({ preventScroll: true });
+    });
   } catch (error) {
     state.busyMessage = null;
     fail(error);
@@ -252,8 +310,7 @@ function render(): void {
       <button class="nav-scrim" type="button" data-action="close-nav" aria-label="Cerrar navegación"></button>
       <aside class="product-sidebar" id="product-sidebar" aria-label="Navegación principal">
         <header class="brand">
-          <img src="/assets/viva-negocio-inmobiliario-logo.jpg" alt="VIVA" width="56" height="56" />
-          <span><strong>Inteligencia comercial</strong><small>Viva Inmobiliaria</small></span>
+          <span class="brand-lockup"><img src="/assets/viva-negocio-inmobiliario-logo.png" alt="Viva Negocio Inmobiliario S.A." width="181" height="67" /><strong>Inteligencia comercial</strong></span>
           <button class="icon-button mobile-only" type="button" data-action="close-nav" aria-label="Cerrar menú">${closeIcon()}</button>
         </header>
         <button class="command-trigger" type="button" data-action="command">
@@ -263,7 +320,6 @@ function render(): void {
         <footer class="dataset-note">
           <span>Datos al ${formatDate(state.meta.cutoffAt)}</span>
           <strong>${formatNumber(state.meta.coverage.projects)} proyectos</strong>
-          <small>Contrato ${escapeHtml(state.meta.contractVersion)}</small>
         </footer>
       </aside>
       <div class="product-workspace">
@@ -275,7 +331,7 @@ function render(): void {
           </div>
           <div class="scenario-ribbon__metrics" aria-label="Resumen del escenario">
             <span><b>${formatNumber(state.workspace.marketReading.comparableProjectCount)}</b> comparables</span>
-            <span><b>${formatNumber(state.workspace.marketReading.priceReferenceCount)}</b> precios utilizables</span>
+            <span><b>${formatNumber(state.workspace.marketReading.priceReferenceCount)}</b> con precio y área</span>
           </div>
           <button class="button button--quiet" type="button" data-action="scenario">Editar escenario</button>
         </header>
@@ -286,40 +342,33 @@ function render(): void {
       </div>
       ${renderScenarioDialog()}
       ${renderCommandDialog()}
+      ${renderDataRefreshDialog()}
       ${state.busyMessage ? `<div class="busy" role="status"><span></span>${escapeHtml(state.busyMessage)}</div>` : ""}
     </div>`;
 }
 
 function renderLoading(): string {
-  return `<main class="startup-state" aria-busy="true"><img src="/assets/viva-negocio-inmobiliario-logo.jpg" alt="VIVA" width="92" height="92" /><span class="loader"></span><h1>Preparando la lectura comercial</h1><p>Cargando catálogos y escenario inicial desde la API.</p></main>`;
+  return `<main class="startup-state" aria-busy="true"><img class="startup-logo" src="/assets/viva-negocio-inmobiliario-logo.png" alt="Viva Negocio Inmobiliario S.A." width="260" height="96" /><span class="loader"></span><h1>Preparando la lectura comercial</h1><p>Organizando la información del mercado.</p></main>`;
 }
 
 function renderFatalError(): string {
   const error = state.error;
-  return `<main class="startup-state startup-state--error"><span class="error-mark">!</span><h1>No se pudo abrir el espacio comercial</h1><p>${escapeHtml(error?.message ?? "La API no respondió.")}</p><p class="technical">Código: ${escapeHtml(error?.code ?? "APP_ERROR")}${error?.requestId ? ` · Solicitud ${escapeHtml(error.requestId)}` : ""}</p><button class="button button--primary" type="button" data-action="retry">Reintentar</button></main>`;
+  return `<main class="startup-state startup-state--error"><span class="error-mark">!</span><h1>No se pudo abrir el espacio comercial</h1><p>${escapeHtml(error?.message ?? "El servicio no respondió.")}</p><details class="technical"><summary>Información para soporte</summary><p>Código: ${escapeHtml(error?.code ?? "APP_ERROR")}${error?.requestId ? ` · Solicitud ${escapeHtml(error.requestId)}` : ""}</p></details><button class="button button--primary" type="button" data-action="retry">Reintentar</button></main>`;
 }
 
 function renderNavigation(): string {
   const primary = [
-    { id: "journey/scale", label: "Recorrido", hint: "Tesis en seis pasos", kind: "journey" },
-    { id: "dashboard", label: "Panorama", hint: "Zona y posición", kind: "module" },
-    { id: "projects", label: "Proyectos", hint: "Oferta comparable", kind: "module" },
-    { id: "assistant", label: "Decidir", hint: "Respuesta trazable", kind: "module" },
+    { id: "dashboard", label: "Panorama", hint: "Zona, precios y oferta", kind: "module" },
+    { id: "projects", label: "Proyectos", hint: "Catálogo y fichas", kind: "module" },
+    { id: "compare", label: "Comparar", hint: "Proyectos lado a lado", kind: "module" },
     { id: "activity", label: "Seguimiento", hint: "Cambios publicados", kind: "module" },
-  ];
-  const expert = [
-    { id: "inspector", label: "Inspector" },
-    { id: "market", label: "Benchmark" },
-    { id: "compare", label: "Comparador" },
-    { id: "trust", label: "Checklist" },
+    { id: "assistant", label: "Decidir", hint: "Argumento comercial", kind: "module" },
   ];
   return `<nav class="product-nav">
     <p class="nav-label">Trabajo comercial</p>
     ${primary.map((item, index) => navButton(item.id, item.label, item.hint, String(index + 1).padStart(2, "0"), item.kind)).join("")}
-    <details class="expert-nav" ${state.route.kind === "module" && expert.some(({ id }) => id === state.route.id) ? "open" : ""}>
-      <summary><span>Profundizar</span><small>4 herramientas</small></summary>
-      ${expert.map((item) => navButton(item.id, item.label, "", "·", "module")).join("")}
-    </details>
+    <p class="nav-label nav-label--secondary">Guía opcional</p>
+    ${navButton("journey/scale", "Recorrido", "Lectura en seis pasos", "→", "journey")}
   </nav>`;
 }
 
@@ -336,10 +385,7 @@ function renderCurrentRoute(): string {
   const views: Record<string, () => string> = {
     dashboard: renderDashboard,
     projects: renderProjects,
-    inspector: renderInspector,
-    market: renderBenchmark,
     compare: renderComparison,
-    trust: renderChecklist,
     assistant: renderAssistant,
     activity: renderHistory,
   };
@@ -347,7 +393,7 @@ function renderCurrentRoute(): string {
 }
 
 function renderPageHeader(eyebrow: string, title: string, description: string, action = ""): string {
-  return `<header class="page-header"><div><span class="eyebrow">${escapeHtml(eyebrow)}</span><h1>${escapeHtml(title)}</h1><p>${escapeHtml(description)}</p></div>${action}</header>`;
+  return `<header class="page-header"><div><span class="eyebrow">${escapeHtml(eyebrow)}</span><h1 tabindex="-1">${escapeHtml(title)}</h1><p>${escapeHtml(description)}</p></div>${action}</header>`;
 }
 
 function renderJourney(stageId: string): string {
@@ -373,46 +419,138 @@ function renderJourney(stageId: string): string {
 }
 
 function renderScaleStage(): string {
-  return `<section class="decision-strip"><span>Lectura principal</span><strong>${formatNumber(state.workspace!.marketReading.comparableProjectCount)} proyectos comparables sostienen el escenario de ${escapeHtml(districtName())}.</strong><p>La cobertura geográfica utilizable es ${formatPercent(state.workspace!.coverage.geographyCoveragePct)}. La mediana usa únicamente referencias permitidas por el contrato.</p></section>
+  return `<section class="decision-strip"><span>Lectura principal</span><strong>${formatNumber(state.workspace!.marketReading.comparableProjectCount)} proyectos comparables sostienen el escenario de ${escapeHtml(districtName())}.</strong><p>Podemos ubicar ${formatPercent(state.workspace!.coverage.geographyCoveragePct)} de la oferta. La mediana considera solo proyectos con precio y área suficientes para comparar.</p></section>
     <section class="metric-row" aria-label="Escala observable">
-      ${metric("Proyectos observados", state.meta!.coverage.projects, "Cobertura total del snapshot")}
-      ${metric("Inmobiliarias seleccionadas", state.meta!.coverage.selectedAgencies, "Scope mínimo de la demo")}
+      ${metric("Proyectos observados", state.meta!.coverage.projects, "Base total disponible")}
+      ${metric("Inmobiliarias seleccionadas", state.meta!.coverage.selectedAgencies, "Incluidas en esta lectura")}
       ${metric("Distritos", state.meta!.coverage.districts, "Ámbito geográfico publicado")}
     </section>`;
 }
 
 function renderQualityStage(): string {
-  if (!state.inspector) return emptyState("El expediente de calidad no está disponible.", "Abrir Inspector", "#inspector");
+  if (!state.inspector) return emptyState("La verificación de este ejemplo no está disponible.", "Revisar proyectos", "#projects");
   const dossier = state.inspector.dossier as JsonObject;
-  return `<section class="decision-strip"><span>Decisión de calidad</span><strong>${escapeHtml(qualityLabel(dossier.decision?.qualityStatus ?? dossier.decision?.quality_status))}</strong><p>${escapeHtml(dossier.decision?.explanation ?? "La evidencia y sus conflictos determinan la elegibilidad del dato.")}</p></section>${renderFactLedger(dossier)}`;
+  return `<section class="decision-strip"><span>Verificación del dato</span><strong>${escapeHtml(qualityLabel(dossier.decision?.qualityStatus ?? dossier.decision?.quality_status))}</strong><p>Revisa qué información coincide y cuál necesita confirmación antes de utilizarla.</p></section>${renderQualityInspectorAccess()}`;
 }
 
 function renderDepthStage(): string {
-  return `<section class="decision-strip"><span>Diferenciación</span><strong>${escapeHtml(benchmarkHeadline())}</strong><p>Contrasta primero precio y área; después valida atributos anunciados y documentados.</p></section>${renderBenchmarkSummary()}`;
+  return `<section class="decision-strip"><span>Diferenciación</span><strong>${escapeHtml(benchmarkHeadline())}</strong><p>Contrasta primero precio y área; después revisa las características que más se anuncian.</p></section>${renderZoneOfferPanel()}`;
 }
 
 function renderMovementStage(): string {
   const total = state.history?.total ?? 0;
-  return `<section class="decision-strip"><span>Movimiento observado</span><strong>${formatNumber(total)} señales históricas cumplen la política del escenario.</strong><p>No se infiere causalidad: cada cambio conserva fechas, valores y evidencia.</p></section>${renderHistorySignals(historyEvents().slice(0, 5), true)}`;
+  return `<section class="decision-strip"><span>Movimiento observado</span><strong>${formatNumber(total)} cambios publicados requieren seguimiento.</strong><p>La plataforma muestra qué cambió y cuándo; la causa debe confirmarse con la inmobiliaria.</p></section>${renderHistorySignals(historyEvents().slice(0, 5), true)}`;
 }
 
 function renderDecisionStage(): string {
-  return `<section class="decision-strip"><span>Recomendación comercial</span><strong>Prioriza una hipótesis respaldada y declara el límite de la muestra.</strong><p>La demo orienta la decisión; no predice demanda, cierre ni intención individual.</p></section>
-    <div class="two-column"><section class="surface"><h2>Antes de compartir</h2>${checkRows().slice(0, 4).map(renderCheckRow).join("")}</section><section class="surface"><h2>Convertir lectura en acción</h2><p>El asistente responde preguntas cerradas con las referencias utilizadas.</p><a class="button button--primary" href="#assistant">Abrir Decidir</a></section></div>`;
+  return `<section class="decision-strip"><span>Recomendación comercial</span><strong>Prioriza una conclusión respaldada por los datos y explica el alcance del análisis.</strong><p>Esta lectura orienta la decisión; no predice demanda, cierres ni intención de compra.</p></section>
+    <div class="two-column">${renderDecisionReadiness()}<section class="surface"><h2>Convertir lectura en acción</h2><p>Formula una pregunta y prepara un argumento claro para la conversación comercial.</p><a class="button button--primary" href="#assistant">Abrir Decidir</a></section></div>`;
 }
 
 function renderDashboard(): string {
-  return `${renderPageHeader("Panorama", `${districtName()} bajo lectura comercial`, "La lectura prioriza mercado, precio y ubicación; el detalle queda bajo demanda.")}
-    <section class="decision-strip"><span>Lectura principal</span><strong>${formatNumber(state.workspace!.marketReading.comparableProjectCount)} comparables · ${money(state.workspace!.marketReading.medianPricePerM2)} por m² de mediana</strong><p>${pricePositionText()}</p></section>
-    <section class="metric-row">${metric("Comparables", state.workspace!.marketReading.comparableProjectCount, "Mismo universo del escenario")}${metric("Precios utilizables", state.workspace!.marketReading.priceReferenceCount, "Con reglas de elegibilidad")}${metric("Cobertura geográfica", formatPercent(state.workspace!.coverage.geographyCoveragePct), "Proyectos con geografía válida")}</section>
-    ${renderMapSection(false)}`;
+  return `${renderPageHeader("Panorama", `${districtName()} bajo lectura comercial`, "Revisa zonas, precios, oferta y cambios que requieren una decisión.", '<button class="button button--primary button--with-icon" type="button" data-action="data-refresh"><span aria-hidden="true">↻</span>Actualizar datos</button>')}
+    ${state.refreshNotice ? `<aside class="refresh-notice refresh-notice--${state.refreshNotice.tone}" role="status"><strong>${state.refreshNotice.tone === "success" ? "Solicitud recibida" : state.refreshNotice.tone === "warning" ? "Actualización pendiente" : "No se pudo actualizar"}</strong><span>${escapeHtml(state.refreshNotice.message)}</span></aside>` : ""}
+    ${renderDataPulse()}
+    <section class="decision-strip"><span>Lectura principal</span><strong>${formatNumber(state.workspace!.marketReading.comparableProjectCount)} proyectos cumplen los filtros de ${escapeHtml(districtName())}.</strong><p>${pricePositionText()}</p></section>
+    <section class="metric-row">${metric("Proyectos del escenario", state.workspace!.marketReading.comparableProjectCount, "Cumplen los filtros elegidos")}${metric("Con precio y área", state.workspace!.marketReading.priceReferenceCount, "Permiten ubicar el rango publicado")}${metric("Ubicados en el mapa", formatPercent(state.workspace!.coverage.geographyCoveragePct), "Proyectos con ubicación disponible")}</section>
+    ${renderZoneOfferPanel()}
+    ${renderMapSection(false)}
+    ${renderSourceDashboard()}`;
+}
+
+function renderDataPulse(): string {
+  const refresh = state.refreshStatus;
+  const run = refresh?.run;
+  const runState = String(run?.state ?? "idle");
+  const runLabel = ({
+    idle: "Sin actualización en curso",
+    queued: "Actualización programada",
+    running: "Actualizando información",
+    succeeded: "Información actualizada",
+    blocked: "Actualización pendiente",
+    failed: "No se pudo actualizar",
+  } as Record<string, string>)[String(run?.state ?? "idle")] ?? "Estado por revisar";
+  return `<section class="data-pulse" aria-label="Estado de actualización de datos">
+    <div class="data-pulse__signal"><span class="pulse-dot ${run?.state === "running" || run?.state === "queued" ? "is-active" : ""}" aria-hidden="true"></span><div><span class="eyebrow">Datos publicados</span><strong>${formatDate(refresh?.lastPublishedAt ?? state.meta!.generatedAt)}</strong><small>Estás viendo la última información disponible.</small></div></div>
+    <div class="data-pulse__run"><span>${escapeHtml(runLabel)}</span><strong>${escapeHtml(refreshRunCopy(runState))}</strong>${run?.requestedAt ? `<small>Solicitado ${formatDateTime(run.requestedAt)}</small>` : ""}</div>
+    <button class="button button--quiet" type="button" data-action="refresh-status">Revisar estado</button>
+  </section>`;
+}
+
+function refreshRunCopy(runState: unknown): string {
+  return ({
+    idle: "No hay una actualización en curso.",
+    queued: "La actualización comenzará en breve.",
+    running: "Estamos revisando la información de los proyectos.",
+    succeeded: "La información más reciente ya está disponible.",
+    blocked: "La actualización necesita una revisión del equipo.",
+    failed: "Inténtalo nuevamente o solicita soporte.",
+  } as Record<string, string>)[String(runState)] ?? "Revisa el estado antes de continuar.";
+}
+
+function renderSourceDashboard(): string {
+  const coverage = state.sourceCoverage;
+  if (!coverage) return "";
+  const channels = coverage.channels;
+  const history = state.history?.items ?? [];
+  const priceChanges = history.filter((event) => String(event.field_name ?? event.change_type ?? "").includes("price") || event.previous_value != null).length;
+  return `<section class="intelligence-board" aria-labelledby="source-dashboard-title">
+    <header class="section-heading intelligence-board__heading"><div><span class="eyebrow">Información disponible</span><h2 id="source-dashboard-title">Qué sabemos del distrito</h2><p>${formatNumber(coverage.totals.projects)} proyectos de ${formatNumber(coverage.totals.agencies)} inmobiliarias en ${escapeHtml(coverage.scope.districtName ?? districtName())}.</p></div><span class="status-pill">${formatNumber(channels.officialWebObserved.projectCount)} con datos de web oficial</span></header>
+    <div class="intelligence-board__grid">
+      <article class="chart-card source-channel-chart"><header><div><span class="eyebrow">Cobertura</span><h3>Información disponible</h3></div><span class="chart-badge">Distrito activo</span></header>
+        ${sourceCoverageBar("Nexo Inmobiliario", channels.nexo, "Base principal")}
+        ${sourceCoverageBar("Web oficial con datos", channels.officialWebObserved, `${formatNumber(channels.officialWebLinked.projectCount)} proyectos tienen una página oficial identificada`)}
+        ${sourceCoverageBar("Redes oficiales", channels.social, channels.social.projectCount ? "Información disponible" : "Pendiente de incorporación")}
+        <p class="chart-note">Una página vinculada cuenta solo cuando aporta información del proyecto.</p>
+      </article>
+      ${renderPriceBand(coverage)}
+      <article class="chart-card signal-mix"><header><div><span class="eyebrow">Seguimiento</span><h3>Señales disponibles</h3></div><a href="#activity">Abrir panel</a></header>
+        ${signalBar("Cambios de precio", priceChanges, Math.max(history.length, 1), "Con historial publicado", "price")}
+        ${signalBar("Nuevas unidades", 0, 1, "Aún no disponible", "unit")}
+        ${signalBar("Descuentos anunciados", 0, 1, "Aún no disponible", "discount")}
+        <p class="chart-note">“0” indica que ese tipo de cambio aún no se monitorea en la versión actual.</p>
+      </article>
+    </div>
+    ${renderAgencyCoverage(coverage)}
+  </section>`;
+}
+
+function renderAgencyCoverage(coverage: SourceCoverage): string {
+  const rows = coverage.agencies;
+  return `<details class="agency-coverage"><summary><span>Revisar cobertura de las ${formatNumber(rows.length)} inmobiliarias del distrito</span></summary><div class="agency-coverage__body"><div class="table-scroll"><table><thead><tr><th scope="col">Inmobiliaria</th><th scope="col">Proyectos Nexo</th><th scope="col">Web oficial vinculada</th><th scope="col">Con datos observados</th><th scope="col">Red oficial</th><th scope="col">Estado</th></tr></thead><tbody>${rows.map((agency) => `<tr><td><strong>${escapeHtml(agency.name)}</strong></td><td>${formatNumber(agency.projectCount)}</td><td>${formatNumber(agency.officialWebLinkedProjects)}</td><td>${formatNumber(agency.officialWebObservedProjects)}</td><td>${formatNumber(agency.socialProjects)}</td><td><span class="agency-source-status agency-source-status--${agency.coverageStatus}">${agency.coverageStatus === "observed" ? "Datos oficiales observados" : agency.coverageStatus === "linked" ? "Página por completar" : "Solo Nexo"}</span></td></tr>`).join("")}</tbody></table></div><p class="chart-note">Incluye todas las inmobiliarias con proyectos en el distrito.</p></div></details>`;
+}
+
+function sourceCoverageBar(label: string, channel: SourceCoverage["channels"]["nexo"], note: string): string {
+  return `<div class="coverage-row"><div><strong>${escapeHtml(label)}</strong><span>${formatNumber(channel.projectCount)} proyectos · ${formatPercent(channel.coveragePct)}</span></div><div class="coverage-track" role="meter" aria-label="${escapeAttr(label)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${channel.coveragePct}"><span style="--coverage:${Math.max(0, Math.min(100, channel.coveragePct))}%"></span></div><small>${escapeHtml(note)}${channel.lastCapturedAt ? ` · ${formatDate(channel.lastCapturedAt)}` : ""}</small></div>`;
+}
+
+function renderPriceBand(coverage: SourceCoverage): string {
+  const distribution = coverage.priceDistribution;
+  if (distribution.min == null || distribution.max == null || distribution.median == null) {
+    return `<article class="chart-card"><h3>Rango de precios publicados</h3><p>No hay suficientes precios para representar el rango.</p></article>`;
+  }
+  const span = Math.max(distribution.max - distribution.min, 1);
+  const position = (value: number | null) => value == null ? 0 : ((value - distribution.min!) / span) * 100;
+  const q1 = position(distribution.q1);
+  const q3 = position(distribution.q3);
+  const medianPosition = position(distribution.median);
+  return `<article class="chart-card price-band-card"><header><div><span class="eyebrow">Precio publicado</span><h3>Rango del distrito</h3></div><span class="chart-badge">${formatNumber(distribution.count)} precios</span></header>
+    <div class="price-band" role="img" aria-label="Precio mínimo ${money(distribution.min)}, mediana ${money(distribution.median)} y máximo ${money(distribution.max)}"><span class="price-band__line"></span><span class="price-band__quartile" style="left:${q1}%;width:${Math.max(q3 - q1, 1)}%"></span><span class="price-band__median" style="left:${medianPosition}%"><b>Mediana</b><strong>${money(distribution.median)}</strong></span></div>
+    <div class="price-band__labels"><span><small>Mínimo</small>${money(distribution.min)}</span><span><small>P25</small>${money(distribution.q1)}</span><span><small>P75</small>${money(distribution.q3)}</span><span><small>Máximo</small>${money(distribution.max)}</span></div>
+    <p class="chart-note">Distribución de precios publicados; no representa precios reales de cierre.</p>
+  </article>`;
+}
+
+function signalBar(label: string, value: number, total: number, note: string, icon: "price" | "unit" | "discount"): string {
+  const percentage = Math.max(0, Math.min(100, (value / Math.max(total, 1)) * 100));
+  return `<div class="signal-row">${monitoringIcon(icon)}<div><span><strong>${escapeHtml(label)}</strong><b>${formatNumber(value)}</b></span><div class="signal-track"><i style="--signal:${percentage}%"></i></div><small>${escapeHtml(note)}</small></div></div>`;
 }
 
 function renderMapSection(journey: boolean): string {
   const projects = state.projects?.items ?? [];
   const title = state.mapView === "geographic" ? "Mapa del distrito" : "Posicionamiento por área y precio";
   const description = state.mapView === "geographic"
-    ? "Explora la oferta por cuatro zonas analíticas internas y abre cada proyecto desde el mapa."
+    ? "Explora la oferta por cuatro zonas de comparación y abre cada proyecto desde el mapa."
     : "Contrasta área total y precio publicado frente a la mediana visible.";
   return `<section class="surface map-surface"><header class="section-heading"><div><span class="eyebrow">Territorio observado</span><h2>${title}</h2><p>${description}</p></div><span class="status-pill">${formatNumber(projects.length)} visibles</span></header>
     <div class="map-switch" role="group" aria-label="Vista del mapa">
@@ -420,7 +558,7 @@ function renderMapSection(journey: boolean): string {
       <button type="button" data-action="map-positioning" aria-pressed="${state.mapView === "positioning"}">Área y precio publicado</button>
     </div>
     ${state.mapView === "geographic" ? renderGeographicMap(projects) : renderPositioningMap(projects)}
-    ${journey ? '<p class="method-note"><strong>Cómo leerlo:</strong> las cuatro zonas son una segmentación analítica interna, no límites oficiales. El precio mostrado es publicado, no de cierre.</p>' : ""}</section>
+    ${journey ? '<p class="method-note"><strong>Cómo leerlo:</strong> las cuatro zonas ayudan a comparar la oferta; no representan límites oficiales. El precio mostrado es publicado, no de cierre.</p>' : ""}</section>
     ${state.projectDetail ? renderProjectDetail() : ""}`;
 }
 
@@ -453,17 +591,17 @@ function renderGeographicMap(projects: ProjectSummary[]): string {
     id,
     valid.filter((project) => analyticZoneForProject(project) === id).length,
   ]));
-  return `<div class="map-visual-layout"><div><div class="map-frame"><svg class="map-chart map-chart--geographic" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="map-title map-description"><title id="map-title">Proyectos y zonas analíticas de ${escapeHtml(districtName())}</title><desc id="map-description">Contorno distrital referencial dividido por medianas en cuatro zonas analíticas internas y ${valid.length} proyectos seleccionables.</desc>
+  return `<div class="map-visual-layout"><div><div class="map-frame"><svg class="map-chart map-chart--geographic" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="map-title map-description"><title id="map-title">Proyectos por zona en ${escapeHtml(districtName())}</title><desc id="map-description">Contorno distrital referencial dividido en cuatro zonas de comparación y ${valid.length} proyectos seleccionables.</desc>
     <defs><clipPath id="district-zone-clip"><path d="${escapeAttr(boundaryPath)}" fill-rule="evenodd"></path></clipPath></defs>
     <g clip-path="url(#district-zone-clip)" aria-hidden="true">${zoneRects.map((zone) => `<rect class="map-zone map-zone--${zone.id.toLowerCase()} ${state.scenario?.scope_mode === "quadrant" && state.scenario.quadrant_id === zone.id ? "is-active" : ""}" x="${zone.x}" y="${zone.y}" width="${Math.max(zone.width, 0)}" height="${Math.max(zone.height, 0)}"></rect>`).join("")}</g>
     <path class="district-boundary" d="${escapeAttr(boundaryPath)}" fill-rule="evenodd"></path>
     <line class="zone-divider" clip-path="url(#district-zone-clip)" x1="${medianX}" y1="${padding}" x2="${medianX}" y2="${height - padding}"></line>
     <line class="zone-divider" clip-path="url(#district-zone-clip)" x1="${padding}" y1="${medianY}" x2="${width - padding}" y2="${medianY}"></line>
-    ${zoneRects.map((zone) => `<g class="zone-label" aria-hidden="true"><text x="${zone.labelX}" y="${zone.labelY}" text-anchor="${zone.id.endsWith("E") ? "end" : "start"}">${zone.id}</text><text class="zone-label__caption" x="${zone.labelX}" y="${zone.labelY + 18}" text-anchor="${zone.id.endsWith("E") ? "end" : "start"}">Zona analítica</text></g>`).join("")}
+    ${zoneRects.map((zone) => `<g class="zone-label" aria-hidden="true"><text x="${zone.labelX}" y="${zone.labelY}" text-anchor="${zone.id.endsWith("E") ? "end" : "start"}">${zone.id}</text><text class="zone-label__caption" x="${zone.labelX}" y="${zone.labelY + 18}" text-anchor="${zone.id.endsWith("E") ? "end" : "start"}">Zona de comparación</text></g>`).join("")}
     ${valid.map((project) => renderMapPoint(project, x(project.longitude!), y(project.latitude!), `${project.name} · ${analyticZoneLabel(analyticZoneForProject(project))} · ${money(project.pricePen)} publicado · ${formatNumber(project.areaM2)} m²`)).join("")}
   </svg></div>
-  <ul class="zone-legend" aria-label="Proyectos visibles por zona analítica">${zones.zones.map((zone) => `<li class="${state.scenario?.scope_mode === "quadrant" && state.scenario.quadrant_id === zone.id ? "is-active" : ""}"><span>${escapeHtml(zone.id)}</span><strong>${escapeHtml(zone.label)}</strong><small>${formatNumber(visibleZoneCounts[zone.id] ?? 0)} visibles</small></li>`).join("")}</ul></div>${renderMapProjectPanel(valid)}</div>
-  <p class="map-provenance"><strong>Zonas analíticas internas:</strong> se calculan con las medianas de latitud y longitud de proyectos con ubicación válida; no son zonificación urbana ni límites oficiales. <strong>Límite distrital referencial:</strong> ${escapeHtml(state.geography!.provenance.source)}; registro vinculante ${escapeHtml(state.geography!.provenance.officialBoundaryRegistry)}.</p>`;
+  <ul class="zone-legend" aria-label="Proyectos visibles por zona de comparación">${zones.zones.map((zone) => `<li class="${state.scenario?.scope_mode === "quadrant" && state.scenario.quadrant_id === zone.id ? "is-active" : ""}"><span>${escapeHtml(zone.id)}</span><strong>${escapeHtml(zone.label)}</strong><small>${formatNumber(visibleZoneCounts[zone.id] ?? 0)} visibles</small></li>`).join("")}</ul></div>${renderMapProjectPanel(valid)}</div>
+  <p class="map-provenance">Las zonas agrupan proyectos para facilitar la comparación; no representan límites urbanos oficiales. El contorno distrital es referencial.</p>`;
 }
 
 function renderPositioningMap(projects: ProjectSummary[]): string {
@@ -498,7 +636,7 @@ function renderMapPoint(project: ProjectSummary, x: number, y: number, descripti
 
 function renderMapProjectPanel(projects: ProjectSummary[]): string {
   const project = projects.find((item) => canonicalProjectId(item.id) === state.mapProjectId);
-  if (!project) return `<aside class="map-project-panel" aria-live="polite"><span class="map-project-panel__marker" aria-hidden="true">●</span><span class="eyebrow">Detalle del mapa</span><h3>Selecciona un proyecto</h3><p>Toca un punto para ver su nombre, ubicación, precio, área y fuentes disponibles.</p></aside>`;
+  if (!project) return `<aside class="map-project-panel" aria-live="polite"><span class="map-project-panel__marker" aria-hidden="true">●</span><span class="eyebrow">Detalle del mapa</span><h3>Selecciona un proyecto</h3><p>Toca un punto para ver el resumen del proyecto.</p></aside>`;
   const trace = state.mapProjectDetail?.traceability as JsonObject | undefined;
   const inScenario = state.workspace!.comparableProjectIds.includes(canonicalProjectId(project.id));
   const sourceSummary = trace?.hasOwnWebsite
@@ -519,9 +657,9 @@ function analyticZoneForProject(project: ProjectSummary): string | null {
 }
 
 function analyticZoneLabel(zoneId: string | null): string {
-  if (!zoneId) return "Sin zona analítica";
+  if (!zoneId) return "Sin zona asignada";
   const label = state.geography?.analysisZones.zones.find((zone) => zone.id === zoneId)?.label;
-  return label ? `Zona ${label} (${zoneId})` : `Zona ${zoneId}`;
+  return label ? `Zona de comparación ${label}` : "Zona de comparación";
 }
 
 function median(values: number[]): number {
@@ -535,7 +673,7 @@ function renderProjects(): string {
   const items = page?.items ?? [];
   const title = state.projectScope === "all" ? "Todos los proyectos" : "Comparables del escenario";
   const description = state.projectScope === "all"
-    ? "Explora el catálogo completo cargado; la ficha distingue fuentes y fecha de captura."
+    ? "Explora el catálogo completo y abre la ficha de cada proyecto."
     : "Revisa la oferta compatible con los filtros del escenario activo.";
   return `${renderPageHeader("Proyectos", title, description, `<span class="status-pill">${formatNumber(page?.total)} resultados</span>`)}
     ${renderComparisonSelection(items)}
@@ -555,7 +693,7 @@ function renderProjectRow(project: ProjectSummary): string {
   const selectionLabel = eligible
     ? `${checked ? "Quitar" : "Seleccionar"} ${project.name} para comparar`
     : `${project.name} no pertenece al conjunto comparable del escenario`;
-  return `<tr class="${checked ? "is-selected" : ""}"><td class="project-select-cell" data-label="Comparar"><input class="project-select-checkbox" type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} ${!eligible || selectionFull ? "disabled" : ""} aria-label="${escapeAttr(selectionLabel)}" title="${escapeAttr(!eligible ? "No cumple los filtros del escenario activo" : selectionFull ? "Ya seleccionaste el máximo de tres proyectos" : "Añadir a la comparación")}" /></td><td data-label="Proyecto"><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></td><td data-label="Producto">${escapeHtml(project.typology ?? "Sin tipología")}<small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></td><td data-label="Precio publicado"><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m² orientativo</small></td><td data-label="Área">${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</td><td data-label="Entrega">${escapeHtml(project.phase ?? "Sin dato")}</td><td data-label="Ficha"><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir ficha</button></td></tr>`;
+  return `<tr class="${checked ? "is-selected" : ""}"><td class="project-select-cell" data-label="Comparar"><input class="project-select-checkbox" type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} ${!eligible || selectionFull ? "disabled" : ""} aria-label="${escapeAttr(selectionLabel)}" title="${escapeAttr(!eligible ? "No cumple los filtros del escenario activo" : selectionFull ? "Ya seleccionaste el máximo de tres proyectos" : "Añadir a la comparación")}" /></td><td data-label="Proyecto"><span class="project-cell-value"><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></span></td><td data-label="Producto"><span class="project-cell-value"><span>${escapeHtml(project.typology ?? "Sin tipología")}</span><small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></span></td><td data-label="Precio publicado"><span class="project-cell-value"><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m² publicado</small></span></td><td data-label="Área"><span class="project-cell-value">${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</span></td><td data-label="Entrega"><span class="project-cell-value">${escapeHtml(project.phase ?? "Sin dato")}</span></td><td data-label="Ficha"><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir ficha</button></td></tr>`;
 }
 
 function renderComparisonSelection(items: ProjectSummary[]): string {
@@ -565,6 +703,7 @@ function renderComparisonSelection(items: ProjectSummary[]): string {
     return state.selectedProjects[id] ?? null;
   });
   const count = state.selectedProjectIds.length;
+  const slotCount = count === 0 ? 1 : Math.min(3, count + 1);
   const guidance = count === 0
     ? "Elige el primer proyecto que quieres contrastar."
     : count === 1
@@ -575,11 +714,11 @@ function renderComparisonSelection(items: ProjectSummary[]): string {
   return `<section class="comparison-selection surface" aria-labelledby="comparison-selection-title">
     <div class="comparison-selection__intro"><span class="selection-step">1</span><div><span class="eyebrow">Arma tu comparación</span><h2 id="comparison-selection-title">Proyectos seleccionados <span>${count}/3</span></h2><p id="comparison-selection-status" aria-live="polite">${escapeHtml(state.selectionMessage || guidance)}</p></div></div>
     <div class="comparison-selection__projects" aria-label="Selección actual">
-      ${[0, 1, 2].map((index) => {
+      ${Array.from({ length: slotCount }, (_, index) => {
         const project = selected[index];
         return project
           ? `<article class="selection-chip"><span>${index + 1}</span><div><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)}</small></div><button class="icon-button icon-button--small" type="button" data-project-remove="${escapeAttr(state.selectedProjectIds[index])}" aria-label="Quitar ${escapeAttr(project.name)} de la comparación">${closeIcon()}</button></article>`
-          : `<div class="selection-slot"><span>${index + 1}</span><small>${index === 0 ? "Primer proyecto" : index === 1 ? "Segundo proyecto" : "Opcional"}</small></div>`;
+          : `<div class="selection-slot"><span>${index + 1}</span><small>${index === 0 ? "Selecciona el primer proyecto" : index === 1 ? "Selecciona uno más" : "Tercer proyecto opcional"}</small></div>`;
       }).join("")}
     </div>
     <div class="comparison-selection__actions"><button class="button button--quiet" type="button" data-action="clear-comparison" ${count ? "" : "disabled"}>Limpiar selección</button><button class="button button--primary" type="button" data-action="open-comparison" ${count >= 2 ? "" : "disabled"}><span class="selection-step selection-step--button">2</span>Comparar ${count >= 2 ? `${count} proyectos` : "proyectos"}</button></div>
@@ -604,39 +743,181 @@ function renderProjectDetail(): string {
   const selectionLabel = selected ? "Quitar de comparación" : eligible ? "Añadir a comparación" : "Fuera del escenario comparable";
   const hasOwnWebsite = trace.hasOwnWebsite === true;
   const hasSocialSource = trace.hasSocialSource === true;
-  const coverageTitle = hasOwnWebsite ? "Cobertura multifuente vinculada" : "Cobertura disponible: Nexo";
-  const coverageCopy = hasOwnWebsite
-    ? "Esta ficha combina la referencia de Nexo Inmobiliario con una coincidencia de alta confianza hacia la web propia de la inmobiliaria. Revisa cada fuente por separado antes de usar un dato."
-    : "No existe todavía una coincidencia de alta confianza con la web propia para este proyecto. La ficha conserva únicamente la referencia estructurada de Nexo.";
-  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial multifuente</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><div class="project-detail-actions"><button class="button ${selected ? "button--quiet" : "button--primary"}" type="button" data-action="toggle-detail-comparison" ${cannotAdd ? "disabled" : ""}>${selectionLabel}</button><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">${closeIcon()}</button></div></header>
-    <section class="detail-block detail-block--first" aria-labelledby="project-summary-title"><h3 id="project-summary-title">${detailIcon("summary")}<span>Resumen comercial</span></h3><dl class="project-detail-summary"><div class="detail-stat detail-stat--primary"><dt>${detailIcon("price")}<span>Precio publicado desde</span></dt><dd>${money(project.pricePen)}</dd></div><div class="detail-stat"><dt>${detailIcon("area")}<span>Área total publicada</span></dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div class="detail-stat"><dt>${detailIcon("ratio")}<span>Cociente publicado</span></dt><dd>${money(project.pricePerM2)} / m²</dd></div><div class="detail-stat"><dt>${detailIcon("calendar")}<span>Estado o entrega</span></dt><dd>${escapeHtml(project.phase ?? project.deliveryDate ?? "Sin dato")}</dd></div></dl>
-      <p class="source-warning"><strong>Importante:</strong> son precios publicados, no precios reales de cierre. Cada diferencia entre fuentes se conserva para revisión.</p>
+  const verification = sourceVerificationSummary(sources);
+  const hasAdditionalSource = hasOwnWebsite || hasSocialSource;
+  const coverageTitle = hasAdditionalSource
+    ? verification.review > 0
+      ? `${formatNumber(verification.review)} ${verification.review === 1 ? "dato necesita" : "datos necesitan"} revisión`
+      : "Los datos disponibles coinciden"
+    : "Información disponible en Nexo";
+  const coverageCopy = hasAdditionalSource
+    ? `${formatNumber(verification.same)} ${verification.same === 1 ? "dato coincide" : "datos coinciden"} entre los canales disponibles. Revisa la tabla antes de usar una diferencia.`
+    : "La web o red oficial todavía no aporta datos comparables para este proyecto.";
+  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><div class="project-detail-actions"><button class="button ${selected ? "button--quiet" : "button--primary"}" type="button" data-action="toggle-detail-comparison" ${cannotAdd ? "disabled" : ""}>${selectionLabel}</button><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">${closeIcon()}</button></div></header>
+    <section class="detail-block detail-block--first" aria-labelledby="project-summary-title"><h3 id="project-summary-title">${detailIcon("summary")}<span>Resumen comercial</span></h3><dl class="project-detail-summary"><div class="detail-stat detail-stat--primary"><dt>${detailIcon("price")}<span>Precio publicado desde</span></dt><dd>${money(project.pricePen)}</dd></div><div class="detail-stat"><dt>${detailIcon("area")}<span>Área total publicada</span></dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div class="detail-stat"><dt>${detailIcon("ratio")}<span>Precio publicado por m²</span></dt><dd>${money(project.pricePerM2)} / m²</dd></div><div class="detail-stat"><dt>${detailIcon("calendar")}<span>Estado o entrega</span></dt><dd>${escapeHtml(project.phase ?? project.deliveryDate ?? "Sin dato")}</dd></div></dl>
+      <p class="source-warning"><strong>Importante:</strong> los precios publicados no representan precios reales de cierre.</p>
     </section>
     <div class="project-detail-layout">
-      <section class="detail-card" aria-labelledby="project-product-title"><h3 id="project-product-title">${detailIcon("building")}<span>Producto y ubicación</span></h3><dl class="detail-list"><div><dt>Tipo de inmueble</dt><dd>${escapeHtml(project.typology ?? "Sin dato")}</dd></div><div><dt>Dormitorios</dt><dd>${escapeHtml(project.bedrooms ?? "Sin dato")}</dd></div><div><dt>Unidades declaradas</dt><dd>${project.unitCount == null ? "—" : formatNumber(project.unitCount)}</dd></div><div><dt>Dirección publicada</dt><dd>${escapeHtml(project.address ?? "Sin dato")}</dd></div><div><dt>Última actualización observada</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div></dl></section>
+      <section class="detail-card" aria-labelledby="project-product-title"><h3 id="project-product-title">${detailIcon("building")}<span>Producto y ubicación</span></h3><dl class="detail-list"><div><dt>Tipo de inmueble</dt><dd>${escapeHtml(project.typology ?? "Sin dato")}</dd></div><div><dt>Dormitorios</dt><dd>${escapeHtml(project.bedrooms ?? "Sin dato")}</dd></div><div><dt>Unidades anunciadas</dt><dd>${project.unitCount == null ? "—" : formatNumber(project.unitCount)}</dd></div><div><dt>Dirección publicada</dt><dd>${escapeHtml(project.address ?? "Sin dato")}</dd></div><div><dt>Última actualización</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div></dl></section>
       ${project.description ? `<section class="detail-card detail-card--description" aria-labelledby="project-description-title"><h3 id="project-description-title">${detailIcon("document")}<span>Descripción publicada</span></h3><p>${escapeHtml(project.description)}</p></section>` : ""}
     </div>
     <section class="detail-block" aria-labelledby="project-features-title"><h3 id="project-features-title">${detailIcon("features")}<span>Información anunciada</span></h3><div class="detail-columns">
       <div><h4>${detailIcon("amenities")}<span>Áreas comunes</span></h4>${amenities.length ? `<ul class="tag-list">${amenities.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
       <div><h4>${detailIcon("bank")}<span>Financiamiento</span></h4>${banks.length ? `<ul class="tag-list">${banks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
     </div></section>
-    <section class="detail-block" aria-labelledby="project-sources-title"><header class="section-heading"><div><h3 id="project-sources-title">${detailIcon("sources")}<span>Fuentes y actualizaciones</span></h3><p>${formatNumber(trace.sourceCount)} fuente(s) · ${formatNumber(trace.factIds?.length)} hechos trazables</p></div></header>
-      <aside class="source-coverage ${hasOwnWebsite ? "source-coverage--multi" : ""}"><div>${detailIcon(hasOwnWebsite ? "verified" : "sources")}<span><strong>${coverageTitle}</strong><small>${coverageCopy}</small></span></div><ul><li class="is-present">Nexo Inmobiliario</li><li class="${hasOwnWebsite ? "is-present" : "is-pending"}">Web propia ${hasOwnWebsite ? "vinculada" : "pendiente"}</li><li class="${hasSocialSource ? "is-present" : "is-pending"}">Red social ${hasSocialSource ? "vinculada" : "sin fuente estructurada"}</li></ul></aside>
-      <div class="source-list">${sources.map(renderSourceCard).join("") || "<p>No hay referencias vinculadas.</p>"}</div>
+    <section class="detail-block" aria-labelledby="project-sources-title"><header class="section-heading"><div><span class="eyebrow">Nexo y canales oficiales</span><h3 id="project-sources-title">${detailIcon("verified")}<span>Verificación de datos</span></h3><p>Compara los datos principales y detecta diferencias antes de preparar una propuesta.</p></div><span class="status-pill">${verification.review ? `${formatNumber(verification.review)} por revisar` : "Sin diferencias visibles"}</span></header>
+      <aside class="source-coverage ${hasAdditionalSource ? "source-coverage--multi" : ""}"><div>${detailIcon(hasAdditionalSource ? "verified" : "sources")}<span><strong>${coverageTitle}</strong><small>${coverageCopy}</small></span></div><ul><li class="is-present">Nexo Inmobiliario</li><li class="${hasOwnWebsite ? "is-present" : "is-pending"}">Web oficial ${hasOwnWebsite ? "disponible" : "pendiente"}</li><li class="${hasSocialSource ? "is-present" : "is-pending"}">Red oficial ${hasSocialSource ? "disponible" : "pendiente"}</li></ul></aside>
+      ${renderSourceComparisonMatrix(sources)}
+      <details class="source-detail-disclosure"><summary>Ver fuentes y fechas</summary><div class="source-list">${sources.map(renderSourceCard).join("") || "<p>No hay fuentes vinculadas.</p>"}</div></details>
     </section>
   </section>`;
+}
+
+function renderQualityInspectorAccess(): string {
+  const cases = state.bootstrap?.inspectorCases ?? [];
+  const dossier = state.inspector?.dossier as JsonObject | undefined;
+  if (!cases.length) return "";
+  return `<section class="surface quality-browser" aria-labelledby="quality-browser-title">
+    <header class="section-heading"><div><span class="eyebrow">Guía de calidad</span><h2 id="quality-browser-title">Ejemplos de revisión</h2><p>Este paso opcional explica cómo se tratan datos coincidentes, incompletos o distintos.</p></div></header>
+    <label class="standalone-field" for="quality-verification-case">Caso para revisar
+      <select id="quality-verification-case">
+        ${cases.map((item, index) => `<option value="${escapeAttr(item.routeSlug)}" ${item.routeSlug === state.inspectorSlug ? "selected" : ""}>Revisión ${index + 1} · ${escapeHtml(qualityLabel(item.qualityStatus))}</option>`).join("")}
+      </select>
+    </label>
+    <div class="quality-verification-result">${dossier ? renderInspectorResult(dossier) : '<p class="source-empty">Elige una revisión para consultar sus datos y documentos.</p>'}</div>
+  </section>`;
+}
+
+function renderInspectorResult(dossier: JsonObject): string {
+  const project = dossier.project as JsonObject | undefined;
+  const decision = dossier.decision as JsonObject | undefined;
+  const facts = (dossier.facts ?? []) as JsonObject[];
+  const documents = (dossier.documents ?? []) as JsonObject[];
+  const canUse = decision?.benchmarkEligible === true || decision?.benchmark_eligible === true;
+  const projectName = String(project?.name ?? project?.canonical_name ?? "Proyecto revisado");
+  const displayProjectName = /controlad|fixture|ct-[a-z]/iu.test(projectName) ? "Ejemplo de proyecto" : projectName;
+  return `<section class="source-observed verification-result" tabindex="-1" aria-live="polite">
+    <span>Resultado de la verificación</span>
+    <h4>${escapeHtml(displayProjectName)}</h4>
+    <p><strong>${escapeHtml(qualityLabel(decision?.qualityStatus ?? decision?.quality_status))}.</strong> ${canUse ? "Los datos indicados como utilizables cuentan con respaldo compatible." : "Revisa las diferencias antes de usar estos datos en una comparación o propuesta."}</p>
+    <div class="table-scroll"><table><thead><tr><th>Dato</th><th>Valor observado</th><th>Estado</th><th>Uso recomendado</th></tr></thead><tbody>${facts.map((fact) => `<tr><td>${escapeHtml(commercialFactLabel(fact.field_name))}</td><td>${escapeHtml(fact.original_value ?? fact.normalized_value ?? "Sin dato")}</td><td>${escapeHtml(qualityLabel(fact.quality_status))}</td><td>${fact.benchmark_eligible ? '<span class="positive">Puede utilizarse</span>' : `<span class="caution">Revisar antes de usar</span><small>${escapeHtml(commercialReviewReason(fact.quality_status))}</small>`}</td></tr>`).join("") || '<tr><td colspan="4">No hay datos revisados para este ejemplo.</td></tr>'}</tbody></table></div>
+    <div><strong>Documentos disponibles</strong><div class="evidence-grid">${documents.map(renderProjectInspectorDocument).join("") || "<p>No hay documentos disponibles para mostrar.</p>"}</div></div>
+  </section>`;
+}
+
+function renderProjectInspectorDocument(document: JsonObject): string {
+  const title = document.title ?? "Documento de respaldo";
+  const capturedAt = document.captured_at ?? document.capturedAt;
+  return `<figure>${document.public_asset_path ? `<img src="/${escapeAttr(document.public_asset_path)}" alt="${escapeAttr(title)}" loading="lazy" />` : '<p class="source-empty">Sin vista previa pública</p>'}<figcaption><strong>${escapeHtml(title)}</strong><small>${capturedAt ? formatDate(capturedAt) : "Fecha no informada"}</small></figcaption></figure>`;
+}
+
+function commercialFactLabel(value: unknown): string {
+  const labels: Record<string, string> = {
+    built_area: "Área construida",
+    free_area: "Área libre",
+    total_area: "Área total",
+    price: "Precio publicado",
+    bathrooms: "Baños",
+    bedrooms: "Dormitorios",
+    floor: "Piso",
+  };
+  const key = String(value ?? "").toLowerCase();
+  const readable = key.replaceAll("_", " ").replace(/^./u, (letter) => letter.toUpperCase());
+  return (labels[key] ?? readable) || "Dato revisado";
+}
+
+function commercialReviewReason(status: unknown): string {
+  const reasons: Record<string, string> = {
+    inconsistent: "Las fuentes muestran valores distintos.",
+    illegible: "El documento no permite confirmar este dato.",
+    insufficient: "Falta información para completar la revisión.",
+    reviewable: "Conviene confirmar este dato antes de utilizarlo.",
+  };
+  return reasons[String(status)] ?? "Confirma este dato antes de utilizarlo.";
+}
+
+function sourceVerificationSummary(sources: JsonObject[]): { same: number; review: number; single: number; missing: number } {
+  const channelData = [
+    sources.find((source) => source.id === "source:nexo" || source.type === "portal")?.observedData,
+    sources.find((source) => source.type === "agency_website")?.observedData,
+    sources.find((source) => source.type === "social_network")?.observedData,
+  ] as Array<JsonObject | undefined>;
+  const fields = ["address", "listPrice", "totalArea", "bedrooms", "unitStatus", "deliveryDate", "amenities", "financingBanks"];
+  return fields.reduce((summary, field) => {
+    const values = channelData
+      .map((data) => sourceFieldValue(data, field))
+      .filter((value): value is string => value !== null);
+    if (!values.length) summary.missing += 1;
+    else if (values.length === 1) summary.single += 1;
+    else if (new Set(values.map(normalizeComparisonValue)).size === 1) summary.same += 1;
+    else summary.review += 1;
+    return summary;
+  }, { same: 0, review: 0, single: 0, missing: 0 });
+}
+
+function renderSourceComparisonMatrix(sources: JsonObject[]): string {
+  const nexo = sources.find((source) => source.id === "source:nexo" || source.type === "portal");
+  const official = sources.find((source) => source.type === "agency_website");
+  const social = sources.find((source) => source.type === "social_network");
+  const columns = [
+    { label: "Nexo Inmobiliario", source: nexo, empty: "Sin dato Nexo" },
+    { label: "Web oficial", source: official, empty: "No confirmada" },
+    { label: "Red oficial", source: social, empty: "No integrada" },
+  ];
+  const fields: Array<{ key: string; label: string }> = [
+    { key: "address", label: "Dirección" },
+    { key: "listPrice", label: "Precio publicado" },
+    { key: "totalArea", label: "Área total" },
+    { key: "bedrooms", label: "Dormitorios" },
+    { key: "unitStatus", label: "Estado" },
+    { key: "deliveryDate", label: "Entrega" },
+    { key: "amenities", label: "Áreas comunes" },
+    { key: "financingBanks", label: "Financiamiento" },
+  ];
+  return `<div class="source-matrix-wrap"><table class="source-matrix"><thead><tr><th scope="col">Dato</th>${columns.map((column) => `<th scope="col"><span>${escapeHtml(column.label)}</span><small>${column.source ? formatDate(column.source.capturedAt) : column.empty}</small></th>`).join("")}<th scope="col">Resultado</th></tr></thead><tbody>${fields.map((field) => {
+    const values = columns.map((column) => sourceFieldValue(column.source?.observedData as JsonObject | undefined, field.key));
+    const result = sourceComparisonResult(values);
+    return `<tr><th scope="row">${escapeHtml(field.label)}</th>${values.map((value, index) => `<td data-source="${escapeAttr(columns[index]!.label)}">${value == null ? `<span class="source-empty">${escapeHtml(columns[index]!.empty)}</span>` : escapeHtml(value)}</td>`).join("")}<td data-source="Resultado"><span class="source-result source-result--${result.tone}">${escapeHtml(result.label)}</span></td></tr>`;
+  }).join("")}</tbody></table></div>`;
+}
+
+function sourceFieldValue(data: JsonObject | undefined, key: string): string | null {
+  if (!data) return null;
+  const value = data[key];
+  if (value === null || value === undefined || String(value).trim() === "") return null;
+  if (Array.isArray(value)) return value.length ? value.map(String).join(" · ") : null;
+  if (key === "listPrice") return money(value);
+  if (key === "totalArea") return formatSourceArea(value);
+  if (key === "deliveryDate") return formatDate(value);
+  return String(value);
+}
+
+function sourceComparisonResult(values: Array<string | null>): { label: string; tone: "same" | "review" | "pending" } {
+  const available = values.filter((value): value is string => value !== null);
+  if (!available.length) return { label: "No disponible", tone: "pending" };
+  if (available.length === 1) {
+    const availableIndex = values.findIndex((value) => value !== null);
+    return { label: availableIndex === 0 ? "Disponible en Nexo" : availableIndex === 1 ? "Disponible en web" : "Disponible en red", tone: "pending" };
+  }
+  const normalized = new Set(available.map((value) => normalizeComparisonValue(value)));
+  return normalized.size === 1
+    ? { label: "Coincide", tone: "same" }
+    : { label: "Revisar diferencia", tone: "review" };
+}
+
+function normalizeComparisonValue(value: string): string {
+  return value.normalize("NFKD").replace(/\p{M}/gu, "").replace(/[^a-z0-9]+/giu, " ").trim().toLowerCase();
 }
 
 function renderSourceCard(source: JsonObject): string {
   const type = sourceTypeLabel(source.type);
   const status = sourceStatusLabel(source.legalStatus);
   const evidence = source.evidenceStatus === "versioned_reference"
-    ? "Vinculación de alta confianza; la captura externa no forma parte del snapshot."
+    ? "Página del proyecto revisada."
     : source.evidenceStatus === "unavailable"
-      ? "Referencia estructurada; sin captura publicable en esta versión."
-      : String(source.evidenceStatus ?? "Evidencia no publicada.");
-  const score = source.matchScore == null ? "" : ` · coincidencia ${formatNumber(source.matchScore)}/100`;
-  return `<article><div class="source-list__identity"><span class="source-type source-type--${escapeAttr(String(source.type ?? "other"))}">${escapeHtml(type)}</span><strong>${escapeHtml(source.name)}</strong><small>${formatDate(source.capturedAt)} · ${escapeHtml(evidence)}${escapeHtml(score)}</small></div><span class="status-pill">${escapeHtml(status)}</span>${source.sourceUrl ? `<a class="button button--quiet" href="${escapeAttr(source.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fuente</a>` : ""}${renderSourceObservedData(source)}</article>`;
+      ? "Sin vista previa en esta versión."
+      : "Detalle disponible.";
+  return `<article><div class="source-list__identity"><span class="source-type source-type--${escapeAttr(String(source.type ?? "other"))}">${escapeHtml(type)}</span><strong>${escapeHtml(source.name)}</strong><small>${formatDate(source.capturedAt)} · ${escapeHtml(evidence)}</small></div><span class="status-pill">${escapeHtml(status)}</span>${source.sourceUrl ? `<a class="button button--quiet" href="${escapeAttr(source.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fuente</a>` : ""}${renderSourceObservedData(source)}</article>`;
 }
 
 function renderSourceObservedData(source: JsonObject): string {
@@ -677,12 +958,12 @@ function sourceTypeLabel(value: unknown): string {
 
 function sourceStatusLabel(value: unknown): string {
   const labels: Record<string, string> = {
-    cleared_for_demo: "Autorizada para la demo",
-    referenced_for_demo: "Referencia versionada",
-    pending_review: "Pendiente de validación",
-    pending: "Revisión pendiente",
+    cleared_for_demo: "Disponible",
+    referenced_for_demo: "Página oficial revisada",
+    pending_review: "Por revisar",
+    pending: "Por revisar",
   };
-  return labels[String(value)] ?? "Estado documentado";
+  return labels[String(value)] ?? "Estado por revisar";
 }
 
 function closeIcon(): string {
@@ -707,36 +988,23 @@ function detailIcon(name: string): string {
   return `<span class="detail-symbol" aria-hidden="true"><svg viewBox="0 0 24 24">${paths[name] ?? paths.summary}</svg></span>`;
 }
 
-function renderInspector(): string {
-  const dossier = state.inspector?.dossier as JsonObject | undefined;
-  return `${renderPageHeader("Inspector", "Evidencia y elegibilidad", "Compara lo publicado, identifica conflictos y decide qué dato puede utilizarse.")}
-    <section class="surface"><label class="standalone-field">Expediente<select id="inspector-case">${state.bootstrap!.inspectorCases.map((item) => `<option value="${escapeAttr(item.routeSlug)}" ${item.routeSlug === state.inspectorSlug ? "selected" : ""}>${escapeHtml(caseLabel(item.routeSlug))} · ${escapeHtml(qualityLabel(item.qualityStatus))}</option>`).join("")}</select></label></section>
-    ${dossier ? renderDossier(dossier) : emptyState("Selecciona un expediente para revisar la evidencia.", "Reintentar", "#inspector")}`;
-}
-
-function renderDossier(dossier: JsonObject): string {
-  const documents = (dossier.documents ?? []) as JsonObject[];
-  return `<section class="decision-strip"><span>Resultado</span><strong>${escapeHtml(qualityLabel(dossier.decision?.qualityStatus ?? dossier.decision?.quality_status ?? dossier.selectedTypology?.quality_status))}</strong><p>${dossier.decision?.benchmarkEligible === false || dossier.decision?.benchmark_eligible === false ? "No usar este dato como referencia cuantitativa." : "El expediente conserva evidencia compatible con su uso declarado."}</p></section>
-    ${renderFactLedger(dossier)}
-    <section class="surface"><header class="section-heading"><div><h2>Evidencia autorizada</h2><p>Activos controlados; no sustituyen el documento fuente.</p></div></header><div class="evidence-grid">${documents.filter((document) => document.public_asset_path).map((document) => `<figure><img src="/${escapeAttr(document.public_asset_path)}" alt="${escapeAttr(document.title)}" loading="lazy" /><figcaption><strong>${escapeHtml(document.title)}</strong><small>${formatDate(document.captured_at)}</small></figcaption></figure>`).join("") || "<p>Este expediente no publica un activo visual.</p>"}</div></section>`;
-}
-
-function renderFactLedger(dossier: JsonObject): string {
-  const facts = (dossier.facts ?? []) as JsonObject[];
-  return `<section class="surface"><header class="section-heading"><div><h2>Hechos evaluados</h2><p>Valor, calidad y regla de uso en una sola fila.</p></div></header><div class="table-scroll"><table><thead><tr><th>Campo</th><th>Valor</th><th>Calidad</th><th>Benchmark</th></tr></thead><tbody>${facts.map((fact) => `<tr><td>${escapeHtml(fact.field_name)}</td><td>${escapeHtml(fact.original_value ?? fact.normalized_value ?? "—")}</td><td>${escapeHtml(qualityLabel(fact.quality_status))}</td><td>${fact.benchmark_eligible ? '<span class="positive">Utilizable</span>' : `<span class="caution">Excluido</span><small>${escapeHtml(fact.exclusion_reason ?? "Sin evidencia suficiente")}</small>`}</td></tr>`).join("") || '<tr><td colspan="4">No hay hechos disponibles.</td></tr>'}</tbody></table></div></section>`;
-}
-
-function renderBenchmark(): string {
-  return `${renderPageHeader("Benchmark", "Referencias explicables", "Distingue métricas utilizables de orientaciones no comparables.")}${renderBenchmarkSummary()}`;
-}
-
-function renderBenchmarkSummary(): string {
+function renderZoneOfferPanel(): string {
   const benchmark = state.workspace!.benchmark;
-  const quantitative = benchmark.quantitative ?? {};
-  const orientative = quantitative.orientative ?? {};
+  const orientative = benchmark.quantitative?.orientative ?? {};
   const attributes = (benchmark.qualitative?.attributes ?? []) as JsonObject[];
-  return `<section class="metric-row">${metric("Muestra certificada", quantitative.n ?? 0, quantitative.status === "ready" ? "Benchmark cuantitativo" : "Muestra insuficiente")}${metric("Orientaciones", orientative.n ?? 0, "No comparables por pairing")}${metric("Mediana orientativa", money(orientative.median), "PEN por m² total")}</section>
-    <section class="surface"><header class="section-heading"><div><h2>Atributos anunciados</h2><p>Frecuencia declarada; “documentado” exige evidencia autorizada.</p></div></header><div class="attribute-list">${attributes.sort((a, b) => Number(b.announcedCount) - Number(a.announcedCount)).slice(0, 12).map((attribute) => `<div><strong>${escapeHtml(attribute.label)}</strong><span>${formatNumber(attribute.announcedCount)} anunciados</span><span>${formatNumber(attribute.documentedCount)} documentados</span></div>`).join("")}</div><details class="methodology"><summary>Ver metodología</summary><p>Cuantiles ${escapeHtml(benchmark.methodology?.quantile_method ?? "R7")}; mínimo ${formatNumber(benchmark.methodology?.minimum_quantitative_sample)} proyectos; política ${escapeHtml(benchmark.methodology?.pairing_policy ?? "source_paired_only")}.</p></details></section>`;
+  const topAttributes = attributes
+    .sort((a, b) => Number(b.announcedCount) - Number(a.announcedCount))
+    .slice(0, 8);
+  return `<section class="surface zone-offer" aria-labelledby="zone-offer-title">
+    <header class="section-heading"><div><span class="eyebrow">Competencia del escenario</span><h2 id="zone-offer-title">Precios y oferta de la zona</h2><p>Ubica el rango de precio por m² y las características que más anuncian los proyectos del escenario.</p></div><a class="button button--quiet" href="#projects">Explorar proyectos</a></header>
+    <div class="zone-offer__metrics">
+      ${metric("Oferta comparable", state.workspace!.marketReading.comparableProjectCount, "Proyectos que cumplen tus filtros")}
+      ${metric("Con precio y área", orientative.n ?? 0, "Permiten ubicar el rango publicado")}
+      ${metric("Índice publicado", money(orientative.median), "Referencia orientativa por m²")}
+    </div>
+    <div class="zone-offer__body"><div><h3>Características más anunciadas</h3><p>Úsalas para reconocer patrones y abrir preguntas comerciales.</p><div class="attribute-list">${topAttributes.map((attribute) => `<div><strong>${escapeHtml(attribute.label)}</strong><span>${formatNumber(attribute.announcedCount)} proyectos</span></div>`).join("") || "<p>No hay características informadas para este escenario.</p>"}</div></div><aside class="zone-offer__tip"><strong>Cómo usar esta lectura</strong><p>El índice ubica precios publicados frente a la zona. No compara departamentos ni representa un precio de cierre.</p><a href="#compare">Comparar proyectos</a></aside></div>
+    <details class="methodology"><summary>Qué se incluyó</summary><p>Se consideran proyectos del escenario con precio y área total publicados. Los registros incompletos quedan fuera de este cálculo.</p></details>
+  </section>`;
 }
 
 function renderComparison(): string {
@@ -744,7 +1012,7 @@ function renderComparison(): string {
   const content = comparison?.status === "ready"
     ? renderComparisonModel(comparison)
     : emptyState("Selecciona al menos dos proyectos comparables para ver sus diferencias.", "Elegir proyectos", "#projects");
-  return `${renderPageHeader("Comparador", "Compara proyecto por proyecto", "Contrasta en columnas el precio, área, producto, entrega y atributos publicados.", `<a class="button button--quiet" href="#projects">Cambiar selección</a>`)}${content}${state.projectDetail ? renderProjectDetail() : ""}`;
+  return `${renderPageHeader("Comparar", "Proyectos lado a lado", "Contrasta precio, área, producto, entrega y características en el mismo orden.", `<a class="button button--quiet" href="#projects">Cambiar selección</a>`)}${content}${state.projectDetail ? renderProjectDetail() : ""}`;
 }
 
 function renderComparisonModel(comparison: JsonObject): string {
@@ -760,14 +1028,14 @@ function renderComparisonModel(comparison: JsonObject): string {
   </section>
   ${renderComparisonWarnings(comparisonWarnings)}
   ${renderProjectDifferences(projectDifferences, groups, selected)}
-  <section class="surface comparison-matrix" aria-labelledby="comparison-matrix-title"><header class="section-heading"><div><span class="eyebrow">Comparación completa</span><h2 id="comparison-matrix-title">Datos publicados lado a lado</h2><p>“Diferencia” señala que los valores observados no coinciden; no determina por sí sola cuál proyecto es mejor.</p></div></header>${groups.map((group) => renderComparisonGroup(group, selected)).join("")}<details class="methodology"><summary>Ver límites de la comparación</summary><ul>${((comparison.limitations ?? []) as unknown[]).map((item) => `<li>${escapeHtml(typeof item === "string" ? item : JSON.stringify(item))}</li>`).join("") || "<li>La lectura se limita a los datos publicados y trazables del escenario.</li>"}</ul></details></section>`;
+  <section class="surface comparison-matrix" aria-labelledby="comparison-matrix-title"><header class="section-heading"><div><span class="eyebrow">Comparación completa</span><h2 id="comparison-matrix-title">Datos publicados lado a lado</h2><p>“Diferencia” señala que los valores no coinciden; no determina por sí sola cuál proyecto es mejor.</p></div></header>${groups.map((group) => renderComparisonGroup(group, selected)).join("")}<details class="methodology"><summary>Ver límites de la comparación</summary><ul>${comparisonLimitations(comparison).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details></section>`;
 }
 
 function renderComparisonWarnings(findings: JsonObject[]): string {
   if (!findings.length) return "";
   return `<aside class="comparison-guidance" aria-labelledby="comparison-guidance-title">
     <span class="comparison-guidance__icon" aria-hidden="true">!</span>
-    <div><span class="eyebrow">Antes de comparar precios</span><h2 id="comparison-guidance-title">El precio por m² todavía no es comparable</h2><p>Hay precios y áreas publicados, pero no está demostrado que pertenezcan al mismo departamento o tipología. Dividirlos podría producir un valor engañoso.</p><dl><div><dt>Qué puedes usar</dt><dd>El precio y el área como referencias publicadas independientes.</dd></div><div><dt>Qué falta validar</dt><dd>${escapeHtml(findings[0]?.nextAction ?? "Vincular precio y área de la misma oferta o tipología.")}</dd></div></dl></div>
+    <div><span class="eyebrow">Antes de comparar precios</span><h2 id="comparison-guidance-title">El precio por m² todavía no es comparable</h2><p>Hay precios y áreas publicados, pero no está demostrado que pertenezcan al mismo departamento o tipología. Dividirlos podría producir un valor engañoso.</p><dl><div><dt>Qué puedes usar</dt><dd>El precio y el área como referencias publicadas independientes.</dd></div><div><dt>Qué falta validar</dt><dd>Confirma que el precio y el área correspondan al mismo departamento o tipología.</dd></div></dl></div>
   </aside>`;
 }
 
@@ -786,11 +1054,16 @@ function renderProjectDifference(finding: JsonObject, groups: JsonObject[], sele
     ? "Compara el precio junto con el área total de cada proyecto; un precio mayor puede corresponder a un inmueble más amplio."
     : rowId === "common_areas.announced"
       ? "La información publicada cambia entre proyectos. “No informado” no significa que la característica no exista."
-      : String(finding.implication ?? "Revisa los valores publicados antes de decidir.");
+      : "Los valores publicados necesitan una revisión conjunta antes de elegir.";
+  const nextAction = rowId === "areas.total"
+    ? "Confirma que el precio y el área correspondan a la misma oferta."
+    : rowId === "common_areas.announced"
+      ? "Abre las fuentes de cada proyecto y confirma las características prioritarias."
+      : "Revisa los datos disponibles antes de elegir.";
   return `<article class="comparison-difference-card" data-comparison-finding="${escapeAttr(finding.id ?? rowId)}"><div><span class="difference-badge">Diferencia observada</span><h3>${escapeHtml(title)}</h3><p>${escapeHtml(explanation)}</p></div><dl class="comparison-finding-values comparison-finding-values--${selected.length}">${selected.map((project) => {
     const value = comparisonValueFor(groups, rowId, project.projectId);
     return `<div><dt>${escapeHtml(project.name ?? "Proyecto")}</dt><dd>${formatComparisonValue(value)}</dd><small>${escapeHtml(comparisonStateLabel(value.state))}</small></div>`;
-  }).join("")}</dl><footer><strong>Antes de usarlo</strong><p>${escapeHtml(finding.nextAction ?? "Contrasta las fuentes disponibles.")}</p></footer></article>`;
+  }).join("")}</dl><footer><strong>Antes de usarlo</strong><p>${escapeHtml(nextAction)}</p></footer></article>`;
 }
 
 function renderComparisonProject(project: JsonObject, index: number, groups: JsonObject[]): string {
@@ -803,7 +1076,18 @@ function renderComparisonProject(project: JsonObject, index: number, groups: Jso
 function renderComparisonGroup(group: JsonObject, selected: JsonObject[]): string {
   const rows = (group.rows ?? []) as JsonObject[];
   const differences = rows.filter((row) => row.hasDifference || row.hasExcluded).length;
-  return `<section class="comparison-group" aria-labelledby="comparison-group-${escapeAttr(group.id)}"><header><h3 id="comparison-group-${escapeAttr(group.id)}">${escapeHtml(group.label)}</h3><span>${differences ? `${formatNumber(differences)} ${differences === 1 ? "diferencia" : "diferencias"}` : "Sin diferencias observadas"}</span></header>${rows.map((row) => `<div class="comparison-data-row comparison-data-row--${selected.length} ${row.hasDifference || row.hasExcluded ? "is-different" : ""}"><div class="comparison-criterion"><strong>${escapeHtml(row.label)}</strong>${row.hasDifference || row.hasExcluded ? '<span class="difference-badge">Diferencia</span>' : '<span class="same-badge">Coincide</span>'}</div>${((row.values ?? []) as JsonObject[]).map((value, index) => `<div class="comparison-value-cell ${comparisonStateClass(value.state)}" data-project="${escapeAttr(selected[index]?.name ?? "Proyecto")}">${formatComparisonValue(value)}<span class="comparison-value-state">${escapeHtml(comparisonStateLabel(value.state))}</span>${value.exclusionReason ? `<small>${escapeHtml(value.exclusionReason)}</small>` : ""}</div>`).join("")}</div>`).join("")}</section>`;
+  return `<section class="comparison-group" aria-labelledby="comparison-group-${escapeAttr(group.id)}"><header><h3 id="comparison-group-${escapeAttr(group.id)}">${escapeHtml(group.label)}</h3><span>${differences ? `${formatNumber(differences)} ${differences === 1 ? "diferencia" : "diferencias"}` : "Sin diferencias observadas"}</span></header>${rows.map((row) => `<div class="comparison-data-row comparison-data-row--${selected.length} ${row.hasDifference || row.hasExcluded ? "is-different" : ""}"><div class="comparison-criterion"><strong>${escapeHtml(row.label)}</strong>${row.hasDifference || row.hasExcluded ? '<span class="difference-badge">Diferencia</span>' : '<span class="same-badge">Coincide</span>'}</div>${((row.values ?? []) as JsonObject[]).map((value, index) => `<div class="comparison-value-cell ${comparisonStateClass(value.state)}" data-project="${escapeAttr(selected[index]?.name ?? "Proyecto")}">${formatComparisonValue(value)}<span class="comparison-value-state">${escapeHtml(comparisonStateLabel(value.state))}</span></div>`).join("")}</div>`).join("")}</section>`;
+}
+
+function comparisonLimitations(comparison: JsonObject): string[] {
+  const raw = (comparison.limitations ?? []) as unknown[];
+  const friendly = raw.map((item) => {
+    const value = String(item ?? "").toLowerCase();
+    if (/precio|área|m²|m2/u.test(value)) return "El precio por m² solo se usa cuando el precio y el área corresponden a la misma oferta.";
+    if (/atribut|característ/u.test(value)) return "Una característica no informada no se interpreta como inexistente.";
+    return "Los datos incompletos se muestran como pendientes de revisión.";
+  });
+  return [...new Set(friendly.length ? friendly : ["La comparación usa la información publicada disponible."])];
 }
 
 function comparisonValueFor(groups: JsonObject[], rowId: string, projectId: unknown): JsonObject {
@@ -811,36 +1095,297 @@ function comparisonValueFor(groups: JsonObject[], rowId: string, projectId: unkn
   return ((row?.values ?? []) as JsonObject[]).find((value) => value.projectId === projectId) ?? {};
 }
 
-function renderChecklist(): string {
-  return `${renderPageHeader("Checklist", "Preparación comercial", "Confirma en minutos qué puede afirmarse y qué necesita validación.")}
-    <section class="surface checklist">${checkRows().map(renderCheckRow).join("")}</section>`;
-}
-
-function checkRows(): Array<{ status: string; title: string; detail: string }> {
+function decisionReadinessRows(): Array<{ status: "ok" | "warn"; title: string; detail: string }> {
   const workspace = state.workspace!;
   return [
-    { status: workspace.scenarioStatus === "valid" ? "ok" : "warn", title: "Escenario válido", detail: "Distrito, alcance y filtros fueron normalizados por la API." },
-    { status: Number(workspace.coverage.geographyCoveragePct) >= 80 ? "ok" : "warn", title: "Cobertura geográfica", detail: `${formatPercent(workspace.coverage.geographyCoveragePct)} de los proyectos del alcance.` },
-    { status: Number(workspace.marketReading.priceReferenceCount) >= 3 ? "ok" : "warn", title: "Precio de referencia", detail: `${formatNumber(workspace.marketReading.priceReferenceCount)} registros cumplen las reglas vigentes.` },
-    { status: "warn", title: "Atributos cualitativos", detail: "Un atributo anunciado no equivale a un atributo documentado." },
-    { status: "ok", title: "Privacidad", detail: "El snapshot público no contiene PII de contacto ni payloads fuente." },
-    { status: "warn", title: "Límite de interpretación", detail: "No afirmar causalidad, demanda futura ni intención individual." },
+    {
+      status: workspace.scenarioStatus === "valid" ? "ok" : "warn",
+      title: "Escenario definido",
+      detail: `${districtName()} · ${scopeLabel()}.`,
+    },
+    {
+      status: Number(workspace.coverage.geographyCoveragePct) >= 80 ? "ok" : "warn",
+      title: "Oferta ubicada",
+      detail: `${formatPercent(workspace.coverage.geographyCoveragePct)} de los proyectos puede verse en el mapa.`,
+    },
+    {
+      status: Number(workspace.marketReading.priceReferenceCount) >= 3 ? "ok" : "warn",
+      title: "Precios para comparar",
+      detail: `${formatNumber(workspace.marketReading.priceReferenceCount)} publicaciones declaran precio y área para una lectura inicial.`,
+    },
   ];
 }
 
-function renderCheckRow(item: { status: string; title: string; detail: string }): string {
-  return `<article class="check-row"><span class="check-icon ${item.status}">${item.status === "ok" ? "✓" : "!"}</span><div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.detail)}</p></div></article>`;
+function renderDecisionReadiness(): string {
+  const rows = decisionReadinessRows();
+  const warnings = rows.filter(({ status }) => status === "warn").length;
+  const status = warnings ? `Revisa ${formatNumber(warnings)} ${warnings === 1 ? "punto" : "puntos"}` : "Lista para preparar";
+  return `<section class="surface decision-readiness" aria-labelledby="decision-readiness-title">
+    <header class="section-heading"><div><span class="eyebrow">Estado del escenario</span><h2 id="decision-readiness-title">Antes de compartir</h2><p>Confirma los datos disponibles y revisa las reglas de comunicación antes de preparar tu argumento.</p></div><span class="status-pill ${warnings ? "status-pill--warning" : ""}">${status}</span></header>
+    <div class="readiness-list">${rows.map(renderReadinessRow).join("")}</div>
+    <details class="methodology decision-safeguards"><summary>Ver reglas para compartir esta lectura</summary><ul>
+      <li><strong>Características:</strong> “anunciada” significa que aparece en la publicación. Usa “confirmada” solo cuando una fuente permita comprobarla.</li>
+      <li><strong>Privacidad:</strong> comparte solo información comercial pública; no incluyas datos personales ni archivos de acceso restringido.</li>
+      <li><strong>Interpretación:</strong> un cambio publicado no permite afirmar su causa, la demanda futura ni la intención de compra de una persona.</li>
+      <li><strong>Precios:</strong> presenta los importes como precios publicados, no como precios reales de cierre.</li>
+    </ul></details>
+  </section>`;
+}
+
+function renderReadinessRow(item: { status: "ok" | "warn"; title: string; detail: string }): string {
+  return `<article class="readiness-row"><span class="check-icon ${item.status}">${item.status === "ok" ? "✓" : "!"}</span><div><strong>${escapeHtml(item.title)}</strong><p>${escapeHtml(item.detail)}</p></div></article>`;
 }
 
 function renderAssistant(): string {
   const answer = state.assistant?.answer as JsonObject | undefined;
-  return `${renderPageHeader("Decidir", "Asistente de estrategia", "Elige una pregunta compatible y recibe una respuesta determinista con referencias.")}
-    <section class="assistant-layout"><div class="surface"><h2>Pregunta comercial</h2><div class="prompt-list">${state.bootstrap!.assistantIntents.map((intent) => `<button type="button" data-assistant-intent="${escapeAttr(intent.id)}" data-assistant-question="${escapeAttr(intent.question)}"><strong>${escapeHtml(intent.label)}</strong><span>${escapeHtml(intent.question)}</span></button>`).join("")}</div><form id="assistant-form" class="assistant-form"><label for="assistant-input">Pregunta</label><textarea id="assistant-input" name="input" rows="3" maxlength="1000" placeholder="Selecciona una pregunta o escríbela aquí."></textarea><input type="hidden" name="intentId" id="assistant-intent" /><button class="button button--primary" type="submit">Generar respuesta</button></form></div>${answer ? renderAnswer(answer) : '<section class="surface assistant-empty"><span>→</span><h2>Una respuesta breve, verificable y accionable</h2><p>Los datos usados y los límites aparecen junto a la lectura.</p></section>'}</section>`;
+  const categories = assistantCategories();
+  const questions = assistantQuestions().filter(({ category }) => category === state.assistantCategory);
+  const comparisonNeedsSelection = state.assistantCategory === "competition" && state.selectedProjectIds.length < 2;
+  return `${renderPageHeader("Decidir", "Asistente de estrategia", "Prepara respuestas para una conversación comercial usando el distrito, la zona y los proyectos elegidos.")}
+    <section class="assistant-layout">
+      <div class="surface assistant-question-panel">
+        <header class="assistant-question-panel__header"><span class="eyebrow">Consulta guiada</span><h2>¿Qué decisión necesitas preparar?</h2><p>Elige un tema y parte de una pregunta comercial. También puedes escribir una consulta equivalente.</p></header>
+        <nav class="assistant-categories" aria-label="Temas de consulta">${categories.map((category) => `<button type="button" class="assistant-category ${state.assistantCategory === category.id ? "is-active" : ""}" data-assistant-category="${category.id}" aria-pressed="${state.assistantCategory === category.id}"><span aria-hidden="true">${category.icon}</span>${escapeHtml(category.label)}</button>`).join("")}</nav>
+        ${comparisonNeedsSelection ? `<aside class="assistant-selection-note"><strong>Primero elige los competidores.</strong><span>Selecciona entre dos y tres proyectos para comparar sus diferencias.</span><a href="#projects">Ir a Proyectos</a></aside>` : ""}
+        <div class="prompt-list">${questions.map((question) => renderAssistantQuestion(question)).join("")}</div>
+        <form id="assistant-form" class="assistant-form">
+          <label for="assistant-input">Tu pregunta</label>
+          <textarea id="assistant-input" name="input" rows="3" maxlength="500" placeholder="Selecciona una pregunta o escríbela aquí.">${escapeHtml(state.assistantDraft)}</textarea>
+          <div class="assistant-input-meta"><small>Esta versión responde sobre el escenario activo y los proyectos seleccionados.</small><small id="assistant-character-count">${formatNumber(state.assistantDraft.length)} / 500</small></div>
+          <input type="hidden" name="intentId" id="assistant-intent" value="${escapeAttr(state.assistantIntentId ?? "")}" />
+          ${state.assistantError ? `<p class="assistant-error" role="alert">${escapeHtml(state.assistantError)}</p>` : ""}
+          <button class="button button--primary" type="submit">Preparar respuesta</button>
+        </form>
+      </div>
+      ${answer ? renderAnswer(answer) : renderAssistantEmpty()}
+    </section>
+    ${renderDecisionReadiness()}`;
 }
 
 function renderAnswer(answer: JsonObject): string {
   const blocks = (answer.blocks ?? []) as JsonObject[];
-  return `<section class="surface answer" aria-live="polite"><span class="status-pill">${escapeHtml(answer.status ?? "ready")}</span><h2>Respuesta</h2>${blocks.filter((block) => ["answer", "interpretation", "limitations", "next_step"].includes(block.type)).map((block) => `<section><h3>${escapeHtml(block.title)}</h3>${((block.items ?? []) as JsonObject[]).map((item) => `<p>${escapeHtml(item.text ?? item.label ?? item.detail ?? "")}</p>`).join("")}</section>`).join("")}<details class="methodology"><summary>Ver ${formatNumber(answer.references?.length)} referencias</summary><ul>${((answer.references ?? []) as JsonObject[]).map((reference) => `<li>${escapeHtml(reference.label ?? reference.id)}</li>`).join("")}</ul></details></section>`;
+  const directAnswer = blocks.filter((block) => block.type === "answer");
+  const explanation = blocks.filter((block) => ["interpretation", "limitations"].includes(String(block.type)));
+  const keyFacts = renderAssistantKeyFacts(blocks);
+  const action = assistantAnswerAction(answer, blocks);
+  const status = assistantAnswerStatus(answer.status);
+  return `<section class="surface answer answer--${status.tone}" aria-live="polite">
+    <header class="answer__header"><div><span class="status-pill ${status.tone === "warning" ? "status-pill--warning" : ""}">${escapeHtml(status.label)}</span><h2>${escapeHtml(state.assistantQuestionTitle ?? "Respuesta comercial")}</h2></div><span class="answer__context">${escapeHtml(scopeLabel())}</span></header>
+    ${directAnswer.map(renderAssistantAnswerBlock).join("")}
+    ${keyFacts}
+    ${explanation.map(renderAssistantAnswerBlock).join("")}
+    ${action ? `<a class="button button--primary answer__action" href="${escapeAttr(action.hash)}">${escapeHtml(action.label)}</a>` : ""}
+    <details class="methodology answer__sources"><summary>Ver fuentes y fecha de la información</summary><ul>${((answer.references ?? []) as JsonObject[]).map((reference) => `<li>${escapeHtml(commercialReferenceLabel(reference))}</li>`).join("") || "<li>No se usaron fuentes adicionales para esta respuesta.</li>"}</ul></details>
+  </section>`;
+}
+
+function renderAssistantAnswerBlock(block: JsonObject): string {
+  const limit = block.type === "limitations" ? 2 : 3;
+  return `<section class="answer-block answer-block--${escapeAttr(String(block.type))}"><h3>${escapeHtml(assistantBlockTitle(block.type, block.title))}</h3>${((block.items ?? []) as JsonObject[]).slice(0, limit).map((item) => `<p>${escapeHtml(commercialAssistantText(item))}</p>`).join("")}</section>`;
+}
+
+function assistantCategories(): Array<{ id: AssistantCategoryId; label: string; icon: string }> {
+  return [
+    { id: "market", label: "Mercado y precio", icon: "↗" },
+    { id: "competition", label: "Competencia", icon: "◇" },
+    { id: "movement", label: "Movimientos", icon: "↕" },
+    { id: "argument", label: "Preparar argumento", icon: "✓" },
+  ];
+}
+
+function assistantQuestions(): AssistantQuestion[] {
+  return [
+    { id: "market-reading", category: "market", intentId: "intent:scenario-summary", title: "Lectura de la zona", question: "¿Cómo se presenta la oferta comparable en esta zona?", description: "Resume tamaño de la oferta y base de precios publicada." },
+    { id: "price-base", category: "market", intentId: "intent:scenario-summary", title: "Base para hablar de precios", question: "¿Cuántos proyectos tienen precio y área para comparar?", description: "Aclara qué parte de la oferta puede sustentar la conversación." },
+    { id: "price-confidence", category: "market", intentId: "intent:coverage-quality", title: "Información disponible", question: "¿Qué tan sólida es la información antes de hablar de precios?", description: "Señala qué puede usarse y qué conviene validar." },
+    { id: "compare-differences", category: "competition", intentId: "intent:project-comparison", title: "Diferencias entre elegidos", question: "¿Qué diferencias de precio, área y producto hay entre los proyectos que elegí?", description: "Contrasta hasta tres competidores en la misma lectura.", requiresSelection: true },
+    { id: "compare-position", category: "competition", intentId: "intent:project-comparison", title: "Diferenciales competitivos", question: "¿Qué diferenciales destacan entre los proyectos que seleccioné?", description: "Destaca diferencias observadas sin declarar un ganador.", requiresSelection: true },
+    { id: "competitive-set", category: "competition", intentId: "intent:scenario-summary", title: "Grupo competitivo", question: "¿Cuántos proyectos forman el grupo comparable de esta zona?", description: "Dimensiona el conjunto de proyectos que conviene revisar." },
+    { id: "recent-changes", category: "movement", intentId: "intent:market-changes", title: "Cambios desde la última revisión", question: "¿Qué proyectos cambiaron su precio publicado?", description: "Muestra movimientos observados sin inventar su causa." },
+    { id: "priority-competitor", category: "movement", intentId: "intent:signal-priority", title: "Competidor para revisar primero", question: "¿Qué competidor debería revisar primero y por qué?", description: "Prioriza el cambio reciente con mejor información disponible." },
+    { id: "price-direction", category: "movement", intentId: "intent:market-changes", title: "Subidas y bajadas", question: "¿Qué precios publicados subieron o bajaron en la zona?", description: "Prepara una agenda de seguimiento comercial." },
+    { id: "meeting-claim", category: "argument", intentId: "intent:limitations", title: "Qué puedo afirmar", question: "¿Qué puedo afirmar con seguridad en una reunión comercial?", description: "Separa hechos publicados de supuestos que no deben comunicarse." },
+    { id: "validation-needed", category: "argument", intentId: "intent:coverage-quality", title: "Qué debo validar", question: "¿Qué debo validar antes de presentar esta lectura?", description: "Identifica vacíos y próximos pasos concretos." },
+    { id: "zone-argument", category: "argument", intentId: "intent:scenario-summary", title: "Base para el argumento", question: "¿Qué datos de la zona puedo usar para preparar mi argumento?", description: "Convierte la lectura territorial en un punto de partida prudente." },
+  ];
+}
+
+function renderAssistantQuestion(question: AssistantQuestion): string {
+  const disabled = Boolean(question.requiresSelection && state.selectedProjectIds.length < 2);
+  const selected = state.assistantIntentId === question.intentId && state.assistantDraft === question.question;
+  return `<button type="button" class="assistant-question ${selected ? "is-selected" : ""}" data-assistant-intent="${escapeAttr(question.intentId)}" data-assistant-question="${escapeAttr(question.question)}" data-assistant-question-title="${escapeAttr(question.title)}" aria-pressed="${selected}" ${disabled ? "disabled" : ""}><span class="assistant-question__marker" aria-hidden="true">${selected ? "✓" : "→"}</span><span><strong>${escapeHtml(question.title)}</strong><span>${escapeHtml(question.question)}</span><small>${escapeHtml(disabled ? "Selecciona al menos dos proyectos para usar esta pregunta." : question.description)}</small></span></button>`;
+}
+
+function renderAssistantEmpty(): string {
+  return `<section class="surface assistant-empty"><span class="assistant-empty__symbol" aria-hidden="true">↗</span><span class="eyebrow">Respuesta enfocada</span><h2>De la pregunta a la acción</h2><p>Recibirás una lectura directa, hasta tres datos clave y el siguiente paso recomendado.</p><ol><li>Elige una pregunta comercial.</li><li>Revisa la respuesta y sus límites.</li><li>Abre la pantalla sugerida para actuar.</li></ol></section>`;
+}
+
+function renderAssistantKeyFacts(blocks: JsonObject[]): string {
+  const allData = (blocks.find((block) => block.type === "data")?.items ?? []) as JsonObject[];
+  const priceCoverageOrder = ["metric:scenario-comparables", "metric:benchmark-eligible", "metric:qualitative-informed"];
+  const data = state.assistantIntentId === "intent:coverage-quality"
+    ? priceCoverageOrder.map((id) => allData.find((item) => item.id === id)).filter((item): item is JsonObject => Boolean(item)).slice(0, 3)
+    : allData.slice(0, 3);
+  if (!data.length) return "";
+  return `<section class="answer-facts" aria-label="Datos clave"><h3>Datos clave</h3><div>${data.map((item) => `<article><span>${escapeHtml(assistantFactLabel(item))}</span><strong>${escapeHtml(assistantFactValue(item))}</strong></article>`).join("")}</div></section>`;
+}
+
+function assistantFactLabel(item: JsonObject): string {
+  const labels: Record<string, string> = {
+    "metric:comparable-projects": "Proyectos comparables",
+    "metric:price-references": "Publicaciones con precio y área",
+    "metric:benchmark-eligible": "Precios por m² comparables",
+    "metric:benchmark-orientative": "Cálculos orientativos de precio por m²",
+    "metric:scenario-comparables": "Proyectos comparables",
+    "metric:history-shown": "Cambios visibles",
+    "metric:history-excluded": "Cambios que requieren revisión",
+    "metric:qualitative-informed": "Proyectos con características informadas",
+  };
+  const normalizedLabel = labels[String(item.id ?? "")];
+  if (normalizedLabel) return normalizedLabel;
+  if (item.kind === "agenda_item") return "Revisión prioritaria";
+  if (item.kind === "history_change") return String(item.label ?? "Proyecto observado");
+  if (item.kind === "qualitative_fact") return String(item.label ?? "Característica");
+  if (item.kind === "comparison_row") return String(item.label ?? "Diferencia observada");
+  return String(item.label ?? "Dato del escenario");
+}
+
+function assistantFactValue(item: JsonObject): string {
+  if (item.kind === "metric") {
+    if (item.id === "metric:price-references") return `${formatNumber(item.value)} publicaciones`;
+    const unit = item.unit === "projects" ? " proyectos" : item.unit === "events" ? " cambios" : "";
+    return `${formatNumber(item.value)}${unit}`;
+  }
+  if (item.kind === "history_change") return `${money(item.previousValue)} → ${money(item.currentValue)}`;
+  if (item.kind === "agenda_item") return String(item.label ?? "Abrir seguimiento");
+  if (item.kind === "qualitative_fact") return String(item.value ?? "Por revisar");
+  if (item.kind === "comparison_row") return item.hasDifference ? "Diferencia encontrada" : "Sin diferencia visible";
+  return String(item.value ?? item.description ?? "Disponible");
+}
+
+function assistantAnswerStatus(status: unknown): { label: string; tone: "success" | "warning" } {
+  if (status === "ready") return { label: "Respuesta preparada", tone: "success" };
+  if (status === "refused") return { label: "No disponible con estos datos", tone: "warning" };
+  if (status === "insufficient") return { label: "Información insuficiente", tone: "warning" };
+  return { label: "Revisa la pregunta", tone: "warning" };
+}
+
+function assistantAnswerAction(answer: JsonObject, blocks: JsonObject[]): { label: string; hash: string } | null {
+  const action = ((blocks.find((block) => block.type === "next_step")?.items ?? []) as JsonObject[])[0];
+  if (!action) return null;
+  const hashes: Record<string, string> = {
+    dashboard: "#dashboard",
+    benchmark: "#dashboard",
+    inspector: "#journey/quality",
+    activity: "#activity",
+    compare: "#compare",
+    assistant: "#assistant",
+  };
+  const fallbackByIntent: Record<string, { label: string; hash: string }> = {
+    "intent:scenario-summary": { label: "Abrir Panorama", hash: "#dashboard" },
+    "intent:coverage-quality": { label: "Revisar Panorama", hash: "#dashboard" },
+    "intent:market-changes": { label: "Abrir Seguimiento", hash: "#activity" },
+    "intent:signal-priority": { label: "Abrir Seguimiento", hash: "#activity" },
+    "intent:project-comparison": { label: "Abrir Comparar", hash: "#compare" },
+  };
+  const fallback = fallbackByIntent[String(answer.intentId ?? "")];
+  return {
+    label: commercialAssistantText(action),
+    hash: hashes[String(action.route ?? "")] ?? fallback?.hash ?? "#assistant",
+  };
+}
+
+function commercialReferenceLabel(reference: JsonObject): string {
+  return String(reference.label ?? "Fuente consultada")
+    .replace(/Evidencia temporal/giu, "Registro del cambio")
+    .replace(/Hecho de precio publicado/giu, "Precio publicado")
+    .replace(/Dato comparado/giu, "Dato del proyecto")
+    .replace(/Evidencia de/giu, "Fuente de");
+}
+
+function commercialAssistantText(item: JsonObject): string {
+  const id = String(item.id ?? "");
+  const raw = String(item.text ?? item.label ?? item.detail ?? "");
+  const fixed: Record<string, string> = {
+    "limitation:orientative-price": "El precio por m² es solo orientativo mientras precio y área no correspondan a la misma oferta.",
+    "interpretation:coverage": "Cada indicador responde una pregunta distinta y debe leerse por separado.",
+    "answer:qualitative": /No existe|No hay/iu.test(raw)
+      ? "No hay características suficientemente confirmadas para este escenario."
+      : raw.replace(/El expediente activo contiene/iu, "El proyecto revisado tiene").replace(/certificad[oa]s? con evidencia autorizada/giu, "respaldadas por una fuente disponible"),
+    "interpretation:qualitative": /Ausencia|restricción|incompatibilidad/iu.test(raw)
+      ? "Si una característica no está confirmada, se muestra como pendiente; no se asume que no exista."
+      : "La respuesta describe solo las características confirmadas para el proyecto revisado.",
+    "answer:limitations": "La plataforma responde sobre zonas, cambios publicados, características y comparaciones con la información disponible.",
+    "interpretation:limitations": "Cuando falta información, la respuesta lo indica en lugar de completar el dato con una suposición.",
+    "interpretation:refusal": "La plataforma no convierte precios publicados en precios de cierre, no atribuye causas sin confirmación y no realiza predicciones.",
+    "action:open-benchmark": "Revisar precios y oferta de la zona",
+    "action:inspect-methodology": "Revisar cómo se preparó la lectura",
+    "action:open-inspector": "Revisar datos y fuentes",
+    "action:open-history": "Abrir seguimiento",
+    "action:review-signal": "Revisar el cambio y su fuente",
+    "action:review-history-filters": "Revisar filtros de seguimiento",
+  };
+  if (fixed[id]) return fixed[id];
+  if (id === "answer:scenario") {
+    return raw.replace(/^Escenario activo/iu, `${districtName()} · ${scopeLabel()}`);
+  }
+  if (id === "answer:coverage") {
+    return raw
+      .replace(/El escenario contiene/iu, "El escenario reúne")
+      .replace(/el histórico muestra/iu, "el seguimiento muestra")
+      .replace(/el benchmark usa (\d+) pares elegibles/iu, "$1 proyectos tienen precio y área confirmados para calcular el valor por m²");
+  }
+  if (id === "interpretation:scenario") {
+    return /únicamente/iu.test(raw)
+      ? "La lectura de precio por m² usa solo proyectos cuyo precio y área corresponden a la misma oferta."
+      : "La oferta visible permite revisar el mercado, pero el precio por m² sigue siendo orientativo.";
+  }
+  if (id === "limitation:orientative-count") {
+    const count = raw.match(/\d+/u)?.[0] ?? "Algunos";
+    return `${count} cálculos de precio por m² son orientativos y no deben presentarse como una recomendación de precio.`;
+  }
+  if (id === "answer:market-changes") {
+    return raw
+      .replace(/El histórico muestra/iu, "El seguimiento muestra")
+      .replace(/los de mayor calidad según la política/iu, "los más recientes que cuentan con información suficiente")
+      .replace(/en el escenario activo/iu, `en ${districtName()} · ${scopeLabel().toLowerCase()}`);
+  }
+  if (id === "limitation:no-causality") return "No se atribuyen causas si ninguna fuente disponible las explica.";
+  if (id === "answer:comparison") {
+    return raw.replace(/La comparación encuentra (\d+) filas? prioritarias? entre (\d+) proyectos seleccionados\./iu, "La comparación muestra $1 diferencias relevantes entre los $2 proyectos seleccionados.");
+  }
+  if (id === "answer:signal-priority") return raw.replace(/señal elegible/giu, "cambio disponible").replace(/cobertura/giu, "información disponible");
+  if (id === "interpretation:signal-priority") return /calidad-primero/iu.test(raw)
+    ? "La prioridad combina actualidad y disponibilidad de información; no depende solo del tamaño del cambio."
+    : "Que no haya un cambio prioritario no significa que el mercado esté estable.";
+  return raw
+    .replace(/\bbenchmark\b/giu, "referencia de precios")
+    .replace(/\bdataset\b/giu, "información disponible")
+    .replace(/\btrazabilidad\b/giu, "origen de los datos")
+    .replace(/\bhistórico\b/giu, "seguimiento")
+    .replace(/\bexpediente activo\b/giu, "proyecto revisado")
+    .replace(/\bevidencia autorizada\b/giu, "fuente disponible")
+    .replace(/\bseñal elegible\b/giu, "cambio disponible")
+    .replace(/\bpares elegibles\b/giu, "precios y áreas confirmados")
+    .replace(/\bcocientes orientativos\b/giu, "cálculos orientativos de precio por m²")
+    .replace(/catálogo semántico compatible/giu, "pregunta que esta versión puede responder")
+    .replace(/escenario canónico/giu, "escenario activo")
+    .replace(/muestra canónica/giu, "grupo de proyectos seleccionado")
+    .replace(/tiempo de ejecución/giu, "este momento")
+    .replace(/evidencia causal autorizada/giu, "fuente que explique la causa")
+    .replace(/contextos disponibles/giu, "información disponible")
+    .replace(/pregunta compatible del catálogo/giu, "pregunta que esta versión puede responder")
+    .replace(/motor histórico/giu, "seguimiento de cambios");
+}
+
+function assistantBlockTitle(type: unknown, fallback: unknown): string {
+  const titles: Record<string, string> = {
+    answer: "Lectura principal",
+    interpretation: "Qué significa",
+    limitations: "Ten en cuenta",
+    next_step: "Próximo paso",
+  };
+  return titles[String(type)] ?? String(fallback ?? "");
 }
 
 function renderHistory(): string {
@@ -856,7 +1401,7 @@ function renderHistory(): string {
   )}
     <section class="surface history-scope" aria-label="Territorio de seguimiento">
       <div><span>Distrito</span><strong>${escapeHtml(districtName())}</strong></div>
-      <div><span>Zona comercial</span><strong>${escapeHtml(scopeLabel())}</strong></div>
+      <div><span>Alcance seleccionado</span><strong>${escapeHtml(scopeLabel())}</strong></div>
       <div><span>Corte de datos</span><strong>${formatDate(state.meta!.cutoffAt)}</strong></div>
       <p>Las zonas son alcances comerciales del escenario; no se presentan como divisiones oficiales.</p>
     </section>
@@ -877,7 +1422,7 @@ function renderHistory(): string {
       </div>
       ${renderHistorySignals(visibleEvents, false)}
     </section>
-    <aside class="history-notice"><strong>Avisos automáticos</strong><p>La bandeja, las nuevas unidades y los descuentos se habilitarán cuando existan corridas periódicas autorizadas. Esta pantalla solo muestra cambios efectivamente observados.</p></aside>
+    <aside class="history-notice"><strong>Avisos automáticos</strong><p>Los avisos de nuevas unidades y descuentos se activarán cuando el monitoreo automático esté disponible. Por ahora, esta pantalla muestra solo los cambios de precio confirmados.</p></aside>
     ${state.projectDetail ? renderProjectDetail() : ""}`;
 }
 
@@ -891,7 +1436,7 @@ function renderHistoryPriority(event: JsonObject): string {
   const direction = historyDirectionLabel(movement);
   return `<section class="surface history-priority" aria-labelledby="history-priority-title">
     <div class="history-priority__marker">${monitoringIcon(movement === "increase" ? "increase" : "decrease")}</div>
-    <div class="history-priority__copy"><span class="eyebrow">Revisión sugerida</span><h2 id="history-priority-title">${escapeHtml(project?.name ?? "Proyecto observado")} ${escapeHtml(direction)} su precio publicado</h2><p>Es la señal visible más reciente. Contrasta el cambio y sus fuentes antes de usarlo en una conversación comercial.</p><div class="history-priority__meta"><span>${escapeHtml(project?.agency ?? "Inmobiliaria no informada")}</span><span>${escapeHtml(districtName())}</span><span>${formatDate(event.current_observed_at ?? event.detected_at)}</span></div></div>
+    <div class="history-priority__copy"><span class="eyebrow">Revisión sugerida</span><h2 id="history-priority-title">${escapeHtml(project?.name ?? "Proyecto observado")} ${escapeHtml(direction)} su precio publicado</h2><p>Es el cambio más reciente. Confírmalo en la ficha antes de usarlo en una conversación comercial.</p><div class="history-priority__meta"><span>${escapeHtml(project?.agency ?? "Inmobiliaria no informada")}</span><span>${escapeHtml(districtName())}</span><span>${formatDate(event.current_observed_at ?? event.detected_at)}</span></div></div>
     <div class="history-priority__value"><span>Anterior</span><strong>${money(event.previous_value)}</strong><span>Nuevo</span><strong>${money(event.current_value)}</strong><b class="history-delta ${historyDeltaClass(event)}">${signedPercent(event.delta_pct)}</b></div>
     <div class="history-priority__actions">${project ? `<button class="button button--primary" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir proyecto</button>` : ""}<a class="button button--quiet" href="#assistant">Preparar decisión</a></div>
   </section>`;
@@ -916,7 +1461,7 @@ function renderHistorySignal(event: JsonObject): string {
       <div class="history-value-flow"><span><small>Anterior</small><strong>${money(event.previous_value)}</strong></span><span aria-hidden="true">→</span><span><small>Nuevo</small><strong>${money(event.current_value)}</strong></span><b class="history-delta ${historyDeltaClass(event)}">${signedPercent(event.delta_pct)}</b></div>
       <div class="history-signal__meta"><span>${escapeHtml(project?.district ?? districtName())}</span><span>${escapeHtml(scopeLabel())}</span><time datetime="${escapeAttr(event.current_observed_at ?? event.detected_at ?? "")}">${formatDate(event.current_observed_at ?? event.detected_at)}</time><span>${escapeHtml(historyValidityLabel(event.validity))}</span></div>
       <p>No se observó la causa del cambio. El valor corresponde a precio publicado, no a precio de cierre.</p>
-      <div class="history-signal__actions">${project ? `<button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir proyecto</button>` : ""}<details class="history-evidence"><summary>Ver evidencia</summary><p>${formatNumber(evidenceCount)} referencias respaldan las observaciones anterior y nueva.</p></details></div>
+      <div class="history-signal__actions">${project ? `<button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir proyecto</button>` : ""}<details class="history-evidence"><summary>Ver respaldo</summary><p>${formatNumber(evidenceCount)} fuentes permiten comprobar los valores anterior y nuevo.</p></details></div>
     </div>
   </article></li>`;
 }
@@ -949,7 +1494,7 @@ function historyEventDirection(event: JsonObject): "increase" | "decrease" | "un
 }
 
 function historyStatusLabel(value: unknown): string {
-  if (value === "certified") return "Con evidencia";
+  if (value === "certified") return "Confirmado";
   if (value === "reviewable") return "Requiere revisión";
   return "Evidencia insuficiente";
 }
@@ -985,7 +1530,7 @@ function monitoringIcon(kind: "price" | "unit" | "discount" | "increase" | "decr
 }
 
 function renderCorrections(): string {
-  return `<aside class="correction-banner" role="status"><strong>Escenario corregido</strong><span>${state.workspace!.corrections.map(({ field }) => field).join(", ")}. Se aplicaron valores seguros.</span></aside>`;
+  return `<aside class="correction-banner" role="status"><strong>Escenario ajustado</strong><span>Ajustamos algunos filtros para poder mostrar resultados. Revisa el escenario antes de continuar.</span></aside>`;
 }
 
 function renderScenarioDialog(): string {
@@ -995,8 +1540,8 @@ function renderScenarioDialog(): string {
     <form method="dialog" class="dialog-header"><div><span class="eyebrow">Escenario</span><h2>Editar alcance comercial</h2><p>Los cambios recalculan la lectura sin guardar información.</p></div><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form>
     <form id="scenario-form" class="scenario-form">
       <label>Distrito<select name="district_id">${state.bootstrap!.districts.map((item) => `<option value="${escapeAttr(item.id)}" ${item.id === scenario.district_id ? "selected" : ""}>${escapeHtml(item.name)} · ${formatNumber(item.projectCount)}</option>`).join("")}</select></label>
-      <label>Alcance<select name="scope_mode"><option value="district" ${scenario.scope_mode === "district" ? "selected" : ""}>Distrito completo</option><option value="quadrant" ${scenario.scope_mode === "quadrant" ? "selected" : ""} ${!district?.quadrants.length ? "disabled" : ""}>Zona analítica interna</option><option value="radius" ${scenario.scope_mode === "radius" ? "selected" : ""}>Radio desde el centro distrital</option></select></label>
-      <label data-scope-field="quadrant">Zona<select name="quadrant_id" ${scenario.scope_mode !== "quadrant" ? "disabled" : ""}>${district?.quadrants.map((item) => `<option value="${item.id}" ${item.id === scenario.quadrant_id ? "selected" : ""}>${escapeHtml(item.label)} (${escapeHtml(item.id)})</option>`).join("")}</select></label>
+      <label>Alcance<select name="scope_mode"><option value="district" ${scenario.scope_mode === "district" ? "selected" : ""}>Distrito completo</option><option value="quadrant" ${scenario.scope_mode === "quadrant" ? "selected" : ""} ${!district?.quadrants.length ? "disabled" : ""}>Zona de comparación</option><option value="radius" ${scenario.scope_mode === "radius" ? "selected" : ""}>Radio desde el centro distrital</option></select></label>
+      <label data-scope-field="quadrant">Zona<select name="quadrant_id" ${scenario.scope_mode !== "quadrant" ? "disabled" : ""}>${district?.quadrants.map((item) => `<option value="${item.id}" ${item.id === scenario.quadrant_id ? "selected" : ""}>${escapeHtml(item.label)}</option>`).join("")}</select></label>
       <label data-scope-field="radius">Radio<select name="radius_meters" ${scenario.scope_mode !== "radius" ? "disabled" : ""}>${optionValues(state.bootstrap!.scenarioCatalogs.radius_meters, scenario.radius_meters ?? 1000)}</select></label>
       <label>Tipología<select name="typology">${optionValues(state.bootstrap!.scenarioCatalogs.typologies, scenario.typology)}</select></label>
       <label>Dormitorios<select name="bedrooms">${optionValues(state.bootstrap!.scenarioCatalogs.bedrooms, scenario.bedrooms)}</select></label>
@@ -1010,17 +1555,29 @@ function renderScenarioDialog(): string {
 
 function renderCommandDialog(): string {
   const destinations = [
-    ...JOURNEY_STAGES.map((item) => ({ hash: `#journey/${item.id}`, label: `${item.position}. ${item.label}`, hint: item.question })),
-    { hash: "#dashboard", label: "Panorama", hint: "Zona y posición" },
-    { hash: "#projects", label: "Proyectos", hint: "Oferta comparable" },
-    { hash: "#inspector", label: "Inspector", hint: "Evidencia y calidad" },
-    { hash: "#market", label: "Benchmark", hint: "Referencias" },
-    { hash: "#compare", label: "Comparador", hint: "Diferencias" },
-    { hash: "#trust", label: "Checklist", hint: "Preparación" },
-    { hash: "#assistant", label: "Decidir", hint: "Respuesta trazable" },
-    { hash: "#activity", label: "Seguimiento", hint: "Cambios" },
+    { hash: "#dashboard", label: "Panorama", hint: "Zona, precios y oferta" },
+    { hash: "#projects", label: "Proyectos", hint: "Catálogo y fichas" },
+    { hash: "#compare", label: "Comparar", hint: "Proyectos lado a lado" },
+    { hash: "#activity", label: "Seguimiento", hint: "Cambios publicados" },
+    { hash: "#assistant", label: "Decidir", hint: "Argumento comercial" },
+    ...JOURNEY_STAGES.map((item) => ({ hash: `#journey/${item.id}`, label: `Recorrido · ${item.position}. ${item.label}`, hint: item.question })),
   ];
-  return `<dialog id="command-dialog" class="command-dialog"><form method="dialog"><label for="command-input" class="sr-only">Buscar destino</label><input id="command-input" type="search" placeholder="Ir a una etapa o herramienta…" autocomplete="off" /><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form><nav>${destinations.map((item) => `<a href="${item.hash}" data-command-option><strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(item.hint)}</span></a>`).join("")}</nav></dialog>`;
+  return `<dialog id="command-dialog" class="command-dialog"><form method="dialog"><label for="command-input" class="sr-only">Buscar destino</label><input id="command-input" type="search" placeholder="Ir a una sección…" autocomplete="off" /><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form><nav>${destinations.map((item) => `<a href="${item.hash}" data-command-option><strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(item.hint)}</span></a>`).join("")}</nav></dialog>`;
+}
+
+function renderDataRefreshDialog(): string {
+  const enabled = state.refreshStatus?.enabled === true;
+  const demoProjectCount = state.bootstrap!.districts.reduce((total, district) => total + Number(district.projectCount ?? 0), 0);
+  return `<dialog id="data-refresh-dialog" class="product-dialog data-refresh-dialog" aria-labelledby="data-refresh-dialog-title">
+    <form method="dialog" class="dialog-header"><div><span class="eyebrow">Información del mercado</span><h2 id="data-refresh-dialog-title">Actualizar datos de proyectos</h2><p>Revisa ${formatNumber(demoProjectCount)} proyectos de ${formatNumber(state.bootstrap!.districts.length)} distritos y mantiene visible la última versión aprobada.</p></div><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form>
+    ${enabled ? `<form id="data-refresh-form" class="data-refresh-form">
+      <fieldset><legend>Alcance</legend><label class="choice-row"><input type="radio" name="refresh_scope" value="active_district" /><span><strong>Solo ${escapeHtml(districtName())}</strong><small>Revisa las inmobiliarias del distrito activo.</small></span></label><label class="choice-row"><input type="radio" name="refresh_scope" value="demo_districts" checked /><span><strong>Todos los distritos de la demo</strong><small>Procesa el universo completo de siete distritos.</small></span></label></fieldset>
+      <fieldset><legend>Fuentes a revisar</legend><label class="choice-row choice-row--disabled"><input type="checkbox" name="refresh_channel" value="nexo_authorized_feed" disabled /><span><strong>Base autorizada de Nexo</strong><small>Pendiente de conectar el acceso entregado por Viva/CODIP.</small></span></label><label class="choice-row"><input type="checkbox" name="refresh_channel" value="official_websites" checked /><span><strong>Webs oficiales</strong><small>Solo sitios aprobados para la recopilación.</small></span></label><label class="choice-row choice-row--disabled"><input type="checkbox" name="refresh_channel" value="social_official_apis" disabled /><span><strong>Redes sociales oficiales</strong><small>Pendiente de conectar los accesos oficiales.</small></span></label></fieldset>
+      <label>Clave de acceso<input id="data-refresh-key" name="operator_key" type="password" autocomplete="current-password" required placeholder="Clave de este entorno" /></label>
+      <p class="method-note">La información nueva se revisa antes de reemplazar la versión visible.</p>
+      <div class="dialog-actions"><button class="button button--quiet" type="button" data-action="close-refresh">Cancelar</button><button class="button button--primary" type="submit">Iniciar recopilación</button></div>
+    </form>` : `<section class="refresh-locked"><span class="refresh-locked__icon" aria-hidden="true">🔒</span><div><h3>La actualización no está disponible en este entorno</h3><p>Esta función se habilita cuando el equipo cuenta con accesos y permisos para consultar las fuentes.</p><ul><li>La información visible permanece disponible.</li><li>No se recopilan datos desde tu navegador.</li><li>Solo se consultan fuentes autorizadas.</li></ul></div><button class="button button--quiet" type="button" data-action="close-refresh">Entendido</button></section>`}
+  </dialog>`;
 }
 
 async function handleClick(event: MouseEvent): Promise<void> {
@@ -1048,6 +1605,22 @@ async function handleClick(event: MouseEvent): Promise<void> {
   if (action === "close-nav") { state.navOpen = false; render(); return; }
   if (action === "scenario") return openDialog("scenario-dialog", "scenario-form");
   if (action === "command") return openDialog("command-dialog", "command-input");
+  if (action === "data-refresh") return openDialog("data-refresh-dialog", state.refreshStatus?.enabled ? "data-refresh-key" : "data-refresh-dialog");
+  if (action === "close-refresh") { closeDialogs(); return; }
+  if (action === "refresh-status") {
+    try {
+      state.refreshStatus = await provider.dataRefreshStatus();
+      state.refreshNotice = {
+        tone: state.refreshStatus.run.state === "failed" ? "error" : state.refreshStatus.run.state === "blocked" ? "warning" : "success",
+        message: refreshRunCopy(state.refreshStatus.run.state),
+      };
+      render();
+    } catch (error) {
+      state.refreshNotice = { tone: "error", message: error instanceof ApiClientError ? error.message : "No se pudo consultar el estado." };
+      render();
+    }
+    return;
+  }
   if (action === "map-geographic") { state.mapView = "geographic"; render(); return; }
   if (action === "map-positioning") { state.mapView = "positioning"; render(); return; }
   if (action === "map-open-detail" && state.mapProjectDetail) {
@@ -1133,16 +1706,86 @@ async function handleClick(event: MouseEvent): Promise<void> {
   }
   const assistantButton = target.closest<HTMLElement>("[data-assistant-intent]");
   if (assistantButton) {
-    const input = document.querySelector<HTMLTextAreaElement>("#assistant-input");
-    const intent = document.querySelector<HTMLInputElement>("#assistant-intent");
-    if (input) input.value = assistantButton.dataset.assistantQuestion ?? "";
-    if (intent) intent.value = assistantButton.dataset.assistantIntent ?? "";
-    input?.focus();
+    state.assistantDraft = assistantButton.dataset.assistantQuestion ?? "";
+    state.assistantIntentId = assistantButton.dataset.assistantIntent ?? null;
+    state.assistantQuestionTitle = assistantButton.dataset.assistantQuestionTitle ?? null;
+    state.assistant = null;
+    state.assistantError = null;
+    render();
+    requestAnimationFrame(() => {
+      const input = document.querySelector<HTMLTextAreaElement>("#assistant-input");
+      input?.focus();
+      input?.setSelectionRange(input.value.length, input.value.length);
+    });
+    return;
   }
+  const assistantCategory = target.closest<HTMLElement>("[data-assistant-category]")?.dataset.assistantCategory as AssistantCategoryId | undefined;
+  if (assistantCategory) {
+    state.assistantCategory = assistantCategory;
+    state.assistant = null;
+    state.assistantDraft = "";
+    state.assistantIntentId = null;
+    state.assistantQuestionTitle = null;
+    state.assistantError = null;
+    render();
+    return;
+  }
+}
+
+function handleInput(event: Event): void {
+  const target = event.target as HTMLTextAreaElement;
+  if (target.id !== "assistant-input") return;
+  state.assistantDraft = target.value;
+  if (state.assistantIntentId && !assistantQuestions().some(({ intentId, question }) => intentId === state.assistantIntentId && question === target.value)) {
+    state.assistantIntentId = null;
+    state.assistantQuestionTitle = "Consulta comercial";
+    const intent = document.querySelector<HTMLInputElement>("#assistant-intent");
+    if (intent) intent.value = "";
+  }
+  const counter = document.querySelector<HTMLElement>("#assistant-character-count");
+  if (counter) counter.textContent = `${formatNumber(target.value.length)} / 500`;
 }
 
 async function handleSubmit(event: SubmitEvent): Promise<void> {
   const form = event.target as HTMLFormElement;
+  if (form.id === "data-refresh-form") {
+    event.preventDefault();
+    const data = new FormData(form);
+    const channels = data.getAll("refresh_channel").map(String) as Array<"nexo_authorized_feed" | "official_websites" | "social_official_apis">;
+    if (!channels.length) {
+      state.refreshNotice = { tone: "warning", message: "Selecciona al menos una fuente para iniciar la actualización." };
+      closeDialogs();
+      render();
+      return;
+    }
+    const scope = String(data.get("refresh_scope") ?? "demo_districts") as "active_district" | "demo_districts";
+    const operatorKey = String(data.get("operator_key") ?? "");
+    state.busyMessage = "Enviando actualización controlada…";
+    render();
+    try {
+      const response = await provider.requestDataRefresh({
+        scope,
+        districtIds: scope === "active_district" && state.scenario
+          ? [state.scenario.district_id]
+          : state.bootstrap!.districts.map((district) => district.id),
+        channels,
+      }, operatorKey);
+      state.refreshStatus = { ...state.refreshStatus!, run: response.run };
+      state.refreshNotice = { tone: "success", message: refreshRunCopy(response.run.state) };
+      state.busyMessage = null;
+      closeDialogs();
+      render();
+    } catch (error) {
+      state.busyMessage = null;
+      state.refreshNotice = {
+        tone: error instanceof ApiClientError && [409, 423].includes(error.status) ? "warning" : "error",
+        message: error instanceof ApiClientError ? error.message : "No se pudo iniciar la actualización.",
+      };
+      closeDialogs();
+      render();
+    }
+    return;
+  }
   if (form.id === "scenario-form") {
     event.preventDefault();
     if (!state.scenario) return;
@@ -1181,7 +1824,9 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
     const data = new FormData(form);
     const input = String(data.get("input") ?? "").trim();
     if (!input) return;
-    state.busyMessage = "Preparando respuesta trazable…"; render();
+    state.assistantDraft = input;
+    state.assistantError = null;
+    state.busyMessage = "Preparando respuesta…"; render();
     try {
       state.assistant = await provider.assistant({
         scenario: state.scenario,
@@ -1191,12 +1836,34 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
         inspectorRouteSlug: state.inspectorSlug,
       });
       state.busyMessage = null; render();
-    } catch (error) { fail(error); }
+    } catch (error) {
+      state.busyMessage = null;
+      state.assistantError = error instanceof ApiClientError ? error.message : "No pudimos preparar la respuesta. Inténtalo nuevamente.";
+      render();
+    }
   }
 }
 
 async function handleChange(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement | HTMLSelectElement;
+  if (target.id === "quality-verification-case") {
+    state.inspectorSlug = target.value || null;
+    state.inspector = null;
+    if (!state.inspectorSlug) return;
+    state.busyMessage = "Abriendo verificación…";
+    render();
+    try {
+      state.inspector = await provider.inspector(state.inspectorSlug);
+      state.busyMessage = null;
+      render();
+      requestAnimationFrame(() => document.querySelector<HTMLElement>(".verification-result")?.focus());
+    } catch (error) {
+      state.busyMessage = null;
+      state.inspector = null;
+      render();
+    }
+    return;
+  }
   if (target.name === "history_direction") {
     state.historyDirection = target.value as AppState["historyDirection"];
     render();
@@ -1205,13 +1872,6 @@ async function handleChange(event: Event): Promise<void> {
   if (target.name === "history_validity") {
     state.historyValidity = target.value as AppState["historyValidity"];
     render();
-    return;
-  }
-  if (target.id === "inspector-case") {
-    state.inspectorSlug = target.value;
-    state.busyMessage = "Cargando expediente…"; render();
-    try { state.inspector = await provider.inspector(target.value); state.busyMessage = null; render(); }
-    catch (error) { fail(error); }
     return;
   }
   if (target.matches("[data-compare-id]")) {
@@ -1324,7 +1984,7 @@ function closeDialogs(): void {
 }
 
 function routeLoadingLabel(route: Route): string {
-  if (["inspector", "quality"].includes(route.id)) return "Cargando evidencia…";
+  if (route.id === "quality") return "Revisando datos…";
   if (["compare", "depth"].includes(route.id)) return "Calculando comparación…";
   if (["activity", "movement"].includes(route.id)) return "Cargando señales…";
   return "Actualizando vista…";
@@ -1338,7 +1998,7 @@ function scopeLabel(): string {
   if (state.scenario?.scope_mode === "quadrant") {
     const district = state.bootstrap?.districts.find(({ id }) => id === state.scenario?.district_id);
     const zone = district?.quadrants.find(({ id }) => id === state.scenario?.quadrant_id);
-    return `Zona analítica ${zone?.label ?? state.scenario.quadrant_id} (${state.scenario.quadrant_id})`;
+    return `Zona de comparación ${zone?.label ?? "seleccionada"}`;
   }
   if (state.scenario?.scope_mode === "radius") return `Radio ${formatNumber(state.scenario.radius_meters)} m`;
   return "Distrito completo";
@@ -1346,7 +2006,7 @@ function scopeLabel(): string {
 
 function benchmarkHeadline(): string {
   const value = state.workspace!.benchmark.quantitative?.orientative?.median;
-  return value == null ? "La muestra cuantitativa es insuficiente." : `La mediana orientativa es ${money(value)} por m² total.`;
+  return value == null ? "Aún no hay suficientes precios y áreas para calcular la mediana." : `La mediana publicada es ${money(value)} por m² total.`;
 }
 
 function pricePositionText(): string {
@@ -1368,19 +2028,15 @@ function optionValues(values: unknown[], selected: unknown): string {
   return values.map((value) => `<option value="${escapeAttr(value)}" ${String(value) === String(selected) ? "selected" : ""}>${escapeHtml(value === "all" ? "Todos" : value)}</option>`).join("");
 }
 
-function caseLabel(slug: string): string {
-  return slug.replace(/^f3-/u, "").replaceAll("-", " ").replace(/^./u, (letter) => letter.toUpperCase());
-}
-
 function qualityLabel(value: unknown): string {
   const labels: Record<string, string> = {
-    certified: "Certificado",
-    reviewable: "Revisable",
-    inconsistent: "Inconsistente",
-    illegible: "Ilegible",
-    insufficient: "Insuficiente",
+    certified: "Listo para usar",
+    reviewable: "Conviene revisar",
+    inconsistent: "No coincide",
+    illegible: "No se puede leer",
+    insufficient: "Faltan datos",
   };
-  return labels[String(value)] ?? String(value ?? "Sin evaluación");
+  return labels[String(value)] ?? "Sin revisar";
 }
 
 function formatComparisonValue(value: JsonObject): string {
@@ -1464,6 +2120,20 @@ function formatDate(value: unknown): string {
   if (!value) return "—";
   const date = new Date(String(value));
   return Number.isNaN(date.valueOf()) ? String(value) : new Intl.DateTimeFormat("es-PE", { day: "2-digit", month: "short", year: "numeric" }).format(date);
+}
+
+function formatDateTime(value: unknown): string {
+  if (!value) return "—";
+  const date = new Date(String(value));
+  return Number.isNaN(date.valueOf())
+    ? String(value)
+    : new Intl.DateTimeFormat("es-PE", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
 }
 
 function formatNumber(value: unknown): string {

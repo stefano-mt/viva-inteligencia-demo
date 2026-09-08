@@ -8,11 +8,18 @@ export interface ApiConfig {
   snapshotPath: string;
   schemaPath: string;
   snapshotChecksum?: string;
+  dataRefreshEnabled: boolean;
+  dataRefreshOperatorKey?: string;
+  dataRefreshDispatchUrl?: string;
+  dataRefreshInternalToken?: string;
 }
 
 export function readConfig(environment: NodeJS.ProcessEnv = process.env): ApiConfig {
   const repositoryRoot = path.resolve(import.meta.dirname, "..", "..", "..");
   const checksum = environment.SNAPSHOT_SHA256?.trim();
+  const refreshOperatorKey = environment.DATA_REFRESH_OPERATOR_KEY?.trim();
+  const refreshDispatchUrl = environment.DATA_REFRESH_DISPATCH_URL?.trim();
+  const refreshInternalToken = environment.DATA_REFRESH_INTERNAL_TOKEN?.trim();
   return {
     host: environment.API_HOST?.trim() || "0.0.0.0",
     port: integer(environment.API_PORT, 3000),
@@ -27,6 +34,10 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env): ApiCon
         path.join(repositoryRoot, "packages", "contracts", "schemas", "demo-v2.schema.json"),
     ),
     ...(checksum ? { snapshotChecksum: checksum } : {}),
+    dataRefreshEnabled: environment.DATA_REFRESH_ENABLED?.trim().toLowerCase() === "true",
+    ...(refreshOperatorKey ? { dataRefreshOperatorKey: refreshOperatorKey } : {}),
+    ...(refreshDispatchUrl ? { dataRefreshDispatchUrl: refreshDispatchUrl.replace(/\/$/u, "") } : {}),
+    ...(refreshInternalToken ? { dataRefreshInternalToken: refreshInternalToken } : {}),
   };
 }
 

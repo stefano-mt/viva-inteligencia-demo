@@ -17,6 +17,7 @@ test-results/
 apps/web/public/demo-data/*.generated.json
 apps/web/public/demo-data/*.generated.geojson
 data/generated/
+data/staging/
 
 # Local configuration
 .env

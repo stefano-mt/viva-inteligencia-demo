@@ -99,6 +99,54 @@ export interface DistrictGeography extends JsonObject {
   };
 }
 
+export interface SourceCoverage extends JsonObject {
+  datasetVersion: string;
+  contractVersion: "2.4.0";
+  scope: { districtId: string | null; districtName: string | null };
+  totals: { projects: number; agencies: number };
+  channels: Record<"nexo" | "officialWebLinked" | "officialWebObserved" | "social", {
+    projectCount: number;
+    coveragePct: number;
+    status: "available" | "partial" | "pending_authorization" | "not_available";
+    lastCapturedAt: string | null;
+  }>;
+  priceDistribution: {
+    count: number;
+    min: number | null;
+    q1: number | null;
+    median: number | null;
+    q3: number | null;
+    max: number | null;
+  };
+  agencies: Array<{
+    id: string;
+    name: string;
+    projectCount: number;
+    officialWebLinkedProjects: number;
+    officialWebObservedProjects: number;
+    socialProjects: number;
+    coverageStatus: "observed" | "linked" | "nexo_only";
+  }>;
+  notice: string;
+}
+
+export interface DataRefreshRun extends JsonObject {
+  runId: string | null;
+  state: "idle" | "queued" | "running" | "succeeded" | "blocked" | "failed";
+  requestedAt: string | null;
+  completedAt: string | null;
+  message: string;
+  published: boolean;
+}
+
+export interface DataRefreshStatus extends JsonObject {
+  datasetVersion: string;
+  contractVersion: "2.4.0";
+  enabled: boolean;
+  lastPublishedAt: string;
+  run: DataRefreshRun;
+}
+
 export interface Page<T> extends JsonObject {
   items: T[];
   page: number;

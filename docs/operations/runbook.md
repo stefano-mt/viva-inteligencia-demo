@@ -37,9 +37,19 @@ docker compose -f compose.yml -f compose.prod.yml up -d
 
 No se deben imprimir payloads fuente ni datos personales en logs. Usa `requestId` para correlación.
 
+## Actualización controlada
+
+El entorno normal debe mantener `DATA_REFRESH_ENABLED=false`. Con ese valor, `Actualizar Data` abre un estado bloqueado y no despacha trabajos. No afecta el tablero, que continúa leyendo el último snapshot aprobado.
+
+Habilitarlo requiere clave de operador, despliegue privado de `apps/ops`, token interno, fuentes individualmente autorizadas y un proceso de publicación/rollback probado. `apps/ops` usa `DATA_REFRESH_EXECUTE=false` por defecto: acepta el job, genera un plan sin red y nunca publica. La recolección real requiere habilitar ese segundo gate además del API. Sigue `docs/operations/data-dashboard-and-refresh.md` para prerrequisitos, ejecución, aceptación y riesgos.
+
+Ante un incidente, vuelve a `DATA_REFRESH_ENABLED=false`, rota secretos cuando corresponda y detén `apps/ops`. Reiniciar el API limpia su estado de corrida en memoria, pero no cancela un job ya aceptado.
+
 ## Rollback
 
 Despliega las imágenes `web` y `api` del SHA anterior. No existen migraciones ni estado persistente. Para recuperar la experiencia estática histórica, usa la etiqueta `demo-static-v1`; no la mezcles con la API vigente.
+
+Si el incidente afecta datos publicados, selecciona además el snapshot aprobado anterior y valida su checksum. No borres staging, manifiestos, observaciones ni capturas privadas necesarias para auditoría.
 
 ## Cierre
 
