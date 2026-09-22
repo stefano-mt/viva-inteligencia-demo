@@ -62,7 +62,7 @@ Antes de habilitar `Actualizar Data`, el responsable de la operación debe verif
 8. **Publicación:** staging privado, manifiesto, revisión de conflictos/PII, gates de contrato y mecanismo explícito para promover o rechazar un `datasetVersion`.
 9. **Rollback:** artefacto anterior y SHA de web/API disponibles antes de promover.
 
-El estado actual del registro es: `nexo-authorized-feed` pendiente, `nexo-public-website` bloqueado y la entrada genérica `official-project-websites` pendiente. No existe una fuente social aprobada. Por tanto, esos registros no autorizan una recolección de red.
+El estado actual del registro es: `nexo-authorized-feed` pendiente, `nexo-public-website` bloqueado y ocho webs oficiales de la Ola 1 sin autorización. Cantabria / VERSIA y Toratto / MONTEROSSO ya superaron la revisión técnica de rutas y `robots.txt`, pero siguen pendientes de aprobación legal/operativa, referencia de autorización y promoción a targets. Las otras seis fuentes aún no tienen revisión técnica de ruta. No existe una fuente social aprobada. Por tanto, esos registros no autorizan una recolección de red.
 
 ## Flujo del operador
 

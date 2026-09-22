@@ -10,6 +10,7 @@ await fs.mkdir(outputDirectory, { recursive: true });
 
 let apiApp = null;
 let viteServer = null;
+let restartApi = null;
 if (!baseUrl) {
   const apiPort = 4310;
   const webPort = 4311;
@@ -26,8 +27,12 @@ if (!baseUrl) {
     SNAPSHOT_SCHEMA_PATH: path.join(root, "packages/contracts/schemas/demo-v2.schema.json"),
   });
   const loaded = await loadAndValidateSnapshot({ snapshotPath: config.snapshotPath, schemaPath: config.schemaPath });
-  apiApp = await buildApp({ repository: new InMemorySnapshotRepository(loaded), config, logger: false });
-  await apiApp.listen({ host: "127.0.0.1", port: apiPort });
+  restartApi = async () => {
+    await apiApp?.close();
+    apiApp = await buildApp({ repository: new InMemorySnapshotRepository(loaded), config, logger: false });
+    await apiApp.listen({ host: "127.0.0.1", port: apiPort });
+  };
+  await restartApi();
   viteServer = await createServer({
     configFile: path.join(root, "apps/web/vite.config.mjs"),
     configLoader: "native",
@@ -50,18 +55,23 @@ const executablePath = [
 ].find((candidate) => candidate && existsSync(candidate));
 const browser = await chromium.launch({ ...(executablePath ? { executablePath } : {}), headless: true });
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+let diagnosticPage = page;
 const consoleErrors = [];
 const observedRequests = [];
+const failedResponses = [];
 page.on("console", (message) => {
   if (message.type() === "error") consoleErrors.push(message.text());
 });
 page.on("request", (request) => observedRequests.push(request.url()));
+page.on("response", (response) => {
+  if (response.status() >= 400) failedResponses.push({ status: response.status(), url: response.url() });
+});
 
 try {
-  await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(page, `${baseUrl}/#dashboard`);
   await page.locator("h1").waitFor();
   assert.equal(await page.locator(".brand img").evaluate((image) => image.complete && image.naturalWidth > 0), true, "El logo debe cargar");
-  assert.match(await page.locator("h1").innerText(), /lectura comercial/i);
+  assert.match(await page.locator("h1").innerText(), /panorama comercial/i);
   await page.getByRole("heading", { name: "Precios y oferta de la zona" }).waitFor();
   assert.deepEqual(
     await page.locator(".product-nav .nav-link strong").allTextContents(),
@@ -73,7 +83,7 @@ try {
   await page.screenshot({ path: path.join(outputDirectory, "dashboard-1440x900.png"), fullPage: true });
 
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto(`${baseUrl}/#journey/scale`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(page, `${baseUrl}/#journey/scale`);
   const firstDecision = await page.locator(".decision-strip").boundingBox();
   assert.ok(firstDecision && firstDecision.y < 720, "La lectura principal debe comenzar en el primer viewport");
   assert.equal(await hasHorizontalOverflow(page), false, "Recorrido 1280×720 no debe desbordar");
@@ -92,7 +102,7 @@ try {
     "journey/scale", "journey/geography", "journey/quality", "journey/depth", "journey/movement", "journey/decision",
   ];
   for (const route of routes) {
-    await page.goto(`${baseUrl}/#${route}`, { waitUntil: "networkidle" });
+    await gotoIndependentCase(page, `${baseUrl}/#${route}`);
     await page.locator("h1").waitFor();
     assert.ok((await page.locator("h1").innerText()).trim(), `${route} debe tener h1 visible`);
     await assertNoUnboundButtons(page, route);
@@ -105,12 +115,12 @@ try {
     ["trust", "assistant"],
   ];
   for (const [legacyRoute, canonicalRoute] of legacyRoutes) {
-    await page.goto(`${baseUrl}/#${legacyRoute}`, { waitUntil: "networkidle" });
+    await gotoIndependentCase(page, `${baseUrl}/#${legacyRoute}`);
     await page.waitForURL(new RegExp(`#${canonicalRoute}$`, "u"));
     await page.locator("h1").waitFor();
   }
 
-  await page.goto(`${baseUrl}/#journey/quality`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(page, `${baseUrl}/#journey/quality`);
   const qualityVerificationCase = page.locator("#quality-verification-case");
   await qualityVerificationCase.waitFor();
   const qualityCases = await qualityVerificationCase.locator("option").evaluateAll((options) =>
@@ -135,7 +145,7 @@ try {
   );
 
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto(`${baseUrl}/#projects`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(page, `${baseUrl}/#projects`);
   await page.locator(".busy").waitFor({ state: "detached" });
   await page.locator(".project-select-checkbox:not(:disabled)").first().waitFor();
   assert.ok(await page.locator("tbody tr").count() > 0, "Proyectos debe presentar filas");
@@ -187,16 +197,27 @@ try {
   await page.locator("[data-project-detail]").first().click();
   await page.locator("#project-detail-title").waitFor();
   assert.equal(await page.locator("#project-detail-title").evaluate((heading) => heading === document.activeElement), true, "Abrir ficha debe llevar el foco al detalle");
-  assert.match(await page.locator(".source-warning").innerText(), /precios publicados/i);
+  const ratioMethod = page.locator(".detail-surface details").filter({ has: page.getByText("Referencia orientativa por m²", { exact: true }) });
+  await ratioMethod.locator("summary").click();
+  assert.match(await ratioMethod.innerText(), /valores publicados.*no demuestra.*mismo departamento.*no representa un precio de cierre/is, "La referencia por m² debe distinguir valores publicados de una oferta emparejada y de un precio de cierre");
   assert.deepEqual(
-    await page.locator("#project-summary-title, #project-product-title, #project-features-title, #project-sources-title").allTextContents(),
-    ["Resumen comercial", "Producto y ubicación", "Información anunciada", "Verificación de datos"],
+    await page.locator("#project-summary-title, #project-product-title, #project-sources-title").allTextContents(),
+    ["Resumen comercial", "Producto y ubicación", "Nexo vs web oficial"],
     "La ficha debe seguir una jerarquía comercial predecible",
   );
-  assert.match(await page.locator("#project-sources-title").innerText(), /Verificación de datos/i);
-  assert.ok(await page.locator(".detail-symbol").count() >= 10, "La ficha debe identificar visualmente sus categorías");
+  const featuresDetails = page.locator(".detail-surface details").filter({ has: page.getByText("Áreas comunes y financiamiento", { exact: true }) });
+  await featuresDetails.locator("summary").click();
+  assert.deepEqual(await featuresDetails.locator("h4").allTextContents(), ["Áreas comunes", "Financiamiento"], "El detalle secundario debe conservar ambas categorías informadas");
+  assert.match(await page.locator("#project-sources-title").innerText(), /Nexo vs web oficial/i);
+  assert.equal(await page.locator("#project-summary-title .detail-symbol, #project-product-title .detail-symbol, #project-sources-title .detail-symbol").count(), 3, "La ficha debe identificar visualmente las tres categorías principales");
+  assert.equal(await featuresDetails.locator("h4 .detail-symbol").count(), 2, "Áreas comunes y financiamiento deben conservar sus identificadores visuales");
   assert.ok(await page.locator(".source-list article").count() > 0, "La ficha debe declarar al menos una fuente");
-  assert.equal(await page.locator(".source-matrix tr").count(), 9, "La ficha debe separar ocho campos entre Nexo, web y red oficial");
+  assert.equal(await page.locator(".source-channel").count(), 2, "La ficha debe separar Nexo y web oficial");
+  assert.equal(
+    await page.locator(".source-matrix, .source-comparison-empty").count(),
+    1,
+    "La ficha debe mostrar la comparación publicada o explicar por qué aún no está disponible",
+  );
   assert.equal(await page.locator("#project-verification-case").count(), 0, "La ficha no debe mezclar ejemplos de otros proyectos");
   assert.equal(await hasHorizontalOverflow(page), false, "La ficha 1440×900 no debe desbordar");
   const closeButton = page.getByRole("button", { name: "Cerrar ficha" });
@@ -225,16 +246,17 @@ try {
   await page.locator("[data-project-detail]").first().click();
   await page.locator("#project-detail-title").waitFor();
   assert.equal(await page.locator(".source-type--agency_website").count(), 1, "La ficha debe identificar visualmente la web propia");
-  const sourceDetails = page.locator(".source-detail-disclosure").filter({ has: page.getByText("Ver fuentes y fechas") });
-  await sourceDetails.getByText("Ver fuentes y fechas").click();
+  const sourceDetails = page.locator(".source-detail-disclosure").filter({ has: page.getByText("Consultar origen y fecha de los datos") });
+  await sourceDetails.getByText("Consultar origen y fecha de los datos").click();
   assert.match(await page.locator(".source-type--agency_website").innerText(), /Web propia/i);
   assert.match(await page.locator(".source-type--agency_website").locator("xpath=ancestor::article").locator(".source-observed").innerText(), /Los Tucanes.*70 m².*Preventa.*parrilla/is, "La fuente propia debe mostrar los campos realmente recopilados de su web");
   assert.match(await sourceDetails.locator(".source-list").innerText(), /Página del proyecto revisada/i, "La cobertura web debe declarar el alcance real de la vinculación");
-  assert.match(await page.locator(".source-matrix").innerText(), /Nexo Inmobiliario.*Web oficial.*Red oficial.*Resultado/is, "La matriz debe diferenciar cada canal de datos");
+  assert.match(await page.locator(".source-matrix").innerText(), /Nexo Inmobiliario.*Web oficial/is, "La matriz debe diferenciar Nexo de la web oficial");
+  assert.match(await page.locator(".source-matrix").innerText(), /Coincide|Aporta información|Revisar/i, "La matriz debe explicar el resultado en lenguaje comercial");
   await page.screenshot({ path: path.join(outputDirectory, "multisource-detail-1440x900.png"), fullPage: true });
   await page.getByRole("button", { name: "Cerrar ficha" }).click();
 
-  await page.goto(`${baseUrl}/#activity`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(page, `${baseUrl}/#activity`);
   await page.getByRole("heading", { level: 1, name: "Seguimiento comercial" }).waitFor();
   assert.equal(await page.locator(".history-coverage__item").count(), 3, "Seguimiento debe declarar los tres tipos de alerta");
   assert.equal(await page.locator(".history-signal").count(), 5, "Las cinco señales observadas deben aparecer en lenguaje comercial");
@@ -250,7 +272,7 @@ try {
   await page.getByRole("button", { name: "Cerrar ficha" }).click();
   await page.screenshot({ path: path.join(outputDirectory, "activity-1440x900.png"), fullPage: true });
 
-  await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(page, `${baseUrl}/#dashboard`);
   assert.match(await page.locator(".source-channel-chart").innerText(), /Nexo Inmobiliario.*Web oficial con datos.*Redes oficiales/is, "El tablero debe mostrar cobertura por canal");
   assert.equal(await page.locator(".price-band__median").count(), 1, "El tablero debe mostrar la mediana de precios publicados");
   await page.getByRole("button", { name: "Actualizar datos" }).click();
@@ -288,7 +310,7 @@ try {
   await page.evaluate(() => { document.documentElement.style.zoom = ""; });
 
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto(`${baseUrl}/#assistant`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(page, `${baseUrl}/#assistant`);
   await page.locator("h1").waitFor();
   assert.equal(await page.locator("[data-assistant-category]").count(), 4, "Decidir debe organizar las preguntas por cuatro decisiones comerciales");
   assert.deepEqual(
@@ -374,7 +396,7 @@ try {
   assert.equal(await page.locator(".nav-scrim").isVisible(), false, "La capa debe cerrar el menú");
   await page.screenshot({ path: path.join(outputDirectory, "assistant-390x844.png"), fullPage: true });
 
-  await page.goto(`${baseUrl}/#projects`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(page, `${baseUrl}/#projects`);
   await page.locator(".busy").waitFor({ state: "detached" });
   await page.locator(".project-select-checkbox:not(:disabled)").first().waitFor();
   const mobileCheckbox = await page.locator(".project-select-checkbox:not(:disabled)").first().boundingBox();
@@ -393,14 +415,14 @@ try {
   assert.equal(await hasHorizontalOverflow(page), false, "La ficha 390×844 no debe desbordar");
   await page.screenshot({ path: path.join(outputDirectory, "projects-detail-390x844.png"), fullPage: true });
 
-  await page.goto(`${baseUrl}/#activity`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(page, `${baseUrl}/#activity`);
   await page.getByRole("heading", { level: 1, name: "Seguimiento comercial" }).waitFor();
   assert.equal(await hasHorizontalOverflow(page), false, "Seguimiento 390×844 no debe desbordar");
   assert.equal(await page.locator(".history-signal").count(), 5, "Seguimiento móvil debe conservar las señales");
   await page.screenshot({ path: path.join(outputDirectory, "activity-390x844.png"), fullPage: true });
 
   await page.setViewportSize({ width: 768, height: 1024 });
-  await page.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(page, `${baseUrl}/#dashboard`);
   await page.locator("path.district-boundary").waitFor();
   assert.equal(await hasHorizontalOverflow(page), false, "Panorama 768×1024 no debe desbordar");
   await page.getByRole("button", { name: "Abrir menú" }).click();
@@ -410,9 +432,9 @@ try {
 
   const unavailablePage = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   await unavailablePage.route("**/api/v1/meta", (route) => route.abort("failed"));
-  await unavailablePage.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(unavailablePage, `${baseUrl}/#dashboard`);
   await unavailablePage.locator(".startup-state--error").waitFor();
-  assert.match(await unavailablePage.locator("main").innerText(), /API no está disponible/i);
+  assert.match(await unavailablePage.locator("main").innerText(), /servicio de datos no está disponible/i);
   assert.equal(await unavailablePage.getByRole("button", { name: "Reintentar" }).count(), 1);
   await unavailablePage.unroute("**/api/v1/meta");
   await unavailablePage.getByRole("button", { name: "Reintentar" }).click();
@@ -426,22 +448,24 @@ try {
     const payload = await response.json();
     await route.fulfill({ response, json: { ...payload, contractVersion: "9.9.0" } });
   });
-  await incompatiblePage.goto(`${baseUrl}/#dashboard`, { waitUntil: "networkidle" });
+  await gotoIndependentCase(incompatiblePage, `${baseUrl}/#dashboard`);
   await incompatiblePage.locator(".startup-state--error").waitFor();
-  assert.match(await incompatiblePage.locator("main").innerText(), /no son compatibles/i);
+  assert.match(await incompatiblePage.locator("main").innerText(), /esta versión.*no puede leer la información.*recarga la página/is);
+  assert.match(await incompatiblePage.locator(".technical").textContent(), /CONTRACT_INCOMPATIBLE/u, "Una versión incompatible debe fallar cerrada y conservar diagnóstico verificable");
   await incompatiblePage.close();
 
   const emptyPage = await browser.newPage({ viewport: { width: 1280, height: 720 } });
-  await emptyPage.route("**/api/v1/projects?*", async (route) => {
+  await emptyPage.route("**/api/v1/projects/query", async (route) => {
     const response = await route.fetch();
     const payload = await response.json();
     await route.fulfill({
       response,
-      json: { ...payload, items: [], total: 0, page: 1, pageCount: 0 },
+      json: { ...payload, items: [], total: 0, page: 1, totalPages: 0 },
     });
   });
-  await emptyPage.goto(`${baseUrl}/#projects`, { waitUntil: "networkidle" });
-  await emptyPage.getByText("No hay proyectos para los filtros activos.").waitFor();
+  await gotoIndependentCase(emptyPage, `${baseUrl}/#projects`);
+  await emptyPage.getByText("No hay proyectos para estos filtros. Prueba otra búsqueda o cambia la vista.", { exact: true }).waitFor();
+  assert.equal(await emptyPage.locator(".project-table tbody tr").count(), 0, "El estado vacío no debe conservar filas obsoletas");
   await emptyPage.close();
 
   assert.equal(consoleErrors.length, 0, `Errores de consola: ${consoleErrors.join(" | ")}`);
@@ -452,10 +476,31 @@ try {
     "El recorrido no debe depender de hosts externos",
   );
   console.log(`Productized E2E OK: ${routes.length} superficies, sin snapshot ni hosts externos.`);
+} catch (error) {
+  const failedPage = diagnosticPage.isClosed() ? page : diagnosticPage;
+  console.error("Productized failure context:", JSON.stringify({
+    url: failedPage.url(),
+    main: (await failedPage.locator("main").innerText().catch(() => "Sin main")).slice(0, 2500),
+    consoleErrors,
+    failedResponses,
+  }));
+  await failedPage.screenshot({ path: path.join(outputDirectory, "failure.png"), fullPage: true }).catch(() => {});
+  throw error;
 } finally {
   await browser.close();
   await viteServer?.close();
   await apiApp?.close();
+}
+
+async function gotoIndependentCase(targetPage, url) {
+  // Each full navigation starts an independent UI case. Recreate only our local
+  // test API so unrelated cases cannot exhaust the unchanged production limiter.
+  // A hash-only page.goto is same-document navigation: leave it first to avoid
+  // carrying the previous case's catalog/search filters into the new assertion.
+  await targetPage.goto("about:blank");
+  await restartApi?.();
+  diagnosticPage = targetPage;
+  await targetPage.goto(url, { waitUntil: "networkidle" });
 }
 
 async function hasHorizontalOverflow(targetPage) {

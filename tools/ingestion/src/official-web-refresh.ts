@@ -1,7 +1,21 @@
 import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { evaluateSource, type PolicyDecision, type SourceCandidate } from "./policy.js";
+import {
+  extractProjectObservations,
+  type ExtractorArchetype,
+  type ExtractorAttempt,
+  type ObservationField,
+  type ObservationFieldName,
+} from "./extractors/index.js";
+import {
+  evaluateSource,
+  type PilotAccessReview,
+  type PolicyDecision,
+  type SourceCandidate,
+} from "./policy.js";
+
+export type { ExtractorArchetype, ObservationField, ObservationFieldName } from "./extractors/index.js";
 
 const DEFAULT_USER_AGENT = "VivaInteligenciaBatch/1.0";
 const BLOCK_PAGE_PATTERNS = [
@@ -13,9 +27,28 @@ const BLOCK_PAGE_PATTERNS = [
 
 export interface CollectionTarget {
   url: string;
+  resolvedUrl?: string;
   district?: string;
   agency?: string;
   projectExternalId?: string;
+  projectName?: string;
+  matchClass?: "match_high" | "match_medium" | "match_low" | "unmatched_web";
+  requiresHumanReview?: boolean;
+  demoScope?: boolean;
+}
+
+export interface SourceAccessReview extends PilotAccessReview {
+  reference: string;
+  reviewedAt: string;
+  technicalStatus: "pass" | "blocked";
+  legalStatus: "pending" | "approved" | "blocked";
+  operationalStatus: "pending" | "approved" | "blocked";
+  robotsUrl: string;
+  robotsContentSha256: string;
+  routeRobotsStatus: "allow" | "deny";
+  reviewedPaths: string[];
+  termsReferences: string[];
+  decision: "blocked_pending_review_and_authorization" | "approved" | "blocked";
 }
 
 export interface SourceCollectionConfig {
@@ -25,6 +58,7 @@ export interface SourceCollectionConfig {
   timeoutMs?: number;
   minIntervalMs?: number;
   maxResponseBytes?: number;
+  extractorArchetypes?: ExtractorArchetype[];
 }
 
 export interface RegistrySource extends SourceCandidate {
@@ -35,6 +69,8 @@ export interface RegistrySource extends SourceCandidate {
   agency?: string;
   projectExternalId?: string;
   targets?: CollectionTarget[];
+  candidateTargets?: CollectionTarget[];
+  accessReview?: SourceAccessReview;
   collection?: SourceCollectionConfig;
 }
 
@@ -59,35 +95,16 @@ export interface BatchOptions {
   minIntervalMs?: number;
   maxResponseBytes?: number;
   runId?: string;
+  pilot?: {
+    productOwnerAuthorizationReference: string;
+    targetUrl: string;
+  };
 }
 
 export interface BatchDependencies {
   fetchImpl?: typeof fetch;
   now?: () => Date;
   sleep?: (milliseconds: number) => Promise<void>;
-}
-
-export type ObservationFieldName =
-  | "project_name"
-  | "agency_name"
-  | "address"
-  | "published_price"
-  | "currency"
-  | "area"
-  | "bedrooms"
-  | "bathrooms"
-  | "amenities"
-  | "availability"
-  | "published_at";
-
-export interface ObservationField {
-  field: ObservationFieldName;
-  originalValue: string | number | string[];
-  normalizedValue: string | number | string[];
-  unit?: string;
-  locator: string;
-  confidence: "structured" | "metadata";
-  reviewStatus: "unreviewed";
 }
 
 export interface WebObservation {
@@ -99,7 +116,14 @@ export interface WebObservation {
   district?: string;
   agency?: string;
   projectExternalId?: string;
+  expectedProjectName?: string;
+  matchClass?: CollectionTarget["matchClass"];
+  requiresHumanReview?: boolean;
   fields: ObservationField[];
+  extraction?: {
+    attempts: ExtractorAttempt[];
+    issueCodes: string[];
+  };
 }
 
 export interface SourceObservationGroup {
@@ -110,11 +134,13 @@ export interface SourceObservationGroup {
 }
 
 export interface StagingDocument {
-  schemaVersion: "1.0.0";
+  schemaVersion: "1.0.0" | "pilot-1.0.0";
   runId: string;
   generatedAt: string;
   registryVersion: string;
-  mode: "dry-run" | "controlled-collection";
+  mode: "dry-run" | "controlled-collection" | "technical-pilot";
+  publishable?: false;
+  pilotAuthorizationReference?: string;
   sourceObservations: SourceObservationGroup[];
 }
 
@@ -132,11 +158,16 @@ export interface TargetAudit {
   district?: string;
   agency?: string;
   projectExternalId?: string;
+  expectedProjectName?: string;
+  matchClass?: CollectionTarget["matchClass"];
+  requiresHumanReview?: boolean;
   status: TargetStatus;
   code?: string;
   httpStatus?: number;
   contentSha256?: string;
   fieldCount: number;
+  extractorArchetypes?: ExtractorArchetype[];
+  extractionIssueCodes?: string[];
 }
 
 export interface SourceAudit {
@@ -146,12 +177,15 @@ export interface SourceAudit {
 }
 
 export interface BatchManifest {
-  manifestVersion: "1.0.0";
+  manifestVersion: "1.0.0" | "pilot-1.0.0";
   runId: string;
   generatedAt: string;
   registryReference: string;
+  registrySha256: string;
   registryVersion: string;
-  mode: "dry-run" | "controlled-collection";
+  mode: "dry-run" | "controlled-collection" | "technical-pilot";
+  publishable?: false;
+  pilotAuthorizationReference?: string;
   filters: Required<BatchFilters>;
   controls: {
     policyGateBeforeNetwork: true;
@@ -172,8 +206,10 @@ export interface BatchManifest {
     robotsBlockedTargets: number;
     failedTargets: number;
     networkRequests: number;
+    redirectsFollowed: number;
     observations: number;
     observationFields: number;
+    extractionIssues: number;
   };
   sources: SourceAudit[];
   targets: TargetAudit[];
@@ -197,6 +233,7 @@ interface RequestControls {
   maxResponseBytes: number;
   userAgent: string;
   allowedHosts: Set<string>;
+  reviewedPaths?: Set<string>;
 }
 
 interface RobotsRules {
@@ -205,6 +242,8 @@ interface RobotsRules {
 
 interface MutableCounters {
   networkRequests: number;
+  redirectsFollowed: number;
+  extractionIssues: number;
 }
 
 export async function readSourceRegistry(registryPath: string): Promise<SourceRegistry> {
@@ -212,7 +251,7 @@ export async function readSourceRegistry(registryPath: string): Promise<SourceRe
   if (!isObject(raw) || typeof raw.registryVersion !== "string" || !Array.isArray(raw.sources)) {
     throw new Error("INGESTION_REGISTRY_INVALID: El registro no contiene registryVersion y sources válidos.");
   }
-  for (const [index, source] of raw.sources.entries()) validateRegistrySource(source, index);
+  validateRegistrySources(raw.sources);
   return raw as unknown as SourceRegistry;
 }
 
@@ -234,20 +273,29 @@ export async function runOfficialWebBatch(
   const selectedSources = options.registry.sources.filter(
     (source) => source.sourceClass === "official_project_website" && matchesFilter(source.sourceId, filters.sourceIds),
   );
+  if (options.pilot && selectedSources.length !== 1) {
+    throw new Error("INGESTION_PILOT_SCOPE_INVALID: El piloto exige seleccionar exactamente una fuente oficial.");
+  }
   const sourceAudits: SourceAudit[] = [];
   const selectedTargets: SelectedTarget[] = [];
 
   for (const source of selectedSources) {
     // This decision is deliberately evaluated before targets are queued and before fetch is reachable.
-    const decision = evaluateSource(source, "collect");
-    const targets = normalizeTargets(source).filter((target) => targetMatchesFilters(target, filters));
+    const decision = evaluateSource(source, options.pilot ? "pilot_collect" : "collect", {
+      ...(options.pilot
+        ? { productOwnerAuthorizationReference: options.pilot.productOwnerAuthorizationReference }
+        : {}),
+    });
+    const targets = (options.pilot
+      ? normalizePilotTarget(source, options.pilot.targetUrl)
+      : normalizeTargets(source)).filter((target) => targetMatchesFilters(target, filters));
     sourceAudits.push({ sourceId: source.sourceId, decision, selectedTargets: targets.length });
     for (const target of targets) selectedTargets.push({ source, target, decision });
   }
 
   const audits: TargetAudit[] = [];
   const observationsBySource = new Map<string, WebObservation[]>();
-  const counters: MutableCounters = { networkRequests: 0 };
+  const counters: MutableCounters = { networkRequests: 0, redirectsFollowed: 0, extractionIssues: 0 };
   const limiter = new HostRateLimiter(sleep);
   const robotsCache = new Map<string, Promise<RobotsRules>>();
 
@@ -293,17 +341,37 @@ export async function runOfficialWebBatch(
           throw controlledError("TECHNICAL_BLOCK_DETECTED", response.status);
         }
         const contentSha256 = sha256(html);
-        const fields = extractStructuredObservations(html);
-        const observation: WebObservation = {
-          observationId: sha256(`${selected.source.sourceId}\n${targetUrl.href}\n${generatedAt}\n${contentSha256}`),
+        const sourceUrl = auditUrl(targetUrl);
+        const extraction = extractProjectObservations(html, {
           sourceId: selected.source.sourceId,
-          sourceUrl: auditUrl(targetUrl),
+          sourceUrl,
+          ...(selected.target.agency ? { agency: cleanAuditLabel(selected.target.agency) } : {}),
+          ...(selected.target.projectExternalId ? { projectExternalId: cleanAuditLabel(selected.target.projectExternalId) } : {}),
+          ...(selected.source.collection?.extractorArchetypes
+            ? { preferredArchetypes: selected.source.collection.extractorArchetypes }
+            : {}),
+        });
+        const fields = extraction.fields;
+        counters.extractionIssues += extraction.issues.length;
+        const observation: WebObservation = {
+          observationId: sha256(`${selected.source.sourceId}\n${sourceUrl}\n${generatedAt}\n${contentSha256}`),
+          sourceId: selected.source.sourceId,
+          sourceUrl,
           capturedAt: generatedAt,
           contentSha256,
           fields,
+          extraction: {
+            attempts: extraction.attempts,
+            issueCodes: [...new Set(extraction.issues.map((issue) => issue.code))].sort(),
+          },
           ...(selected.target.district ? { district: cleanAuditLabel(selected.target.district) } : {}),
           ...(selected.target.agency ? { agency: cleanAuditLabel(selected.target.agency) } : {}),
           ...(selected.target.projectExternalId ? { projectExternalId: cleanAuditLabel(selected.target.projectExternalId) } : {}),
+          ...(selected.target.projectName ? { expectedProjectName: cleanAuditLabel(selected.target.projectName) } : {}),
+          ...(selected.target.matchClass ? { matchClass: selected.target.matchClass } : {}),
+          ...(selected.target.requiresHumanReview !== undefined
+            ? { requiresHumanReview: selected.target.requiresHumanReview }
+            : {}),
         };
         const current = observationsBySource.get(selected.source.sourceId) ?? [];
         current.push(observation);
@@ -315,6 +383,10 @@ export async function runOfficialWebBatch(
           httpStatus: response.status,
           contentSha256,
           fieldCount: fields.length,
+          extractorArchetypes: extraction.attempts
+            .filter((attempt) => attempt.applicable)
+            .map((attempt) => attempt.archetype),
+          extractionIssueCodes: [...new Set(extraction.issues.map((issue) => issue.code))].sort(),
         });
       } catch (error) {
         const failure = toSafeFailure(error);
@@ -329,12 +401,17 @@ export async function runOfficialWebBatch(
     sourceClass: source.sourceClass,
     observations: (observationsBySource.get(source.sourceId) ?? []).sort((left, right) => left.sourceUrl.localeCompare(right.sourceUrl)),
   }));
+  const mode = options.dryRun ? "dry-run" : options.pilot ? "technical-pilot" : "controlled-collection";
   const staging: StagingDocument = {
-    schemaVersion: "1.0.0",
+    schemaVersion: options.pilot ? "pilot-1.0.0" : "1.0.0",
     runId,
     generatedAt,
     registryVersion: options.registry.registryVersion,
-    mode: options.dryRun ? "dry-run" : "controlled-collection",
+    mode,
+    ...(options.pilot ? {
+      publishable: false as const,
+      pilotAuthorizationReference: cleanAuditLabel(options.pilot.productOwnerAuthorizationReference),
+    } : {}),
     sourceObservations,
   };
   const stagingText = serializeJson(staging);
@@ -350,12 +427,17 @@ export async function runOfficialWebBatch(
     0,
   );
   const manifest: BatchManifest = {
-    manifestVersion: "1.0.0",
+    manifestVersion: options.pilot ? "pilot-1.0.0" : "1.0.0",
     runId,
     generatedAt,
     registryReference: normalizeRegistryReference(options.registryReference),
+    registrySha256: canonicalJsonSha256(options.registry),
     registryVersion: options.registry.registryVersion,
     mode: staging.mode,
+    ...(options.pilot ? {
+      publishable: false as const,
+      pilotAuthorizationReference: cleanAuditLabel(options.pilot.productOwnerAuthorizationReference),
+    } : {}),
     filters,
     controls: {
       policyGateBeforeNetwork: true,
@@ -376,8 +458,10 @@ export async function runOfficialWebBatch(
       robotsBlockedTargets,
       failedTargets,
       networkRequests: counters.networkRequests,
+      redirectsFollowed: counters.redirectsFollowed,
       observations: observationCount,
       observationFields: observationFieldCount,
+      extractionIssues: counters.extractionIssues,
     },
     sources: sourceAudits,
     targets: audits.sort((left, right) => `${left.sourceId}:${left.url}`.localeCompare(`${right.sourceId}:${right.url}`)),
@@ -391,6 +475,7 @@ export async function writeBatchArtifacts(
   outputPath: string,
   manifestPath: string,
 ): Promise<void> {
+  assertPublicationBoundary(result);
   if (path.resolve(outputPath) === path.resolve(manifestPath)) {
     throw new Error("INGESTION_OUTPUT_INVALID: Staging y manifiesto requieren rutas diferentes.");
   }
@@ -404,66 +489,39 @@ export async function writeBatchArtifacts(
   ]);
 }
 
+function assertPublicationBoundary(result: BatchResult): void {
+  const pilot = result.staging.mode === "technical-pilot" || result.manifest.mode === "technical-pilot";
+  if (pilot) {
+    if (result.staging.mode !== "technical-pilot"
+      || result.manifest.mode !== "technical-pilot"
+      || result.staging.schemaVersion !== "pilot-1.0.0"
+      || result.manifest.manifestVersion !== "pilot-1.0.0"
+      || result.staging.publishable !== false
+      || result.manifest.publishable !== false
+      || !result.staging.pilotAuthorizationReference
+      || result.staging.pilotAuthorizationReference !== result.manifest.pilotAuthorizationReference) {
+      throw new Error("INGESTION_PILOT_OUTPUT_INVALID: El piloto debe quedar inequívocamente marcado como no publicable.");
+    }
+    return;
+  }
+  if (result.staging.schemaVersion !== "1.0.0"
+    || result.manifest.manifestVersion !== "1.0.0"
+    || result.staging.publishable !== undefined
+    || result.manifest.publishable !== undefined
+    || result.staging.pilotAuthorizationReference !== undefined
+    || result.manifest.pilotAuthorizationReference !== undefined) {
+    throw new Error("INGESTION_OUTPUT_INVALID: Una corrida productiva no puede declarar metadatos de piloto.");
+  }
+}
+
 export function extractStructuredObservations(html: string): ObservationField[] {
-  const fields = new Map<ObservationFieldName, ObservationField>();
-  const add = (
-    field: ObservationFieldName,
-    value: unknown,
-    locator: string,
-    confidence: ObservationField["confidence"],
-    unit?: string,
-  ) => {
-    if (fields.has(field)) return;
-    const safe = normalizeObservationValue(value);
-    if (safe === undefined) return;
-    fields.set(field, {
-      field,
-      originalValue: safe,
-      normalizedValue: typeof safe === "string" ? safe.trim() : safe,
-      ...(unit ? { unit } : {}),
-      locator,
-      confidence,
-      reviewStatus: "unreviewed",
-    });
-  };
-
-  const jsonLdObjects = parseJsonLd(html);
-  const projectObjects = jsonLdObjects.filter(isProjectStructuredObject);
-  for (const object of projectObjects) {
-    add("project_name", object.name ?? object.headline, "jsonld:name", "structured");
-    const brand = object.brand;
-    add("agency_name", isObject(brand) ? brand.name : brand, "jsonld:brand", "structured");
-    add("address", formatAddress(object.address), "jsonld:address", "structured");
-    const offers = firstObject(object.offers);
-    add("published_price", offers?.price ?? offers?.lowPrice, "jsonld:offers.price", "structured", stringValue(offers?.priceCurrency));
-    add("currency", offers?.priceCurrency, "jsonld:offers.priceCurrency", "structured");
-    const floorSize = firstObject(object.floorSize);
-    add("area", floorSize?.value, "jsonld:floorSize.value", "structured", stringValue(floorSize?.unitText ?? floorSize?.unitCode));
-    add("bedrooms", object.numberOfBedrooms ?? object.numberOfRooms, "jsonld:numberOfBedrooms", "structured");
-    add("bathrooms", object.numberOfBathroomsTotal, "jsonld:numberOfBathroomsTotal", "structured");
-    add("amenities", extractAmenityNames(object.amenityFeature), "jsonld:amenityFeature", "structured");
-    add("availability", offers?.availability, "jsonld:offers.availability", "structured");
-    add("published_at", object.datePosted ?? object.datePublished, "jsonld:datePublished", "structured");
-  }
-
-  for (const object of jsonLdObjects) {
-    if (!schemaTypes(object).includes("organization")) continue;
-    add("agency_name", object.name, "jsonld:Organization.name", "structured");
-  }
-
-  const metadata = parseMetadata(html);
-  add("project_name", metadata.get("og:title") ?? extractTitle(html), "meta:og:title", "metadata");
-  add("agency_name", metadata.get("og:site_name"), "meta:og:site_name", "metadata");
-  add("published_price", metadata.get("product:price:amount"), "meta:product:price:amount", "metadata", metadata.get("product:price:currency"));
-  add("currency", metadata.get("product:price:currency"), "meta:product:price:currency", "metadata");
-  add("availability", metadata.get("product:availability"), "meta:product:availability", "metadata");
-  return [...fields.values()];
+  return extractProjectObservations(html).fields;
 }
 
 function validateRegistrySource(value: unknown, index: number): asserts value is RegistrySource {
   if (!isObject(value)) throw new Error(`INGESTION_REGISTRY_INVALID: Fuente ${index + 1} inválida.`);
   const requiredStrings = ["sourceId", "sourceClass", "label", "reviewStatus", "robotsStatus"];
-  if (requiredStrings.some((field) => typeof value[field] !== "string")) {
+  if (requiredStrings.some((field) => typeof value[field] !== "string" || !String(value[field]).trim())) {
     throw new Error(`INGESTION_REGISTRY_INVALID: Fuente ${index + 1} incompleta.`);
   }
   if (typeof value.officialDomainConfirmed !== "boolean") {
@@ -478,13 +536,220 @@ function validateRegistrySource(value: unknown, index: number): asserts value is
   if (!["allow", "deny", "unknown", "not_applicable"].includes(String(value.robotsStatus))) {
     throw new Error(`INGESTION_REGISTRY_INVALID: robotsStatus inválido en fuente ${index + 1}.`);
   }
+  if (value.url !== undefined) {
+    if (typeof value.url !== "string" || !value.url.trim()) {
+      throw new Error(`INGESTION_REGISTRY_INVALID: url inválida en fuente ${index + 1}.`);
+    }
+    validateTargetUrl(value.url);
+  }
+  const sourceId = String(value.sourceId).trim();
+  validateAccessReview(value.accessReview, index);
+  validatePilotAuthorization(value.pilotAuthorization, value.accessReview, index);
+  validateTargetList(value.targets, index, sourceId, "targets");
+  validateTargetList(value.candidateTargets, index, sourceId, "candidateTargets");
+  if (value.collection !== undefined) {
+    if (!isObject(value.collection)) {
+      throw new Error(`INGESTION_REGISTRY_INVALID: collection inválida en fuente ${index + 1}.`);
+    }
+    const archetypes = value.collection.extractorArchetypes;
+    if (archetypes !== undefined && (
+      !Array.isArray(archetypes)
+      || archetypes.length === 0
+      || archetypes.some((item) => !["wordpress", "json_ld", "embedded_json", "html"].includes(String(item)))
+    )) {
+      throw new Error(`INGESTION_REGISTRY_INVALID: extractorArchetypes inválido en fuente ${index + 1}.`);
+    }
+    const allowedHosts = value.collection.allowedHosts;
+    if (allowedHosts !== undefined) {
+      if (!Array.isArray(allowedHosts) || allowedHosts.some((host) => typeof host !== "string" || !host.trim())) {
+        throw new Error(`INGESTION_REGISTRY_INVALID: allowedHosts inválido en fuente ${index + 1}.`);
+      }
+      for (const host of allowedHosts) validateHost(String(host));
+    }
+    validateTargetList(value.collection.targets, index, sourceId, "collection.targets");
+    validateExecutableTargetsAgainstReview(value.collection.targets, value.accessReview, index);
+  }
+}
+
+function validateAccessReview(value: unknown, sourceIndex: number): void {
+  if (value === undefined) return;
+  if (!isObject(value)) {
+    throw new Error(`INGESTION_REGISTRY_INVALID: accessReview inválido en fuente ${sourceIndex + 1}.`);
+  }
+  for (const field of [
+    "reference", "reviewedAt", "technicalStatus", "legalStatus", "operationalStatus",
+    "robotsUrl", "robotsContentSha256", "routeRobotsStatus", "decision",
+  ] as const) {
+    if (typeof value[field] !== "string" || !value[field].trim() || containsPii(value[field])) {
+      throw new Error(`INGESTION_REGISTRY_INVALID: accessReview.${field} inválido en fuente ${sourceIndex + 1}.`);
+    }
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(String(value.reviewedAt))) {
+    throw new Error(`INGESTION_REGISTRY_INVALID: accessReview.reviewedAt inválido en fuente ${sourceIndex + 1}.`);
+  }
+  if (!/^[a-f0-9]{64}$/u.test(String(value.robotsContentSha256))) {
+    throw new Error(`INGESTION_REGISTRY_INVALID: accessReview.robotsContentSha256 inválido en fuente ${sourceIndex + 1}.`);
+  }
+  if (!["pass", "blocked"].includes(String(value.technicalStatus))
+    || !["pending", "approved", "blocked"].includes(String(value.legalStatus))
+    || !["pending", "approved", "blocked"].includes(String(value.operationalStatus))
+    || !["allow", "deny"].includes(String(value.routeRobotsStatus))
+    || !["blocked_pending_review_and_authorization", "approved", "blocked"].includes(String(value.decision))) {
+    throw new Error(`INGESTION_REGISTRY_INVALID: estados de accessReview inválidos en fuente ${sourceIndex + 1}.`);
+  }
+  validateTargetUrl(String(value.robotsUrl));
+  if (!Array.isArray(value.reviewedPaths) || value.reviewedPaths.length === 0
+    || value.reviewedPaths.some((entry) => typeof entry !== "string" || !isReviewedPath(entry))) {
+    throw new Error(`INGESTION_REGISTRY_INVALID: accessReview.reviewedPaths inválido en fuente ${sourceIndex + 1}.`);
+  }
+  if (!Array.isArray(value.termsReferences)
+    || value.termsReferences.some((entry) => typeof entry !== "string" || !entry.trim())) {
+    throw new Error(`INGESTION_REGISTRY_INVALID: accessReview.termsReferences inválido en fuente ${sourceIndex + 1}.`);
+  }
+  for (const reference of value.termsReferences) validateTargetUrl(reference);
+}
+
+function validatePilotAuthorization(value: unknown, review: unknown, sourceIndex: number): void {
+  if (value === undefined) return;
+  if (!isObject(value) || !isObject(review)) {
+    throw new Error(`INGESTION_REGISTRY_INVALID: pilotAuthorization requiere accessReview en fuente ${sourceIndex + 1}.`);
+  }
+  for (const field of ["reference", "approvedAt", "approvedByRole", "status", "purpose"] as const) {
+    if (typeof value[field] !== "string" || !value[field].trim() || containsPii(value[field])) {
+      throw new Error(`INGESTION_REGISTRY_INVALID: pilotAuthorization.${field} inválido en fuente ${sourceIndex + 1}.`);
+    }
+  }
+  if (!/^\d{4}-\d{2}-\d{2}$/u.test(String(value.approvedAt))
+    || value.approvedByRole !== "product_owner"
+    || !["approved", "revoked"].includes(String(value.status))
+    || value.purpose !== "technical_feasibility"
+    || !Array.isArray(value.allowedPaths)
+    || value.allowedPaths.length === 0
+    || value.allowedPaths.some((entry) => typeof entry !== "string" || !isReviewedPath(entry))) {
+    throw new Error(`INGESTION_REGISTRY_INVALID: pilotAuthorization inválido en fuente ${sourceIndex + 1}.`);
+  }
+  const reviewedPaths = new Set(Array.isArray(review.reviewedPaths) ? review.reviewedPaths : []);
+  if (value.allowedPaths.some((entry) => !reviewedPaths.has(entry))) {
+    throw new Error(`INGESTION_REGISTRY_PILOT_PATH_NOT_REVIEWED:${sourceIndex + 1}`);
+  }
+}
+
+function validateExecutableTargetsAgainstReview(
+  targets: unknown,
+  review: unknown,
+  sourceIndex: number,
+): void {
+  if (!Array.isArray(targets) || targets.length === 0 || review === undefined) return;
+  if (!isObject(review) || !Array.isArray(review.reviewedPaths)) {
+    throw new Error(`INGESTION_REGISTRY_INVALID: falta accessReview válido en fuente ${sourceIndex + 1}.`);
+  }
+  const reviewedPaths = new Set(review.reviewedPaths);
+  for (const [targetIndex, target] of targets.entries()) {
+    if (!isObject(target) || typeof target.url !== "string") continue;
+    const pathname = validateTargetUrl(target.url).pathname;
+    if (!reviewedPaths.has(pathname)) {
+      throw new Error(
+        `INGESTION_REGISTRY_TARGET_PATH_NOT_REVIEWED:${sourceIndex + 1}:collection.targets:${targetIndex}`,
+      );
+    }
+  }
+}
+
+function isReviewedPath(value: string): boolean {
+  return value.startsWith("/")
+    && !value.includes("://")
+    && !value.includes("?")
+    && !value.includes("#")
+    && !containsPii(value);
+}
+
+function validateRegistrySources(sources: unknown[]): void {
+  const sourceIds = new Set<string>();
+  for (const [index, source] of sources.entries()) {
+    validateRegistrySource(source, index);
+    const sourceId = normalizeForMatch(source.sourceId);
+    if (sourceIds.has(sourceId)) {
+      throw new Error(`INGESTION_REGISTRY_DUPLICATE_SOURCE_ID:${sourceId}`);
+    }
+    sourceIds.add(sourceId);
+  }
+}
+
+function validateTargetList(value: unknown, sourceIndex: number, sourceId: string, label: string): void {
+  if (value === undefined) return;
+  if (!Array.isArray(value)) {
+    throw new Error(`INGESTION_REGISTRY_INVALID: ${label} inválido en fuente ${sourceIndex + 1}.`);
+  }
+  const allowedMatchClasses = new Set(["match_high", "match_medium", "match_low", "unmatched_web"]);
+  const targetUrls = new Set<string>();
+  for (const [targetIndex, target] of value.entries()) {
+    if (!isObject(target) || typeof target.url !== "string" || !target.url.trim()) {
+      throw new Error(
+        `INGESTION_REGISTRY_INVALID: ${label}[${targetIndex}] inválido en fuente ${sourceIndex + 1}.`,
+      );
+    }
+    const normalizedTargetUrl = canonicalExecutableUrl(target.url);
+    if (targetUrls.has(normalizedTargetUrl)) {
+      throw new Error(`INGESTION_REGISTRY_DUPLICATE_TARGET_URL:${sourceId}:${label}:${targetIndex}`);
+    }
+    targetUrls.add(normalizedTargetUrl);
+    if (target.resolvedUrl !== undefined) {
+      if (typeof target.resolvedUrl !== "string" || !target.resolvedUrl.trim()) {
+        throw new Error(
+          `INGESTION_REGISTRY_INVALID: ${label}[${targetIndex}].resolvedUrl inválido en fuente ${sourceIndex + 1}.`,
+        );
+      }
+      canonicalExecutableUrl(target.resolvedUrl);
+    }
+    for (const field of ["district", "agency", "projectExternalId", "projectName"] as const) {
+      if (target[field] !== undefined && (typeof target[field] !== "string" || !target[field].trim())) {
+        throw new Error(
+          `INGESTION_REGISTRY_INVALID: ${label}[${targetIndex}].${field} inválido en fuente ${sourceIndex + 1}.`,
+        );
+      }
+    }
+    if (target.matchClass !== undefined && !allowedMatchClasses.has(String(target.matchClass))) {
+      throw new Error(
+        `INGESTION_REGISTRY_INVALID: ${label}[${targetIndex}].matchClass inválido en fuente ${sourceIndex + 1}.`,
+      );
+    }
+    for (const field of ["requiresHumanReview", "demoScope"] as const) {
+      if (target[field] !== undefined && typeof target[field] !== "boolean") {
+        throw new Error(
+          `INGESTION_REGISTRY_INVALID: ${label}[${targetIndex}].${field} inválido en fuente ${sourceIndex + 1}.`,
+        );
+      }
+    }
+    if (target.matchClass !== undefined
+      && target.matchClass !== "match_high"
+      && target.requiresHumanReview === false) {
+      throw new Error(
+        `INGESTION_REGISTRY_INVALID: ${label}[${targetIndex}] no puede omitir revisión humana con ${target.matchClass}.`,
+      );
+    }
+  }
 }
 
 function validateOptions(options: BatchOptions): void {
   if (!options.registry || !Array.isArray(options.registry.sources)) {
     throw new Error("INGESTION_REGISTRY_INVALID: Falta el registro de fuentes.");
   }
+  validateRegistrySources(options.registry.sources);
   if (!options.registryReference.trim()) throw new Error("INGESTION_REGISTRY_INVALID: Falta una referencia relativa del registro.");
+  if (options.pilot) {
+    if (options.dryRun) {
+      throw new Error("INGESTION_PILOT_MODE_INVALID: --pilot requiere una ejecución explícita.");
+    }
+    if (!options.pilot.productOwnerAuthorizationReference?.trim()
+      || containsPii(options.pilot.productOwnerAuthorizationReference)) {
+      throw new Error("INGESTION_PILOT_AUTHORIZATION_REQUIRED: Falta la referencia explícita del Product Owner.");
+    }
+    canonicalExecutableUrl(options.pilot.targetUrl);
+    const sourceIds = normalizeFilterValues(options.filters?.sourceIds);
+    if (sourceIds.length !== 1) {
+      throw new Error("INGESTION_PILOT_SCOPE_INVALID: El piloto exige --source exactamente una vez.");
+    }
+  }
 }
 
 function normalizeFilters(filters: BatchFilters | undefined): Required<BatchFilters> {
@@ -514,15 +779,31 @@ function normalizeForMatch(value: string): string {
 }
 
 function normalizeTargets(source: RegistrySource): CollectionTarget[] {
-  const candidates = source.collection?.targets ?? source.targets;
-  if (Array.isArray(candidates)) return candidates.map((target) => ({ ...target }));
-  if (!source.url) return [];
-  return [{
-    url: source.url,
-    ...(source.district ? { district: source.district } : {}),
-    ...(source.agency ? { agency: source.agency } : {}),
-    ...(source.projectExternalId ? { projectExternalId: source.projectExternalId } : {}),
-  }];
+  const targets = source.collection?.targets;
+  return Array.isArray(targets)
+    ? targets.map((target) => ({ ...target, url: canonicalExecutableUrl(target.url) }))
+    : [];
+}
+
+function normalizePilotTarget(source: RegistrySource, requestedUrl: string): CollectionTarget[] {
+  const requested = canonicalExecutableUrl(requestedUrl);
+  const candidates = source.candidateTargets ?? [];
+  const matches = candidates.flatMap((target) => {
+    const urls = [target.url, target.resolvedUrl].filter((value): value is string => Boolean(value));
+    return urls.some((value) => canonicalExecutableUrl(value) === requested)
+      ? [{ ...target, url: requested }]
+      : [];
+  });
+  if (matches.length !== 1) {
+    throw new Error("INGESTION_PILOT_TARGET_INVALID: La ruta debe coincidir con un único target candidato registrado.");
+  }
+  const pathname = validateTargetUrl(requested).pathname;
+  const reviewed = new Set(source.accessReview?.reviewedPaths ?? []);
+  const authorized = new Set(source.pilotAuthorization?.allowedPaths ?? []);
+  if (!reviewed.has(pathname) || !authorized.has(pathname)) {
+    throw new Error("INGESTION_PILOT_TARGET_NOT_AUTHORIZED: La ruta exacta no está revisada y autorizada para el piloto.");
+  }
+  return matches;
 }
 
 function targetAuditBase(selected: SelectedTarget): Omit<TargetAudit, "status" | "fieldCount"> {
@@ -532,6 +813,11 @@ function targetAuditBase(selected: SelectedTarget): Omit<TargetAudit, "status" |
     ...(selected.target.district ? { district: cleanAuditLabel(selected.target.district) } : {}),
     ...(selected.target.agency ? { agency: cleanAuditLabel(selected.target.agency) } : {}),
     ...(selected.target.projectExternalId ? { projectExternalId: cleanAuditLabel(selected.target.projectExternalId) } : {}),
+    ...(selected.target.projectName ? { expectedProjectName: cleanAuditLabel(selected.target.projectName) } : {}),
+    ...(selected.target.matchClass ? { matchClass: selected.target.matchClass } : {}),
+    ...(selected.target.requiresHumanReview !== undefined
+      ? { requiresHumanReview: selected.target.requiresHumanReview }
+      : {}),
   };
 }
 
@@ -542,11 +828,19 @@ function controlsForSource(
 ): RequestControls {
   const config = source.collection;
   const userAgent = config?.userAgent?.trim() || DEFAULT_USER_AGENT;
-  const allowedHosts = new Set([target.hostname.toLocaleLowerCase("en-US")]);
+  const allowedHosts = new Set<string>();
   for (const host of config?.allowedHosts ?? []) allowedHosts.add(validateHost(host));
+  if (allowedHosts.size === 0 && source.officialDomainConfirmed && source.url) {
+    allowedHosts.add(validateHost(validateTargetUrl(source.url).hostname));
+  }
+  if (allowedHosts.size === 0) throw controlledError("TARGET_HOST_ALLOWLIST_MISSING");
+  if (!allowedHosts.has(target.hostname.toLocaleLowerCase("en-US"))) {
+    throw controlledError("TARGET_HOST_NOT_ALLOWLISTED");
+  }
   return {
     userAgent,
     allowedHosts,
+    ...(source.accessReview ? { reviewedPaths: new Set(source.accessReview.reviewedPaths) } : {}),
     timeoutMs: Math.min(defaults.timeoutMs, positiveSetting(config?.timeoutMs, defaults.timeoutMs)),
     minIntervalMs: Math.max(defaults.minIntervalMs, nonNegativeSetting(config?.minIntervalMs, defaults.minIntervalMs)),
     maxResponseBytes: Math.min(defaults.maxResponseBytes, positiveSetting(config?.maxResponseBytes, defaults.maxResponseBytes)),
@@ -561,7 +855,7 @@ async function loadRobotsRules(
   counters: MutableCounters,
 ): Promise<RobotsRules> {
   const robotsUrl = new URL("/robots.txt", target.origin);
-  const response = await controlledFetch(robotsUrl, controls, fetchImpl, limiter, counters);
+  const response = await controlledFetch(robotsUrl, controls, fetchImpl, limiter, counters, false);
   assertAllowedRedirect(response, robotsUrl, controls.allowedHosts);
   if (response.status === 404 || response.status === 410) return { allows: () => true };
   if (!response.ok) throw controlledError(`ROBOTS_HTTP_${response.status}`, response.status);
@@ -575,22 +869,33 @@ async function controlledFetch(
   fetchImpl: typeof fetch,
   limiter: HostRateLimiter,
   counters: MutableCounters,
+  enforceReviewedPath = true,
 ): Promise<Response> {
   let currentUrl = url;
   for (let redirects = 0; redirects <= 3; redirects += 1) {
+    if (enforceReviewedPath) assertReviewedPath(currentUrl, controls.reviewedPaths);
     const response = await singleControlledFetch(currentUrl, controls, fetchImpl, limiter, counters);
     if (![301, 302, 303, 307, 308].includes(response.status)) return response;
     const location = response.headers.get("location");
     if (!location) throw controlledError("REDIRECT_LOCATION_MISSING", response.status);
     if (redirects === 3) throw controlledError("REDIRECT_LIMIT_EXCEEDED", response.status);
-    const nextUrl = new URL(location, currentUrl);
-    if (!["http:", "https:"].includes(nextUrl.protocol)) throw controlledError("REDIRECT_PROTOCOL_BLOCKED", response.status);
+    const redirectUrl = new URL(location, currentUrl);
+    if (!["http:", "https:"].includes(redirectUrl.protocol)) throw controlledError("REDIRECT_PROTOCOL_BLOCKED", response.status);
+    const nextUrl = new URL(canonicalExecutableUrl(redirectUrl.href));
     if (!controls.allowedHosts.has(nextUrl.hostname.toLocaleLowerCase("en-US"))) {
       throw controlledError("REDIRECT_HOST_BLOCKED", response.status);
     }
+    if (enforceReviewedPath) assertReviewedPath(nextUrl, controls.reviewedPaths);
+    counters.redirectsFollowed += 1;
     currentUrl = nextUrl;
   }
   throw controlledError("REDIRECT_LIMIT_EXCEEDED");
+}
+
+function assertReviewedPath(url: URL, reviewedPaths: Set<string> | undefined): void {
+  if (reviewedPaths && !reviewedPaths.has(url.pathname)) {
+    throw controlledError("TARGET_PATH_NOT_REVIEWED");
+  }
 }
 
 async function singleControlledFetch(
@@ -745,138 +1050,11 @@ function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function parseJsonLd(html: string): Array<Record<string, unknown>> {
-  const objects: Array<Record<string, unknown>> = [];
-  const expression = /<script\b[^>]*type\s*=\s*["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/giu;
-  for (const match of html.matchAll(expression)) {
-    const raw = match[1]?.trim();
-    if (!raw || raw.length > 500_000) continue;
-    try {
-      collectObjects(JSON.parse(raw) as unknown, objects);
-    } catch {
-      // Invalid structured data is ignored; raw payloads and parse errors never enter staging.
-    }
-  }
-  return objects;
-}
-
-function collectObjects(value: unknown, result: Array<Record<string, unknown>>): void {
-  if (Array.isArray(value)) {
-    for (const item of value) collectObjects(item, result);
-    return;
-  }
-  if (!isObject(value)) return;
-  result.push(value);
-  if (Array.isArray(value["@graph"])) collectObjects(value["@graph"], result);
-}
-
-function isProjectStructuredObject(value: Record<string, unknown>): boolean {
-  const projectTypes = new Set([
-    "accommodation",
-    "apartment",
-    "apartmentcomplex",
-    "house",
-    "offer",
-    "place",
-    "product",
-    "realestatelisting",
-    "residence",
-    "singlefamilyresidence",
-  ]);
-  return schemaTypes(value).some((type) => projectTypes.has(type));
-}
-
-function schemaTypes(value: Record<string, unknown>): string[] {
-  const type = value["@type"];
-  const values = Array.isArray(type) ? type : type ? [type] : [];
-  return values
-    .filter((entry): entry is string => typeof entry === "string")
-    .map((entry) => entry.toLocaleLowerCase("en-US"));
-}
-
-function parseMetadata(html: string): Map<string, string> {
-  const metadata = new Map<string, string>();
-  for (const tag of html.match(/<meta\b[^>]*>/giu) ?? []) {
-    const attributes = parseAttributes(tag);
-    const key = attributes.get("property") ?? attributes.get("name");
-    const value = attributes.get("content");
-    if (key && value) metadata.set(key.toLocaleLowerCase("en-US"), decodeHtml(value));
-  }
-  return metadata;
-}
-
-function parseAttributes(tag: string): Map<string, string> {
-  const attributes = new Map<string, string>();
-  const expression = /([:\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gu;
-  for (const match of tag.matchAll(expression)) {
-    const key = match[1]?.toLocaleLowerCase("en-US");
-    const value = match[2] ?? match[3] ?? match[4];
-    if (key && value !== undefined) attributes.set(key, value);
-  }
-  return attributes;
-}
-
-function extractTitle(html: string): string | undefined {
-  const title = /<title\b[^>]*>([\s\S]*?)<\/title>/iu.exec(html)?.[1];
-  return title ? decodeHtml(title.replace(/<[^>]+>/gu, " ")) : undefined;
-}
-
-function formatAddress(value: unknown): string | undefined {
-  if (typeof value === "string") return value;
-  const address = firstObject(value);
-  if (!address) return undefined;
-  return [address.streetAddress, address.addressLocality, address.addressRegion]
-    .map(stringValue)
-    .filter((part): part is string => Boolean(part))
-    .join(", ");
-}
-
-function extractAmenityNames(value: unknown): string[] | undefined {
-  const entries = Array.isArray(value) ? value : value ? [value] : [];
-  const names = entries
-    .map((entry) => isObject(entry) ? stringValue(entry.name) : stringValue(entry))
-    .filter((entry): entry is string => Boolean(entry));
-  return names.length > 0 ? [...new Set(names)] : undefined;
-}
-
-function normalizeObservationValue(value: unknown): string | number | string[] | undefined {
-  if (typeof value === "number" && Number.isFinite(value)) return value;
-  if (typeof value === "string") {
-    const decoded = decodeHtml(value).replace(/\s+/gu, " ").trim();
-    if (!decoded || decoded.length > 300 || containsPii(decoded)) return undefined;
-    const numeric = decoded.replace(/[\s,]/gu, "");
-    if (/^-?\d+(?:\.\d+)?$/u.test(numeric)) return Number(numeric);
-    return decoded;
-  }
-  if (Array.isArray(value)) {
-    const safe = value.map((entry) => normalizeObservationValue(entry)).filter((entry): entry is string => typeof entry === "string");
-    return safe.length > 0 ? [...new Set(safe)].slice(0, 50) : undefined;
-  }
-  return undefined;
-}
-
-function containsPii(value: string): boolean {
-  return /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/u.test(value)
-    || /(?:\+?51[\s.-]*)?(?:9\d{2}[\s.-]*\d{3}[\s.-]*\d{3})/u.test(value)
-    || /(?:tel(?:e?fono)?|whatsapp|contacto)\s*[:：]?\s*\+?\d/iu.test(value);
-}
-
-function decodeHtml(value: string): string {
-  return value
-    .replaceAll("&amp;", "&")
-    .replaceAll("&quot;", '"')
-    .replaceAll("&#39;", "'")
-    .replaceAll("&lt;", "<")
-    .replaceAll("&gt;", ">");
-}
-
-function firstObject(value: unknown): Record<string, unknown> | undefined {
-  if (Array.isArray(value)) return value.find(isObject);
-  return isObject(value) ? value : undefined;
-}
-
-function stringValue(value: unknown): string | undefined {
-  return typeof value === "string" ? value : undefined;
+export function containsPii(value: string): boolean {
+  const normalized = value.normalize("NFKD").replace(/\p{Diacritic}/gu, "");
+  return /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/u.test(normalized)
+    || /(?:\+?51[\s.-]*)?(?:9\d{2}[\s.-]*\d{3}[\s.-]*\d{3})/u.test(normalized)
+    || /(?:tel(?:e?fono)?|whatsapp|contacto)\s*:?\s*\+?\d/iu.test(normalized);
 }
 
 function validateTargetUrl(value: string): URL {
@@ -890,6 +1068,15 @@ function validateTargetUrl(value: string): URL {
   if (url.username || url.password) throw controlledError("TARGET_CREDENTIALS_BLOCKED");
   url.hash = "";
   return url;
+}
+
+function canonicalExecutableUrl(value: string): string {
+  const url = validateTargetUrl(value);
+  url.search = "";
+  const canonical = url.href;
+  const auditable = auditUrl(url);
+  if (canonical !== auditable) throw controlledError("TARGET_PATH_PII_BLOCKED");
+  return auditable;
 }
 
 function safePublicUrl(value: string): string {
@@ -947,6 +1134,26 @@ function boundedInteger(value: number, minimum: number, maximum: number, label: 
 
 function sha256(value: string): string {
   return createHash("sha256").update(value).digest("hex");
+}
+
+export function canonicalJsonSha256(value: unknown): string {
+  return sha256(canonicalJson(value));
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map((entry) => entry === undefined ? "null" : canonicalJson(entry)).join(",")}]`;
+  }
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .filter(([, entry]) => entry !== undefined)
+      .sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
+      .map(([key, entry]) => `${JSON.stringify(key)}:${canonicalJson(entry)}`)
+      .join(",")}}`;
+  }
+  const serialized = JSON.stringify(value);
+  if (serialized === undefined) throw new Error("INGESTION_CANONICAL_JSON_INVALID");
+  return serialized;
 }
 
 function serializeJson(value: unknown): string {

@@ -22,6 +22,14 @@ La fuente base de Nexo será un export, API o base entregada por Viva/CODIP bajo
 
 Las webs propias se habilitan una por una. Se exige dominio oficial confirmado, rutas permitidas, revisión legal/operativa aprobada y una referencia de autorización. No se eluden CAPTCHA, autenticación, bloqueos, rate limits ni medidas técnicas.
 
+Para comprobar factibilidad durante la demo existe un modo distinto, `technical-pilot`, que no
+habilita la recolección productiva. Requiere autorización explícita del Product Owner registrada
+y confirmada nuevamente en cada comando, una sola fuente oficial, una sola URL candidata, ruta
+exacta revisada y `robots` permitido para esa ruta. Su staging y manifiesto usan un contrato de
+piloto, declaran `publishable: false` y son rechazados por el conciliador/publicador. Legal y
+Operaciones siguen siendo obligatorios para `controlled-collection`; una autorización de piloto
+nunca satisface ese gate.
+
 Cada valor se modela como observación; nunca se actualiza destructivamente otra fuente. La resolución produce un hecho publicado con policy y justificación, conservando las observaciones discrepantes. Precio publicado y precio de cierre usan campos y fuentes diferentes.
 
 ## Modelo mínimo del almacén

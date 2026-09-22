@@ -36,4 +36,17 @@ La capacidad histórica del Inspector se presenta al usuario comercial como “V
 - Si falta evidencia, informa “Dato por validar” sin convertir la ausencia en una negación.
 - Los códigos de expediente, estados internos y metodología detallada quedan en un nivel secundario de auditoría.
 
+La comparación usa tres estados comerciales:
+
+- **Coincide:** los valores son equivalentes después de normalizar abreviaturas habituales de
+  dirección, unidades y rangos. Los textos originales de ambas fuentes se siguen mostrando.
+- **Aporta información:** una fuente agrega un dato, una característica o un nivel de detalle que la
+  otra no publica. No se interpreta como conflicto.
+- **Revisar:** los valores son incompatibles o el texto capturado no permite una lectura segura. La
+  ficha conserva ambos valores y no selecciona uno automáticamente.
+
+La tabla solo compara observaciones que ya forman parte del snapshot publicado. Una URL enlazada sin
+observación se muestra como “Web oficial enlazada; datos aún no publicados”. Los pilotos técnicos no
+publicables permanecen fuera de la aplicación hasta completar su revisión y promoción controlada.
+
 La ruta histórica `#inspector` y su endpoint permanecen disponibles por compatibilidad técnica y para usos especializados de calidad de datos.

@@ -21,12 +21,19 @@ import {
   MetaResponseSchema,
   PaginatedProjectsSchema,
   ProjectDetailResponseSchema,
+  ScenarioProjectsRequestSchema,
+  ScenarioProjectsResponseSchema,
+  ScenarioHistoryRequestSchema,
+  isScenarioProjectsRequest,
+  isScenarioHistoryRequest,
   SourceCoverageResponseSchema,
   WorkspaceEvaluateRequestSchema,
   WorkspaceEvaluateResponseSchema,
   type AssistantRequest,
   type ComparisonRequest,
   type DataRefreshRequest,
+  type ScenarioProjectsRequest,
+  type ScenarioHistoryRequest,
   type WorkspaceEvaluateRequest,
 } from "@viva/contracts";
 import {
@@ -168,6 +175,21 @@ export async function buildApp(dependencies: AppDependencies): Promise<FastifyIn
     return { ...versioned(), ...result };
   });
 
+  app.post<{ Body: ScenarioProjectsRequest }>("/api/v1/projects/query", {
+    preValidation: async (request, reply) => {
+      if (!isScenarioProjectsRequest(request.body)) {
+        return sendError(reply, request.id, 400, "REQUEST_INVALID", "La consulta de proyectos no cumple el contrato.");
+      }
+    },
+    schema: {
+      body: ScenarioProjectsRequestSchema,
+      response: { 200: ScenarioProjectsResponseSchema, default: ApiErrorSchema },
+    },
+  }, async (request) => ({
+    ...versioned(),
+    ...requireRepository(dependencies).projects(request.body),
+  }));
+
   app.get<{ Params: { districtId: string } }>("/api/v1/geography/districts/:districtId", {
     schema: {
       params: { type: "object", required: ["districtId"], properties: { districtId: { type: "string", minLength: 1 } } },
@@ -207,6 +229,8 @@ export async function buildApp(dependencies: AppDependencies): Promise<FastifyIn
       ...versioned(),
       enabled: refreshConfigured(dependencies.config),
       lastPublishedAt: requireRepository(dependencies).metadata().generatedAt,
+      snapshotGeneratedAt: requireRepository(dependencies).metadata().generatedAt,
+      publication: { status: "not_recorded" as const, publishedAt: null },
       run: refreshRun,
     };
   });
@@ -316,6 +340,21 @@ export async function buildApp(dependencies: AppDependencies): Promise<FastifyIn
   }, async (request) => ({
     ...versioned(),
     ...requireRepository(dependencies).history(request.query),
+  }));
+
+  app.post<{ Body: ScenarioHistoryRequest }>("/api/v1/history/query", {
+    preValidation: async (request, reply) => {
+      if (!isScenarioHistoryRequest(request.body)) {
+        return sendError(reply, request.id, 400, "REQUEST_INVALID", "La consulta de seguimiento no cumple el contrato.");
+      }
+    },
+    schema: {
+      body: ScenarioHistoryRequestSchema,
+      response: { 200: HistoryResponseSchema, default: ApiErrorSchema },
+    },
+  }, async (request) => ({
+    ...versioned(),
+    ...requireRepository(dependencies).history(request.body),
   }));
 
   app.post<{ Body: AssistantRequest }>("/api/v1/assistant/answer", {

@@ -11,10 +11,17 @@ import {
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const cli = parseArguments(process.argv.slice(2));
 const registryPath = resolveFromRoot(cli.single.get("registry") ?? "data/source/ingestion/source-registry.json");
-const outputPath = resolveFromRoot(cli.single.get("output") ?? "data/staging/official-web-refresh.json");
+const defaultOutput = cli.pilot
+  ? "data/staging/pilots/official-web-pilot.json"
+  : "data/staging/official-web-refresh.json";
+const outputPath = resolveFromRoot(cli.single.get("output") ?? defaultOutput);
 const manifestPath = resolveFromRoot(cli.single.get("manifest") ?? `${path.relative(root, outputPath)}.manifest.json`);
 assertStagingPath(outputPath, "output");
 assertStagingPath(manifestPath, "manifest");
+if (cli.pilot) {
+  assertPilotStagingPath(outputPath, "output");
+  assertPilotStagingPath(manifestPath, "manifest");
+}
 
 const filters: BatchFilters = {
   districts: cli.multi.get("district") ?? [],
@@ -28,6 +35,12 @@ const batchOptions: BatchOptions = {
   dryRun: !cli.execute,
   filters,
 };
+if (cli.pilot) {
+  batchOptions.pilot = {
+    productOwnerAuthorizationReference: requiredOption(cli.single, "product-owner-authorization"),
+    targetUrl: requiredOption(cli.single, "target"),
+  };
+}
 setNumberOption(batchOptions, "concurrency", numberOption(cli.single, "concurrency"));
 setNumberOption(batchOptions, "timeoutMs", numberOption(cli.single, "timeout-ms"));
 setNumberOption(batchOptions, "minIntervalMs", numberOption(cli.single, "rate-limit-ms"));
@@ -46,6 +59,7 @@ process.stdout.write(`${JSON.stringify({
 
 interface ParsedArguments {
   execute: boolean;
+  pilot: boolean;
   single: Map<string, string>;
   multi: Map<string, string[]>;
 }
@@ -55,10 +69,15 @@ function parseArguments(values: string[]): ParsedArguments {
   const single = new Map<string, string>();
   const multi = new Map<string, string[]>();
   let execute = false;
+  let pilot = false;
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index] ?? "";
     if (argument === "--execute") {
       execute = true;
+      continue;
+    }
+    if (argument === "--pilot") {
+      pilot = true;
       continue;
     }
     if (argument === "--dry-run") {
@@ -73,12 +92,25 @@ function parseArguments(values: string[]): ParsedArguments {
     if (["district", "agency", "source"].includes(key)) {
       const items = value.split(",").map((item) => item.trim()).filter(Boolean);
       multi.set(key, [...(multi.get(key) ?? []), ...items]);
-    } else if (["registry", "output", "manifest", "concurrency", "timeout-ms", "rate-limit-ms", "max-bytes", "run-id"].includes(key)) {
+    } else if ([
+      "registry", "output", "manifest", "concurrency", "timeout-ms", "rate-limit-ms", "max-bytes", "run-id",
+      "product-owner-authorization", "target",
+    ].includes(key)) {
       if (single.has(key)) usage(`--${key} solo puede declararse una vez.`);
       single.set(key, value);
     } else usage(`Opción desconocida: --${key}.`);
   }
-  return { execute, single, multi };
+  if (pilot && !execute) usage("--pilot requiere --execute.");
+  if (!pilot && (single.has("product-owner-authorization") || single.has("target"))) {
+    usage("--product-owner-authorization y --target solo se admiten con --pilot.");
+  }
+  return { execute, pilot, single, multi };
+}
+
+function requiredOption(values: Map<string, string>, key: string): string {
+  const value = values.get(key)?.trim();
+  if (!value) usage(`--pilot requiere --${key}.`);
+  return value;
 }
 
 function numberOption(values: Map<string, string>, key: string): number | undefined {
@@ -109,11 +141,21 @@ function assertStagingPath(value: string, label: string): void {
   }
 }
 
+function assertPilotStagingPath(value: string, label: string): void {
+  const pilotStaging = path.resolve(root, "data/staging/pilots");
+  const relative = path.relative(pilotStaging, value);
+  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new Error(`INGESTION_PILOT_OUTPUT_INVALID: --${label} debe quedar dentro de data/staging/pilots.`);
+  }
+}
+
 function usage(reason: string): never {
   throw new Error(
     `INGESTION_ARGUMENT_INVALID: ${reason}\n`
-    + "Uso: npm run official-webs:refresh -- [--dry-run|--execute] "
+    + "Uso productivo: npm run official-webs:refresh -- [--dry-run|--execute] "
     + "[--district <distrito>] [--agency <inmobiliaria>] [--source <sourceId>] "
-    + "[--concurrency <1-8>] [--timeout-ms <ms>] [--rate-limit-ms <ms>] [--max-bytes <bytes>]",
+    + "[--concurrency <1-8>] [--timeout-ms <ms>] [--rate-limit-ms <ms>] [--max-bytes <bytes>]\n"
+    + "Uso piloto: --execute --pilot --source <sourceId> --target <url exacta> "
+    + "--product-owner-authorization <referencia>",
   );
 }

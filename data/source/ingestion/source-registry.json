@@ -1,5 +1,6 @@
 {
-  "registryVersion": "1.0.0",
+  "registryVersion": "1.2.0",
+  "assessedAt": "2026-09-08",
   "sources": [
     {
       "sourceId": "nexo-authorized-feed",
@@ -21,13 +22,394 @@
       "robotsStatus": "unknown"
     },
     {
-      "sourceId": "official-project-websites",
-      "label": "Webs oficiales de inmobiliarias",
+      "sourceId": "invent-official-website",
+      "label": "Web oficial de Invent Inmobiliaria",
       "sourceClass": "official_project_website",
-      "purpose": "Enriquecimiento y contraste de información pública de cada proyecto.",
-      "officialDomainConfirmed": false,
+      "purpose": "Enriquecimiento y contraste de proyectos publicados por Invent Inmobiliaria.",
+      "url": "https://invent.com.pe/",
+      "officialDomainConfirmed": true,
       "reviewStatus": "pending",
-      "robotsStatus": "unknown"
+      "robotsStatus": "unknown",
+      "domainVerificationStatus": "confirmed_high_confidence",
+      "automationAuthorizationStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization",
+      "researchReference": "WEB-RESEARCH-2026-09-08",
+      "candidateTargets": [
+        {
+          "url": "https://invent.com.pe/departamentos-en-venta-magdalena/aliaga-435",
+          "agency": "INVENT INMOBILIARIA",
+          "district": "Magdalena del Mar",
+          "projectName": "ALIAGA 435",
+          "matchClass": "match_low",
+          "requiresHumanReview": true,
+          "demoScope": true
+        },
+        {
+          "url": "https://invent.com.pe/departamentos-en-venta-barranco/patria",
+          "agency": "INVENT INMOBILIARIA",
+          "district": "Barranco",
+          "projectName": "PATRIA",
+          "projectExternalId": "2430",
+          "matchClass": "match_medium",
+          "requiresHumanReview": true,
+          "demoScope": false
+        }
+      ],
+      "collection": {
+        "userAgent": "VivaInteligenciaBatch/1.0",
+        "extractorArchetypes": ["embedded_json", "json_ld", "html"],
+        "allowedHosts": ["invent.com.pe", "www.invent.com.pe"],
+        "timeoutMs": 10000,
+        "minIntervalMs": 1500,
+        "maxResponseBytes": 1000000,
+        "targets": []
+      }
+    },
+    {
+      "sourceId": "cantabria-official-website",
+      "label": "Web oficial de Cantabria",
+      "sourceClass": "official_project_website",
+      "purpose": "Enriquecimiento y contraste de proyectos publicados por Cantabria.",
+      "url": "https://cantabriainmobiliaria.pe/",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "pending",
+      "robotsStatus": "unknown",
+      "domainVerificationStatus": "confirmed_high_confidence",
+      "automationAuthorizationStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization",
+      "researchReference": "WEB-RESEARCH-2026-09-08",
+      "accessReview": {
+        "reference": "WAVE1-PILOT-CANTABRIA-VERSIA-2026-09-08",
+        "reviewedAt": "2026-09-08",
+        "technicalStatus": "pass",
+        "legalStatus": "pending",
+        "operationalStatus": "pending",
+        "robotsUrl": "https://cantabriainmobiliaria.pe/robots.txt",
+        "robotsContentSha256": "4b9e711707cc22f784c9215f389392622bdf6557476460b734c0c6a3c2d7a6cb",
+        "routeRobotsStatus": "allow",
+        "reviewedPaths": [
+          "/proyecto/versia-miraflores/",
+          "/landing-versia/"
+        ],
+        "termsReferences": [
+          "https://cantabriainmobiliaria.pe/terminos-y-condiciones/",
+          "https://cantabriainmobiliaria.pe/politicas-de-privacidad/"
+        ],
+        "decision": "blocked_pending_review_and_authorization"
+      },
+      "candidateTargets": [
+        {
+          "url": "https://cantabriainmobiliaria.pe/proyecto/versia-miraflores/",
+          "resolvedUrl": "https://cantabriainmobiliaria.pe/landing-versia/",
+          "agency": "CANTABRIA",
+          "district": "Miraflores",
+          "projectName": "VERSIA",
+          "projectExternalId": "3981",
+          "matchClass": "match_high",
+          "requiresHumanReview": false,
+          "demoScope": true
+        },
+        {
+          "url": "https://cantabriainmobiliaria.pe/proyecto/west-prado",
+          "agency": "CANTABRIA",
+          "district": "San Isidro",
+          "projectName": "WEST PRADO",
+          "projectExternalId": "3976",
+          "matchClass": "match_medium",
+          "requiresHumanReview": true,
+          "demoScope": true
+        }
+      ],
+      "collection": {
+        "userAgent": "VivaInteligenciaBatch/1.0",
+        "extractorArchetypes": ["wordpress", "json_ld", "embedded_json", "html"],
+        "allowedHosts": ["cantabriainmobiliaria.pe", "www.cantabriainmobiliaria.pe"],
+        "timeoutMs": 10000,
+        "minIntervalMs": 1500,
+        "maxResponseBytes": 1000000,
+        "targets": []
+      }
+    },
+    {
+      "sourceId": "hl-desarrollos-official-website",
+      "label": "Web oficial de HL Desarrollos Inmobiliarios",
+      "sourceClass": "official_project_website",
+      "purpose": "Enriquecimiento y contraste de proyectos publicados por HL Desarrollos Inmobiliarios.",
+      "url": "https://hldi.pe/",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "pending",
+      "robotsStatus": "unknown",
+      "domainVerificationStatus": "confirmed_high_confidence",
+      "automationAuthorizationStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization",
+      "researchReference": "WEB-RESEARCH-2026-09-08",
+      "candidateTargets": [
+        {
+          "url": "https://hldi.pe/proyectos/friendz",
+          "agency": "HL DESARROLLOS INMOBILIARIOS",
+          "district": "Chorrillos",
+          "projectName": "Friendz",
+          "matchClass": "unmatched_web",
+          "requiresHumanReview": true,
+          "demoScope": false
+        },
+        {
+          "url": "https://hldi.pe/proyectos/sq-2-work-living",
+          "agency": "HL DESARROLLOS INMOBILIARIOS",
+          "district": "Surquillo",
+          "projectName": "SQ 2 Work & Living",
+          "matchClass": "unmatched_web",
+          "requiresHumanReview": true,
+          "demoScope": false
+        }
+      ],
+      "collection": {
+        "userAgent": "VivaInteligenciaBatch/1.0",
+        "extractorArchetypes": ["wordpress", "json_ld", "embedded_json", "html"],
+        "allowedHosts": ["hldi.pe", "www.hldi.pe"],
+        "timeoutMs": 10000,
+        "minIntervalMs": 1500,
+        "maxResponseBytes": 1000000,
+        "targets": []
+      }
+    },
+    {
+      "sourceId": "inhouse-official-website",
+      "label": "Web oficial de Inhouse",
+      "sourceClass": "official_project_website",
+      "purpose": "Enriquecimiento y contraste de proyectos publicados por Inhouse.",
+      "url": "https://www.inhouse.com.pe/",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "pending",
+      "robotsStatus": "unknown",
+      "domainVerificationStatus": "confirmed_high_confidence",
+      "automationAuthorizationStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization",
+      "researchReference": "WEB-RESEARCH-2026-09-08",
+      "candidateTargets": [
+        {
+          "url": "https://www.inhouse.com.pe/proyecto/ibiza",
+          "agency": "INHOUSE",
+          "district": "Magdalena del Mar",
+          "projectName": "IBIZA",
+          "matchClass": "unmatched_web",
+          "requiresHumanReview": true,
+          "demoScope": true
+        },
+        {
+          "url": "https://www.inhouse.com.pe/proyecto/sienna",
+          "agency": "INHOUSE",
+          "district": "Miraflores",
+          "projectName": "SIENNA",
+          "matchClass": "unmatched_web",
+          "requiresHumanReview": true,
+          "demoScope": true
+        }
+      ],
+      "collection": {
+        "userAgent": "VivaInteligenciaBatch/1.0",
+        "extractorArchetypes": ["embedded_json", "json_ld", "html"],
+        "allowedHosts": ["inhouse.com.pe", "www.inhouse.com.pe"],
+        "timeoutMs": 10000,
+        "minIntervalMs": 1500,
+        "maxResponseBytes": 1000000,
+        "targets": []
+      }
+    },
+    {
+      "sourceId": "multiurbe-official-website",
+      "label": "Web oficial de Multiurbe",
+      "sourceClass": "official_project_website",
+      "purpose": "Enriquecimiento y contraste de proyectos publicados por Multiurbe.",
+      "url": "https://www.multiurbe.com/",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "pending",
+      "robotsStatus": "unknown",
+      "domainVerificationStatus": "confirmed_high_confidence",
+      "automationAuthorizationStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization",
+      "researchReference": "WEB-RESEARCH-2026-09-08",
+      "candidateTargets": [
+        {
+          "url": "https://www.multiurbe.com/proyecto/libertador",
+          "agency": "MULTIURBE",
+          "district": "Pueblo Libre",
+          "projectName": "Libertador",
+          "projectExternalId": "4210",
+          "matchClass": "match_high",
+          "requiresHumanReview": false,
+          "demoScope": false
+        },
+        {
+          "url": "https://www.multiurbe.com/proyecto/polo-park",
+          "agency": "MULTIURBE",
+          "district": "San Miguel",
+          "projectName": "Polo Park",
+          "projectExternalId": "3957",
+          "matchClass": "match_medium",
+          "requiresHumanReview": true,
+          "demoScope": true
+        }
+      ],
+      "collection": {
+        "userAgent": "VivaInteligenciaBatch/1.0",
+        "extractorArchetypes": ["wordpress", "json_ld", "embedded_json", "html"],
+        "allowedHosts": ["multiurbe.com", "www.multiurbe.com"],
+        "timeoutMs": 10000,
+        "minIntervalMs": 1500,
+        "maxResponseBytes": 1000000,
+        "targets": []
+      }
+    },
+    {
+      "sourceId": "proyec-official-website",
+      "label": "Web oficial de Proyec Inmobiliaria",
+      "sourceClass": "official_project_website",
+      "purpose": "Enriquecimiento y contraste de proyectos publicados por Proyec Inmobiliaria.",
+      "url": "https://www.proyec.com.pe/",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "pending",
+      "robotsStatus": "unknown",
+      "domainVerificationStatus": "confirmed_high_confidence",
+      "automationAuthorizationStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization",
+      "researchReference": "WEB-RESEARCH-2026-09-08",
+      "candidateTargets": [
+        {
+          "url": "https://www.proyec.com.pe/proyecto/patriotas",
+          "agency": "PROYEC INMOBILIARIA",
+          "district": "San Miguel",
+          "projectName": "PATRIOTAS SAN MIGUEL",
+          "matchClass": "match_low",
+          "requiresHumanReview": true,
+          "demoScope": true
+        },
+        {
+          "url": "https://www.proyec.com.pe/proyecto/capri",
+          "agency": "PROYEC INMOBILIARIA",
+          "district": "La Victoria",
+          "projectName": "CAPRI Santa Catalina",
+          "projectExternalId": "3746",
+          "matchClass": "match_medium",
+          "requiresHumanReview": true,
+          "demoScope": false
+        }
+      ],
+      "collection": {
+        "userAgent": "VivaInteligenciaBatch/1.0",
+        "extractorArchetypes": ["wordpress", "json_ld", "embedded_json", "html"],
+        "allowedHosts": ["proyec.com.pe", "www.proyec.com.pe"],
+        "timeoutMs": 10000,
+        "minIntervalMs": 1500,
+        "maxResponseBytes": 1000000,
+        "targets": []
+      }
+    },
+    {
+      "sourceId": "toratto-official-website",
+      "label": "Web oficial de Toratto Grupo Inmobiliario",
+      "sourceClass": "official_project_website",
+      "purpose": "Enriquecimiento y contraste de proyectos publicados por Toratto Grupo Inmobiliario.",
+      "url": "https://www.grupotoratto.com/",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "pending",
+      "robotsStatus": "unknown",
+      "domainVerificationStatus": "confirmed_high_confidence",
+      "automationAuthorizationStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization",
+      "researchReference": "WEB-RESEARCH-2026-09-08",
+      "accessReview": {
+        "reference": "WAVE1-PILOT-TORATTO-MONTEROSSO-2026-09-08",
+        "reviewedAt": "2026-09-08",
+        "technicalStatus": "pass",
+        "legalStatus": "pending",
+        "operationalStatus": "pending",
+        "robotsUrl": "https://www.grupotoratto.com/robots.txt",
+        "robotsContentSha256": "ccea52bf41f9ea8ccb1b5b746860a1bf550438d0beeb5289ef05d1425bede91b",
+        "routeRobotsStatus": "allow",
+        "reviewedPaths": [
+          "/departamento/monterosso/",
+          "/proteccion-al-consumidor/"
+        ],
+        "termsReferences": [
+          "https://www.grupotoratto.com/proteccion-al-consumidor/"
+        ],
+        "decision": "blocked_pending_review_and_authorization"
+      },
+      "candidateTargets": [
+        {
+          "url": "https://www.grupotoratto.com/departamento/vernazza",
+          "agency": "TORATTO GRUPO INMOBILIARIO",
+          "district": "Jesús María",
+          "projectName": "VERNAZZA",
+          "projectExternalId": "3328",
+          "matchClass": "match_medium",
+          "requiresHumanReview": true,
+          "demoScope": true
+        },
+        {
+          "url": "https://www.grupotoratto.com/departamento/monterosso/",
+          "agency": "TORATTO GRUPO INMOBILIARIO",
+          "district": "Jesús María",
+          "projectName": "MONTEROSSO",
+          "projectExternalId": "1940",
+          "matchClass": "match_high",
+          "requiresHumanReview": false,
+          "demoScope": true
+        }
+      ],
+      "collection": {
+        "userAgent": "VivaInteligenciaBatch/1.0",
+        "extractorArchetypes": ["wordpress", "json_ld", "embedded_json", "html"],
+        "allowedHosts": ["grupotoratto.com", "www.grupotoratto.com"],
+        "timeoutMs": 10000,
+        "minIntervalMs": 1500,
+        "maxResponseBytes": 1000000,
+        "targets": []
+      }
+    },
+    {
+      "sourceId": "verdant-official-website",
+      "label": "Web oficial de Verdant Inmobiliaria",
+      "sourceClass": "official_project_website",
+      "purpose": "Enriquecimiento y contraste de proyectos publicados por Verdant Inmobiliaria.",
+      "url": "https://verdant.pe/",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "pending",
+      "robotsStatus": "unknown",
+      "domainVerificationStatus": "confirmed_high_confidence",
+      "automationAuthorizationStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization",
+      "researchReference": "WEB-RESEARCH-2026-09-08",
+      "candidateTargets": [
+        {
+          "url": "https://verdant.pe/venta-departamentos",
+          "agency": "VERDANT INMOBILIARIA",
+          "district": "Barranco",
+          "projectName": "ROOTS (candidato Nexo)",
+          "matchClass": "unmatched_web",
+          "requiresHumanReview": true,
+          "demoScope": false
+        },
+        {
+          "url": "https://verdant.pe/venta-departamentos/pueblo-libre-soil",
+          "agency": "VERDANT INMOBILIARIA",
+          "district": "Pueblo Libre",
+          "projectName": "Soil",
+          "matchClass": "unmatched_web",
+          "requiresHumanReview": true,
+          "demoScope": false
+        }
+      ],
+      "collection": {
+        "userAgent": "VivaInteligenciaBatch/1.0",
+        "extractorArchetypes": ["wordpress", "json_ld", "embedded_json", "html"],
+        "allowedHosts": ["verdant.pe", "www.verdant.pe"],
+        "timeoutMs": 10000,
+        "minIntervalMs": 1500,
+        "maxResponseBytes": 1000000,
+        "targets": []
+      }
     }
   ]
 }

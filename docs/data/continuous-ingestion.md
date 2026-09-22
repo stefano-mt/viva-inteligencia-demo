@@ -10,7 +10,7 @@ El snapshot empaquetado de la demo contiene 7 distritos, 433 proyectos y 157 inm
 
 Estas cifras son cobertura verificada del artefacto versionado, no una consulta en vivo ni evidencia de scraping reciente. Deben acompañarse del `datasetVersion`. Una observación Nexo pertenece al agregador/base y no confirma el dato como declaración de la inmobiliaria. Una URL oficial vinculada tampoco cuenta como observación oficial: solo cuentan los campos estructurados cuya coincidencia y evidencia fueron validadas. Las discrepancias se conservan por fuente.
 
-El registro vigente mantiene `nexo-authorized-feed` en `pending`, el sitio público de Nexo en `blocked` y la entrada genérica de webs oficiales en `pending`; no registra un canal social aprobado. Por eso el baseline no autoriza, por sí mismo, una nueva recolección.
+El registro vigente mantiene `nexo-authorized-feed` en `pending`, el sitio público de Nexo en `blocked` y ocho webs oficiales prioritarias individualizadas pero bloqueadas por revisión y autorización pendientes; no registra un canal social aprobado. El detalle de la Ola 0 está en [wave-0-official-source-catalog.md](wave-0-official-source-catalog.md). El [piloto de Ola 1](wave-1-source-pilot.md) confirmó acceso técnico a Cantabria / VERSIA y Toratto / MONTEROSSO, pero no habilitó su recolección porque falta aprobación y autorización auditable. Por eso el baseline no autoriza, por sí mismo, una nueva recolección.
 
 ## Flujo
 
@@ -55,6 +55,29 @@ Cada campo recolectado incluye:
 - proyecto/tipología/unidad candidata y score de matching.
 
 Un conflicto se abre cuando observaciones vigentes de la misma entidad/campo no coinciden dentro de su tolerancia. Ambas permanecen disponibles. Una policy determina si el hecho publicado toma una observación, queda vacío o requiere revisión humana.
+
+La Ola 1 implementa esta conciliación como un artefacto separado de staging. Primero ejecuta el
+collector autorizado y luego:
+
+```powershell
+npm run ingestion:official-webs:reconcile -- `
+  --web data/staging/official-web-refresh.json `
+  --manifest data/staging/official-web-refresh.json.manifest.json
+```
+
+El comando rechaza un staging cuya huella, contrato o identidad no coincida con el manifiesto y
+recomputa el policy gate, el allowlist, los targets, los conteos de red y su correspondencia con
+las observaciones. `registrySha256` liga la corrida al contenido exacto del registro: ordena las
+claves de cada objeto de forma lexicográfica, conserva el orden de los arreglos, serializa JSON
+sin espacios en UTF-8 y aplica SHA-256 hexadecimal. `networkRequests` incluye solicitudes
+iniciales y saltos; `redirectsFollowed` registra por separado únicamente redirecciones cuyo
+protocolo y host ya fueron validados. El enlace
+automático exige identidad de inmobiliaria y una coincidencia inequívoca de proyecto. Una
+referencia Nexo precargada solo se acepta automáticamente si fue clasificada con confianza alta,
+no exige revisión y la página capturada confirma nombre y distrito. Los casos parciales,
+ambiguos o contradictorios no se fuerzan. La salida conserva Nexo y web oficial como
+observaciones independientes, señala coincidencias y diferencias y no compara monedas distintas
+ni áreas web sin unidad. Ninguna de estas salidas se publica sin la revisión posterior.
 
 ## Policy gate por fuente web
 

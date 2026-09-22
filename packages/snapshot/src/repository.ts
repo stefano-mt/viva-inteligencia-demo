@@ -1,9 +1,11 @@
 import type { ProjectSummary } from "@viva/contracts";
+import { buildProjectSourceComparison, evaluateWorkspace, matchesBedroomCount, summarizePositioning } from "@viva/domain";
 import type { JsonObject, SnapshotData } from "@viva/domain";
 import type {
   DataRepository,
   LoadedSnapshot,
   Page,
+  ProjectPage,
   ProjectQuery,
   SnapshotMetadata,
 } from "./types.js";
@@ -121,25 +123,26 @@ export class InMemorySnapshotRepository implements DataRepository {
     };
   }
 
-  projects(query: ProjectQuery = {}): Page<ProjectSummary> {
+  projects(query: ProjectQuery = {}): ProjectPage {
     const normalizedQuery = normalize(query.query);
     const district = normalize(query.district);
     const typology = normalize(query.typology);
     const phase = normalize(query.phase);
-    const selectedIds = query.projectIds?.length
+    const scenarioIds = query.scenario
+      ? new Set(evaluateWorkspace(this.#data, query.scenario).comparableProjectIds.flatMap(idVariants))
+      : null;
+    const selectedIds = query.projectIds !== undefined
       ? new Set(query.projectIds.flatMap((id) => idVariants(id)))
       : null;
     let projects = this.#data.projects.filter((project) => {
       const projectId = String(project.id ?? "");
+      if (scenarioIds && !idVariants(projectId).some((id) => scenarioIds.has(id))) return false;
       if (selectedIds && !idVariants(projectId).some((id) => selectedIds.has(id))) return false;
       if (district && ![project.district, districtIdForName(this.#data, String(project.district ?? ""))]
         .some((value) => normalize(value) === district)) return false;
       if (typology && typology !== "all" && typology !== "todos" && normalize(project.typology) !== typology) return false;
       if (phase && phase !== "all" && phase !== "todos" && normalize(project.project_phase) !== phase) return false;
-      if (query.bedrooms !== undefined && normalize(query.bedrooms) !== "all" && normalize(query.bedrooms) !== "todos") {
-        const bedroom = normalize(query.bedrooms);
-        if (!normalize(project.bedrooms).split(/\D+/u).includes(bedroom)) return false;
-      }
+      if (!matchesBedroomCount(project, query.bedrooms)) return false;
       if (normalizedQuery) {
         const haystack = normalize([
           project.project_name,
@@ -164,6 +167,7 @@ export class InMemorySnapshotRepository implements DataRepository {
       pageSize,
       total,
       totalPages,
+      ...(query.scenario ? { positioningStats: summarizePositioning(projects.map(toSummary)) } : {}),
     };
   }
 
@@ -235,6 +239,12 @@ export class InMemorySnapshotRepository implements DataRepository {
       `${String(item.id)}|${String(item.sourceUrl ?? "")}`,
       item,
     ])).values()];
+    const sourceComparison = buildProjectSourceComparison(uniqueTraceSources.map((source) => ({
+      id: String(source.id ?? ""),
+      name: source.name == null ? null : String(source.name),
+      type: String(source.type ?? ""),
+      observedData: isJsonObject(source.observedData) ? source.observedData : null,
+    })));
     return {
       project: {
         ...(legacy ? toSummary(legacy) : {}),
@@ -261,6 +271,7 @@ export class InMemorySnapshotRepository implements DataRepository {
         hasSocialSource: uniqueTraceSources.some((item) => item.type === "social_network"),
         lastSeenAt: model?.last_seen_at ?? legacy?.captured_at ?? null,
         sources: uniqueTraceSources,
+        sourceComparison,
         facts: facts.map((fact) => ({
           id: fact.fact_id,
           fieldName: fact.field_name,
@@ -438,9 +449,13 @@ export class InMemorySnapshotRepository implements DataRepository {
 
   history(query: ProjectQuery = {}): Page<JsonObject> {
     const district = normalize(query.district);
-    const selectedIds = query.projectIds?.length ? new Set(query.projectIds.flatMap(idVariants)) : null;
+    const scenarioIds = query.scenario
+      ? new Set(evaluateWorkspace(this.#data, query.scenario).comparableProjectIds.flatMap(idVariants))
+      : null;
+    const selectedIds = query.projectIds !== undefined ? new Set(query.projectIds.flatMap(idVariants)) : null;
     const events = (((this.#data.history as JsonObject).events as JsonObject[] | undefined) ?? [])
       .filter((event) => {
+        if (scenarioIds && !idVariants(String(event.project_id ?? "")).some((id) => scenarioIds.has(id))) return false;
         if (district && normalize(event.district_id) !== district) return false;
         if (selectedIds && !idVariants(String(event.project_id ?? "")).some((id) => selectedIds.has(id))) return false;
         return true;
@@ -452,7 +467,11 @@ export class InMemorySnapshotRepository implements DataRepository {
     const safePage = totalPages === 0 ? 1 : Math.min(page, totalPages);
     const start = (safePage - 1) * pageSize;
     return {
-      items: structuredClone(events.slice(start, start + pageSize)),
+      items: events.slice(start, start + pageSize).map((event) => {
+        const project = idVariants(String(event.project_id ?? ""))
+          .map((id) => this.#legacyById.get(id)).find((item) => item !== undefined);
+        return { ...structuredClone(event), project: project ? toSummary(project) : null };
+      }),
       page: safePage,
       pageSize,
       total: events.length,
@@ -525,7 +544,11 @@ function sourceObservationFromLegacy(project: JsonObject): JsonObject {
     address: project.address ?? null,
     typology: project.typology ?? null,
     bedrooms: project.bedrooms ?? null,
+    bedroomsMin: project.bedrooms_min ?? null,
+    bedroomsMax: project.bedrooms_max ?? null,
     totalArea: project.total_area ?? project.total_area_min ?? null,
+    totalAreaMin: project.total_area_min ?? project.total_area ?? null,
+    totalAreaMax: project.total_area_max ?? project.total_area ?? null,
     unitStatus: project.unit_status ?? project.project_phase ?? null,
     unitCount: project.unit_count ?? null,
     listPrice: project.list_price_avg ?? project.price_min ?? null,
@@ -544,7 +567,11 @@ function sourceObservationFromWeb(observation: JsonObject): JsonObject {
     address: observation.address ?? null,
     typology: observation.typology ?? null,
     bedrooms: observation.bedrooms ?? null,
+    bedroomsMin: observation.bedrooms_min ?? null,
+    bedroomsMax: observation.bedrooms_max ?? null,
     totalArea: observation.total_area ?? null,
+    totalAreaMin: observation.total_area_min ?? observation.total_area ?? null,
+    totalAreaMax: observation.total_area_max ?? observation.total_area ?? null,
     unitStatus: observation.unit_status ?? null,
     unitCount: observation.unit_count ?? null,
     listPrice: observation.list_price_avg ?? null,
@@ -556,6 +583,10 @@ function sourceObservationFromWeb(observation: JsonObject): JsonObject {
     fieldConfidence: observation.field_confidence ?? null,
     evidenceAvailable: observation.evidence_available === true,
   };
+}
+
+function isJsonObject(value: unknown): value is JsonObject {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 function append(map: Map<string, JsonObject[]>, key: string, value: JsonObject): void {

@@ -1,4 +1,4 @@
-import type { ProjectSummary } from "@viva/contracts";
+import type { PositioningStats, ProjectSummary, ScenarioInput } from "@viva/contracts";
 import type { JsonObject, SnapshotData } from "@viva/domain";
 
 export interface SnapshotMetadata {
@@ -15,6 +15,7 @@ export interface SnapshotMetadata {
 }
 
 export interface ProjectQuery {
+  scenario?: ScenarioInput;
   page?: number;
   pageSize?: number;
   district?: string;
@@ -34,10 +35,12 @@ export interface Page<T> {
   totalPages: number;
 }
 
+export type ProjectPage = Page<ProjectSummary> & { positioningStats?: PositioningStats };
+
 export interface DataRepository {
   metadata(): SnapshotMetadata;
   bootstrap(): JsonObject;
-  projects(query?: ProjectQuery): Page<ProjectSummary>;
+  projects(query?: ProjectQuery): ProjectPage;
   project(projectId: string): { project: JsonObject; traceability: JsonObject } | null;
   districtGeography(districtId: string): JsonObject | null;
   sourceCoverage(districtId?: string): JsonObject;

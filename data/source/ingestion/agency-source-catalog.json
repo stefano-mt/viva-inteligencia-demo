@@ -1,0 +1,195 @@
+{
+  "catalogVersion": "1.0.0",
+  "assessedAt": "2026-09-08",
+  "researchReference": "WEB-RESEARCH-2026-09-08",
+  "researchInputs": [
+    "matriz-157-inmobiliarias-demo-actualizada.csv",
+    "estado-web-actual-2026-09-08.json",
+    "informe-viabilidad-scraping-webs-propias.md"
+  ],
+  "scope": {
+    "districts": [
+      "Cercado de Lima",
+      "Jesús María",
+      "Magdalena del Mar",
+      "Miraflores",
+      "San Isidro",
+      "San Miguel",
+      "Santiago de Surco"
+    ],
+    "projectCount": 433,
+    "sourceAgencyNameCount": 157,
+    "canonicalAgencyCountAfterAliases": 156
+  },
+  "statusSemantics": {
+    "domainIdentity": "Confirma la identidad del dominio; no concede permiso para automatizarlo.",
+    "robotsAssessment": "Una observación preliminar de la raíz no autoriza rutas de proyecto futuras.",
+    "automationAuthorization": "Solo una referencia auditable registrada puede habilitar recolección.",
+    "policy": "Las fuentes de este catálogo fallan cerradas hasta completar todos los gates del ADR-0004."
+  },
+  "aliases": [
+    {
+      "canonicalAgencyId": "agency:grupo-tyc",
+      "canonicalName": "GRUPO T&C",
+      "aliases": ["GRUPO T&C", "GRUPO TyC"],
+      "canonicalDomain": "grupotyc.com",
+      "status": "confirmed_duplicate_identity",
+      "sourceRows": [
+        {
+          "sourceName": "GRUPO T&C",
+          "demoProjectCount": 11
+        },
+        {
+          "sourceName": "GRUPO TyC",
+          "demoProjectCount": 6
+        }
+      ],
+      "combinedDemoProjectCount": 17
+    }
+  ],
+  "priorityAgencies": [
+    {
+      "canonicalAgencyId": "agency:invent-inmobiliaria",
+      "canonicalName": "INVENT INMOBILIARIA",
+      "sourceId": "invent-official-website",
+      "demoProjectCount": 6,
+      "demoDistricts": ["Cercado de Lima", "Jesús María", "Magdalena del Mar", "San Isidro"],
+      "officialWebsite": "https://invent.com.pe/",
+      "domainIdentityStatus": "confirmed_high_confidence",
+      "historicalExtractorArchetype": "embedded_json_html",
+      "historicalCriticalFieldCoveragePct": 71,
+      "historicalNexoWebMatches": 1,
+      "robotsAssessmentStatus": "preliminary_root_allow_only",
+      "termsReviewStatus": "pending_manual_review",
+      "termsCandidateUrl": "https://invent.com.pe/terminos-y-condiciones",
+      "automationAuthorizationStatus": "not_registered",
+      "targetRoutesStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization"
+    },
+    {
+      "canonicalAgencyId": "agency:cantabria",
+      "canonicalName": "CANTABRIA",
+      "sourceId": "cantabria-official-website",
+      "demoProjectCount": 5,
+      "demoDistricts": ["Cercado de Lima", "Miraflores", "San Isidro"],
+      "officialWebsite": "https://cantabriainmobiliaria.pe/",
+      "domainIdentityStatus": "confirmed_high_confidence",
+      "historicalExtractorArchetype": "wordpress_sitemap_rest_html",
+      "historicalCriticalFieldCoveragePct": 79,
+      "historicalNexoWebMatches": 2,
+      "robotsAssessmentStatus": "preliminary_root_allow_only",
+      "termsReviewStatus": "pending_manual_review",
+      "termsCandidateUrl": "https://cantabriainmobiliaria.pe/terminos-y-condiciones/",
+      "automationAuthorizationStatus": "not_registered",
+      "targetRoutesStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization"
+    },
+    {
+      "canonicalAgencyId": "agency:hl-desarrollos-inmobiliarios",
+      "canonicalName": "HL DESARROLLOS INMOBILIARIOS",
+      "sourceId": "hl-desarrollos-official-website",
+      "demoProjectCount": 4,
+      "demoDistricts": ["Jesús María", "Magdalena del Mar", "Miraflores"],
+      "officialWebsite": "https://hldi.pe/",
+      "domainIdentityStatus": "confirmed_high_confidence",
+      "historicalExtractorArchetype": "wordpress_sitemap_rest_html",
+      "historicalCriticalFieldCoveragePct": 79,
+      "historicalNexoWebMatches": 0,
+      "robotsAssessmentStatus": "preliminary_root_allow_only",
+      "termsReviewStatus": "pending_manual_review",
+      "termsCandidateUrl": "https://hldi.pe/terminos-y-condiciones",
+      "automationAuthorizationStatus": "not_registered",
+      "targetRoutesStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization"
+    },
+    {
+      "canonicalAgencyId": "agency:inhouse",
+      "canonicalName": "INHOUSE",
+      "sourceId": "inhouse-official-website",
+      "demoProjectCount": 4,
+      "demoDistricts": ["Magdalena del Mar", "Miraflores"],
+      "officialWebsite": "https://www.inhouse.com.pe/",
+      "domainIdentityStatus": "confirmed_high_confidence",
+      "historicalExtractorArchetype": "embedded_json_html",
+      "historicalCriticalFieldCoveragePct": 71,
+      "historicalNexoWebMatches": 0,
+      "robotsAssessmentStatus": "preliminary_root_allow_only",
+      "termsReviewStatus": "pending_manual_review",
+      "termsCandidateUrl": "https://www.inhouse.com.pe/terminos-y-condiciones/",
+      "automationAuthorizationStatus": "not_registered",
+      "targetRoutesStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization"
+    },
+    {
+      "canonicalAgencyId": "agency:multiurbe",
+      "canonicalName": "MULTIURBE",
+      "sourceId": "multiurbe-official-website",
+      "demoProjectCount": 2,
+      "demoDistricts": ["San Miguel"],
+      "officialWebsite": "https://www.multiurbe.com/",
+      "domainIdentityStatus": "confirmed_high_confidence",
+      "historicalExtractorArchetype": "wordpress_sitemap_rest_html",
+      "historicalCriticalFieldCoveragePct": 75,
+      "historicalNexoWebMatches": 2,
+      "robotsAssessmentStatus": "preliminary_root_allow_only",
+      "termsReviewStatus": "pending_manual_review",
+      "termsCandidateUrl": "https://www.multiurbe.com/terminos-y-condiciones/",
+      "automationAuthorizationStatus": "not_registered",
+      "targetRoutesStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization"
+    },
+    {
+      "canonicalAgencyId": "agency:proyec-inmobiliaria",
+      "canonicalName": "PROYEC INMOBILIARIA",
+      "sourceId": "proyec-official-website",
+      "demoProjectCount": 2,
+      "demoDistricts": ["Cercado de Lima", "San Miguel"],
+      "officialWebsite": "https://www.proyec.com.pe/",
+      "domainIdentityStatus": "confirmed_high_confidence",
+      "historicalExtractorArchetype": "wordpress_sitemap_rest_html",
+      "historicalCriticalFieldCoveragePct": 75,
+      "historicalNexoWebMatches": 1,
+      "robotsAssessmentStatus": "preliminary_root_allow_only",
+      "termsReviewStatus": "pending_manual_review",
+      "termsCandidateUrl": "https://www.proyec.com.pe/terminos-y-condiciones/",
+      "automationAuthorizationStatus": "not_registered",
+      "targetRoutesStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization"
+    },
+    {
+      "canonicalAgencyId": "agency:toratto-grupo-inmobiliario",
+      "canonicalName": "TORATTO GRUPO INMOBILIARIO",
+      "sourceId": "toratto-official-website",
+      "demoProjectCount": 2,
+      "demoDistricts": ["Jesús María"],
+      "officialWebsite": "https://www.grupotoratto.com/",
+      "domainIdentityStatus": "confirmed_high_confidence",
+      "historicalExtractorArchetype": "wordpress_sitemap_rest_html",
+      "historicalCriticalFieldCoveragePct": 71,
+      "historicalNexoWebMatches": 2,
+      "robotsAssessmentStatus": "preliminary_root_allow_only",
+      "termsReviewStatus": "not_found_pending_manual_review",
+      "automationAuthorizationStatus": "not_registered",
+      "targetRoutesStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization"
+    },
+    {
+      "canonicalAgencyId": "agency:verdant-inmobiliaria",
+      "canonicalName": "VERDANT INMOBILIARIA",
+      "sourceId": "verdant-official-website",
+      "demoProjectCount": 1,
+      "demoDistricts": ["Miraflores"],
+      "officialWebsite": "https://verdant.pe/",
+      "domainIdentityStatus": "confirmed_high_confidence",
+      "historicalExtractorArchetype": "wordpress_sitemap_rest_html",
+      "historicalCriticalFieldCoveragePct": 75,
+      "historicalNexoWebMatches": 0,
+      "robotsAssessmentStatus": "preliminary_root_allow_only",
+      "termsReviewStatus": "pending_manual_review",
+      "termsCandidateUrl": "https://verdant.pe/terminos-y-condiciones",
+      "automationAuthorizationStatus": "not_registered",
+      "targetRoutesStatus": "not_registered",
+      "policyStatus": "blocked_pending_review_and_authorization"
+    }
+  ]
+}

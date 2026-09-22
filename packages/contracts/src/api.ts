@@ -96,6 +96,25 @@ export const ProjectSummarySchema = Type.Object({
   longitude: Type.Union([Type.Number(), Type.Null()]),
 });
 
+// Read-only scenario queries are POSTs so the canonical population is evaluated
+// on the server instead of transferring a potentially truncated list of IDs.
+export const ScenarioProjectsRequestSchema = Type.Object({
+  scenario: ScenarioInputSchema,
+  page: Type.Optional(Type.Integer({ minimum: 1 })),
+  pageSize: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+  query: Type.Optional(Type.String({ maxLength: 200 })),
+  sort: Type.Optional(Type.Union([
+    Type.Literal("name"), Type.Literal("price-asc"), Type.Literal("price-desc"),
+    Type.Literal("area-asc"), Type.Literal("area-desc"),
+  ])),
+}, { additionalProperties: false });
+
+export const ScenarioHistoryRequestSchema = Type.Object({
+  scenario: ScenarioInputSchema,
+  page: Type.Optional(Type.Integer({ minimum: 1 })),
+  pageSize: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
+}, { additionalProperties: false });
+
 export const PaginatedProjectsSchema = Type.Intersect([
   VersionedResponseSchema,
   Type.Object({
@@ -105,6 +124,16 @@ export const PaginatedProjectsSchema = Type.Intersect([
     total: Type.Integer({ minimum: 0 }),
     totalPages: Type.Integer({ minimum: 0 }),
   }),
+]);
+
+export const PositioningStatsSchema = Type.Object({
+  count: Type.Integer({ minimum: 0 }),
+  medianPublishedPricePen: Type.Union([Type.Number(), Type.Null()]),
+});
+
+export const ScenarioProjectsResponseSchema = Type.Intersect([
+  PaginatedProjectsSchema,
+  Type.Object({ positioningStats: PositioningStatsSchema }),
 ]);
 
 export const ProjectDetailResponseSchema = Type.Intersect([
@@ -231,7 +260,16 @@ export const DataRefreshStatusResponseSchema = Type.Intersect([
   VersionedResponseSchema,
   Type.Object({
     enabled: Type.Boolean(),
-    lastPublishedAt: Type.String({ format: "date-time" }),
+    lastPublishedAt: Type.String({
+      format: "date-time",
+      deprecated: true,
+      description: "Legacy alias of snapshotGeneratedAt; does not establish a publication timestamp.",
+    }),
+    snapshotGeneratedAt: Type.String({ format: "date-time" }),
+    publication: Type.Object({
+      status: Type.Literal("not_recorded"),
+      publishedAt: Type.Null(),
+    }),
     run: DataRefreshRunSchema,
   }),
 ]);
@@ -263,7 +301,10 @@ export const ComparisonResponseSchema = Type.Intersect([
 export const HistoryResponseSchema = Type.Intersect([
   VersionedResponseSchema,
   Type.Object({
-    items: Type.Array(Type.Record(Type.String(), Type.Unknown())),
+    items: Type.Array(Type.Intersect([
+      Type.Record(Type.String(), Type.Unknown()),
+      Type.Object({ project: Type.Union([ProjectSummarySchema, Type.Null()]) }),
+    ])),
     page: Type.Integer({ minimum: 1 }),
     pageSize: Type.Integer({ minimum: 1, maximum: 100 }),
     total: Type.Integer({ minimum: 0 }),
@@ -292,6 +333,9 @@ export type MetaResponse = Static<typeof MetaResponseSchema>;
 export type BootstrapResponse = Static<typeof BootstrapResponseSchema>;
 export type WorkspaceEvaluateRequest = Static<typeof WorkspaceEvaluateRequestSchema>;
 export type ProjectSummary = Static<typeof ProjectSummarySchema>;
+export type ScenarioProjectsRequest = Static<typeof ScenarioProjectsRequestSchema>;
+export type ScenarioHistoryRequest = Static<typeof ScenarioHistoryRequestSchema>;
+export type PositioningStats = Static<typeof PositioningStatsSchema>;
 export type SourceCoverageResponse = Static<typeof SourceCoverageResponseSchema>;
 export type DataRefreshRequest = Static<typeof DataRefreshRequestSchema>;
 export type ComparisonRequest = Static<typeof ComparisonRequestSchema>;

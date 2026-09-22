@@ -77,6 +77,28 @@ describe("Viva API", () => {
     expect(Buffer.byteLength(projects.body)).toBeLessThan(1_000_000);
   });
 
+  it("exposes the published Nexo versus official-web comparison in project detail", async () => {
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/v1/projects/1940",
+    });
+    expect(response.statusCode).toBe(200);
+    expect(response.json().traceability).toMatchObject({
+      hasOwnWebsite: true,
+      sourceComparison: {
+        status: "compared",
+        rows: expect.arrayContaining([
+          expect.objectContaining({ field: "totalArea", status: "match" }),
+          expect.objectContaining({ field: "unitCount", status: "review" }),
+        ]),
+      },
+    });
+    expect(response.json().traceability.sources).toEqual(expect.arrayContaining([
+      expect.objectContaining({ type: "portal" }),
+      expect.objectContaining({ type: "agency_website" }),
+    ]));
+  });
+
   it("evaluates scenario, comparison, inspector, history and assistant", async () => {
     const bootstrap = await app.inject({ method: "GET", url: "/api/v1/bootstrap" });
     const scenario = bootstrap.json().initialScenario;
