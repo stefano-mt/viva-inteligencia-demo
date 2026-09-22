@@ -56,9 +56,12 @@ npm run build
 npm run verify
 npm run ingestion:plan
 npm run ingestion:official-webs -- --dry-run
+npm run ingestion:official-webs:reconcile -- `
+  --web data/staging/official-web-refresh.json `
+  --manifest data/staging/official-web-refresh.json.manifest.json
 ```
 
-Los planes de ingesta son offline y no descargan páginas. Informan qué fuentes podrían pasar a una recolección controlada y cuáles permanecen bloqueadas por autorización o revisión. La configuración operativa completa está en [data-dashboard-and-refresh.md](docs/operations/data-dashboard-and-refresh.md).
+Los planes de ingesta son offline y no descargan páginas. Informan qué fuentes podrían pasar a una recolección controlada y cuáles permanecen bloqueadas por autorización o revisión. La configuración operativa completa está en [data-dashboard-and-refresh.md](docs/operations/data-dashboard-and-refresh.md) y el primer análisis de fuentes está en [wave-1-source-pilot.md](docs/data/wave-1-source-pilot.md).
 
 El baseline estático anterior a la productización está preservado por la etiqueta `demo-static-v1`.
 Las capturas históricas retiradas del árbol activo se recuperan desde esa etiqueta; no se reescribió el historial Git.

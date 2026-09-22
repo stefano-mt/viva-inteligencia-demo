@@ -9,7 +9,9 @@
     "test": "npm run build && node --test dist/*.test.js",
     "plan": "npm run build --silent && node dist/plan-sources.js",
     "nexo:stage": "npm run build --silent && node dist/import-nexo.js",
-    "official-webs:refresh": "npm run build --silent && node dist/refresh-official-webs.js"
+    "official-webs:refresh": "npm run build --silent && node dist/refresh-official-webs.js",
+    "official-webs:reconcile": "npm run build --silent && node dist/reconcile-official-webs.js",
+    "pilot:report": "npm run build --silent && node dist/report-technical-pilot.js"
   },
   "engines": {
     "node": ">=24"

@@ -1,6 +1,17 @@
 import "./styles.css";
 import { ApiClientError, ApiDataProvider, type DataProvider } from "./api.js";
 import { JOURNEY_STAGES, parseRoute, routeHash } from "./routes.js";
+import { createRequestSequencer, filterCommandDestinations, captureInteractionSnapshot, restoreInteractionSnapshot } from "./interaction-state.js";
+import {
+  compactCommercialSourceValue,
+  commercialSourceLabel,
+  commercialSourceMessage,
+  commercialSourceStatus,
+  hasDisplayValue,
+  readSourceComparisonRows,
+  summarizeCommercialSources,
+  type CommercialSourceRow,
+} from "./source-comparison-view.js";
 import type {
   Bootstrap,
   DataRefreshStatus,
@@ -54,7 +65,7 @@ interface AppState {
   refreshStatus: DataRefreshStatus | null;
   refreshNotice: { tone: "success" | "warning" | "error"; message: string } | null;
   projectPage: number;
-  projectScope: "scenario" | "all";
+  projectScope: "scenario" | "district" | "all";
   projectQuery: string;
   projectSort: string;
   historyDirection: "all" | "increase" | "decrease" | "unchanged";
@@ -66,6 +77,9 @@ interface AppState {
   inspectorSlug: string | null;
   navOpen: boolean;
   busyMessage: string | null;
+  routeError: ApiClientError | null;
+  scenarioError: string | null;
+  comparisonOnlyDifferences: boolean;
 }
 
 const rootElement = document.querySelector<HTMLDivElement>("#root");
@@ -73,6 +87,16 @@ if (!rootElement) throw new Error("No se encontró el contenedor de la aplicaci�
 const root: HTMLDivElement = rootElement;
 
 const provider: DataProvider = new ApiDataProvider();
+const requests = createRequestSequencer<"route" | "workspace" | "detail" | "map" | "assistant" | "inspector" | "refresh">();
+let activeBusy: ReturnType<typeof requests.begin> | null = null;
+let detailOrigin: { selector: string; scroll: number } | null = null;
+const routePositions = new Map<string, number>();
+let dialogOrigin: HTMLElement | null = null;
+let commandQuery = "";
+let commandIndex = 0;
+let lastRenderContext = "";
+let scenarioAttempt = 0;
+let detailRetryId: string | null = null;
 const state: AppState = {
   status: "loading",
   error: null,
@@ -112,9 +136,22 @@ const state: AppState = {
   inspectorSlug: null,
   navOpen: false,
   busyMessage: null,
+  routeError: null,
+  scenarioError: null,
+  comparisonOnlyDifferences: false,
 };
 
 window.addEventListener("hashchange", () => {
+  // Initial data belongs to the application, not to the route being opened.
+  if (state.status === "loading") { state.route = routeFromLocation(); return; }
+  scenarioAttempt++;
+  routePositions.set(routeHash(state.route), window.scrollY);
+  requests.invalidateAll();
+  activeBusy = null;
+  state.busyMessage = null;
+  state.routeError = null;
+  detailRetryId = null;
+  closeDialogs();
   state.route = routeFromLocation();
   state.navOpen = false;
   state.projectDetail = null;
@@ -122,9 +159,22 @@ window.addEventListener("hashchange", () => {
   void loadRouteData({ focus: true });
 });
 window.addEventListener("keydown", (event) => {
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+  if ((event.ctrlKey || event.metaKey) && !event.altKey && event.key.toLowerCase() === "k" && !event.isComposing) {
     event.preventDefault();
     openDialog("command-dialog", "command-input");
+  }
+  const command = document.querySelector<HTMLDialogElement>("#command-dialog[open]");
+  if (command && ["ArrowDown", "ArrowUp", "Enter"].includes(event.key)) {
+    const options = [...command.querySelectorAll<HTMLAnchorElement>("[data-command-option]:not([hidden])")];
+    if (event.key === "Enter") {
+      if ((event.target as HTMLElement).closest("button")) return;
+      event.preventDefault(); options[commandIndex]?.click();
+    } else {
+      event.preventDefault();
+      commandIndex = options.length ? (commandIndex + (event.key === "ArrowDown" ? 1 : -1) + options.length) % options.length : 0;
+      updateCommandResults();
+      options[commandIndex]?.focus();
+    }
   }
   if (event.key === "Escape" && state.navOpen) {
     state.navOpen = false;
@@ -135,6 +185,16 @@ root.addEventListener("click", handleClick);
 root.addEventListener("submit", handleSubmit);
 root.addEventListener("change", handleChange);
 root.addEventListener("input", handleInput);
+root.addEventListener("cancel", (event) => {
+  if ((event.target as HTMLElement).id === "scenario-dialog") cancelScenarioEdit();
+}, true);
+root.addEventListener("close", (event) => {
+  if (!(event.target as HTMLElement).isConnected) return;
+  if ((event.target as HTMLElement).id === "scenario-dialog") { cancelScenarioEdit(); render(); }
+  const action = dialogOrigin?.dataset.action;
+  const origin = dialogOrigin?.isConnected ? dialogOrigin : action ? root.querySelector<HTMLElement>(`[data-action="${CSS.escape(action)}"]`) : null;
+  origin?.focus({ preventScroll: true });
+}, true);
 
 render();
 void initialize();
@@ -148,12 +208,115 @@ function routeFromLocation(): Route {
   return route;
 }
 
+function beginTask(channel: Parameters<typeof requests.begin>[0], message: string) {
+  const ticket = requests.begin(channel);
+  activeBusy = ticket;
+  state.busyMessage = message;
+  return ticket;
+}
+
+function finishTask(ticket: ReturnType<typeof requests.begin>): boolean {
+  if (!requests.isCurrent(ticket)) return false;
+  if (activeBusy === ticket) { activeBusy = null; state.busyMessage = null; }
+  return true;
+}
+
+function cancelAssistantRequest(): void {
+  requests.invalidate("assistant");
+  if (activeBusy?.channel === "assistant") { activeBusy = null; state.busyMessage = null; }
+}
+
+function invalidateSelectionResults(): void {
+  cancelAssistantRequest();
+  const comparisonRoute = state.route.id === "compare" || state.route.id === "depth";
+  if (comparisonRoute) requests.invalidate("route");
+  state.comparison = null; state.assistant = null; state.assistantError = null;
+  if (comparisonRoute && activeBusy?.channel === "route") { activeBusy = null; state.busyMessage = null; }
+}
+
+function cancelScenarioEdit(): void {
+  scenarioAttempt++;
+  requests.invalidate("workspace");
+  if (activeBusy?.channel === "workspace") { activeBusy = null; state.busyMessage = null; }
+  state.scenarioError = null;
+}
+
+async function applyScenario(candidate: Scenario, restart = false): Promise<void> {
+  const comparable = ({ source: _source, ...values }: Scenario) => JSON.stringify(values);
+  if (!restart && state.scenario && comparable(candidate) === comparable(state.scenario)) { closeDialogs(); return; }
+  const attempt = ++scenarioAttempt;
+  try {
+    if (!await refreshWorkspace(candidate) || attempt !== scenarioAttempt) return;
+    closeDialogs();
+    lastRenderContext = "";
+    state.status = "ready";
+    if (restart) {
+      state.route = { kind: "journey", id: "scale" };
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${routeHash(state.route)}`);
+      routePositions.clear();
+    }
+    await loadRouteData({ focus: true });
+  } catch (error) {
+    if (attempt !== scenarioAttempt) return;
+    activeBusy = null; state.busyMessage = null;
+    state.scenarioError = error instanceof ApiClientError ? error.message : "No se pudo aplicar el escenario. Tu selección anterior se conserva.";
+    render();
+  }
+}
+
+async function selectMapProject(id: string): Promise<void> {
+  const ticket = requests.begin("map");
+  state.mapProjectId = canonicalProjectId(id); state.mapProjectDetail = null; state.mapProjectStatus = "loading"; render();
+  try {
+    const detail = await provider.project(id);
+    if (!requests.isCurrent(ticket)) return;
+    state.mapProjectDetail = detail; state.mapProjectStatus = "ready"; render();
+  } catch {
+    if (!requests.isCurrent(ticket)) return;
+    state.mapProjectStatus = "error"; render();
+  }
+}
+
+function closeProjectDetail(): void {
+  requests.invalidate("detail");
+  state.projectDetail = null;
+  render();
+  requestAnimationFrame(() => {
+    window.scrollTo({ top: detailOrigin?.scroll ?? 0, behavior: "instant" });
+    if (detailOrigin) document.querySelector<HTMLElement>(detailOrigin.selector)?.focus({ preventScroll: true });
+  });
+}
+
+async function openProjectDetail(id: string): Promise<void> {
+  const ticket = beginTask("detail", "Cargando ficha…");
+  state.projectDetail = null; state.routeError = null; detailRetryId = null; render();
+  try {
+    const detail = await provider.project(id);
+    if (!finishTask(ticket)) return;
+    state.projectDetail = detail; render();
+    requestAnimationFrame(focusProjectDetail);
+  } catch (error) {
+    if (!finishTask(ticket)) return;
+    detailRetryId = id; fail(error);
+  }
+}
+
+function focusProjectDetail(): void {
+  const heading = document.querySelector<HTMLElement>("#project-detail-title");
+  heading?.focus({ preventScroll: true });
+  heading?.scrollIntoView({ block: "start", behavior: "instant" });
+}
+
 async function initialize(): Promise<void> {
+  requests.invalidateAll();
   state.status = "loading";
   state.error = null;
   render();
   try {
     const [meta, bootstrap] = await Promise.all([provider.meta(), provider.bootstrap()]);
+    if (meta.datasetVersion !== bootstrap.datasetVersion) {
+      throw new ApiClientError("Los datos cambiaron mientras se abría la aplicación. Reintenta para cargar una sola versión.", "DATASET_CHANGED", 409, null);
+    }
     if (meta.contractVersion !== "2.4.0" || bootstrap.contractVersion !== meta.contractVersion) {
       throw new ApiClientError(
         "La aplicación y el servicio de datos no son compatibles. Actualiza la página o solicita soporte.",
@@ -176,13 +339,25 @@ async function initialize(): Promise<void> {
   }
 }
 
-async function refreshWorkspace(): Promise<void> {
-  if (!state.scenario) return;
-  state.busyMessage = "Actualizando lectura comercial…";
+async function refreshWorkspace(candidate = state.scenario, reset = true): Promise<boolean> {
+  if (!candidate) return false;
+  requests.invalidateAll();
+  const ticket = beginTask("workspace", "Actualizando lectura comercial…");
+  state.scenarioError = null;
   render();
-  const workspace = await provider.evaluateWorkspace(state.scenario);
+  const workspace = await provider.evaluateWorkspace(candidate);
+  if (!requests.isCurrent(ticket)) return false;
+  const [projects, history, sourceCoverage, refreshStatus] = await Promise.all([
+    provider.scenarioProjects(workspace.scenario, { page: 1, pageSize: 18, sort: "name" }),
+    provider.scenarioHistory(workspace.scenario, { page: 1, pageSize: 100 }),
+    provider.sourceCoverage(workspace.scenario.district_id).catch(() => null),
+    provider.dataRefreshStatus().catch(() => null),
+  ]);
+  if (!finishTask(ticket)) return false;
   state.scenario = workspace.scenario;
   state.workspace = workspace;
+  state.routeError = null;
+  if (reset) {
   state.selectedProjectIds = [];
   state.selectedProjects = {};
   state.selectionMessage = "Selecciona entre dos y tres proyectos para compararlos.";
@@ -192,19 +367,8 @@ async function refreshWorkspace(): Promise<void> {
   state.projectSort = "name";
   state.historyDirection = "all";
   state.historyValidity = "all";
+  }
   writeScenarioToLocation(workspace.scenario);
-  const [projects, history, sourceCoverage, refreshStatus] = await Promise.all([
-    provider.projects({
-      district: workspace.scenario.district_id,
-      page: 1,
-      pageSize: 18,
-      typology: workspace.scenario.typology,
-      bedrooms: workspace.scenario.bedrooms,
-    }),
-    provider.history({ district: workspace.scenario.district_id, page: 1, pageSize: 20 }),
-    provider.sourceCoverage(workspace.scenario.district_id).catch(() => null),
-    provider.dataRefreshStatus().catch(() => null),
-  ]);
   state.projects = projects;
   state.history = history;
   state.sourceCoverage = sourceCoverage;
@@ -221,6 +385,7 @@ async function refreshWorkspace(): Promise<void> {
   state.mapProjectDetail = null;
   state.mapProjectStatus = "idle";
   state.busyMessage = null;
+  return true;
 }
 
 async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
@@ -228,81 +393,86 @@ async function loadRouteData(options: { focus?: boolean } = {}): Promise<void> {
     render();
     return;
   }
+  const ticket = beginTask("route", routeLoadingLabel(state.route));
+  const scenario = structuredClone(state.scenario);
+  const route = { ...state.route };
+  state.routeError = null;
   try {
-    state.busyMessage = routeLoadingLabel(state.route);
+    if (route.id === "projects" || route.id === "dashboard" || route.id === "geography") state.projects = null;
+    if (route.id === "activity" || route.id === "movement") state.history = null;
     render();
-    if (state.route.id === "projects") {
-      state.projects = await provider.projects(projectParameters(18));
+    if (route.id === "projects") {
+      const projects = await queryProjects();
+      if (!requests.isCurrent(ticket)) return;
+      state.projects = projects;
     }
-    if (state.route.id === "dashboard" || state.route.id === "geography") {
+    if (route.id === "dashboard" || route.id === "geography") {
       const [projects, geography, sourceCoverage, refreshStatus] = await Promise.all([
-        provider.projects({
-          district: state.scenario.district_id,
-          page: 1,
-          pageSize: 100,
-          typology: state.scenario.typology,
-          bedrooms: state.scenario.bedrooms,
-        }),
-        provider.districtGeography(state.scenario.district_id),
-        provider.sourceCoverage(state.scenario.district_id).catch(() => null),
+        allScenarioProjects(scenario),
+        provider.districtGeography(scenario.district_id),
+        provider.sourceCoverage(scenario.district_id).catch(() => null),
         provider.dataRefreshStatus().catch(() => null),
       ]);
+      if (!requests.isCurrent(ticket)) return;
       state.projects = projects;
       state.geography = geography;
       state.sourceCoverage = sourceCoverage ?? state.sourceCoverage;
       state.refreshStatus = refreshStatus ?? state.refreshStatus;
     }
-    if (state.route.id === "activity" || state.route.id === "movement") {
-      [state.history, state.projects] = await Promise.all([
-        provider.history({
-          district: state.scenario.district_id,
-          page: 1,
-          pageSize: 100,
-        }),
-        provider.projects({
-          district: state.scenario.district_id,
-          page: 1,
-          pageSize: 100,
-          typology: state.scenario.typology,
-          bedrooms: state.scenario.bedrooms,
-        }),
-      ]);
+    if (route.id === "activity" || route.id === "movement") {
+      const history = await allScenarioHistory(scenario);
+      if (!requests.isCurrent(ticket)) return;
+      state.history = history;
     }
     if (state.route.id === "quality") {
       const slug = state.inspectorSlug ?? state.bootstrap.inspectorCases[0]?.routeSlug;
-      if (slug) state.inspector = await provider.inspector(slug);
+      if (slug) {
+        const inspector = await provider.inspector(slug);
+        if (!requests.isCurrent(ticket)) return;
+        state.inspector = inspector;
+      }
     }
     if (state.route.id === "compare" || state.route.id === "depth") {
-      state.comparison = state.selectedProjectIds.length >= 2
-        ? await provider.comparison(state.scenario, state.selectedProjectIds)
+      const comparison = state.selectedProjectIds.length >= 2
+        ? await provider.comparison(scenario, [...state.selectedProjectIds])
         : null;
+      if (!requests.isCurrent(ticket)) return;
+      state.comparison = comparison;
     }
-    state.busyMessage = null;
+    if (!finishTask(ticket)) return;
     render();
     if (options.focus) requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      window.scrollTo({ top: routePositions.get(routeHash(route)) ?? 0, left: 0, behavior: "auto" });
       document.querySelector<HTMLElement>(".page-header h1")?.focus({ preventScroll: true });
     });
   } catch (error) {
-    state.busyMessage = null;
+    if (!finishTask(ticket)) return;
     fail(error);
   }
 }
 
 function fail(error: unknown): void {
-  state.status = "error";
-  state.error = error instanceof ApiClientError
+  const problem = error instanceof ApiClientError
     ? error
-    : new ApiClientError("No se pudo iniciar el espacio comercial.", "APP_ERROR", 500, null);
+    : new ApiClientError("No se pudo completar la consulta. Inténtalo nuevamente.", "APP_ERROR", 500, null);
+  if (state.status === "loading" || !state.workspace || ["CONTRACT_INCOMPATIBLE", "DATASET_CHANGED"].includes(problem.code)) {
+    state.status = "error"; state.error = problem;
+  } else { state.status = "ready"; state.routeError = problem; }
   state.busyMessage = null;
   render();
 }
 
 function render(): void {
-  if (state.status === "loading" || !state.bootstrap || !state.meta || !state.scenario || !state.workspace) {
+  if (state.status !== "ready" || !state.bootstrap || !state.meta || !state.scenario || !state.workspace) {
     root.innerHTML = state.status === "error" ? renderFatalError() : renderLoading();
     return;
   }
+  const context = `${routeHash(state.route)}:${JSON.stringify(state.scenario)}`;
+  const interaction = lastRenderContext === context ? captureInteractionSnapshot(root, {
+    draftSelector: '#project-filter-form [name], #scenario-form [name], #command-input',
+    scrollSelector: '.table-scroll[id], .project-detail[id]',
+  }) : null;
+  lastRenderContext = context;
   const district = districtName();
   root.innerHTML = `
     <a class="skip-link" href="#main-content">Ir al contenido principal</a>
@@ -328,6 +498,7 @@ function render(): void {
           <div class="scenario-ribbon__context">
             <span>Escenario activo</span>
             <strong>${escapeHtml(district)} · ${escapeHtml(scopeLabel())}</strong>
+            <small class="context-filters">${escapeHtml(scenarioProductLabel())}</small>
           </div>
           <div class="scenario-ribbon__metrics" aria-label="Resumen del escenario">
             <span><b>${formatNumber(state.workspace.marketReading.comparableProjectCount)}</b> comparables</span>
@@ -337,6 +508,7 @@ function render(): void {
         </header>
         <main class="product-content" id="main-content" tabindex="-1">
           ${state.workspace.corrections.length ? renderCorrections() : ""}
+          ${state.routeError ? `<section class="route-error surface" role="alert"><h2>No se pudo completar la consulta</h2><p>${escapeHtml(state.routeError.message)}</p><button class="button button--primary" type="button" data-action="retry-route">Reintentar consulta</button></section>` : ""}
           ${renderCurrentRoute()}
         </main>
       </div>
@@ -345,6 +517,14 @@ function render(): void {
       ${renderDataRefreshDialog()}
       ${state.busyMessage ? `<div class="busy" role="status"><span></span>${escapeHtml(state.busyMessage)}</div>` : ""}
     </div>`;
+  root.querySelectorAll<HTMLDetailsElement>("details").forEach((details) => {
+    if (!details.id && !details.dataset.continuityKey) {
+      const projectId = state.projectDetail?.project?.id ?? "";
+      details.dataset.continuityKey = `${routeHash(state.route)}:${projectId}:${details.querySelector("summary")?.textContent ?? ""}`;
+    }
+  });
+  if (interaction) restoreInteractionSnapshot(root, interaction);
+  updateCommandResults();
 }
 
 function renderLoading(): string {
@@ -448,7 +628,7 @@ function renderDecisionStage(): string {
 }
 
 function renderDashboard(): string {
-  return `${renderPageHeader("Panorama", `${districtName()} bajo lectura comercial`, "Revisa zonas, precios, oferta y cambios que requieren una decisión.", '<button class="button button--primary button--with-icon" type="button" data-action="data-refresh"><span aria-hidden="true">↻</span>Actualizar datos</button>')}
+  return `${renderPageHeader("Panorama", `${districtName()}: panorama comercial`, "Revisa zonas, precios, oferta y cambios que requieren una decisión.", '<a class="button button--primary" href="#projects">Explorar proyectos</a>')}
     ${state.refreshNotice ? `<aside class="refresh-notice refresh-notice--${state.refreshNotice.tone}" role="status"><strong>${state.refreshNotice.tone === "success" ? "Solicitud recibida" : state.refreshNotice.tone === "warning" ? "Actualización pendiente" : "No se pudo actualizar"}</strong><span>${escapeHtml(state.refreshNotice.message)}</span></aside>` : ""}
     ${renderDataPulse()}
     <section class="decision-strip"><span>Lectura principal</span><strong>${formatNumber(state.workspace!.marketReading.comparableProjectCount)} proyectos cumplen los filtros de ${escapeHtml(districtName())}.</strong><p>${pricePositionText()}</p></section>
@@ -466,14 +646,14 @@ function renderDataPulse(): string {
     idle: "Sin actualización en curso",
     queued: "Actualización programada",
     running: "Actualizando información",
-    succeeded: "Información actualizada",
+    succeeded: "Recopilación terminada",
     blocked: "Actualización pendiente",
     failed: "No se pudo actualizar",
   } as Record<string, string>)[String(run?.state ?? "idle")] ?? "Estado por revisar";
   return `<section class="data-pulse" aria-label="Estado de actualización de datos">
-    <div class="data-pulse__signal"><span class="pulse-dot ${run?.state === "running" || run?.state === "queued" ? "is-active" : ""}" aria-hidden="true"></span><div><span class="eyebrow">Datos publicados</span><strong>${formatDate(refresh?.lastPublishedAt ?? state.meta!.generatedAt)}</strong><small>Estás viendo la última información disponible.</small></div></div>
+    <div class="data-pulse__signal"><span class="pulse-dot ${run?.state === "running" || run?.state === "queued" ? "is-active" : ""}" aria-hidden="true"></span><div><span class="eyebrow">Datos con corte al</span><strong>${formatDate(state.meta!.cutoffAt)}</strong><small>Fecha de referencia de esta versión.</small></div></div>
     <div class="data-pulse__run"><span>${escapeHtml(runLabel)}</span><strong>${escapeHtml(refreshRunCopy(runState))}</strong>${run?.requestedAt ? `<small>Solicitado ${formatDateTime(run.requestedAt)}</small>` : ""}</div>
-    <button class="button button--quiet" type="button" data-action="refresh-status">Revisar estado</button>
+    <div class="data-pulse__actions"><button class="button button--quiet" type="button" data-action="data-refresh">Actualizar datos</button><button class="link-button" type="button" data-action="refresh-status">Revisar estado</button><small>${refresh?.enabled ? "Requiere clave de operador" : "No habilitado en este entorno"}</small><details class="methodology"><summary>Consultar fechas</summary><p>Datos con corte al ${formatDateTime(state.meta!.cutoffAt)}. Versión preparada el ${formatDateTime(state.meta!.generatedAt)}. La fecha de publicación no está registrada.</p><p>Las fechas de captura de cada fuente están en la ficha del proyecto.</p></details></div>
   </section>`;
 }
 
@@ -482,7 +662,7 @@ function refreshRunCopy(runState: unknown): string {
     idle: "No hay una actualización en curso.",
     queued: "La actualización comenzará en breve.",
     running: "Estamos revisando la información de los proyectos.",
-    succeeded: "La información más reciente ya está disponible.",
+    succeeded: "La recopilación terminó. No confirma que los datos visibles hayan cambiado.",
     blocked: "La actualización necesita una revisión del equipo.",
     failed: "Inténtalo nuevamente o solicita soporte.",
   } as Record<string, string>)[String(runState)] ?? "Revisa el estado antes de continuar.";
@@ -506,9 +686,9 @@ function renderSourceDashboard(): string {
       ${renderPriceBand(coverage)}
       <article class="chart-card signal-mix"><header><div><span class="eyebrow">Seguimiento</span><h3>Señales disponibles</h3></div><a href="#activity">Abrir panel</a></header>
         ${signalBar("Cambios de precio", priceChanges, Math.max(history.length, 1), "Con historial publicado", "price")}
-        ${signalBar("Nuevas unidades", 0, 1, "Aún no disponible", "unit")}
-        ${signalBar("Descuentos anunciados", 0, 1, "Aún no disponible", "discount")}
-        <p class="chart-note">“0” indica que ese tipo de cambio aún no se monitorea en la versión actual.</p>
+        ${signalBar("Nuevas unidades", null, 1, "Aún no monitoreado", "unit")}
+        ${signalBar("Descuentos anunciados", null, 1, "Aún no monitoreado", "discount")}
+        <p class="chart-note">“—” indica que no se monitorea; no significa ausencia de cambios.</p>
       </article>
     </div>
     ${renderAgencyCoverage(coverage)}
@@ -541,23 +721,28 @@ function renderPriceBand(coverage: SourceCoverage): string {
   </article>`;
 }
 
-function signalBar(label: string, value: number, total: number, note: string, icon: "price" | "unit" | "discount"): string {
-  const percentage = Math.max(0, Math.min(100, (value / Math.max(total, 1)) * 100));
-  return `<div class="signal-row">${monitoringIcon(icon)}<div><span><strong>${escapeHtml(label)}</strong><b>${formatNumber(value)}</b></span><div class="signal-track"><i style="--signal:${percentage}%"></i></div><small>${escapeHtml(note)}</small></div></div>`;
+function signalBar(label: string, value: number | null, total: number, note: string, icon: "price" | "unit" | "discount"): string {
+  const percentage = Math.max(0, Math.min(100, ((value ?? 0) / Math.max(total, 1)) * 100));
+  return `<div class="signal-row">${monitoringIcon(icon)}<div><span><strong>${escapeHtml(label)}</strong><b>${value == null ? "—" : formatNumber(value)}</b></span>${value == null ? "" : `<div class="signal-track"><i style="--signal:${percentage}%"></i></div>`}<small>${escapeHtml(note)}</small></div></div>`;
 }
 
 function renderMapSection(journey: boolean): string {
   const projects = state.projects?.items ?? [];
+  if (!state.projects) return `<section class="surface" role="status">${state.routeError ? "El mapa estará disponible cuando se recupere la consulta." : "Cargando proyectos del escenario…"}</section>`;
+  const visible = state.mapView === "geographic"
+    ? projects.filter((project) => project.latitude != null && project.longitude != null)
+    : projects.filter((project) => Number.isFinite(project.areaM2) && Number.isFinite(project.pricePen) && project.areaM2! > 0 && project.pricePen! > 0);
   const title = state.mapView === "geographic" ? "Mapa del distrito" : "Posicionamiento por área y precio";
   const description = state.mapView === "geographic"
     ? "Explora la oferta por cuatro zonas de comparación y abre cada proyecto desde el mapa."
     : "Contrasta área total y precio publicado frente a la mediana visible.";
-  return `<section class="surface map-surface"><header class="section-heading"><div><span class="eyebrow">Territorio observado</span><h2>${title}</h2><p>${description}</p></div><span class="status-pill">${formatNumber(projects.length)} visibles</span></header>
+  return `<section class="surface map-surface"><header class="section-heading"><div><span class="eyebrow">Territorio observado</span><h2>${title}</h2><p>${description}</p></div><span class="status-pill">${formatNumber(visible.length)} visibles</span></header>
     <div class="map-switch" role="group" aria-label="Vista del mapa">
       <button type="button" data-action="map-geographic" aria-pressed="${state.mapView === "geographic"}">Mapa del distrito</button>
       <button type="button" data-action="map-positioning" aria-pressed="${state.mapView === "positioning"}">Área y precio publicado</button>
     </div>
     ${state.mapView === "geographic" ? renderGeographicMap(projects) : renderPositioningMap(projects)}
+    <label class="map-project-picker" for="map-project-picker">Seleccionar proyecto del gráfico<select id="map-project-picker"><option value="">Elige un proyecto</option>${visible.map((project) => `<option value="${escapeAttr(project.id)}" ${canonicalProjectId(project.id) === state.mapProjectId ? "selected" : ""}>${escapeHtml(project.name)} · ${escapeHtml(project.agency)}</option>`).join("")}</select></label>
     ${journey ? '<p class="method-note"><strong>Cómo leerlo:</strong> las cuatro zonas ayudan a comparar la oferta; no representan límites oficiales. El precio mostrado es publicado, no de cierre.</p>' : ""}</section>
     ${state.projectDetail ? renderProjectDetail() : ""}`;
 }
@@ -605,13 +790,14 @@ function renderGeographicMap(projects: ProjectSummary[]): string {
 }
 
 function renderPositioningMap(projects: ProjectSummary[]): string {
-  const valid = projects.filter((project) => project.areaM2 != null && project.pricePen != null);
+  const valid = projects.filter((project) => Number.isFinite(project.areaM2) && Number.isFinite(project.pricePen) && project.areaM2! > 0 && project.pricePen! > 0);
   if (!valid.length) return emptyState("No hay pares de área y precio publicado para este escenario.", "Ver proyectos", "#projects");
   const areas = valid.map(({ areaM2 }) => areaM2!);
   const prices = valid.map(({ pricePen }) => pricePen!);
   const minArea = Math.min(...areas); const maxArea = Math.max(...areas);
   const minPrice = Math.min(...prices); const maxPrice = Math.max(...prices);
-  const medianPrice = median(prices);
+  const medianPrice = state.projects?.positioningStats?.medianPublishedPricePen as number | null | undefined;
+  if (medianPrice == null) return emptyState("No hay una referencia de precio disponible para estos proyectos.", "Ver proyectos", "#projects");
   const width = 960; const height = 480; const left = 86; const right = 24; const top = 28; const bottom = 58;
   const x = (value: number) => left + ((value - minArea) / Math.max(maxArea - minArea, 1)) * (width - left - right);
   const y = (value: number) => top + ((maxPrice - value) / Math.max(maxPrice - minPrice, 1)) * (height - top - bottom);
@@ -639,9 +825,10 @@ function renderMapProjectPanel(projects: ProjectSummary[]): string {
   if (!project) return `<aside class="map-project-panel" aria-live="polite"><span class="map-project-panel__marker" aria-hidden="true">●</span><span class="eyebrow">Detalle del mapa</span><h3>Selecciona un proyecto</h3><p>Toca un punto para ver el resumen del proyecto.</p></aside>`;
   const trace = state.mapProjectDetail?.traceability as JsonObject | undefined;
   const inScenario = state.workspace!.comparableProjectIds.includes(canonicalProjectId(project.id));
-  const sourceSummary = trace?.hasOwnWebsite
+  const officialObserved = trace ? projectSourceComparison(trace, (trace.sources ?? []) as JsonObject[]).officialState === "observed" : false;
+  const sourceSummary = officialObserved
     ? '<span class="source-chip source-chip--web">Nexo + web propia</span>'
-    : '<span class="source-chip">Nexo</span>';
+    : `<span class="source-chip">Nexo${trace?.hasOwnWebsite ? " · web enlazada, sin datos capturados" : ""}</span>`;
   const pendingSource = state.mapProjectStatus === "error"
     ? '<span class="source-chip source-chip--error">Detalle no disponible</span>'
     : '<span class="source-chip">Consultando…</span>';
@@ -662,27 +849,21 @@ function analyticZoneLabel(zoneId: string | null): string {
   return label ? `Zona de comparación ${label}` : "Zona de comparación";
 }
 
-function median(values: number[]): number {
-  const ordered = [...values].sort((a, b) => a - b);
-  const midpoint = Math.floor(ordered.length / 2);
-  return ordered.length % 2 ? ordered[midpoint]! : (ordered[midpoint - 1]! + ordered[midpoint]!) / 2;
-}
-
 function renderProjects(): string {
   const page = state.projects;
   const items = page?.items ?? [];
-  const title = state.projectScope === "all" ? "Todos los proyectos" : "Comparables del escenario";
+  const title = state.projectScope === "all" ? "Todos los proyectos" : state.projectScope === "district" ? "Oferta del distrito" : "Comparables del escenario";
   const description = state.projectScope === "all"
     ? "Explora el catálogo completo y abre la ficha de cada proyecto."
-    : "Revisa la oferta compatible con los filtros del escenario activo.";
-  return `${renderPageHeader("Proyectos", title, description, `<span class="status-pill">${formatNumber(page?.total)} resultados</span>`)}
+    : state.projectScope === "district" ? "Explora toda la oferta del distrito, incluso fuera de los filtros del escenario." : "Revisa la oferta compatible con los filtros del escenario activo.";
+  return `${renderPageHeader("Proyectos", title, description, `<span class="status-pill">${page ? `${formatNumber(page.total)} resultados` : state.routeError ? "Consulta pendiente" : "Consultando…"}</span>`)}
     ${renderComparisonSelection(items)}
-    <section class="surface"><form class="filters project-filters" id="project-filter-form"><label>Vista<select name="project_scope"><option value="scenario" ${state.projectScope === "scenario" ? "selected" : ""}>Comparables del escenario</option><option value="all" ${state.projectScope === "all" ? "selected" : ""}>Todo el catálogo (${formatNumber(state.meta!.coverage.projects)})</option></select></label><label>Buscar<input name="query" type="search" value="${escapeAttr(state.projectQuery)}" placeholder="Proyecto, inmobiliaria o dirección" /></label><label>Orden<select name="sort"><option value="name" ${state.projectSort === "name" ? "selected" : ""}>Nombre</option><option value="price-asc" ${state.projectSort === "price-asc" ? "selected" : ""}>Menor precio publicado</option><option value="price-desc" ${state.projectSort === "price-desc" ? "selected" : ""}>Mayor precio publicado</option><option value="area-asc" ${state.projectSort === "area-asc" ? "selected" : ""}>Menor área</option><option value="area-desc" ${state.projectSort === "area-desc" ? "selected" : ""}>Mayor área</option></select></label><button class="button button--quiet" type="submit">Aplicar filtros</button></form>
-      <p class="catalog-note">${state.projectScope === "all" ? "Catálogo completo. Cambia a comparables para aplicar distrito, tipología y dormitorios." : `Escenario: ${escapeHtml(districtName())} · ${escapeHtml(scopeLabel())}.`}</p>
-      <div class="table-scroll"><table class="project-table"><thead><tr><th scope="col">Comparar</th><th scope="col">Proyecto</th><th scope="col">Producto</th><th scope="col">Precio publicado</th><th scope="col">Área</th><th scope="col">Entrega</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${items.map(renderProjectRow).join("")}</tbody></table></div>
-      ${items.length ? renderPagination(page!) : emptyState("No hay proyectos para los filtros activos.", "Editar escenario", "#projects")}
+    <div class="project-workspace ${state.projectDetail ? "has-detail" : ""}"><section class="surface project-list-pane"><form class="filters project-filters" id="project-filter-form"><label>Vista<select name="project_scope"><option value="scenario" ${state.projectScope === "scenario" ? "selected" : ""}>Comparables del escenario</option><option value="district" ${state.projectScope === "district" ? "selected" : ""}>Todo ${escapeHtml(districtName())}</option><option value="all" ${state.projectScope === "all" ? "selected" : ""}>Todo el catálogo (${formatNumber(state.meta!.coverage.projects)})</option></select></label><label>Buscar<input name="query" type="search" value="${escapeAttr(state.projectQuery)}" placeholder="Proyecto, inmobiliaria o dirección" /></label><label>Orden<select name="sort"><option value="name" ${state.projectSort === "name" ? "selected" : ""}>Nombre</option><option value="price-asc" ${state.projectSort === "price-asc" ? "selected" : ""}>Menor precio publicado</option><option value="price-desc" ${state.projectSort === "price-desc" ? "selected" : ""}>Mayor precio publicado</option><option value="area-asc" ${state.projectSort === "area-asc" ? "selected" : ""}>Menor área</option><option value="area-desc" ${state.projectSort === "area-desc" ? "selected" : ""}>Mayor área</option></select></label><button class="button button--quiet" type="submit">Aplicar filtros</button></form>
+      <p class="catalog-note">${state.projectScope === "all" ? "Catálogo completo. Cambia a comparables para aplicar todos los filtros del escenario." : state.projectScope === "district" ? `Distrito completo: ${escapeHtml(districtName())}. Solo los proyectos que cumplen el escenario pueden añadirse a la comparación.` : `Escenario: ${escapeHtml(districtName())} · ${escapeHtml(scopeLabel())} · ${escapeHtml(scenarioProductLabel())}.`}</p>
+      <div class="table-scroll" id="project-table-scroll"><table class="project-table"><thead><tr><th scope="col">Comparar</th><th scope="col">Proyecto</th><th scope="col">Producto</th><th scope="col">Precio publicado</th><th scope="col">Área</th><th scope="col">Entrega</th><th scope="col"><span class="sr-only">Acciones</span></th></tr></thead><tbody>${items.map(renderProjectRow).join("")}</tbody></table></div>
+      ${items.length ? renderPagination(page!) : page ? '<p class="empty-state" role="status">No hay proyectos para estos filtros. Prueba otra búsqueda o cambia la vista.</p>' : `<p role="status">${state.routeError ? "Los resultados aparecerán al reintentar la consulta." : "Cargando proyectos…"}</p>`}
     </section>
-    ${state.projectDetail ? renderProjectDetail() : ""}`;
+    ${state.projectDetail ? renderProjectDetail() : ""}</div>`;
 }
 
 function renderProjectRow(project: ProjectSummary): string {
@@ -693,7 +874,7 @@ function renderProjectRow(project: ProjectSummary): string {
   const selectionLabel = eligible
     ? `${checked ? "Quitar" : "Seleccionar"} ${project.name} para comparar`
     : `${project.name} no pertenece al conjunto comparable del escenario`;
-  return `<tr class="${checked ? "is-selected" : ""}"><td class="project-select-cell" data-label="Comparar"><input class="project-select-checkbox" type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} ${!eligible || selectionFull ? "disabled" : ""} aria-label="${escapeAttr(selectionLabel)}" title="${escapeAttr(!eligible ? "No cumple los filtros del escenario activo" : selectionFull ? "Ya seleccionaste el máximo de tres proyectos" : "Añadir a la comparación")}" /></td><td data-label="Proyecto"><span class="project-cell-value"><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></span></td><td data-label="Producto"><span class="project-cell-value"><span>${escapeHtml(project.typology ?? "Sin tipología")}</span><small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></span></td><td data-label="Precio publicado"><span class="project-cell-value"><strong>${money(project.pricePen)}</strong><small>${money(project.pricePerM2)} / m² publicado</small></span></td><td data-label="Área"><span class="project-cell-value">${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</span></td><td data-label="Entrega"><span class="project-cell-value">${escapeHtml(project.phase ?? "Sin dato")}</span></td><td data-label="Ficha"><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir ficha</button></td></tr>`;
+  return `<tr class="${checked ? "is-selected" : ""} ${canonicalProjectId(String(state.projectDetail?.project?.id ?? "")) === canonicalId ? "is-detail-open" : ""}"><td class="project-select-cell" data-label="Comparar"><label class="project-select-target"><input class="project-select-checkbox" type="checkbox" data-compare-id="${escapeAttr(canonicalId)}" ${checked ? "checked" : ""} ${!eligible || selectionFull ? "disabled" : ""} aria-label="${escapeAttr(selectionLabel)}" title="${escapeAttr(!eligible ? "No cumple los filtros del escenario activo" : selectionFull ? "Ya seleccionaste el máximo de tres proyectos" : "Añadir a la comparación")}" /></label></td><td data-label="Proyecto"><span class="project-cell-value"><strong>${escapeHtml(project.name)}</strong><small>${escapeHtml(project.agency)} · ${escapeHtml(project.district)}</small></span></td><td data-label="Producto"><span class="project-cell-value"><span>${escapeHtml(project.typology ?? "Sin tipología")}</span><small>${escapeHtml(project.bedrooms ?? "—")} dorm.</small></span></td><td data-label="Precio publicado"><span class="project-cell-value"><strong>${money(project.pricePen)}</strong><small>Desde, según publicación</small></span></td><td data-label="Área"><span class="project-cell-value">${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</span></td><td data-label="Entrega"><span class="project-cell-value">${escapeHtml(project.phase ?? "Sin dato")}</span></td><td data-label="Ficha"><button class="link-button" type="button" data-project-detail="${escapeAttr(project.id)}">Abrir ficha</button></td></tr>`;
 }
 
 function renderComparisonSelection(items: ProjectSummary[]): string {
@@ -742,33 +923,32 @@ function renderProjectDetail(): string {
   const cannotAdd = !selected && (state.selectedProjectIds.length >= 3 || !eligible);
   const selectionLabel = selected ? "Quitar de comparación" : eligible ? "Añadir a comparación" : "Fuera del escenario comparable";
   const hasOwnWebsite = trace.hasOwnWebsite === true;
-  const hasSocialSource = trace.hasSocialSource === true;
-  const verification = sourceVerificationSummary(sources);
-  const hasAdditionalSource = hasOwnWebsite || hasSocialSource;
-  const coverageTitle = hasAdditionalSource
-    ? verification.review > 0
-      ? `${formatNumber(verification.review)} ${verification.review === 1 ? "dato necesita" : "datos necesitan"} revisión`
-      : "Los datos disponibles coinciden"
-    : "Información disponible en Nexo";
-  const coverageCopy = hasAdditionalSource
-    ? `${formatNumber(verification.same)} ${verification.same === 1 ? "dato coincide" : "datos coinciden"} entre los canales disponibles. Revisa la tabla antes de usar una diferencia.`
-    : "La web o red oficial todavía no aporta datos comparables para este proyecto.";
-  return `<section class="surface detail-surface" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><div class="project-detail-actions"><button class="button ${selected ? "button--quiet" : "button--primary"}" type="button" data-action="toggle-detail-comparison" ${cannotAdd ? "disabled" : ""}>${selectionLabel}</button><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">${closeIcon()}</button></div></header>
-    <section class="detail-block detail-block--first" aria-labelledby="project-summary-title"><h3 id="project-summary-title">${detailIcon("summary")}<span>Resumen comercial</span></h3><dl class="project-detail-summary"><div class="detail-stat detail-stat--primary"><dt>${detailIcon("price")}<span>Precio publicado desde</span></dt><dd>${money(project.pricePen)}</dd></div><div class="detail-stat"><dt>${detailIcon("area")}<span>Área total publicada</span></dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div class="detail-stat"><dt>${detailIcon("ratio")}<span>Precio publicado por m²</span></dt><dd>${money(project.pricePerM2)} / m²</dd></div><div class="detail-stat"><dt>${detailIcon("calendar")}<span>Estado o entrega</span></dt><dd>${escapeHtml(project.phase ?? project.deliveryDate ?? "Sin dato")}</dd></div></dl>
-      <p class="source-warning"><strong>Importante:</strong> los precios publicados no representan precios reales de cierre.</p>
+  const sourceComparison = projectSourceComparison(trace, sources);
+  const sourceSummary = summarizeCommercialSources(sourceComparison.rows);
+  const sourceStatus = sourceSummary.review
+    ? `${formatNumber(sourceSummary.review)} ${sourceSummary.review === 1 ? "dato por revisar" : "datos por revisar"}`
+    : sourceComparison.officialState === "observed"
+      ? "Comparación disponible"
+      : sourceComparison.officialState === "linked"
+        ? "Web enlazada"
+        : "Solo Nexo";
+  return `<section class="surface detail-surface project-detail" id="project-detail" aria-labelledby="project-detail-title"><header class="project-detail-header"><div><span class="eyebrow">Ficha comercial</span><h2 id="project-detail-title" tabindex="-1">${escapeHtml(project.name ?? project.canonicalName)}</h2><p>${escapeHtml(project.agency?.name ?? project.agency ?? "")} · ${escapeHtml(project.district ?? "")}</p></div><div class="project-detail-actions"><button class="button ${selected ? "button--quiet" : "button--primary"}" type="button" data-action="toggle-detail-comparison" ${cannotAdd ? "disabled" : ""}>${selectionLabel}</button><button class="icon-button" type="button" data-action="close-detail" aria-label="Cerrar ficha">${closeIcon()}</button></div></header>
+    <section class="detail-block detail-block--first" aria-labelledby="project-summary-title"><h3 id="project-summary-title">${detailIcon("summary")}<span>Resumen comercial</span></h3><dl class="project-detail-summary"><div class="detail-stat detail-stat--primary"><dt>${detailIcon("price")}<span>Precio publicado desde</span></dt><dd>${money(project.pricePen)}</dd></div><div class="detail-stat"><dt>${detailIcon("area")}<span>Área total publicada</span></dt><dd>${project.areaM2 == null ? "—" : `${formatNumber(project.areaM2)} m²`}</dd></div><div class="detail-stat"><dt>${detailIcon("calendar")}<span>Estado o entrega</span></dt><dd>${escapeHtml(project.phase ?? project.deliveryDate ?? "Sin dato")}</dd></div></dl>
+      <details class="methodology"><summary>Referencia orientativa por m²</summary><p>${money(project.pricePerM2)} / m². Es una división de valores publicados: no demuestra que precio y área correspondan al mismo departamento y no representa un precio de cierre.</p></details>
     </section>
     <div class="project-detail-layout">
       <section class="detail-card" aria-labelledby="project-product-title"><h3 id="project-product-title">${detailIcon("building")}<span>Producto y ubicación</span></h3><dl class="detail-list"><div><dt>Tipo de inmueble</dt><dd>${escapeHtml(project.typology ?? "Sin dato")}</dd></div><div><dt>Dormitorios</dt><dd>${escapeHtml(project.bedrooms ?? "Sin dato")}</dd></div><div><dt>Unidades anunciadas</dt><dd>${project.unitCount == null ? "—" : formatNumber(project.unitCount)}</dd></div><div><dt>Dirección publicada</dt><dd>${escapeHtml(project.address ?? "Sin dato")}</dd></div><div><dt>Última actualización</dt><dd>${formatDate(trace.lastSeenAt)}</dd></div></dl></section>
-      ${project.description ? `<section class="detail-card detail-card--description" aria-labelledby="project-description-title"><h3 id="project-description-title">${detailIcon("document")}<span>Descripción publicada</span></h3><p>${escapeHtml(project.description)}</p></section>` : ""}
+      ${project.description ? `<details class="detail-card detail-card--description"><summary>Descripción publicada</summary><p>${escapeHtml(project.description)}</p></details>` : ""}
     </div>
-    <section class="detail-block" aria-labelledby="project-features-title"><h3 id="project-features-title">${detailIcon("features")}<span>Información anunciada</span></h3><div class="detail-columns">
+    <details class="detail-block"><summary>Áreas comunes y financiamiento</summary><div class="detail-columns">
       <div><h4>${detailIcon("amenities")}<span>Áreas comunes</span></h4>${amenities.length ? `<ul class="tag-list">${amenities.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
       <div><h4>${detailIcon("bank")}<span>Financiamiento</span></h4>${banks.length ? `<ul class="tag-list">${banks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
-    </div></section>
-    <section class="detail-block" aria-labelledby="project-sources-title"><header class="section-heading"><div><span class="eyebrow">Nexo y canales oficiales</span><h3 id="project-sources-title">${detailIcon("verified")}<span>Verificación de datos</span></h3><p>Compara los datos principales y detecta diferencias antes de preparar una propuesta.</p></div><span class="status-pill">${verification.review ? `${formatNumber(verification.review)} por revisar` : "Sin diferencias visibles"}</span></header>
-      <aside class="source-coverage ${hasAdditionalSource ? "source-coverage--multi" : ""}"><div>${detailIcon(hasAdditionalSource ? "verified" : "sources")}<span><strong>${coverageTitle}</strong><small>${coverageCopy}</small></span></div><ul><li class="is-present">Nexo Inmobiliario</li><li class="${hasOwnWebsite ? "is-present" : "is-pending"}">Web oficial ${hasOwnWebsite ? "disponible" : "pendiente"}</li><li class="${hasSocialSource ? "is-present" : "is-pending"}">Red oficial ${hasSocialSource ? "disponible" : "pendiente"}</li></ul></aside>
-      ${renderSourceComparisonMatrix(sources)}
-      <details class="source-detail-disclosure"><summary>Ver fuentes y fechas</summary><div class="source-list">${sources.map(renderSourceCard).join("") || "<p>No hay fuentes vinculadas.</p>"}</div></details>
+    </div></details>
+    <section class="detail-block source-ledger" aria-labelledby="project-sources-title"><header class="section-heading"><div><span class="eyebrow">Datos del proyecto</span><h3 id="project-sources-title">${detailIcon("verified")}<span>Nexo vs web oficial</span></h3><p>Revisa qué publica cada canal. Los datos se mantienen separados para que puedas decidir cuál usar.</p></div><span class="status-pill">${escapeHtml(sourceStatus)}</span></header>
+      ${renderSourceAvailability(sourceComparison, hasOwnWebsite)}
+      ${sourceComparison.officialState === "observed" ? renderSourceComparisonMatrix(sourceComparison) : renderSourceComparisonEmpty(sourceComparison)}
+      ${sourceComparison.officialState === "observed" ? renderSourceComparisonSummary(sourceSummary) : ""}
+      <details class="source-detail-disclosure"><summary>Consultar origen y fecha de los datos</summary><div class="source-list">${sources.map(renderSourceCard).join("") || "<p>No hay fuentes vinculadas.</p>"}</div></details>
     </section>
   </section>`;
 }
@@ -836,49 +1016,178 @@ function commercialReviewReason(status: unknown): string {
   return reasons[String(status)] ?? "Confirma este dato antes de utilizarlo.";
 }
 
-function sourceVerificationSummary(sources: JsonObject[]): { same: number; review: number; single: number; missing: number } {
-  const channelData = [
-    sources.find((source) => source.id === "source:nexo" || source.type === "portal")?.observedData,
-    sources.find((source) => source.type === "agency_website")?.observedData,
-    sources.find((source) => source.type === "social_network")?.observedData,
-  ] as Array<JsonObject | undefined>;
-  const fields = ["address", "listPrice", "totalArea", "bedrooms", "unitStatus", "deliveryDate", "amenities", "financingBanks"];
-  return fields.reduce((summary, field) => {
-    const values = channelData
-      .map((data) => sourceFieldValue(data, field))
-      .filter((value): value is string => value !== null);
-    if (!values.length) summary.missing += 1;
-    else if (values.length === 1) summary.single += 1;
-    else if (new Set(values.map(normalizeComparisonValue)).size === 1) summary.same += 1;
-    else summary.review += 1;
-    return summary;
-  }, { same: 0, review: 0, single: 0, missing: 0 });
+interface ProjectSourceComparison {
+  officialState: "observed" | "linked" | "missing";
+  rows: CommercialSourceRow[];
+  nexoCapturedAt: unknown;
+  officialCapturedAt: unknown;
+  officialName: string;
 }
 
-function renderSourceComparisonMatrix(sources: JsonObject[]): string {
+const sourceComparisonFields: Array<{ key: string; label: string }> = [
+  { key: "address", label: "Dirección" },
+  { key: "listPrice", label: "Precio publicado" },
+  { key: "totalArea", label: "Área total" },
+  { key: "bedrooms", label: "Dormitorios" },
+  { key: "unitStatus", label: "Estado" },
+  { key: "deliveryDate", label: "Entrega" },
+  { key: "amenities", label: "Áreas comunes" },
+  { key: "financingBanks", label: "Financiamiento" },
+];
+
+function projectSourceComparison(trace: JsonObject, sources: JsonObject[]): ProjectSourceComparison {
   const nexo = sources.find((source) => source.id === "source:nexo" || source.type === "portal");
   const official = sources.find((source) => source.type === "agency_website");
-  const social = sources.find((source) => source.type === "social_network");
-  const columns = [
-    { label: "Nexo Inmobiliario", source: nexo, empty: "Sin dato Nexo" },
-    { label: "Web oficial", source: official, empty: "No confirmada" },
-    { label: "Red oficial", source: social, empty: "No integrada" },
+  const contractRows = readSourceComparisonRows(trace.sourceComparison);
+  const rows = contractRows.length ? contractRows : sourceComparisonFields.map(({ key }) => {
+    const nexoValue = sourceFieldValue(nexo?.observedData as JsonObject | undefined, key);
+    const officialValue = sourceFieldValue(official?.observedData as JsonObject | undefined, key);
+    return {
+      field: key,
+      status: commercialSourceStatus(undefined, nexoValue, officialValue),
+      nexoValue,
+      officialValue,
+    };
+  });
+  const hasOfficialData = rows.some((row) => hasDisplayValue(row.officialValue))
+    || hasObservedSourceData(official?.observedData);
+  const hasOfficialLink = Boolean(official || trace.hasOwnWebsite === true);
+  return {
+    officialState: hasOfficialData ? "observed" : hasOfficialLink ? "linked" : "missing",
+    rows,
+    nexoCapturedAt: nexo?.capturedAt,
+    officialCapturedAt: official?.capturedAt,
+    officialName: String(official?.name ?? "Web oficial de la inmobiliaria"),
+  };
+}
+
+function hasObservedSourceData(value: unknown): boolean {
+  return typeof value === "object" && value !== null && !Array.isArray(value) && Object.keys(value).length > 0;
+}
+
+function renderSourceAvailability(comparison: ProjectSourceComparison, hasOwnWebsite: boolean): string {
+  const officialStatus = comparison.officialState === "observed"
+    ? "Datos disponibles"
+    : comparison.officialState === "linked" || hasOwnWebsite
+      ? "Página enlazada"
+      : "Fuente por identificar";
+  return `<div class="source-channel-pair" aria-label="Canales disponibles">
+    <article class="source-channel source-channel--nexo"><span class="source-channel__mark" aria-hidden="true">N</span><div><strong>Nexo Inmobiliario</strong><small>Base de mercado · ${formatDate(comparison.nexoCapturedAt)}</small></div><span class="source-channel__state">Datos disponibles</span></article>
+    <span class="source-channel-pair__connector" aria-hidden="true">↔</span>
+    <article class="source-channel source-channel--official ${comparison.officialState === "observed" ? "is-observed" : "is-pending"}"><span class="source-channel__mark" aria-hidden="true">W</span><div><strong>Web oficial</strong><small>${escapeHtml(comparison.officialName)}${comparison.officialState === "observed" ? ` · ${formatDate(comparison.officialCapturedAt)}` : ""}</small></div><span class="source-channel__state">${escapeHtml(officialStatus)}</span></article>
+  </div>`;
+}
+
+function renderSourceComparisonEmpty(comparison: ProjectSourceComparison): string {
+  const linked = comparison.officialState === "linked";
+  return `<div class="source-comparison-empty source-comparison-empty--${comparison.officialState}" role="status">
+    ${detailIcon(linked ? "document" : "sources")}
+    <div><strong>${linked ? "Web oficial enlazada; datos aún no publicados" : "Sin fuente oficial vinculada"}</strong><p>${linked ? "La página oficial está identificada, pero sus datos todavía no forman parte de esta versión." : "La ficha muestra Nexo mientras se identifica la página oficial de este proyecto."}</p></div>
+  </div>`;
+}
+
+function renderSourceComparisonSummary(summary: ReturnType<typeof summarizeCommercialSources>): string {
+  const items = [
+    { key: "same", value: summary.same, label: "Coinciden" },
+    { key: "additional", value: summary.additional, label: "Aportan información" },
+    { key: "review", value: summary.review, label: "Por revisar" },
   ];
-  const fields: Array<{ key: string; label: string }> = [
-    { key: "address", label: "Dirección" },
-    { key: "listPrice", label: "Precio publicado" },
-    { key: "totalArea", label: "Área total" },
-    { key: "bedrooms", label: "Dormitorios" },
-    { key: "unitStatus", label: "Estado" },
-    { key: "deliveryDate", label: "Entrega" },
-    { key: "amenities", label: "Áreas comunes" },
-    { key: "financingBanks", label: "Financiamiento" },
-  ];
-  return `<div class="source-matrix-wrap"><table class="source-matrix"><thead><tr><th scope="col">Dato</th>${columns.map((column) => `<th scope="col"><span>${escapeHtml(column.label)}</span><small>${column.source ? formatDate(column.source.capturedAt) : column.empty}</small></th>`).join("")}<th scope="col">Resultado</th></tr></thead><tbody>${fields.map((field) => {
-    const values = columns.map((column) => sourceFieldValue(column.source?.observedData as JsonObject | undefined, field.key));
-    const result = sourceComparisonResult(values);
-    return `<tr><th scope="row">${escapeHtml(field.label)}</th>${values.map((value, index) => `<td data-source="${escapeAttr(columns[index]!.label)}">${value == null ? `<span class="source-empty">${escapeHtml(columns[index]!.empty)}</span>` : escapeHtml(value)}</td>`).join("")}<td data-source="Resultado"><span class="source-result source-result--${result.tone}">${escapeHtml(result.label)}</span></td></tr>`;
+  return `<ul class="source-comparison-summary" aria-label="Resumen de la comparación">${items.map((item) => `<li class="source-comparison-summary--${item.key}"><strong>${formatNumber(item.value)}</strong><span>${escapeHtml(item.label)}</span></li>`).join("")}</ul>`;
+}
+
+function renderSourceComparisonMatrix(comparison: ProjectSourceComparison): string {
+  return `<div class="source-matrix-wrap"><table class="source-matrix"><caption class="sr-only">Comparación de datos publicados en Nexo y en la web oficial</caption><thead><tr><th scope="col">Dato</th><th scope="col"><span class="source-matrix__heading"><b aria-hidden="true">N</b><span>Nexo Inmobiliario<small>Base de mercado</small></span></span></th><th scope="col"><span class="source-matrix__heading"><b aria-hidden="true">W</b><span>Web oficial<small>Canal de la inmobiliaria</small></span></span></th></tr></thead><tbody>${comparison.rows.map((row) => {
+    const nexoValue = formatComparisonReadModelValue(row.field, row.nexoValue);
+    const officialValue = formatComparisonReadModelValue(row.field, row.officialValue);
+    const statusLabel = commercialSourceLabel(row.status);
+    return `<tr class="source-matrix__row source-matrix__row--${row.status}"><th scope="row"><span>${escapeHtml(row.label ?? sourceComparisonFieldLabel(row.field))}</span><span class="source-result source-result--${row.status}">${escapeHtml(statusLabel)}</span><small>${escapeHtml(commercialSourceMessage(row))}</small></th><td data-source="Nexo Inmobiliario">${renderCompactSourceValue(nexoValue, "Sin dato en Nexo")}</td><td data-source="Web oficial">${renderCompactSourceValue(officialValue, "Sin dato en la web oficial")}</td></tr>`;
   }).join("")}</tbody></table></div>`;
+}
+
+function renderCompactSourceValue(value: string | null, emptyCopy: string): string {
+  if (value == null) return `<span class="source-empty">${escapeHtml(emptyCopy)}</span>`;
+  const compact = compactCommercialSourceValue(value);
+  if (compact === value) return escapeHtml(value);
+  return `<span class="source-value-clipped" title="${escapeAttr(value)}" aria-label="${escapeAttr(value)}">${escapeHtml(compact)}</span>`;
+}
+
+function sourceComparisonFieldLabel(field: string): string {
+  const labels: Record<string, string> = {
+    projectName: "Proyecto",
+    address: "Dirección",
+    district: "Distrito",
+    typology: "Tipo de inmueble",
+    bedrooms: "Dormitorios",
+    totalArea: "Área total",
+    unitStatus: "Estado",
+    unitCount: "Unidades anunciadas",
+    listPrice: "Precio publicado",
+    deliveryDate: "Entrega",
+    amenities: "Áreas comunes",
+    financingBanks: "Financiamiento",
+  };
+  return labels[field] ?? field.replaceAll("_", " ").replace(/^./u, (letter) => letter.toUpperCase());
+}
+
+function formatComparisonReadModelValue(field: string, value: unknown): string | null {
+  if (!hasDisplayValue(value)) return null;
+  if (Array.isArray(value)) return value.map(String).join(" · ");
+  if (typeof value === "object" && value !== null) {
+    const record = value as JsonObject;
+    const minimum = record.min ?? record.minimum;
+    const maximum = record.max ?? record.maximum;
+    if (hasDisplayValue(minimum) || hasDisplayValue(maximum)) {
+      return formatComparisonRange(field, minimum, maximum, record.unit);
+    }
+    const displayValue = record.displayValue ?? record.display_value ?? record.originalValue ?? record.original_value ?? record.value;
+    if (hasDisplayValue(displayValue)) return formatComparisonScalar(field, displayValue, record.unit);
+    return null;
+  }
+  if (["listPrice", "totalArea", "bedrooms", "unitCount"].includes(field)) return formatComparisonScalar(field, value);
+  if (field === "deliveryDate" && /^\d{4}-\d{2}(?:-\d{2})?$/u.test(String(value))) return formatDate(value);
+  return String(value);
+}
+
+function formatComparisonRange(field: string, minimum: unknown, maximum: unknown, explicitUnit?: unknown): string {
+  const values = [minimum, maximum].filter(hasDisplayValue);
+  const distinct = values.filter((value, index) => values.findIndex((candidate) => String(candidate) === String(value)) === index);
+  if (field === "listPrice") return distinct.map((value) => Number.isFinite(Number(value)) ? money(value) : String(value)).join(" – ");
+  const normalized = distinct.map((value) => comparisonRangeNumber(value));
+  const range = normalized.map((value, index) => value == null ? String(distinct[index]) : formatNumber(value)).join("–");
+  const alreadyIncludesUnit = distinct.some((value) => comparisonValueIncludesUnit(field, value));
+  return `${range}${alreadyIncludesUnit && normalized.some((value) => value == null) ? "" : comparisonUnit(field, explicitUnit)}`;
+}
+
+function formatComparisonScalar(field: string, value: unknown, explicitUnit?: unknown): string {
+  if (field === "listPrice") return Number.isFinite(Number(value)) ? money(value) : String(value);
+  if (["totalArea", "bedrooms", "unitCount"].includes(field)) {
+    return Number.isFinite(Number(value)) ? `${formatNumber(value)}${comparisonUnit(field, explicitUnit)}` : String(value);
+  }
+  if (field === "deliveryDate" && /^\d{4}-\d{2}/u.test(String(value))) return formatDate(value);
+  return String(value);
+}
+
+function comparisonRangeNumber(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  const match = String(value ?? "").trim().match(/^(-?\d+(?:[.,]\d+)?)\s*(?:m(?:2|²)|dorm(?:itorios?)?|unidades?)?$/iu);
+  if (!match) return null;
+  const parsed = Number(match[1]!.replace(",", "."));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function comparisonValueIncludesUnit(field: string, value: unknown): boolean {
+  const text = String(value ?? "");
+  if (field === "totalArea") return /m(?:2|²)/iu.test(text);
+  if (field === "bedrooms") return /dorm/iu.test(text);
+  if (field === "unitCount") return /unidad/iu.test(text);
+  return false;
+}
+
+function comparisonUnit(field: string, explicitUnit?: unknown): string {
+  if (field === "totalArea") return " m²";
+  if (field === "bedrooms") return " dorm.";
+  if (field === "unitCount") return " unidades";
+  return hasDisplayValue(explicitUnit) ? ` ${String(explicitUnit)}` : "";
 }
 
 function sourceFieldValue(data: JsonObject | undefined, key: string): string | null {
@@ -890,23 +1199,6 @@ function sourceFieldValue(data: JsonObject | undefined, key: string): string | n
   if (key === "totalArea") return formatSourceArea(value);
   if (key === "deliveryDate") return formatDate(value);
   return String(value);
-}
-
-function sourceComparisonResult(values: Array<string | null>): { label: string; tone: "same" | "review" | "pending" } {
-  const available = values.filter((value): value is string => value !== null);
-  if (!available.length) return { label: "No disponible", tone: "pending" };
-  if (available.length === 1) {
-    const availableIndex = values.findIndex((value) => value !== null);
-    return { label: availableIndex === 0 ? "Disponible en Nexo" : availableIndex === 1 ? "Disponible en web" : "Disponible en red", tone: "pending" };
-  }
-  const normalized = new Set(available.map((value) => normalizeComparisonValue(value)));
-  return normalized.size === 1
-    ? { label: "Coincide", tone: "same" }
-    : { label: "Revisar diferencia", tone: "review" };
-}
-
-function normalizeComparisonValue(value: string): string {
-  return value.normalize("NFKD").replace(/\p{M}/gu, "").replace(/[^a-z0-9]+/giu, " ").trim().toLowerCase();
 }
 
 function renderSourceCard(source: JsonObject): string {
@@ -1021,14 +1313,14 @@ function renderComparisonModel(comparison: JsonObject): string {
   const findings = Array.isArray(comparison.conclusion) ? comparison.conclusion as JsonObject[] : [];
   const comparisonWarnings = findings.filter((finding) => finding.id === "finding:price-insufficient");
   const projectDifferences = findings.filter((finding) => finding.id !== "finding:price-insufficient");
-  const differenceCount = groups.flatMap((group) => (group.rows ?? []) as JsonObject[]).filter((row) => row.hasDifference || row.hasExcluded).length;
+  const differenceCount = groups.flatMap((group) => (group.rows ?? []) as JsonObject[]).filter((row) => row.hasDifference && !row.hasExcluded).length;
   return `<section class="comparison-workspace" aria-label="Comparación de proyectos">
     <header class="comparison-workspace__header"><div><span class="eyebrow">Selección confirmada</span><h2>${selected.length} proyectos en paralelo</h2><p>Las columnas conservan el mismo orden en toda la pantalla.</p></div><span class="comparison-count">${formatNumber(differenceCount)} diferencias para revisar</span></header>
     <div class="comparison-projects comparison-projects--${selected.length}">${selected.map((project, index) => renderComparisonProject(project, index, groups)).join("")}</div>
   </section>
   ${renderComparisonWarnings(comparisonWarnings)}
   ${renderProjectDifferences(projectDifferences, groups, selected)}
-  <section class="surface comparison-matrix" aria-labelledby="comparison-matrix-title"><header class="section-heading"><div><span class="eyebrow">Comparación completa</span><h2 id="comparison-matrix-title">Datos publicados lado a lado</h2><p>“Diferencia” señala que los valores no coinciden; no determina por sí sola cuál proyecto es mejor.</p></div></header>${groups.map((group) => renderComparisonGroup(group, selected)).join("")}<details class="methodology"><summary>Ver límites de la comparación</summary><ul>${comparisonLimitations(comparison).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details></section>`;
+  <section class="surface comparison-matrix" aria-labelledby="comparison-matrix-title"><header class="section-heading"><div><span class="eyebrow">Comparación completa</span><h2 id="comparison-matrix-title">Datos publicados lado a lado</h2><p>“Diferencia” señala que los valores no coinciden; no determina por sí sola cuál proyecto es mejor.</p></div><div class="map-switch" role="group" aria-label="Filtrar comparación"><button data-action="comparison-all" aria-pressed="${!state.comparisonOnlyDifferences}">Todos los datos</button><button data-action="comparison-differences" aria-pressed="${state.comparisonOnlyDifferences}">Diferencias y pendientes</button></div></header>${groups.map((group) => renderComparisonGroup(group, selected)).join("")}<details class="methodology"><summary>Ver límites de la comparación</summary><ul>${comparisonLimitations(comparison).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details></section>`;
 }
 
 function renderComparisonWarnings(findings: JsonObject[]): string {
@@ -1074,9 +1366,11 @@ function renderComparisonProject(project: JsonObject, index: number, groups: Jso
 }
 
 function renderComparisonGroup(group: JsonObject, selected: JsonObject[]): string {
-  const rows = (group.rows ?? []) as JsonObject[];
-  const differences = rows.filter((row) => row.hasDifference || row.hasExcluded).length;
-  return `<section class="comparison-group" aria-labelledby="comparison-group-${escapeAttr(group.id)}"><header><h3 id="comparison-group-${escapeAttr(group.id)}">${escapeHtml(group.label)}</h3><span>${differences ? `${formatNumber(differences)} ${differences === 1 ? "diferencia" : "diferencias"}` : "Sin diferencias observadas"}</span></header>${rows.map((row) => `<div class="comparison-data-row comparison-data-row--${selected.length} ${row.hasDifference || row.hasExcluded ? "is-different" : ""}"><div class="comparison-criterion"><strong>${escapeHtml(row.label)}</strong>${row.hasDifference || row.hasExcluded ? '<span class="difference-badge">Diferencia</span>' : '<span class="same-badge">Coincide</span>'}</div>${((row.values ?? []) as JsonObject[]).map((value, index) => `<div class="comparison-value-cell ${comparisonStateClass(value.state)}" data-project="${escapeAttr(selected[index]?.name ?? "Proyecto")}">${formatComparisonValue(value)}<span class="comparison-value-state">${escapeHtml(comparisonStateLabel(value.state))}</span></div>`).join("")}</div>`).join("")}</section>`;
+  const pending = (row: JsonObject) => row.hasExcluded || !Array.isArray(row.values) || row.values.length !== selected.length || row.values.some((value: JsonObject) => !["observed", "announced"].includes(String(value.state)));
+  const rows = ((group.rows ?? []) as JsonObject[]).filter((row) => !state.comparisonOnlyDifferences || row.hasDifference || pending(row));
+  if (!rows.length) return "";
+  const differences = rows.filter((row) => row.hasDifference && !row.hasExcluded).length;
+  return `<section class="comparison-group" aria-labelledby="comparison-group-${escapeAttr(group.id)}"><header><h3 id="comparison-group-${escapeAttr(group.id)}">${escapeHtml(group.label)}</h3><span>${differences ? `${formatNumber(differences)} ${differences === 1 ? "diferencia" : "diferencias"}` : rows.some(pending) ? "Datos por completar" : "Sin diferencias observadas"}</span></header><div class="comparison-column-head comparison-data-row--${selected.length}"><strong>Característica</strong>${selected.map((project) => `<strong>${escapeHtml(project.name)}</strong>`).join("")}</div>${rows.map((row) => `<div class="comparison-data-row comparison-data-row--${selected.length} ${row.hasDifference ? "is-different" : ""}"><div class="comparison-criterion"><strong>${escapeHtml(row.label)}</strong>${pending(row) ? '<span class="difference-badge">Por revisar</span>' : row.hasDifference ? '<span class="difference-badge">Diferencia</span>' : '<span class="same-badge">Coincide</span>'}</div>${((row.values ?? []) as JsonObject[]).map((value, index) => `<div class="comparison-value-cell ${comparisonStateClass(value.state)}" data-project="${escapeAttr(selected[index]?.name ?? "Proyecto")}">${formatComparisonValue(value)}<span class="comparison-value-state">${escapeHtml(comparisonStateLabel(value.state))}</span></div>`).join("")}</div>`).join("")}</section>`;
 }
 
 function comparisonLimitations(comparison: JsonObject): string[] {
@@ -1097,6 +1391,7 @@ function comparisonValueFor(groups: JsonObject[], rowId: string, projectId: unkn
 
 function decisionReadinessRows(): Array<{ status: "ok" | "warn"; title: string; detail: string }> {
   const workspace = state.workspace!;
+  const pairedPrices = Number(workspace.benchmark.quantitative?.n ?? 0);
   return [
     {
       status: workspace.scenarioStatus === "valid" ? "ok" : "warn",
@@ -1109,9 +1404,9 @@ function decisionReadinessRows(): Array<{ status: "ok" | "warn"; title: string; 
       detail: `${formatPercent(workspace.coverage.geographyCoveragePct)} de los proyectos puede verse en el mapa.`,
     },
     {
-      status: Number(workspace.marketReading.priceReferenceCount) >= 3 ? "ok" : "warn",
-      title: "Precios para comparar",
-      detail: `${formatNumber(workspace.marketReading.priceReferenceCount)} publicaciones declaran precio y área para una lectura inicial.`,
+      status: pairedPrices >= 3 ? "ok" : "warn",
+      title: "Comparación de precio por m²",
+      detail: pairedPrices ? `${formatNumber(pairedPrices)} proyectos tienen precio y área de la misma oferta.` : "Puedes consultar precios publicados. Falta confirmar precio y área de la misma oferta para comparar por m².",
     },
   ];
 }
@@ -1389,6 +1684,7 @@ function assistantBlockTitle(type: unknown, fallback: unknown): string {
 }
 
 function renderHistory(): string {
+  if (!state.history) return `${renderPageHeader("Seguimiento", "Seguimiento comercial", "Cambios del escenario activo.")}<section class="surface" role="status">${state.routeError ? "El historial estará disponible al recuperar la consulta." : "Cargando historial…"}</section>`;
   const allEvents = state.history?.items ?? [];
   const visibleEvents = historyEvents();
   const latest = visibleEvents[0] ?? null;
@@ -1418,11 +1714,11 @@ function renderHistory(): string {
       </header>
       <div class="history-filters">
         <label for="history-direction-filter">Movimiento<select id="history-direction-filter" name="history_direction"><option value="all" ${state.historyDirection === "all" ? "selected" : ""}>Todos</option><option value="decrease" ${state.historyDirection === "decrease" ? "selected" : ""}>Bajó el precio</option><option value="increase" ${state.historyDirection === "increase" ? "selected" : ""}>Subió el precio</option><option value="unchanged" ${state.historyDirection === "unchanged" ? "selected" : ""}>Sin variación</option></select></label>
-        <label for="history-validity-filter">Vigencia<select id="history-validity-filter" name="history_validity"><option value="all" ${state.historyValidity === "all" ? "selected" : ""}>Todas</option><option value="current" ${state.historyValidity === "current" ? "selected" : ""}>Reciente</option><option value="aging" ${state.historyValidity === "aging" ? "selected" : ""}>En seguimiento</option><option value="historical" ${state.historyValidity === "historical" ? "selected" : ""}>Histórica</option><option value="unknown" ${state.historyValidity === "unknown" ? "selected" : ""}>Fecha por revisar</option></select></label>
+        <label for="history-validity-filter">Antigüedad al corte<select id="history-validity-filter" name="history_validity"><option value="all" ${state.historyValidity === "all" ? "selected" : ""}>Todas</option><option value="current" ${state.historyValidity === "current" ? "selected" : ""}>Reciente al corte</option><option value="aging" ${state.historyValidity === "aging" ? "selected" : ""}>En seguimiento</option><option value="historical" ${state.historyValidity === "historical" ? "selected" : ""}>Histórica</option><option value="unknown" ${state.historyValidity === "unknown" ? "selected" : ""}>Fecha por revisar</option></select></label>
       </div>
       ${renderHistorySignals(visibleEvents, false)}
     </section>
-    <aside class="history-notice"><strong>Avisos automáticos</strong><p>Los avisos de nuevas unidades y descuentos se activarán cuando el monitoreo automático esté disponible. Por ahora, esta pantalla muestra solo los cambios de precio confirmados.</p></aside>
+    <aside class="history-notice"><strong>Avisos automáticos no disponibles</strong><p>Esta pantalla permite consultar cambios de precio publicados hasta el corte indicado. No envía notificaciones ni monitorea nuevas unidades o descuentos.</p></aside>
     ${state.projectDetail ? renderProjectDetail() : ""}`;
 }
 
@@ -1473,6 +1769,7 @@ function historyEvents(): JsonObject[] {
 }
 
 function historyProject(event: JsonObject): ProjectSummary | null {
+  if (event.project) return event.project as ProjectSummary;
   const id = String(event.project_id ?? "").replace(/^project:nexo-/u, "").replace(/^nexo-/u, "");
   return state.projects?.items.find((project) => String(project.id) === id) ?? null;
 }
@@ -1536,8 +1833,8 @@ function renderCorrections(): string {
 function renderScenarioDialog(): string {
   const scenario = state.scenario!;
   const district = state.bootstrap!.districts.find(({ id }) => id === scenario.district_id);
-  return `<dialog id="scenario-dialog" class="product-dialog">
-    <form method="dialog" class="dialog-header"><div><span class="eyebrow">Escenario</span><h2>Editar alcance comercial</h2><p>Los cambios recalculan la lectura sin guardar información.</p></div><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form>
+  return `<dialog id="scenario-dialog" class="product-dialog" aria-labelledby="scenario-dialog-title">
+    <form method="dialog" class="dialog-header"><div><span class="eyebrow">Escenario</span><h2 id="scenario-dialog-title">Editar alcance comercial</h2><p>Edita los filtros y aplícalos cuando estén listos.</p></div><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form>
     <form id="scenario-form" class="scenario-form">
       <label>Distrito<select name="district_id">${state.bootstrap!.districts.map((item) => `<option value="${escapeAttr(item.id)}" ${item.id === scenario.district_id ? "selected" : ""}>${escapeHtml(item.name)} · ${formatNumber(item.projectCount)}</option>`).join("")}</select></label>
       <label>Alcance<select name="scope_mode"><option value="district" ${scenario.scope_mode === "district" ? "selected" : ""}>Distrito completo</option><option value="quadrant" ${scenario.scope_mode === "quadrant" ? "selected" : ""} ${!district?.quadrants.length ? "disabled" : ""}>Zona de comparación</option><option value="radius" ${scenario.scope_mode === "radius" ? "selected" : ""}>Radio desde el centro distrital</option></select></label>
@@ -1548,7 +1845,9 @@ function renderScenarioDialog(): string {
       <label>Entrega<select name="delivery_year">${optionValues(state.bootstrap!.scenarioCatalogs.delivery_years, scenario.delivery_year)}</select></label>
       <label>Área objetivo (m²)<input name="target_area_m2" type="number" min="1" step="0.01" value="${scenario.target_area_m2 ?? ""}" /></label>
       <label>Precio objetivo (S/)<input name="target_price_pen" type="number" min="1" step="1" value="${scenario.target_price_pen ?? ""}" /></label>
-      <div class="dialog-actions"><button class="button button--quiet" type="button" data-action="reset">Reiniciar</button><button class="button button--primary" type="submit">Aplicar escenario</button></div>
+      <p class="scenario-selection-notice">${state.selectedProjectIds.length ? `Al cambiar el escenario se quitarán los ${state.selectedProjectIds.length} proyectos seleccionados.` : "La selección se conserva mientras no cambies el escenario. Reiniciar vuelve al inicio y limpia la selección."}</p>
+      ${state.scenarioError ? `<p class="scenario-error" role="alert">${escapeHtml(state.scenarioError)}</p>` : ""}
+      <div class="dialog-actions"><button class="button button--quiet" type="button" data-action="reset">Reiniciar demo</button><button class="button button--quiet" type="button" data-action="cancel-scenario">Cancelar</button><button class="button button--primary" type="submit" ${activeBusy?.channel === "workspace" ? "disabled" : ""}>Aplicar escenario</button></div>
     </form>
   </dialog>`;
 }
@@ -1562,7 +1861,19 @@ function renderCommandDialog(): string {
     { hash: "#assistant", label: "Decidir", hint: "Argumento comercial" },
     ...JOURNEY_STAGES.map((item) => ({ hash: `#journey/${item.id}`, label: `Recorrido · ${item.position}. ${item.label}`, hint: item.question })),
   ];
-  return `<dialog id="command-dialog" class="command-dialog"><form method="dialog"><label for="command-input" class="sr-only">Buscar destino</label><input id="command-input" type="search" placeholder="Ir a una sección…" autocomplete="off" /><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form><nav>${destinations.map((item) => `<a href="${item.hash}" data-command-option><strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(item.hint)}</span></a>`).join("")}</nav></dialog>`;
+  return `<dialog id="command-dialog" class="command-dialog" aria-labelledby="command-title"><h2 id="command-title" class="sr-only">Ir a una sección</h2><form method="dialog"><label for="command-input" class="sr-only">Buscar destino</label><input id="command-input" type="search" placeholder="Ir a una sección…" value="${escapeAttr(commandQuery)}" autocomplete="off" aria-controls="command-results" /><button class="icon-button" value="cancel" aria-label="Cerrar">${closeIcon()}</button></form><nav id="command-results" class="command-results" aria-label="Destinos">${destinations.map((item, index) => `<a id="command-option-${index}" href="${item.hash}" data-command-option data-command-label="${escapeAttr(item.label)}" data-command-hint="${escapeAttr(item.hint)}"><strong>${escapeHtml(item.label)}</strong><span>${escapeHtml(item.hint)}</span></a>`).join("")}</nav><p id="command-empty" hidden>No hay secciones con ese nombre. Prueba «Proyectos» o «Seguimiento».</p><p id="command-count" class="sr-only" role="status"></p></dialog>`;
+}
+
+function updateCommandResults(): void {
+  const options = [...root.querySelectorAll<HTMLAnchorElement>("[data-command-option]")];
+  const matches = filterCommandDestinations(options.map((element) => ({ element, label: element.dataset.commandLabel ?? "", hint: element.dataset.commandHint ?? "" })), commandQuery);
+  commandIndex = Math.min(commandIndex, Math.max(0, matches.length - 1));
+  options.forEach((option) => { option.hidden = !matches.some(({ element }) => element === option); option.classList.remove("is-active"); });
+  matches[commandIndex]?.element.classList.add("is-active");
+  const empty = root.querySelector<HTMLElement>("#command-empty");
+  if (empty) empty.hidden = matches.length > 0;
+  const count = root.querySelector<HTMLElement>("#command-count");
+  if (count) count.textContent = `${matches.length} ${matches.length === 1 ? "destino" : "destinos"}`;
 }
 
 function renderDataRefreshDialog(): string {
@@ -1582,25 +1893,21 @@ function renderDataRefreshDialog(): string {
 
 async function handleClick(event: MouseEvent): Promise<void> {
   const target = event.target as HTMLElement;
+  if (target.closest('a[href="#main-content"]')) {
+    event.preventDefault(); document.querySelector<HTMLElement>("#main-content")?.focus(); return;
+  }
+  if (target.closest("[data-command-option]")) closeDialogs();
   const mapProjectId = target.closest<HTMLElement>("[data-map-project]")?.dataset.mapProject;
   if (mapProjectId) {
     event.preventDefault();
-    state.mapProjectId = canonicalProjectId(mapProjectId);
-    state.mapProjectDetail = null;
-    state.mapProjectStatus = "loading";
-    render();
-    try {
-      state.mapProjectDetail = await provider.project(mapProjectId);
-      state.mapProjectStatus = "ready";
-      render();
-    } catch {
-      state.mapProjectStatus = "error";
-      render();
-    }
+    await selectMapProject(mapProjectId);
     return;
   }
   const action = target.closest<HTMLElement>("[data-action]")?.dataset.action;
   if (action === "retry") return void initialize();
+  if (action === "retry-route") return void (detailRetryId ? openProjectDetail(detailRetryId) : loadRouteData());
+  if (action === "cancel-scenario") { cancelScenarioEdit(); closeDialogs(); return; }
+  if (action === "comparison-all" || action === "comparison-differences") { state.comparisonOnlyDifferences = action === "comparison-differences"; render(); return; }
   if (action === "open-nav") { state.navOpen = true; render(); return; }
   if (action === "close-nav") { state.navOpen = false; render(); return; }
   if (action === "scenario") return openDialog("scenario-dialog", "scenario-form");
@@ -1608,14 +1915,18 @@ async function handleClick(event: MouseEvent): Promise<void> {
   if (action === "data-refresh") return openDialog("data-refresh-dialog", state.refreshStatus?.enabled ? "data-refresh-key" : "data-refresh-dialog");
   if (action === "close-refresh") { closeDialogs(); return; }
   if (action === "refresh-status") {
+    const ticket = requests.begin("refresh");
     try {
-      state.refreshStatus = await provider.dataRefreshStatus();
+      const status = await provider.dataRefreshStatus();
+      if (!requests.isCurrent(ticket)) return;
+      state.refreshStatus = status;
       state.refreshNotice = {
         tone: state.refreshStatus.run.state === "failed" ? "error" : state.refreshStatus.run.state === "blocked" ? "warning" : "success",
         message: refreshRunCopy(state.refreshStatus.run.state),
       };
       render();
     } catch (error) {
+      if (!requests.isCurrent(ticket)) return;
       state.refreshNotice = { tone: "error", message: error instanceof ApiClientError ? error.message : "No se pudo consultar el estado." };
       render();
     }
@@ -1624,9 +1935,10 @@ async function handleClick(event: MouseEvent): Promise<void> {
   if (action === "map-geographic") { state.mapView = "geographic"; render(); return; }
   if (action === "map-positioning") { state.mapView = "positioning"; render(); return; }
   if (action === "map-open-detail" && state.mapProjectDetail) {
+    detailOrigin = { selector: '[data-action="map-open-detail"]', scroll: window.scrollY };
     state.projectDetail = state.mapProjectDetail;
     render();
-    requestAnimationFrame(() => document.querySelector<HTMLElement>("#project-detail-title")?.focus());
+    requestAnimationFrame(focusProjectDetail);
     return;
   }
   if (action === "clear-history-filters") {
@@ -1636,6 +1948,7 @@ async function handleClick(event: MouseEvent): Promise<void> {
     return;
   }
   if (action === "clear-comparison") {
+    invalidateSelectionResults();
     state.selectedProjectIds = [];
     state.selectedProjects = {};
     state.comparison = null;
@@ -1654,26 +1967,17 @@ async function handleClick(event: MouseEvent): Promise<void> {
     return;
   }
   if (action === "reset" && state.bootstrap) {
-    closeDialogs();
-    state.scenario = structuredClone(state.bootstrap.initialScenario);
-    state.route = { kind: "journey", id: "scale" };
-    window.location.hash = routeHash(state.route);
-    await refreshWorkspace();
-    state.status = "ready";
-    render();
+    await applyScenario(structuredClone(state.bootstrap.initialScenario), true);
     return;
   }
-  if (action === "close-detail") { state.projectDetail = null; render(); return; }
+  if (action === "close-detail") { closeProjectDetail(); return; }
   if (action === "toggle-detail-comparison" && state.projectDetail) {
     const project = state.projectDetail.project as JsonObject;
     const id = canonicalProjectId(String(project.canonicalId ?? project.id));
     if (state.selectedProjectIds.includes(id)) removeProjectSelection(id);
     else if (state.selectedProjectIds.length < 3) addProjectSelection(projectSummaryFromDetail(project));
     if ((state.route.id === "compare" || state.route.id === "depth") && state.selectedProjectIds.length >= 2 && state.scenario) {
-      state.busyMessage = "Actualizando comparación…";
-      render();
-      try { state.comparison = await provider.comparison(state.scenario, state.selectedProjectIds); state.busyMessage = null; render(); }
-      catch (error) { fail(error); }
+      await loadRouteData();
     } else render();
     return;
   }
@@ -1681,10 +1985,7 @@ async function handleClick(event: MouseEvent): Promise<void> {
   if (removeId) {
     removeProjectSelection(removeId);
     if ((state.route.id === "compare" || state.route.id === "depth") && state.selectedProjectIds.length >= 2 && state.scenario) {
-      state.busyMessage = "Actualizando comparación…";
-      render();
-      try { state.comparison = await provider.comparison(state.scenario, state.selectedProjectIds); state.busyMessage = null; render(); }
-      catch (error) { fail(error); }
+      await loadRouteData();
     } else render();
     return;
   }
@@ -1696,16 +1997,13 @@ async function handleClick(event: MouseEvent): Promise<void> {
   }
   const projectId = target.closest<HTMLElement>("[data-project-detail]")?.dataset.projectDetail;
   if (projectId) {
-    state.busyMessage = "Cargando ficha…"; render();
-    try {
-      state.projectDetail = await provider.project(projectId); state.busyMessage = null; render();
-      requestAnimationFrame(() => document.querySelector<HTMLElement>("#project-detail-title")?.focus());
-    }
-    catch (error) { fail(error); }
+    detailOrigin = { selector: `[data-project-detail="${CSS.escape(projectId)}"]`, scroll: window.scrollY };
+    await openProjectDetail(projectId);
     return;
   }
   const assistantButton = target.closest<HTMLElement>("[data-assistant-intent]");
   if (assistantButton) {
+    cancelAssistantRequest();
     state.assistantDraft = assistantButton.dataset.assistantQuestion ?? "";
     state.assistantIntentId = assistantButton.dataset.assistantIntent ?? null;
     state.assistantQuestionTitle = assistantButton.dataset.assistantQuestionTitle ?? null;
@@ -1721,6 +2019,7 @@ async function handleClick(event: MouseEvent): Promise<void> {
   }
   const assistantCategory = target.closest<HTMLElement>("[data-assistant-category]")?.dataset.assistantCategory as AssistantCategoryId | undefined;
   if (assistantCategory) {
+    cancelAssistantRequest();
     state.assistantCategory = assistantCategory;
     state.assistant = null;
     state.assistantDraft = "";
@@ -1734,7 +2033,11 @@ async function handleClick(event: MouseEvent): Promise<void> {
 
 function handleInput(event: Event): void {
   const target = event.target as HTMLTextAreaElement;
+  if (target.id === "command-input") { commandQuery = target.value; commandIndex = 0; updateCommandResults(); return; }
   if (target.id !== "assistant-input") return;
+  cancelAssistantRequest();
+  state.assistant = null;
+  state.assistantError = null;
   state.assistantDraft = target.value;
   if (state.assistantIntentId && !assistantQuestions().some(({ intentId, question }) => intentId === state.assistantIntentId && question === target.value)) {
     state.assistantIntentId = null;
@@ -1744,6 +2047,7 @@ function handleInput(event: Event): void {
   }
   const counter = document.querySelector<HTMLElement>("#assistant-character-count");
   if (counter) counter.textContent = `${formatNumber(target.value.length)} / 500`;
+  render();
 }
 
 async function handleSubmit(event: SubmitEvent): Promise<void> {
@@ -1760,7 +2064,9 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
     }
     const scope = String(data.get("refresh_scope") ?? "demo_districts") as "active_district" | "demo_districts";
     const operatorKey = String(data.get("operator_key") ?? "");
-    state.busyMessage = "Enviando actualización controlada…";
+    const ticket = beginTask("refresh", "Enviando solicitud…");
+    const keyInput = form.querySelector<HTMLInputElement>("[name=operator_key]");
+    if (keyInput) keyInput.value = "";
     render();
     try {
       const response = await provider.requestDataRefresh({
@@ -1770,12 +2076,14 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
           : state.bootstrap!.districts.map((district) => district.id),
         channels,
       }, operatorKey);
+      if (!finishTask(ticket)) return;
       state.refreshStatus = { ...state.refreshStatus!, run: response.run };
       state.refreshNotice = { tone: "success", message: refreshRunCopy(response.run.state) };
       state.busyMessage = null;
       closeDialogs();
       render();
     } catch (error) {
+      if (!finishTask(ticket)) return;
       state.busyMessage = null;
       state.refreshNotice = {
         tone: error instanceof ApiClientError && [409, 423].includes(error.status) ? "warning" : "error",
@@ -1792,7 +2100,7 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
     const data = new FormData(form);
     const scopeMode = String(data.get("scope_mode")) as Scenario["scope_mode"];
     const district = state.bootstrap?.districts.find(({ id }) => id === String(data.get("district_id")));
-    state.scenario = {
+    const candidate: Scenario = {
       ...state.scenario,
       district_id: String(data.get("district_id")),
       scope_mode: scopeMode,
@@ -1807,9 +2115,7 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
       target_price_pen: optionalNumber(data.get("target_price_pen")),
       source: "interaction",
     };
-    closeDialogs();
-    try { await refreshWorkspace(); state.status = "ready"; await loadRouteData(); }
-    catch (error) { fail(error); }
+    await applyScenario(candidate);
     return;
   }
   if (form.id === "project-filter-form") {
@@ -1826,18 +2132,20 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
     if (!input) return;
     state.assistantDraft = input;
     state.assistantError = null;
-    state.busyMessage = "Preparando respuesta…"; render();
+    const ticket = beginTask("assistant", "Preparando respuesta…");
+    state.assistant = null; render();
     try {
-      state.assistant = await provider.assistant({
-        scenario: state.scenario,
+      const response = await provider.assistant({
+        scenario: structuredClone(state.scenario),
         input,
         intentId: String(data.get("intentId") || "") || null,
-        projectIds: state.selectedProjectIds,
+        projectIds: [...state.selectedProjectIds],
         inspectorRouteSlug: state.inspectorSlug,
       });
-      state.busyMessage = null; render();
+      if (!finishTask(ticket)) return;
+      state.assistant = response; render();
     } catch (error) {
-      state.busyMessage = null;
+      if (!finishTask(ticket)) return;
       state.assistantError = error instanceof ApiClientError ? error.message : "No pudimos preparar la respuesta. Inténtalo nuevamente.";
       render();
     }
@@ -1846,19 +2154,22 @@ async function handleSubmit(event: SubmitEvent): Promise<void> {
 
 async function handleChange(event: Event): Promise<void> {
   const target = event.target as HTMLInputElement | HTMLSelectElement;
+  if (target.id === "map-project-picker") { if (target.value) await selectMapProject(target.value); return; }
   if (target.id === "quality-verification-case") {
+    requests.invalidate("route");
     state.inspectorSlug = target.value || null;
     state.inspector = null;
     if (!state.inspectorSlug) return;
-    state.busyMessage = "Abriendo verificación…";
+    const ticket = beginTask("inspector", "Abriendo verificación…");
     render();
     try {
-      state.inspector = await provider.inspector(state.inspectorSlug);
-      state.busyMessage = null;
+      const result = await provider.inspector(state.inspectorSlug);
+      if (!finishTask(ticket)) return;
+      state.inspector = result;
       render();
       requestAnimationFrame(() => document.querySelector<HTMLElement>(".verification-result")?.focus());
     } catch (error) {
-      state.busyMessage = null;
+      if (!finishTask(ticket)) return;
       state.inspector = null;
       render();
     }
@@ -1886,7 +2197,7 @@ async function handleChange(event: Event): Promise<void> {
     return;
   }
   if (target.name === "project_scope" && target.form?.id === "project-filter-form") {
-    state.projectScope = target.value === "all" ? "all" : "scenario";
+    state.projectScope = target.value === "all" || target.value === "district" ? target.value : "scenario";
     state.projectPage = 1;
     await loadProjectsFromForm(target.form);
     return;
@@ -1902,29 +2213,46 @@ async function handleChange(event: Event): Promise<void> {
 async function loadProjectsFromForm(form = document.querySelector<HTMLFormElement>("#project-filter-form")): Promise<void> {
   if (!state.scenario) return;
   const data = form ? new FormData(form) : new FormData();
-  state.projectScope = String(data.get("project_scope") ?? state.projectScope) === "all" ? "all" : "scenario";
+  const scope = String(data.get("project_scope") ?? state.projectScope);
+  state.projectScope = scope === "all" || scope === "district" ? scope : "scenario";
   state.projectQuery = String(data.get("query") ?? state.projectQuery);
   state.projectSort = String(data.get("sort") ?? state.projectSort);
-  state.busyMessage = "Actualizando proyectos…"; render();
-  try {
-    state.projects = await provider.projects(projectParameters(18));
-    state.busyMessage = null; render();
-  } catch (error) { fail(error); }
+  state.projectDetail = null;
+  requests.invalidate("detail");
+  await loadRouteData();
 }
 
-function projectParameters(pageSize: number): Record<string, string | number | undefined> {
+function queryProjects(): Promise<Page<ProjectSummary>> {
+  const parameters = { page: state.projectPage, pageSize: 18, query: state.projectQuery, sort: state.projectSort };
+  return state.projectScope === "scenario"
+    ? provider.scenarioProjects(structuredClone(state.scenario!), parameters)
+    : provider.projects({ ...parameters, ...(state.projectScope === "district" ? { district: state.scenario!.district_id } : {}) });
+}
+
+async function allScenarioProjects(scenario: Scenario): Promise<Page<ProjectSummary>> {
+  const first = await provider.scenarioProjects(scenario, { page: 1, pageSize: 100 });
+  const items = [...first.items];
+  for (let page = 2; page <= first.totalPages; page++) {
+    items.push(...(await provider.scenarioProjects(scenario, { page, pageSize: 100 })).items);
+  }
+  return { ...first, items };
+}
+
+async function allScenarioHistory(scenario: Scenario): Promise<Page<JsonObject>> {
+  const first = await provider.scenarioHistory(scenario, { page: 1, pageSize: 100 });
+  const items = [...first.items];
+  for (let page = 2; page <= first.totalPages; page++) items.push(...(await provider.scenarioHistory(scenario, { page, pageSize: 100 })).items);
+  return { ...first, items };
+}
+
+function scenarioProductLabel(): string {
   const scenario = state.scenario!;
-  return {
-    ...(state.projectScope === "scenario" ? {
-      district: scenario.district_id,
-      typology: scenario.typology,
-      bedrooms: scenario.bedrooms,
-    } : {}),
-    page: state.projectPage,
-    pageSize,
-    query: state.projectQuery,
-    sort: state.projectSort,
-  };
+  return [scenario.typology === "all" ? "Todo tipo de inmueble" : scenario.typology,
+    scenario.bedrooms === "all" ? "Todos los dormitorios" : `${scenario.bedrooms} dormitorios`,
+    scenario.delivery_year === "all" ? "Todas las entregas" : `Entrega ${scenario.delivery_year}`,
+    scenario.target_area_m2 ? `Área objetivo ${formatNumber(scenario.target_area_m2)} m²` : "",
+    scenario.target_price_pen ? `Precio objetivo ${money(scenario.target_price_pen)}` : "",
+  ].filter(Boolean).join(" · ");
 }
 
 function scenarioFromLocation(initial: Scenario): Scenario {
@@ -1975,7 +2303,14 @@ function writeScenarioToLocation(scenario: Scenario): void {
 function openDialog(id: string, focusId: string): void {
   const dialog = document.querySelector<HTMLDialogElement>(`#${id}`);
   if (!dialog) return;
-  dialog.showModal();
+  dialogOrigin = document.activeElement as HTMLElement | null;
+  if (id === "command-dialog") {
+    commandQuery = ""; commandIndex = 0;
+    const input = dialog.querySelector<HTMLInputElement>("#command-input");
+    if (input) input.value = "";
+    updateCommandResults();
+  }
+  if (!dialog.open) dialog.showModal();
   document.querySelector<HTMLElement>(`#${focusId}`)?.focus();
 }
 
@@ -2074,6 +2409,7 @@ function comparisonStateClass(value: unknown): string {
 function addProjectSelection(project: ProjectSummary): void {
   const id = canonicalProjectId(project.id);
   if (state.selectedProjectIds.includes(id) || state.selectedProjectIds.length >= 3) return;
+  invalidateSelectionResults();
   state.selectedProjectIds = [...state.selectedProjectIds, id];
   state.selectedProjects[id] = project;
   state.selectionMessage = state.selectedProjectIds.length === 1
@@ -2084,6 +2420,7 @@ function addProjectSelection(project: ProjectSummary): void {
 }
 
 function removeProjectSelection(id: string): void {
+  invalidateSelectionResults();
   const projectName = state.selectedProjects[id]?.name ?? "Proyecto";
   state.selectedProjectIds = state.selectedProjectIds.filter((item) => item !== id);
   delete state.selectedProjects[id];

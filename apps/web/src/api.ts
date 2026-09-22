@@ -29,6 +29,7 @@ export interface DataProvider {
   bootstrap(): Promise<Bootstrap>;
   evaluateWorkspace(scenario: Scenario): Promise<WorkspaceEvaluation>;
   projects(parameters?: Record<string, string | number | string[] | undefined>): Promise<Page<ProjectSummary>>;
+  scenarioProjects(scenario: Scenario, parameters?: { page?: number; pageSize?: number; query?: string; sort?: string }): Promise<Page<ProjectSummary>>;
   project(projectId: string): Promise<JsonObject>;
   districtGeography(districtId: string): Promise<DistrictGeography>;
   sourceCoverage(districtId?: string): Promise<SourceCoverage>;
@@ -41,6 +42,7 @@ export interface DataProvider {
   inspector(routeSlug: string): Promise<JsonObject>;
   comparison(scenario: Scenario, projectIds: string[], includeTargetScenario?: boolean): Promise<JsonObject>;
   history(parameters?: Record<string, string | number | string[] | undefined>): Promise<Page<JsonObject>>;
+  scenarioHistory(scenario: Scenario, parameters?: { page?: number; pageSize?: number }): Promise<Page<JsonObject>>;
   assistant(payload: {
     scenario: Scenario;
     input: string;
@@ -53,6 +55,7 @@ export interface DataProvider {
 export class ApiDataProvider implements DataProvider {
   readonly #baseUrl: string;
   readonly #timeoutMs: number;
+  #datasetVersion: string | null = null;
 
   constructor(baseUrl = import.meta.env.VITE_API_BASE_URL || "/api/v1", timeoutMs = 8_000) {
     this.#baseUrl = baseUrl.replace(/\/$/u, "");
@@ -69,6 +72,11 @@ export class ApiDataProvider implements DataProvider {
   }
   projects(parameters: Record<string, string | number | string[] | undefined> = {}) {
     return this.#request<Page<ProjectSummary>>(`/projects${queryString(parameters)}`);
+  }
+  scenarioProjects(scenario: Scenario, parameters: { page?: number; pageSize?: number; query?: string; sort?: string } = {}) {
+    return this.#request<Page<ProjectSummary>>("/projects/query", {
+      method: "POST", body: JSON.stringify({ scenario, ...parameters }),
+    });
   }
   project(projectId: string) {
     return this.#request<JsonObject>(`/projects/${encodeURIComponent(projectId)}`);
@@ -104,6 +112,11 @@ export class ApiDataProvider implements DataProvider {
   }
   history(parameters: Record<string, string | number | string[] | undefined> = {}) {
     return this.#request<Page<JsonObject>>(`/history${queryString(parameters)}`);
+  }
+  scenarioHistory(scenario: Scenario, parameters: { page?: number; pageSize?: number } = {}) {
+    return this.#request<Page<JsonObject>>("/history/query", {
+      method: "POST", body: JSON.stringify({ scenario, ...parameters }),
+    });
   }
   assistant(payload: {
     scenario: Scenario;
@@ -141,13 +154,25 @@ export class ApiDataProvider implements DataProvider {
           Array.isArray(payload.details) ? payload.details : [],
         );
       }
+      if (!payload || payload.contractVersion !== "2.4.0") {
+        throw new ApiClientError("Esta versión de la aplicación no puede leer la información recibida. Recarga la página.", "CONTRACT_INCOMPATIBLE", 409, null);
+      }
+      if (typeof payload.datasetVersion !== "string" || !payload.datasetVersion) {
+        throw new ApiClientError("La respuesta no identifica la versión de los datos. Reintenta la consulta.", "API_RESPONSE_INVALID", 502, null);
+      }
+      if (typeof payload.datasetVersion === "string") {
+        if (path !== "/meta" && this.#datasetVersion && payload.datasetVersion !== this.#datasetVersion) {
+          throw new ApiClientError("La información del mercado cambió durante la consulta. Recarga la página para trabajar con una misma versión.", "DATASET_CHANGED", 409, null);
+        }
+        this.#datasetVersion = payload.datasetVersion;
+      }
       return payload as T;
     } catch (error) {
       if (error instanceof ApiClientError) throw error;
       if (error instanceof DOMException && error.name === "AbortError") {
         throw new ApiClientError("La consulta excedió el tiempo disponible.", "API_TIMEOUT", 408, null);
       }
-      throw new ApiClientError("La API no está disponible. Verifica la conexión y reintenta.", "API_UNAVAILABLE", 503, null);
+      throw new ApiClientError("El servicio de datos no está disponible. Verifica la conexión y reintenta.", "API_UNAVAILABLE", 503, null);
     } finally {
       globalThis.clearTimeout(timeout);
     }

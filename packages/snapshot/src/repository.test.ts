@@ -66,6 +66,81 @@ describe("snapshot repository", () => {
         }),
       }),
     ]));
+    expect(detail?.traceability.sourceComparison).toMatchObject({
+      status: "compared",
+      summary: expect.objectContaining({ match: expect.any(Number) }),
+    });
+  });
+
+  it("builds a commercial source comparison without losing Nexo ranges", async () => {
+    const loaded = await loadAndValidateSnapshot({ snapshotPath, schemaPath });
+    const repository = new InMemorySnapshotRepository(loaded);
+    const detail = repository.project("1940");
+    const sources = detail?.traceability.sources as Array<{
+      type?: string;
+      observedData?: Record<string, unknown> | null;
+    }> | undefined;
+    const nexo = sources?.find((source) => source.type === "portal");
+    expect(nexo?.observedData).toMatchObject({
+      projectName: "MONTEROSSO",
+      bedroomsMin: 2,
+      bedroomsMax: 2,
+      totalAreaMin: 69.56,
+      totalAreaMax: 69.88,
+    });
+    expect(detail?.traceability.sourceComparison).toMatchObject({
+      status: "compared",
+      rows: expect.arrayContaining([
+        expect.objectContaining({ field: "projectName", status: "match" }),
+        expect.objectContaining({ field: "bedrooms", status: "match" }),
+        expect.objectContaining({ field: "totalArea", status: "match" }),
+        expect.objectContaining({ field: "unitCount", status: "review" }),
+      ]),
+    });
+  });
+
+  it("flags noisy official-web values for commercial review", async () => {
+    const loaded = await loadAndValidateSnapshot({ snapshotPath, schemaPath });
+    const repository = new InMemorySnapshotRepository(loaded);
+    const detail = repository.project("3981");
+    expect(detail?.traceability.sourceComparison).toMatchObject({
+      status: "compared",
+      summary: expect.objectContaining({ review: expect.any(Number) }),
+      rows: expect.arrayContaining([
+        expect.objectContaining({ field: "bedrooms", status: "review" }),
+        expect.objectContaining({ field: "address", status: "review" }),
+        expect.objectContaining({ field: "deliveryDate", status: "review" }),
+      ]),
+    });
+    expect((detail?.traceability.sourceComparison as {
+      summary: { review: number };
+    }).summary.review).toBeGreaterThan(0);
+  });
+
+  it("distinguishes an official project page from a published observation", async () => {
+    const loaded = await loadAndValidateSnapshot({ snapshotPath, schemaPath });
+    const data = structuredClone(loaded.data);
+    const matching = data.matching as {
+      web_observations?: Array<Record<string, unknown>>;
+    };
+    matching.web_observations = (matching.web_observations ?? []).filter((observation) =>
+      observation.source_url !== "https://cantabriainmobiliaria.pe/proyecto/versia-miraflores");
+    const repository = new InMemorySnapshotRepository({ ...loaded, data });
+    const detail = repository.project("3981");
+    expect(detail?.traceability).toMatchObject({
+      hasOwnWebsite: true,
+      sourceComparison: {
+        status: "linked_only",
+        rows: [],
+      },
+    });
+    expect(detail?.traceability.sources).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        type: "agency_website",
+        sourceUrl: "https://cantabriainmobiliaria.pe/proyecto/versia-miraflores",
+        observedData: null,
+      }),
+    ]));
   });
 
   it("fails closed on a checksum mismatch", async () => {

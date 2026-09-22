@@ -19,7 +19,8 @@
     "build:apps": "npm run build --workspace @viva/api && npm run build --workspace @viva/ingestion-tools && npm run build --workspace @viva/ops && npm run build --workspace @viva/web",
     "check": "npm run build:packages && npm run check --workspace @viva/contracts && npm run check --workspace @viva/domain && npm run check --workspace @viva/snapshot && npm run check --workspace @viva/api && npm run typecheck --workspace @viva/web && npm run check --workspace @viva/web && npm run check --workspace @viva/ingestion-tools && npm run check --workspace @viva/ops",
     "test": "npm run test --workspace @viva/contracts && npm run test --workspace @viva/domain && npm run test --workspace @viva/snapshot && npm run test --workspace @viva/api && npm run test:unit --workspace @viva/web && npm run test:architecture --workspace @viva/web && npm run test:scenario --workspace @viva/web && npm run test:comparability --workspace @viva/web && npm run test:inspector:domain --workspace @viva/web && npm run test:benchmark:domain --workspace @viva/web && npm run test:history:domain --workspace @viva/web && npm run test:assistant:domain --workspace @viva/web && npm run test:data:determinism --workspace @viva/web && npm run test:data:privacy --workspace @viva/web && npm run test --workspace @viva/ingestion-tools && npm run test --workspace @viva/ops",
-    "e2e": "npm run e2e:product",
+    "e2e": "npm run e2e:product && npm run e2e:ux",
+    "e2e:ux": "node tests/e2e/ux-continuity-e2e.mjs",
     "e2e:product": "npm run data:build && npm run build:packages && npm run build --workspace @viva/api && node tests/e2e/productized-e2e.mjs",
     "e2e:legacy": "npm run test:e2e --workspace @viva/web",
     "compose:up": "docker compose up --build",
@@ -30,7 +31,9 @@
     "ingestion:plan": "npm run plan --workspace @viva/ingestion-tools",
     "ingestion:test": "npm run test --workspace @viva/ingestion-tools",
     "ingestion:nexo:stage": "npm run nexo:stage --workspace @viva/ingestion-tools --",
-    "ingestion:official-webs": "npm run official-webs:refresh --workspace @viva/ingestion-tools --"
+    "ingestion:official-webs": "npm run official-webs:refresh --workspace @viva/ingestion-tools --",
+    "ingestion:official-webs:reconcile": "npm run official-webs:reconcile --workspace @viva/ingestion-tools --",
+    "ingestion:pilot:report": "npm run pilot:report --workspace @viva/ingestion-tools --"
   },
   "engines": {
     "node": ">=24",

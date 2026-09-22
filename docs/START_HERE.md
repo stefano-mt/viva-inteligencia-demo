@@ -8,6 +8,7 @@
 4. `product/monitoring-panel.md`: lectura y límites del seguimiento comercial.
 5. `product/project-comparison-flow.md`: selección, fichas y lectura del comparador.
 6. `product/territorial-and-source-reading.md`: zonas internas, mapas y trazabilidad multifuente.
+7. `product/commercial-workspace-ux.md`: contexto, continuidad de uso, consultas recuperables y límites de esta iteración.
 
 ## Si perteneces al equipo técnico
 

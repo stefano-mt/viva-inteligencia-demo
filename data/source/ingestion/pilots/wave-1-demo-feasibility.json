@@ -1,0 +1,222 @@
+{
+  "registryVersion": "pilot-wave-1-demo-feasibility-1.0.0",
+  "pilot": {
+    "pilotId": "wave-1-versia-monterosso-2026-09-09",
+    "purpose": "technical_feasibility",
+    "authorizationReference": "USER-DEMO-FEASIBILITY-2026-09-09",
+    "authorizationScopeNote": "La autorización del Product Owner otorgada en esta conversación cubre solo esta prueba técnica no publicable; no autoriza recolección productiva, publicación ni reutilización.",
+    "publishable": false,
+    "rawHtmlStored": false,
+    "piiStored": false,
+    "maximumRunsPerTarget": 2,
+    "runPlan": [
+      {
+        "sequence": 1,
+        "phase": "calibration"
+      },
+      {
+        "sequence": 2,
+        "phase": "validation"
+      }
+    ],
+    "reportPolicies": [
+      {
+        "sourceId": "cantabria-official-website",
+        "projectExternalId": "3981",
+        "reportAllowedFields": [
+          "project_name",
+          "agency_name",
+          "address",
+          "area",
+          "bedrooms",
+          "bathrooms",
+          "amenities",
+          "availability",
+          "delivery_date",
+          "typologies",
+          "financing_banks"
+        ],
+        "suppressedFields": [
+          {
+            "field": "published_price",
+            "reason": "EXPIRED_CAMPAIGN_NOT_CURRENT_PRICE"
+          },
+          {
+            "field": "currency",
+            "reason": "CURRENCY_WITHOUT_CURRENT_PRICE"
+          },
+          {
+            "field": "published_at",
+            "reason": "CAMPAIGN_DATE_NOT_PROJECT_UPDATE"
+          }
+        ]
+      },
+      {
+        "sourceId": "toratto-official-website",
+        "projectExternalId": "1940",
+        "reportAllowedFields": [
+          "project_name",
+          "agency_name",
+          "address",
+          "area",
+          "bedrooms",
+          "bathrooms",
+          "amenities",
+          "availability",
+          "delivery_date",
+          "typologies",
+          "financing_banks"
+        ],
+        "suppressedFields": [
+          {
+            "field": "published_price",
+            "reason": "PRICE_NOT_UNAMBIGUOUSLY_ASSOCIATED_WITH_PROJECT"
+          },
+          {
+            "field": "currency",
+            "reason": "CURRENCY_WITHOUT_UNAMBIGUOUS_PROJECT_PRICE"
+          },
+          {
+            "field": "published_at",
+            "reason": "CAMPAIGN_DATE_NOT_PROJECT_UPDATE"
+          }
+        ]
+      }
+    ]
+  },
+  "sources": [
+    {
+      "sourceId": "cantabria-official-website",
+      "label": "Web oficial de Cantabria — piloto técnico",
+      "sourceClass": "official_project_website",
+      "purpose": "Captura única y no publicable para comprobar el contraste VERSIA con Nexo.",
+      "url": "https://cantabriainmobiliaria.pe/",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "pending",
+      "robotsStatus": "unknown",
+      "accessReview": {
+        "reference": "WAVE1-PILOT-CANTABRIA-VERSIA-2026-09-08",
+        "reviewedAt": "2026-09-08",
+        "technicalStatus": "pass",
+        "legalStatus": "pending",
+        "operationalStatus": "pending",
+        "robotsUrl": "https://cantabriainmobiliaria.pe/robots.txt",
+        "robotsContentSha256": "4b9e711707cc22f784c9215f389392622bdf6557476460b734c0c6a3c2d7a6cb",
+        "routeRobotsStatus": "allow",
+        "reviewedPaths": [
+          "/landing-versia/"
+        ],
+        "termsReferences": [
+          "https://cantabriainmobiliaria.pe/terminos-y-condiciones/",
+          "https://cantabriainmobiliaria.pe/politicas-de-privacidad/"
+        ],
+        "decision": "blocked_pending_review_and_authorization"
+      },
+      "pilotAuthorization": {
+        "reference": "USER-DEMO-FEASIBILITY-2026-09-09",
+        "approvedAt": "2026-09-09",
+        "approvedByRole": "product_owner",
+        "status": "approved",
+        "purpose": "technical_feasibility",
+        "allowedPaths": [
+          "/landing-versia/"
+        ]
+      },
+      "candidateTargets": [
+        {
+          "url": "https://cantabriainmobiliaria.pe/landing-versia/",
+          "agency": "CANTABRIA",
+          "district": "Miraflores",
+          "projectName": "VERSIA",
+          "projectExternalId": "3981",
+          "matchClass": "match_high",
+          "requiresHumanReview": false,
+          "demoScope": true
+        }
+      ],
+      "collection": {
+        "userAgent": "VivaInteligenciaBatch/1.0",
+        "extractorArchetypes": [
+          "wordpress",
+          "json_ld",
+          "embedded_json",
+          "html"
+        ],
+        "allowedHosts": [
+          "cantabriainmobiliaria.pe",
+          "www.cantabriainmobiliaria.pe"
+        ],
+        "timeoutMs": 10000,
+        "minIntervalMs": 1500,
+        "maxResponseBytes": 1000000,
+        "targets": []
+      }
+    },
+    {
+      "sourceId": "toratto-official-website",
+      "label": "Web oficial de Toratto — piloto técnico",
+      "sourceClass": "official_project_website",
+      "purpose": "Captura única y no publicable para comprobar el contraste MONTEROSSO con Nexo.",
+      "url": "https://www.grupotoratto.com/",
+      "officialDomainConfirmed": true,
+      "reviewStatus": "pending",
+      "robotsStatus": "unknown",
+      "accessReview": {
+        "reference": "WAVE1-PILOT-TORATTO-MONTEROSSO-2026-09-08",
+        "reviewedAt": "2026-09-08",
+        "technicalStatus": "pass",
+        "legalStatus": "pending",
+        "operationalStatus": "pending",
+        "robotsUrl": "https://www.grupotoratto.com/robots.txt",
+        "robotsContentSha256": "ccea52bf41f9ea8ccb1b5b746860a1bf550438d0beeb5289ef05d1425bede91b",
+        "routeRobotsStatus": "allow",
+        "reviewedPaths": [
+          "/departamento/monterosso/"
+        ],
+        "termsReferences": [
+          "https://www.grupotoratto.com/proteccion-al-consumidor/"
+        ],
+        "decision": "blocked_pending_review_and_authorization"
+      },
+      "pilotAuthorization": {
+        "reference": "USER-DEMO-FEASIBILITY-2026-09-09",
+        "approvedAt": "2026-09-09",
+        "approvedByRole": "product_owner",
+        "status": "approved",
+        "purpose": "technical_feasibility",
+        "allowedPaths": [
+          "/departamento/monterosso/"
+        ]
+      },
+      "candidateTargets": [
+        {
+          "url": "https://www.grupotoratto.com/departamento/monterosso/",
+          "agency": "TORATTO GRUPO INMOBILIARIO",
+          "district": "Jesús María",
+          "projectName": "MONTEROSSO",
+          "projectExternalId": "1940",
+          "matchClass": "match_high",
+          "requiresHumanReview": false,
+          "demoScope": true
+        }
+      ],
+      "collection": {
+        "userAgent": "VivaInteligenciaBatch/1.0",
+        "extractorArchetypes": [
+          "wordpress",
+          "json_ld",
+          "embedded_json",
+          "html"
+        ],
+        "allowedHosts": [
+          "grupotoratto.com",
+          "www.grupotoratto.com"
+        ],
+        "timeoutMs": 10000,
+        "minIntervalMs": 1500,
+        "maxResponseBytes": 1000000,
+        "targets": []
+      }
+    }
+  ]
+}

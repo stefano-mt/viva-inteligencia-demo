@@ -129,6 +129,16 @@ function bedroomRange(project) {
     : null;
 }
 
+// Shared by scenario eligibility and catalog queries. Missing evidence is not
+// interpreted as a mismatch; it retains the existing domain policy.
+export function matchesBedroomCount(project, requestedBedrooms) {
+  if (isAll(requestedBedrooms)) return true;
+  const target = integerNumber(requestedBedrooms);
+  const range = bedroomRange(project);
+  return target === null || range === null ||
+    (target >= range.minimum && target <= range.maximum);
+}
+
 export function calculateComparabilityScore({
   project,
   scenario,
@@ -559,13 +569,7 @@ function productEligibility(project, scenario) {
     "target_bedrooms",
     "targetBedrooms",
   );
-  if (!isAll(targetBedrooms)) {
-    const target = integerNumber(targetBedrooms);
-    const range = bedroomRange(project);
-    if (target !== null && range !== null && (target < range.minimum || target > range.maximum)) {
-      reasons.push("bedrooms_mismatch");
-    }
-  }
+  if (!matchesBedroomCount(project, targetBedrooms)) reasons.push("bedrooms_mismatch");
 
   const targetDelivery = scenarioValue(
     scenario,
