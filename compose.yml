@@ -7,6 +7,7 @@ services:
       dockerfile: infra/docker/api.Dockerfile
     environment:
       NODE_ENV: production
+      API_HOST: 0.0.0.0
       LOG_LEVEL: ${LOG_LEVEL:-info}
       CORS_ORIGIN: same-origin
       DATA_REFRESH_ENABLED: ${DATA_REFRESH_ENABLED:-false}
@@ -29,6 +30,7 @@ services:
       dockerfile: infra/docker/ops.Dockerfile
     environment:
       NODE_ENV: production
+      OPS_HOST: 0.0.0.0
       LOG_LEVEL: ${LOG_LEVEL:-info}
       OPS_PORT: 3100
       DATA_REFRESH_INTERNAL_TOKEN: ${DATA_REFRESH_INTERNAL_TOKEN:-}
@@ -53,8 +55,14 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "${WEB_PORT:-8080}:8080"
+      - "127.0.0.1:${WEB_PORT:-8080}:8080"
+    secrets:
+      - viva_basic_auth
     restart: unless-stopped
+
+secrets:
+  viva_basic_auth:
+    file: ${VIVA_BASIC_AUTH_FILE:-./infra/docker/deny-all.htpasswd}
 
 volumes:
   ops-staging:

@@ -21,7 +21,7 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env): ApiCon
   const refreshDispatchUrl = environment.DATA_REFRESH_DISPATCH_URL?.trim();
   const refreshInternalToken = environment.DATA_REFRESH_INTERNAL_TOKEN?.trim();
   return {
-    host: environment.API_HOST?.trim() || "0.0.0.0",
+    host: environment.API_HOST?.trim() || "127.0.0.1",
     port: integer(environment.API_PORT, 3000),
     logLevel: environment.LOG_LEVEL?.trim() || "info",
     corsOrigin: parseCors(environment.CORS_ORIGIN),

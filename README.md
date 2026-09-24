@@ -20,12 +20,14 @@ npm run dev
 Para levantar la solución empaquetada bajo un único origen:
 
 ```powershell
+npm run auth:generate
+# Crear .env local con VIVA_BASIC_AUTH_FILE=./infra/docker/.htpasswd.local
 docker compose up --build
 ```
 
-La web queda disponible en `http://localhost:8080` y enruta `/api` hacia el servicio backend.
+La web queda disponible en `http://localhost:8080` con usuario y contraseña HTTP Basic y enruta `/api` hacia el servicio backend. Sin archivo de credenciales, Compose usa una lista vacía y deniega el acceso. La contraseña no se versiona. El comando `npm run dev` es solo para desarrollo local y no incorpora la barrera de acceso; no debe publicarse. Consulta [acceso a la demo](docs/operations/demo-access.md) antes de compartirla.
 
-La aplicación pública es de solo lectura. No contiene autenticación, escritura de usuarios, scraping en tiempo de consulta, CRM ni LLM. `apps/ops` prepara actualizaciones como lotes separados, autorizados y auditables; el API continúa publicando la última versión validada. La recolección de red está desactivada por defecto y ninguna corrida publica datos automáticamente.
+La aplicación es de solo lectura y el contenedor web incorpora una barrera de acceso básica para la demo; no es un sistema de cuentas ni roles. No contiene escritura de usuarios, scraping en tiempo de consulta, CRM ni LLM. `apps/ops` prepara actualizaciones como lotes separados, autorizados y auditables; el API continúa publicando la última versión validada. La recolección de red está desactivada por defecto y ninguna corrida publica datos automáticamente.
 
 ## Mapa del repositorio
 

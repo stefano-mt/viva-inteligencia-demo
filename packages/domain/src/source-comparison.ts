@@ -17,6 +17,7 @@ export type ProjectSourceField =
   | "address"
   | "typology"
   | "bedrooms"
+  | "roomDescription"
   | "totalArea"
   | "unitStatus"
   | "unitCount"
@@ -38,12 +39,16 @@ export interface ProjectSourceObservation {
   name?: string | null;
   type?: string | null;
   observedData?: Record<string, unknown> | null;
+  sourceUrl?: string | null;
+  capturedAt?: string | null;
+  scope?: "project" | "unit";
 }
 
 export interface NormalizedNumericRange {
   min: number;
   max: number;
   unit: string | null;
+  qualifier?: "at_least" | "at_most";
 }
 
 export interface NumericRangeOptions {
@@ -68,9 +73,12 @@ export interface ProjectSourceComparisonRow {
 export interface ProjectSourceReference {
   id: string;
   name: string | null;
+  sourceUrl?: string | null;
+  capturedAt?: string | null;
+  scope?: "project" | "unit";
 }
 
-export interface ProjectSourceComparison {
+export interface ProjectSourcePairComparison {
   status: ProjectSourceComparisonStatus;
   sources: {
     nexo: ProjectSourceReference | null;
@@ -78,6 +86,11 @@ export interface ProjectSourceComparison {
   };
   summary: Record<SourceComparisonStatus, number>;
   rows: ProjectSourceComparisonRow[];
+}
+
+export interface ProjectSourceComparison extends ProjectSourcePairComparison {
+  /** One comparison per official page; the first is the backwards-compatible primary. */
+  comparisons?: ProjectSourcePairComparison[];
 }
 
 export type ProjectSourceValueKind = "text" | "address" | "range" | "date" | "list";
@@ -108,6 +121,7 @@ const FIELDS: FieldDefinition[] = [
     maxKey: "bedroomsMax",
     unit: "count",
   },
+  { field: "roomDescription", label: "Configuración publicada", kind: "text" },
   {
     field: "totalArea",
     label: "Área total",
@@ -185,10 +199,13 @@ export function normalizeNumericRange(
     : [...bounds, ...values];
   if (candidates.length === 0) return null;
 
+  const qualifier = rangeQualifier(value, candidates);
+
   return {
     min: Math.min(...candidates),
     max: Math.max(...candidates),
     unit: normalizeUnit(options.unit) ?? inferUnit(value),
+    ...(qualifier ? { qualifier } : {}),
   };
 }
 
@@ -200,13 +217,27 @@ export function buildProjectSourceComparison(
   const officialSource = officialCandidates.find((source) => hasObservedData(source.observedData))
     ?? officialCandidates[0]
     ?? null;
+  const primary = compareSourcePair(nexoSource, officialSource);
+  return {
+    ...primary,
+    comparisons: officialCandidates.length > 0
+      ? [officialSource!, ...officialCandidates.filter((source) => source !== officialSource)]
+        .map((source) => compareSourcePair(nexoSource, source))
+      : [],
+  };
+}
+
+function compareSourcePair(
+  nexoSource: ProjectSourceObservation | null,
+  officialSource: ProjectSourceObservation | null,
+): ProjectSourcePairComparison {
   const nexoData = hasObservedData(nexoSource?.observedData) ? nexoSource.observedData : null;
   const officialData = hasObservedData(officialSource?.observedData)
     ? officialSource.observedData
     : null;
   const status = comparisonStatus(nexoData, officialSource, officialData);
   const rows = status === "compared"
-    ? FIELDS.map((definition) => compareField(definition, nexoData, officialData))
+    ? FIELDS.map((definition) => compareField(definition, nexoData, officialData, officialSource?.scope))
     : [];
   const summary = { ...EMPTY_SUMMARY };
   for (const row of rows) summary[row.status] += 1;
@@ -245,6 +276,7 @@ function compareField(
   definition: FieldDefinition,
   nexoData: Record<string, unknown> | null,
   officialData: Record<string, unknown> | null,
+  officialScope?: "project" | "unit",
 ): ProjectSourceComparisonRow {
   const nexo = fieldValue(definition, nexoData);
   const official = fieldValue(definition, officialData);
@@ -254,6 +286,13 @@ function compareField(
   else if (nexo && !official) status = "nexo_only";
   else if (!nexo && official) status = "official_only";
   else status = comparePresentValues(definition.kind, nexo!, official!);
+
+  // A unit page does not describe the same population as project-wide Nexo ranges.
+  // Keep both values visible without declaring a conflict or an exact match.
+  if (officialScope === "unit" && nexo && official
+    && ["totalArea", "bedrooms", "listPrice", "unitCount", "unitStatus"].includes(definition.field)) {
+    status = "additional";
+  }
 
   return {
     field: definition.field,
@@ -352,15 +391,13 @@ function compareRanges(
   official: NormalizedNumericRange,
 ): SourceComparisonStatus {
   if (nexo.unit && official.unit && nexo.unit !== official.unit) return "review";
-  if (sameNumber(nexo.min, official.min) && sameNumber(nexo.max, official.max)) return "match";
-  const overlaps = nexo.min <= official.max && official.min <= nexo.max;
+  if (sameNumber(nexo.min, official.min) && sameNumber(nexo.max, official.max)
+    && nexo.qualifier === official.qualifier) return "match";
+  const nexoBounds = rangeBounds(nexo);
+  const officialBounds = rangeBounds(official);
+  const overlaps = nexoBounds.min <= officialBounds.max && officialBounds.min <= nexoBounds.max;
   if (!overlaps) return "review";
-  const nexoPoint = sameNumber(nexo.min, nexo.max);
-  const officialPoint = sameNumber(official.min, official.max);
-  if ((nexoPoint || officialPoint)
-    && (contains(nexo, official.min) || contains(official, nexo.min))) {
-    return "match";
-  }
+  // Overlap or containment is useful extra detail, not equality of the observations.
   return "additional";
 }
 
@@ -370,7 +407,10 @@ function compareDates(nexoValue: JsonValue, officialValue: JsonValue): SourceCom
   if (nexo.precision === "unparsed" || official.precision === "unparsed") return "review";
   if (nexo.value === official.value) return "match";
   if (nexo.year !== official.year) return "review";
-  return nexo.precision === official.precision ? "review" : "additional";
+  if (nexo.precision === official.precision) return "review";
+  return nexo.value.startsWith(official.value) || official.value.startsWith(nexo.value)
+    ? "additional"
+    : "review";
 }
 
 function comparisonStatus(
@@ -386,7 +426,13 @@ function comparisonStatus(
 
 function sourceReference(source: ProjectSourceObservation | null): ProjectSourceReference | null {
   if (!source) return null;
-  return { id: source.id, name: source.name ?? null };
+  return {
+    id: source.id,
+    name: source.name ?? null,
+    ...(source.sourceUrl !== undefined ? { sourceUrl: source.sourceUrl } : {}),
+    ...(source.capturedAt !== undefined ? { capturedAt: source.capturedAt } : {}),
+    ...(source.scope !== undefined ? { scope: source.scope } : {}),
+  };
 }
 
 function isNexoSource(source: ProjectSourceObservation): boolean {
@@ -436,9 +482,31 @@ function normalizeList(value: unknown): JsonValue[] {
       ? value.split(/[;,|]/gu)
       : [value];
   return [...new Set(items
-    .map((item) => normalizedText(item))
+    .map((item) => normalizeListItem(item))
     .filter((item): item is string => item != null))]
     .sort((left, right) => left.localeCompare(right, "es"));
+}
+
+function normalizeListItem(value: unknown): string | null {
+  const item = normalizedText(value);
+  if (!item) return null;
+  const aliases: Record<string, string> = {
+    sum: "sala de usos multiples",
+    "sala usos multiples": "sala de usos multiples",
+    "salon de usos multiples": "sala de usos multiples",
+    "salon usos multiples": "sala de usos multiples",
+    parrilla: "zona de parrillas",
+    parrillas: "zona de parrillas",
+    "zona parrillas": "zona de parrillas",
+    "zona de parrilla": "zona de parrillas",
+    "area de parrilla": "zona de parrillas",
+    "area de parrillas": "zona de parrillas",
+    grill: "zona de parrillas",
+    bbq: "zona de parrillas",
+    "zona bbq": "zona de parrillas",
+    gym: "gimnasio",
+  };
+  return aliases[item] ?? item;
 }
 
 function normalizeDate(value: unknown): {
@@ -455,14 +523,17 @@ function normalizeDate(value: unknown): {
   if (yearOnly) return { precision: "year", value: yearOnly[1]!, year: Number(yearOnly[1]) };
   const yearMonth = text.match(/^((?:19|20)\d{2})-(0[1-9]|1[0-2])$/u);
   if (yearMonth) return { precision: "month", value: yearMonth[0], year: Number(yearMonth[1]) };
-  const isoDate = text.match(/^((?:19|20)\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/u);
-  if (isoDate) return { precision: "day", value: isoDate[0], year: Number(isoDate[1]) };
+  const isoDate = text.match(/^((?:19|20)\d{2})-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])(?:T(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d(?:\.\d{1,3})?)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)?)?$/u);
+  if (isoDate && validCalendarDate(text.slice(0, 10))) {
+    return { precision: "day", value: text.slice(0, 10), year: Number(isoDate[1]) };
+  }
   const localDate = text.match(/^(0?[1-9]|[12]\d|3[01])[/-](0?[1-9]|1[0-2])[/-]((?:19|20)\d{2})$/u);
   if (localDate) {
     const [, day, month, year] = localDate;
-    return {
+    const date = `${year}-${month!.padStart(2, "0")}-${day!.padStart(2, "0")}`;
+    if (validCalendarDate(date)) return {
       precision: "day",
-      value: `${year}-${month!.padStart(2, "0")}-${day!.padStart(2, "0")}`,
+      value: date,
       year: Number(year),
     };
   }
@@ -486,6 +557,28 @@ function normalizeDate(value: unknown): {
     precision: "unparsed",
     value: normalizedText(value) ?? "",
     year: null,
+  };
+}
+
+function validCalendarDate(value: string): boolean {
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(parsed.valueOf()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+function rangeQualifier(value: unknown, candidates: number[]): NormalizedNumericRange["qualifier"] {
+  if (typeof value !== "string" || !candidates.every((candidate) => sameNumber(candidate, candidates[0]!))) {
+    return undefined;
+  }
+  const text = normalizedText(value) ?? "";
+  if (/\b(?:hasta|maximo|maxima)\b/u.test(text) && !/\bdesde\b/u.test(text)) return "at_most";
+  if (/\b(?:desde|a partir de|minimo|minima)\b/u.test(text) && !/\bhasta\b/u.test(text)) return "at_least";
+  return undefined;
+}
+
+function rangeBounds(range: NormalizedNumericRange): { min: number; max: number } {
+  return {
+    min: range.qualifier === "at_most" ? 0 : range.min,
+    max: range.qualifier === "at_least" ? Number.POSITIVE_INFINITY : range.max,
   };
 }
 
@@ -563,10 +656,6 @@ function inferUnit(value: unknown): string | null {
   if (/m(?:2|²)/u.test(text)) return "m2";
   if (/dormitorios?|habitaciones?|unidades?/u.test(text)) return "count";
   return null;
-}
-
-function contains(range: NormalizedNumericRange, value: number): boolean {
-  return value >= range.min && value <= range.max;
 }
 
 function sameNumber(left: number, right: number): boolean {

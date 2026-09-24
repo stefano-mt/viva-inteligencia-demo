@@ -1,17 +1,17 @@
 {
   "report_version": "2.0.0",
-  "dataset_id": "dataset:viva-platform-demo-2026-07-28",
+  "dataset_id": "dataset:viva-platform-demo-2026-09-23",
   "cutoff_at": "2026-07-28T01:24:28Z",
   "source_artifact": {
     "path": "data/generated/viva-platform-demo.json",
     "contract_version": "2.4.0",
-    "sha256": "dfb0841b439d0a03175a21a3c518a8c9b089039720cf7d9845abe676aea44081",
-    "byte_length": 7908356
+    "sha256": "cb9ac47d3fc4fa1c1bde6d3dcd5bb064f178862856beb6460c1aa1365af95050",
+    "byte_length": 7914194
   },
   "derivation": {
     "authority": "$.model, $.inspector, $.benchmark, $.history and $.assistant when present are authoritative; $.projects is the temporary legacy projection.",
     "method": "All counts and distributions are recomputed offline from the deterministic 2.4.0 payload.",
-    "input_fingerprint_count": 52,
+    "input_fingerprint_count": 53,
     "counting_rules": [
       {
         "code": "MODEL_COLLECTION_COUNTS",

@@ -13,6 +13,7 @@ import {
 } from "./data/benchmark.js";
 import { buildEvidenceBundle } from "./data/evidence.js";
 import { buildGeographyModel } from "./data/geography.js";
+import { applyReviewedWebObservations } from "./data/reviewed-web.js";
 import { materializeHistoryCandidates } from "./data/history.js";
 import { materializeMeasureRecords } from "./data/measures.js";
 import {
@@ -45,8 +46,9 @@ export const DEFAULT_COVERAGE_REPORT_OUTPUT_PATH = path.join(
   "coverage-report.json"
 );
 
-export const DATASET_ID = "dataset:viva-platform-demo-2026-07-28";
-export const GENERATED_AT = "2026-07-28T01:24:28Z";
+export const DATASET_ID = "dataset:viva-platform-demo-2026-09-23";
+export const GENERATED_AT = "2026-09-23T12:00:00Z";
+// Analytical cutoff remains the Nexo baseline; web captures carry their own dates.
 export const CUTOFF_AT = "2026-07-28T01:24:28Z";
 
 const PATHS = Object.freeze({
@@ -55,6 +57,7 @@ const PATHS = Object.freeze({
   scope: "data/source/service_scope_matrix.csv",
   discovery: "data/source/agency_web_discovery_matrix_validated.csv",
   web: "data/source/webs_propias_sample_dataset.csv",
+  reviewedWeb: "data/source/demo-pilot/reviewed-web-comparisons.json",
   matching: "data/source/nexo_web_project_match.csv",
   feasibility:
     "data/source/webs_propias_source_field_feasibility.csv",
@@ -978,7 +981,8 @@ function normalizeWebObservations(rows) {
     amenities: splitList(row.amenities),
     financing_banks: splitList(row.financing_banks),
     field_confidence: normalizeConfidence(row.field_confidence),
-    evidence_available: Boolean(clean(row.evidence_path))
+    // An old path alone does not mean the captured asset is available here.
+    evidence_available: false
   }));
 }
 
@@ -1560,11 +1564,14 @@ async function buildDemoBundle({
   }
   const pilot = buildPilot(pilotSelection, legacyProjects);
   const scope = normalizeScope(parseRequiredCsv(inputs, PATHS.scope));
-  const matching = normalizeMatching(
+  const rawMatching = normalizeMatching(
     parseRequiredCsv(inputs, PATHS.matching)
   );
-  const webObservations = normalizeWebObservations(
+  const rawWebObservations = normalizeWebObservations(
     parseRequiredCsv(inputs, PATHS.web)
+  );
+  const { matches: matching, observations: webObservations } = applyReviewedWebObservations(
+    rawWebObservations, rawMatching, parseRequiredJson(inputs, PATHS.reviewedWeb, "object")
   );
   const feasibility = parseRequiredCsv(inputs, PATHS.feasibility).filter(
     (row) => !CONTACT_FIELD_NAMES.has(row.field_name)
@@ -1670,6 +1677,12 @@ async function buildDemoBundle({
     sourceScope: scope,
     scopeSummary: buildScopeSummary(scope),
     matching: {
+      review_edition: {
+        policy: "demo-reviewed-web-2026-09-23",
+        reviewed_at: GENERATED_AT,
+        latest_reviewed_web_capture_at: "2026-09-09T06:21:00.855Z",
+        nexo_cutoff_at: CUTOFF_AT,
+      },
       summary: countBy(matching, "match_class"),
       rows: matching,
       web_observations: webObservations

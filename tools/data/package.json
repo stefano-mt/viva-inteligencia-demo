@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node src/build-demo-data.js",
-    "check": "node --check src/build-demo-data.js"
+    "check": "node --check src/build-demo-data.js",
+    "test": "node --test src/data/reviewed-web.test.js"
   },
   "engines": {
     "node": ">=24"
