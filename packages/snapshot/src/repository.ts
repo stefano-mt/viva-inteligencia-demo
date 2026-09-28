@@ -1,5 +1,5 @@
 import type { ProjectSummary } from "@viva/contracts";
-import { buildProjectSourceComparison, evaluateWorkspace, matchesBedroomCount, summarizePositioning } from "@viva/domain";
+import { buildProjectSourceComparison, buildSourceDecisionSummary, evaluateWorkspace, matchesBedroomCount, summarizePositioning } from "@viva/domain";
 import type { JsonObject, SnapshotData } from "@viva/domain";
 import type {
   DataRepository,
@@ -215,7 +215,7 @@ export class InMemorySnapshotRepository implements DataRepository {
       });
     }
     for (const match of this.#verifiedWebByProject.get(canonicalId) ?? []) {
-      const domain = String(match.domain ?? new URL(String(match.web_project_url)).hostname).replace(/^www\./u, "");
+      const domain = new URL(String(match.web_project_url)).hostname.replace(/^www\./u, "");
       const webObservation = latestWebObservation(
         this.#webObservationsByUrl.get(String(match.web_project_url)) ?? [],
       );
@@ -225,13 +225,15 @@ export class InMemorySnapshotRepository implements DataRepository {
         type: "agency_website",
         legalStatus: "referenced_for_demo",
         accessMode: "versioned_public_reference",
-        capturedAt: capturedAtFromRunId(String(match.run_id ?? "")),
+        capturedAt: webObservation?.captured_at ?? capturedAtFromRunId(String(match.run_id ?? "")),
         sourceUrl: String(match.web_project_url),
         extractionMethod: "versioned_project_match",
         evidenceStatus: "versioned_reference",
         matchScore: match.match_score,
         matchClass: match.match_class,
         matchedProjectName: match.web_project_name,
+        scope: webObservation?.scope ?? "project",
+        review: webObservation?.review ?? null,
         observedData: webObservation ? sourceObservationFromWeb(webObservation) : null,
       });
     }
@@ -243,6 +245,9 @@ export class InMemorySnapshotRepository implements DataRepository {
       id: String(source.id ?? ""),
       name: source.name == null ? null : String(source.name),
       type: String(source.type ?? ""),
+      sourceUrl: source.sourceUrl == null ? null : String(source.sourceUrl),
+      capturedAt: source.capturedAt == null ? null : String(source.capturedAt),
+      scope: source.scope === "unit" ? "unit" as const : "project" as const,
       observedData: isJsonObject(source.observedData) ? source.observedData : null,
     })));
     return {
@@ -272,6 +277,7 @@ export class InMemorySnapshotRepository implements DataRepository {
         lastSeenAt: model?.last_seen_at ?? legacy?.captured_at ?? null,
         sources: uniqueTraceSources,
         sourceComparison,
+        sourceDecision: buildSourceDecisionSummary(sourceComparison),
         facts: facts.map((fact) => ({
           id: fact.fact_id,
           fieldName: fact.field_name,
@@ -570,14 +576,15 @@ function sourceObservationFromWeb(observation: JsonObject): JsonObject {
     bedroomsMin: observation.bedrooms_min ?? null,
     bedroomsMax: observation.bedrooms_max ?? null,
     totalArea: observation.total_area ?? null,
-    totalAreaMin: observation.total_area_min ?? observation.total_area ?? null,
-    totalAreaMax: observation.total_area_max ?? observation.total_area ?? null,
+    totalAreaMin: observation.total_area_min ?? null,
+    totalAreaMax: observation.total_area_max ?? null,
     unitStatus: observation.unit_status ?? null,
     unitCount: observation.unit_count ?? null,
     listPrice: observation.list_price_avg ?? null,
     currency: observation.currency ?? null,
     deliveryDate: observation.delivery_date ?? observation.delivery_year ?? null,
     description: observation.description ?? null,
+    roomDescription: observation.room_description ?? null,
     amenities: observation.amenities ?? [],
     financingBanks: observation.financing_banks ?? [],
     fieldConfidence: observation.field_confidence ?? null,

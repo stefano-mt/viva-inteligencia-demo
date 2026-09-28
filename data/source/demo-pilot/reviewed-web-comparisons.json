@@ -1,0 +1,128 @@
+{
+  "policy": "demo-reviewed-web-2026-09-23",
+  "purpose": "controlled_demo",
+  "productionCollectionAuthorized": false,
+  "reviewedAt": "2026-09-23T12:00:00Z",
+  "authorizationReference": "USER-DEMO-CORRECTIONS-MIRAFLORES-JESUS-MARIA-2026-09-23",
+  "entries": [
+    {
+      "projectId": "3981",
+      "originalUrl": "https://cantabriainmobiliaria.pe/proyecto/versia-miraflores",
+      "sourceUrl": "https://cantabriainmobiliaria.pe/landing-versia/",
+      "capturedAt": "2026-09-09T06:20:45.077Z",
+      "evidenceSha256": "d5cd55e4b8003f285b941f576ec8b357485f0a47f871b4f172f8a7ebd782e5e8",
+      "status": "demo_reviewed",
+      "scope": "project",
+      "fields": {
+        "project_name": "VERSIA",
+        "address": "Ca. Enrique Palacios 830, Miraflores",
+        "total_area": "60m2 a 98m2",
+        "total_area_min": 60,
+        "total_area_max": 98,
+        "room_description": "2 y 3 ambs",
+        "delivery_date": "2028",
+        "delivery_year": 2028
+      },
+      "withheldFields": ["bedrooms", "unit_count", "list_price_avg", "currency", "description"],
+      "notes": [
+        "Captura del 9 de septiembre revisada para esta demo; no es una consulta en vivo.",
+        "La web indica ambientes, no dormitorios. No se trasladan esos números a dormitorios.",
+        "La campaña encontrada estaba vencida; no se usa como precio vigente."
+      ]
+    },
+    {
+      "projectId": "1940",
+      "originalUrl": "https://www.grupotoratto.com/departamento/monterosso",
+      "sourceUrl": "https://www.grupotoratto.com/departamento/monterosso/",
+      "capturedAt": "2026-09-09T06:21:00.855Z",
+      "evidenceSha256": "709cce08a9c9f4c57117e3d43f6b88699e12f28cd9f00e6ddaacc2a9b9db4abb",
+      "status": "demo_reviewed",
+      "scope": "project",
+      "fields": {
+        "project_name": "MONTEROSSO",
+        "address": "Jr. Coronel Zegarra 1045 - 1057",
+        "bedrooms": "Hasta 2 dormitorios",
+        "total_area": "Desde 69.56 hasta 69.88 m²",
+        "total_area_min": 69.56,
+        "total_area_max": 69.88,
+        "amenities": ["Estacionamientos para bicicletas", "Lobby", "Terraza", "Área de parrilla"]
+      },
+      "withheldFields": ["unit_count", "list_price_avg", "currency", "description"],
+      "notes": [
+        "Captura del 9 de septiembre revisada para esta demo; no es una consulta en vivo.",
+        "Se retiró un conteo de unidades mal extraído. No hay stock disponible confirmado.",
+        "No se encontró un precio inequívocamente asociado al proyecto."
+      ]
+    },
+    {
+      "projectId": "3391",
+      "originalUrl": "https://www.asterhomes.com.pe/proyecto-reducto",
+      "evidenceSha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc",
+      "status": "historical_sanitized",
+      "scope": "project",
+      "fields": {"address": "Av. Reducto 1505 de Miraflores", "delivery_date": "MARZO 2027"},
+      "withheldFields": ["description", "unit_count"],
+      "notes": ["Referencia histórica de junio; pendiente de nueva captura.", "Se separó la dirección del texto comercial; la fecha de entrega conserva solo el mes y año publicados."]
+    },
+    {
+      "projectId": "4146",
+      "originalUrl": "https://grattoinmobiliaria.com/proyectos/benavides-1361",
+      "evidenceSha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc",
+      "status": "historical_sanitized",
+      "scope": "project",
+      "fields": {"project_name": "Benavides 1361"},
+      "withheldFields": ["address", "description", "unit_count"],
+      "notes": ["Referencia histórica de junio; pendiente de nueva captura.", "La dirección extraída corresponde a una oficina y se excluyó de la comparación del proyecto."]
+    },
+    {
+      "projectId": "4157",
+      "originalUrl": "https://magbisconstrucciones.com/departamentos/duplex-801-parque-nu",
+      "evidenceSha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc",
+      "status": "historical_sanitized",
+      "scope": "unit",
+      "fields": {},
+      "withheldFields": ["address", "description", "unit_count", "unit_status"],
+      "notes": ["Referencia histórica de junio de la unidad Dúplex 801, no del rango completo del proyecto.", "Sus 245.47 m² no se comparan como si fueran el área mínima de Nexo."]
+    },
+    {
+      "projectId": "4157",
+      "originalUrl": "https://magbisconstrucciones.com/departamentos/tipico-2-502-parque-nu",
+      "evidenceSha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc",
+      "status": "historical_sanitized",
+      "scope": "unit",
+      "fields": {},
+      "withheldFields": ["address", "description", "unit_count", "unit_status"],
+      "notes": ["Referencia histórica de junio de la unidad Típico 2-502, no del rango completo del proyecto.", "Sus 130.83 m² se conservan en una ficha separada del Dúplex 801."]
+    },
+    {
+      "projectId": "3485",
+      "originalUrl": "https://brazil.pe/proyecto/alejandria",
+      "evidenceSha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc",
+      "status": "historical_sanitized",
+      "scope": "project",
+      "fields": {},
+      "withheldFields": ["unit_status", "description", "unit_count"],
+      "notes": ["Referencia histórica de junio; pendiente de nueva captura.", "Disponible no describe la etapa de construcción y no se compara contra En planos."]
+    },
+    {
+      "projectId": "3589",
+      "originalUrl": "https://grupomaxx.pe/proyectos/beyond-residencial",
+      "evidenceSha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc",
+      "status": "historical_sanitized",
+      "scope": "project",
+      "fields": {"address": "Av. Húsares de Junín 289, Jesús María", "bedrooms": "1, 2 y 3 Dorms", "bedrooms_min": 1, "bedrooms_max": 3},
+      "withheldFields": ["description", "unit_count"],
+      "notes": ["Referencia histórica de junio; pendiente de nueva captura.", "Dirección y oferta de 1, 2 y 3 dormitorios separadas del texto original concatenado; no se asocian a una misma unidad con el área mínima."]
+    },
+    {
+      "projectId": "4174",
+      "originalUrl": "https://granadero.com.pe/proyecto/zegarra-920",
+      "evidenceSha256": "1d2ade34cd984fddf87fef4b946ef639651c71c66529d4b867523b19cc98e7fc",
+      "status": "historical_sanitized",
+      "scope": "project",
+      "fields": {"project_name": "Zegarra 920", "address": "Jr. Coronel Zegarra 920, Jesús María"},
+      "withheldFields": ["description", "unit_count"],
+      "notes": ["Referencia histórica de junio; pendiente de nueva captura.", "Se conserva el área publicada sin convertir una posible diferencia de tipología en error de Nexo."]
+    }
+  ]
+}

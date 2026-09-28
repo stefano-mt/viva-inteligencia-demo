@@ -110,8 +110,8 @@ assert.deepEqual(
   requiredInputPaths,
   "every required input must be fingerprinted once"
 );
-assert.equal(requiredInputPaths.length, 52);
-assert.equal(fingerprintByPath.size, 52);
+assert.equal(requiredInputPaths.length, 53);
+assert.equal(fingerprintByPath.size, 53);
 for (const logicalPath of requiredInputPaths) {
   const content = await fs.readFile(
     path.join(repositoryRoot, ...logicalPath.split("/"))

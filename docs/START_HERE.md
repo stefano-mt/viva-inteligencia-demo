@@ -9,6 +9,7 @@
 5. `product/project-comparison-flow.md`: selección, fichas y lectura del comparador.
 6. `product/territorial-and-source-reading.md`: zonas internas, mapas y trazabilidad multifuente.
 7. `product/commercial-workspace-ux.md`: contexto, continuidad de uso, consultas recuperables y límites de esta iteración.
+8. `product/demo-source-comparison.md`: ejemplos Nexo–web de Miraflores y Jesús María, fechas y límites para la presentación.
 
 ## Si perteneces al equipo técnico
 

@@ -41,7 +41,11 @@ describe("API parity and operational boundaries", () => {
       url: "/api/v1/comparisons/evaluate",
       payload: { scenario, projectIds, includeTargetScenario: false },
     });
-    expect(comparisonResponse.json().comparison).toEqual(json(
+    const { sourceComparisons, ...baselineComparison } = comparisonResponse.json().comparison;
+    expect(sourceComparisons.map((item: { projectId: string }) => item.projectId)).toEqual(
+      baselineComparison.selected.map((item: { projectId: string }) => item.projectId),
+    );
+    expect(baselineComparison).toEqual(json(
       evaluateComparison(repository.snapshot(), scenario, projectIds, false),
     ));
 

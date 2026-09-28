@@ -7,7 +7,10 @@ import {
   commercialSourceLabel,
   commercialSourceMessage,
   commercialSourceStatus,
+  formatPublishedSourceDate,
   hasDisplayValue,
+  qualifiedSourceText,
+  readSourceComparisonPairs,
   readSourceComparisonRows,
   summarizeCommercialSources,
   type CommercialSourceRow,
@@ -944,10 +947,9 @@ function renderProjectDetail(): string {
       <div><h4>${detailIcon("amenities")}<span>Áreas comunes</span></h4>${amenities.length ? `<ul class="tag-list">${amenities.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
       <div><h4>${detailIcon("bank")}<span>Financiamiento</span></h4>${banks.length ? `<ul class="tag-list">${banks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : "<p>Sin datos observados.</p>"}</div>
     </div></details>
-    <section class="detail-block source-ledger" aria-labelledby="project-sources-title"><header class="section-heading"><div><span class="eyebrow">Datos del proyecto</span><h3 id="project-sources-title">${detailIcon("verified")}<span>Nexo vs web oficial</span></h3><p>Revisa qué publica cada canal. Los datos se mantienen separados para que puedas decidir cuál usar.</p></div><span class="status-pill">${escapeHtml(sourceStatus)}</span></header>
-      ${renderSourceAvailability(sourceComparison, hasOwnWebsite)}
-      ${sourceComparison.officialState === "observed" ? renderSourceComparisonMatrix(sourceComparison) : renderSourceComparisonEmpty(sourceComparison)}
-      ${sourceComparison.officialState === "observed" ? renderSourceComparisonSummary(sourceSummary) : ""}
+    <section class="detail-block source-ledger" aria-labelledby="project-sources-title"><header class="section-heading"><div><span class="eyebrow">Datos del proyecto</span><h3 id="project-sources-title">${detailIcon("verified")}<span>Nexo vs web oficial</span></h3><p>Consulta ambos canales sin mezclar sus datos.</p></div><span class="status-pill">${escapeHtml(sourceStatus)}</span></header>
+      ${renderSourceDecision(trace.sourceDecision as JsonObject | undefined)}
+      ${renderProjectSourcePairs(trace, sources, hasOwnWebsite)}
       <details class="source-detail-disclosure"><summary>Consultar origen y fecha de los datos</summary><div class="source-list">${sources.map(renderSourceCard).join("") || "<p>No hay fuentes vinculadas.</p>"}</div></details>
     </section>
   </section>`;
@@ -1022,6 +1024,10 @@ interface ProjectSourceComparison {
   nexoCapturedAt: unknown;
   officialCapturedAt: unknown;
   officialName: string;
+  nexoSourceUrl: unknown;
+  officialSourceUrl: unknown;
+  officialScope: string;
+  officialReview: JsonObject | undefined;
 }
 
 const sourceComparisonFields: Array<{ key: string; label: string }> = [
@@ -1036,8 +1042,12 @@ const sourceComparisonFields: Array<{ key: string; label: string }> = [
 ];
 
 function projectSourceComparison(trace: JsonObject, sources: JsonObject[]): ProjectSourceComparison {
+  const sourceRefs = (trace.sourceComparison as JsonObject | undefined)?.sources as JsonObject | undefined;
   const nexo = sources.find((source) => source.id === "source:nexo" || source.type === "portal");
-  const official = sources.find((source) => source.type === "agency_website");
+  const officialRef = sourceRefs?.official as JsonObject | undefined;
+  const official = sources.find((source) => source.type === "agency_website" && officialRef?.sourceUrl && source.sourceUrl === officialRef.sourceUrl)
+    ?? sources.find((source) => source.type === "agency_website" && officialRef?.id && source.id === officialRef.id)
+    ?? sources.find((source) => source.type === "agency_website");
   const contractRows = readSourceComparisonRows(trace.sourceComparison);
   const rows = contractRows.length ? contractRows : sourceComparisonFields.map(({ key }) => {
     const nexoValue = sourceFieldValue(nexo?.observedData as JsonObject | undefined, key);
@@ -1057,8 +1067,43 @@ function projectSourceComparison(trace: JsonObject, sources: JsonObject[]): Proj
     rows,
     nexoCapturedAt: nexo?.capturedAt,
     officialCapturedAt: official?.capturedAt,
-    officialName: String(official?.name ?? "Web oficial de la inmobiliaria"),
+    officialName: String(official?.observedData?.projectName ?? official?.name ?? officialRef?.name ?? "Web oficial de la inmobiliaria"),
+    nexoSourceUrl: nexo?.sourceUrl,
+    officialSourceUrl: officialRef?.sourceUrl ?? official?.sourceUrl,
+    officialScope: String(officialRef?.scope ?? official?.scope ?? "project"),
+    officialReview: official?.review as JsonObject | undefined,
   };
+}
+
+function projectSourcePairs(trace: JsonObject, sources: JsonObject[]): ProjectSourceComparison[] {
+  const pairs = readSourceComparisonPairs(trace.sourceComparison);
+  return pairs.length
+    ? pairs.map((pair) => projectSourceComparison({ ...trace, sourceComparison: pair }, sources))
+    : [projectSourceComparison(trace, sources)];
+}
+
+function renderProjectSourcePairs(trace: JsonObject, sources: JsonObject[], hasOwnWebsite: boolean): string {
+  const comparisons = projectSourcePairs(trace, sources);
+  return comparisons.map((comparison) => `<section class="source-page-comparison" aria-label="${escapeAttr(comparison.officialName)}">
+    ${comparisons.length > 1 ? `<h4>${escapeHtml(comparison.officialName)}</h4>` : ""}
+    ${comparison.officialScope === "unit" ? '<p class="source-scope-note">Esta página describe un departamento. Sus características no representan todas las unidades del proyecto.</p>' : ""}
+    ${renderSourceAvailability(comparison, hasOwnWebsite)}
+    ${comparison.officialState === "observed" ? renderSourceComparisonMatrix(comparison) : renderSourceComparisonEmpty(comparison)}
+  </section>`).join("");
+}
+
+function renderSourceDecision(decision: JsonObject | undefined, compact = false): string {
+  if (!decision || typeof decision.headline !== "string") return "";
+  const opportunities = (Array.isArray(decision.opportunities) ? decision.opportunities : []) as JsonObject[];
+  const checks = (Array.isArray(decision.checks) ? decision.checks : []) as JsonObject[];
+  return `<section class="source-decision ${compact ? "source-decision--compact" : ""}" aria-label="Qué aporta la web oficial">
+    ${compact ? "" : `<h4>${detailIcon("features")}<span>Qué aporta la web oficial</span></h4>`}
+    <p class="source-decision__headline">${escapeHtml(decision.headline)}</p>
+    ${opportunities.length ? `<ul class="source-decision__opportunities">${opportunities.map((item) => `<li><strong>${escapeHtml(sourceComparisonFieldLabel(String(item.field)))}</strong><span>${escapeHtml(item.message)}</span></li>`).join("")}</ul>` : ""}
+    ${decision.priceMessage ? `<p class="source-decision__price">${escapeHtml(decision.priceMessage)}</p>` : ""}
+    ${checks.length ? `<details class="source-decision__checks"><summary>Qué confirmar antes de decidir (${checks.length})</summary><ul>${checks.map((item) => `<li><strong>${escapeHtml(sourceComparisonFieldLabel(String(item.field)))}:</strong> ${escapeHtml(item.message)}</li>`).join("")}</ul></details>` : ""}
+    ${decision.scopeNote ? `<small class="source-scope-note">${escapeHtml(decision.scopeNote)}</small>` : ""}
+  </section>`;
 }
 
 function hasObservedSourceData(value: unknown): boolean {
@@ -1067,15 +1112,26 @@ function hasObservedSourceData(value: unknown): boolean {
 
 function renderSourceAvailability(comparison: ProjectSourceComparison, hasOwnWebsite: boolean): string {
   const officialStatus = comparison.officialState === "observed"
-    ? "Datos disponibles"
+    ? comparison.officialReview?.status === "demo_reviewed" ? "Revisada para demo" : comparison.officialReview?.status === "historical_sanitized" ? "Referencia histórica" : "Datos disponibles"
     : comparison.officialState === "linked" || hasOwnWebsite
       ? "Página enlazada"
       : "Fuente por identificar";
   return `<div class="source-channel-pair" aria-label="Canales disponibles">
-    <article class="source-channel source-channel--nexo"><span class="source-channel__mark" aria-hidden="true">N</span><div><strong>Nexo Inmobiliario</strong><small>Base de mercado · ${formatDate(comparison.nexoCapturedAt)}</small></div><span class="source-channel__state">Datos disponibles</span></article>
+    <article class="source-channel source-channel--nexo"><span class="source-channel__mark" aria-hidden="true">N</span><div><strong>Nexo Inmobiliario</strong><small>Base de mercado · ${formatDate(comparison.nexoCapturedAt)}</small>${renderSourceLink(comparison.nexoSourceUrl, "Abrir publicación Nexo")}</div><span class="source-channel__state">Datos disponibles</span></article>
     <span class="source-channel-pair__connector" aria-hidden="true">↔</span>
-    <article class="source-channel source-channel--official ${comparison.officialState === "observed" ? "is-observed" : "is-pending"}"><span class="source-channel__mark" aria-hidden="true">W</span><div><strong>Web oficial</strong><small>${escapeHtml(comparison.officialName)}${comparison.officialState === "observed" ? ` · ${formatDate(comparison.officialCapturedAt)}` : ""}</small></div><span class="source-channel__state">${escapeHtml(officialStatus)}</span></article>
+    <article class="source-channel source-channel--official ${comparison.officialState === "observed" ? "is-observed" : "is-pending"}"><span class="source-channel__mark" aria-hidden="true">W</span><div><strong>Web oficial</strong><small>${escapeHtml(comparison.officialName)}${comparison.officialState === "observed" ? ` · ${formatDate(comparison.officialCapturedAt)}` : ""}</small>${renderSourceReviewSummary(comparison.officialReview)}${renderSourceLink(comparison.officialSourceUrl, "Abrir página oficial")}</div><span class="source-channel__state">${escapeHtml(officialStatus)}</span></article>
   </div>`;
+}
+
+function renderSourceLink(url: unknown, label: string): string {
+  if (typeof url !== "string" || !/^https?:\/\//iu.test(url)) return "";
+  return `<a class="source-inline-link" href="${escapeAttr(url)}" target="_blank" rel="noreferrer">${escapeHtml(label)}<span class="sr-only"> (se abre en otra pestaña)</span><span aria-hidden="true"> ↗</span></a>`;
+}
+
+function renderSourceReviewSummary(review: JsonObject | undefined): string {
+  if (review?.status === "demo_reviewed") return '<small class="source-review-summary">Captura revisada para la demo.</small>';
+  if (review?.status === "historical_sanitized") return '<small class="source-review-summary">Referencia histórica · pendiente de nueva captura.</small>';
+  return "";
 }
 
 function renderSourceComparisonEmpty(comparison: ProjectSourceComparison): string {
@@ -1118,6 +1174,7 @@ function sourceComparisonFieldLabel(field: string): string {
     district: "Distrito",
     typology: "Tipo de inmueble",
     bedrooms: "Dormitorios",
+    roomDescription: "Distribución anunciada",
     totalArea: "Área total",
     unitStatus: "Estado",
     unitCount: "Unidades anunciadas",
@@ -1131,6 +1188,8 @@ function sourceComparisonFieldLabel(field: string): string {
 
 function formatComparisonReadModelValue(field: string, value: unknown): string | null {
   if (!hasDisplayValue(value)) return null;
+  const qualified = qualifiedSourceText(value);
+  if (qualified) return qualified;
   if (Array.isArray(value)) return value.map(String).join(" · ");
   if (typeof value === "object" && value !== null) {
     const record = value as JsonObject;
@@ -1144,7 +1203,7 @@ function formatComparisonReadModelValue(field: string, value: unknown): string |
     return null;
   }
   if (["listPrice", "totalArea", "bedrooms", "unitCount"].includes(field)) return formatComparisonScalar(field, value);
-  if (field === "deliveryDate" && /^\d{4}-\d{2}(?:-\d{2})?$/u.test(String(value))) return formatDate(value);
+  if (field === "deliveryDate") return formatPublishedSourceDate(value);
   return String(value);
 }
 
@@ -1163,7 +1222,7 @@ function formatComparisonScalar(field: string, value: unknown, explicitUnit?: un
   if (["totalArea", "bedrooms", "unitCount"].includes(field)) {
     return Number.isFinite(Number(value)) ? `${formatNumber(value)}${comparisonUnit(field, explicitUnit)}` : String(value);
   }
-  if (field === "deliveryDate" && /^\d{4}-\d{2}/u.test(String(value))) return formatDate(value);
+  if (field === "deliveryDate") return formatPublishedSourceDate(value) ?? "Sin dato";
   return String(value);
 }
 
@@ -1197,19 +1256,21 @@ function sourceFieldValue(data: JsonObject | undefined, key: string): string | n
   if (Array.isArray(value)) return value.length ? value.map(String).join(" · ") : null;
   if (key === "listPrice") return money(value);
   if (key === "totalArea") return formatSourceArea(value);
-  if (key === "deliveryDate") return formatDate(value);
+  if (key === "deliveryDate") return formatPublishedSourceDate(value);
   return String(value);
 }
 
 function renderSourceCard(source: JsonObject): string {
   const type = sourceTypeLabel(source.type);
-  const status = sourceStatusLabel(source.legalStatus);
+  const review = source.review as JsonObject | undefined;
+  const status = review?.status === "historical_sanitized" ? "Referencia histórica" : review?.status === "demo_reviewed" ? "Revisada para demo" : sourceStatusLabel(source.legalStatus);
   const evidence = source.evidenceStatus === "versioned_reference"
     ? "Página del proyecto revisada."
     : source.evidenceStatus === "unavailable"
       ? "Sin vista previa en esta versión."
       : "Detalle disponible.";
-  return `<article><div class="source-list__identity"><span class="source-type source-type--${escapeAttr(String(source.type ?? "other"))}">${escapeHtml(type)}</span><strong>${escapeHtml(source.name)}</strong><small>${formatDate(source.capturedAt)} · ${escapeHtml(evidence)}</small></div><span class="status-pill">${escapeHtml(status)}</span>${source.sourceUrl ? `<a class="button button--quiet" href="${escapeAttr(source.sourceUrl)}" target="_blank" rel="noreferrer">Abrir fuente</a>` : ""}${renderSourceObservedData(source)}</article>`;
+  const notes = (Array.isArray(review?.notes) ? review.notes : []) as unknown[];
+  return `<article><div class="source-list__identity"><span class="source-type source-type--${escapeAttr(String(source.type ?? "other"))}">${escapeHtml(type)}</span><strong>${escapeHtml(source.name)}</strong><small>Capturada: ${formatDate(source.capturedAt)} · ${escapeHtml(evidence)}</small>${review?.reviewedAt ? `<small>Revisada: ${formatDate(review.reviewedAt)}</small>` : ""}</div><span class="status-pill">${escapeHtml(status)}</span>${renderSourceLink(source.sourceUrl, "Abrir fuente")}${renderSourceObservedData(source)}${notes.length ? `<div class="source-review-notes"><strong>Alcance de esta captura</strong><ul>${notes.map((note) => `<li>${escapeHtml(note)}</li>`).join("")}</ul></div>` : ""}</article>`;
 }
 
 function renderSourceObservedData(source: JsonObject): string {
@@ -1221,11 +1282,12 @@ function renderSourceObservedData(source: JsonObject): string {
     ["Dirección", data.address],
     ["Tipo de inmueble", data.typology],
     ["Dormitorios", data.bedrooms],
+    ["Distribución anunciada", data.roomDescription],
     ["Área publicada", formatSourceArea(data.totalArea)],
     ["Estado publicado", data.unitStatus],
     ["Unidades declaradas", data.unitCount == null ? null : formatNumber(data.unitCount)],
     ["Precio publicado", data.listPrice == null ? null : money(data.listPrice)],
-    ["Entrega", data.deliveryDate == null ? null : formatDate(data.deliveryDate)],
+    ["Entrega", formatPublishedSourceDate(data.deliveryDate)],
   ].filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== "" && value !== "—");
   const amenities = Array.isArray(data.amenities) ? data.amenities : [];
   const banks = Array.isArray(data.financingBanks) ? data.financingBanks : [];
@@ -1318,9 +1380,40 @@ function renderComparisonModel(comparison: JsonObject): string {
     <header class="comparison-workspace__header"><div><span class="eyebrow">Selección confirmada</span><h2>${selected.length} proyectos en paralelo</h2><p>Las columnas conservan el mismo orden en toda la pantalla.</p></div><span class="comparison-count">${formatNumber(differenceCount)} diferencias para revisar</span></header>
     <div class="comparison-projects comparison-projects--${selected.length}">${selected.map((project, index) => renderComparisonProject(project, index, groups)).join("")}</div>
   </section>
+  ${renderComparisonSources(comparison, selected)}
   ${renderComparisonWarnings(comparisonWarnings)}
   ${renderProjectDifferences(projectDifferences, groups, selected)}
   <section class="surface comparison-matrix" aria-labelledby="comparison-matrix-title"><header class="section-heading"><div><span class="eyebrow">Comparación completa</span><h2 id="comparison-matrix-title">Datos publicados lado a lado</h2><p>“Diferencia” señala que los valores no coinciden; no determina por sí sola cuál proyecto es mejor.</p></div><div class="map-switch" role="group" aria-label="Filtrar comparación"><button data-action="comparison-all" aria-pressed="${!state.comparisonOnlyDifferences}">Todos los datos</button><button data-action="comparison-differences" aria-pressed="${state.comparisonOnlyDifferences}">Diferencias y pendientes</button></div></header>${groups.map((group) => renderComparisonGroup(group, selected)).join("")}<details class="methodology"><summary>Ver límites de la comparación</summary><ul>${comparisonLimitations(comparison).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></details></section>`;
+}
+
+function renderComparisonSources(comparison: JsonObject, selected: JsonObject[]): string {
+  const sourceModels = (Array.isArray(comparison.sourceComparisons) ? comparison.sourceComparisons : []) as JsonObject[];
+  if (!sourceModels.length) return "";
+  return `<section class="surface comparison-sources" aria-labelledby="comparison-sources-title">
+    <header class="section-heading"><div><span class="eyebrow">De los datos a la decisión</span><h2 id="comparison-sources-title">Qué añade la web de cada proyecto</h2><p>Contrasta Nexo con la información publicada por cada inmobiliaria. La web complementa la ficha; no sustituye la base de Nexo.</p></div></header>
+    <div class="comparison-source-grid comparison-source-grid--${selected.length}">${selected.map((project) => {
+      const model = sourceModels.find((item) => item.projectId === project.projectId);
+      const sources = (model?.sources ?? []) as JsonObject[];
+      const pairs = model ? projectSourcePairs(model, sources) : [];
+      return `<article class="comparison-source-project" data-source-project="${escapeAttr(project.projectId)}"><header><h3>${escapeHtml(project.name)}</h3><p>${escapeHtml(project.agencyName)}</p></header>
+        ${model ? renderSourceDecision(model.sourceDecision as JsonObject | undefined, true) : '<p class="source-empty">Todavía no hay datos de la web para esta comparación.</p>'}
+        ${pairs.map(renderComparisonSourcePair).join("")}
+        <button class="link-button" type="button" data-project-detail="${escapeAttr(project.projectId)}">Ver ficha y todos los datos</button>
+      </article>`;
+    }).join("")}</div>
+  </section>`;
+}
+
+function renderComparisonSourcePair(comparison: ProjectSourceComparison): string {
+  if (comparison.officialState !== "observed") return renderSourceComparisonEmpty(comparison);
+  const fields = ["listPrice", "totalArea", "bedrooms", "roomDescription", "deliveryDate", "amenities"];
+  const rows = fields.flatMap((field) => comparison.rows.filter((row) => row.field === field));
+  return `<section class="comparison-source-pair" aria-label="Nexo y ${escapeAttr(comparison.officialName)}">
+    <header><strong>${escapeHtml(comparison.officialName)}</strong>${comparison.officialScope === "unit" ? '<span class="status-pill">Departamento específico</span>' : ""}<p>Nexo: ${formatDate(comparison.nexoCapturedAt)} · Web: ${formatDate(comparison.officialCapturedAt)}</p>${renderSourceReviewSummary(comparison.officialReview)}</header>
+    ${comparison.officialScope === "unit" ? '<p class="source-scope-note">No representa todas las unidades del proyecto.</p>' : ""}
+    <dl class="comparison-source-values">${rows.map((row) => `<div class="comparison-source-field"><dt><strong>${escapeHtml(row.label ?? sourceComparisonFieldLabel(row.field))}</strong><span class="source-result source-result--${row.status}">${escapeHtml(commercialSourceLabel(row.status))}</span></dt><dd><span class="comparison-source-value"><small>Nexo</small>${renderCompactSourceValue(formatComparisonReadModelValue(row.field, row.nexoValue), "No informado")}</span><span class="comparison-source-value comparison-source-value--web"><small>Web oficial</small>${renderCompactSourceValue(formatComparisonReadModelValue(row.field, row.officialValue), "No informado")}</span></dd></div>`).join("")}</dl>
+    <div class="comparison-source-links">${renderSourceLink(comparison.nexoSourceUrl, "Ver Nexo")}${renderSourceLink(comparison.officialSourceUrl, "Ver web oficial")}</div>
+  </section>`;
 }
 
 function renderComparisonWarnings(findings: JsonObject[]): string {

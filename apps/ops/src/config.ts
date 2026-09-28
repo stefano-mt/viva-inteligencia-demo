@@ -27,7 +27,7 @@ export function readConfig(environment: NodeJS.ProcessEnv = process.env): OpsCon
   );
   assertInside(path.join(root, "data", "staging"), stagingDirectory, "INGESTION_STAGING_DIRECTORY");
   return {
-    host: environment.OPS_HOST?.trim() || "0.0.0.0",
+    host: environment.OPS_HOST?.trim() || "127.0.0.1",
     port: integer(environment.OPS_PORT, 3100),
     logLevel: environment.LOG_LEVEL?.trim() || "info",
     ...(token ? { ingestionToken: token } : {}),

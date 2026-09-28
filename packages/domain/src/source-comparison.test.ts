@@ -46,7 +46,7 @@ describe("source comparison normalizers", () => {
     expect(compareProjectSourceValues("address", "Av. Pardo N° 123", "Avenida Pardo 123"))
       .toBe("match");
     expect(compareProjectSourceValues("range", "69.56 a 69.88 m²", "69.88 m²"))
-      .toBe("match");
+      .toBe("additional");
     expect(compareProjectSourceValues("range", "2 a 3 dormitorios", "1 dormitorio"))
       .toBe("review");
     expect(compareProjectSourceValues("text", null, "Disponible"))
@@ -79,7 +79,7 @@ describe("buildProjectSourceComparison", () => {
     },
   };
 
-  it("matches semantically compatible address and point-in-range values", () => {
+  it("matches equal values and keeps a point within a range as additional detail", () => {
     const result = buildProjectSourceComparison([
       nexo,
       {
@@ -106,7 +106,7 @@ describe("buildProjectSourceComparison", () => {
     expect(result.status).toBe("compared");
     expect(rowByField(result.rows, "address").status).toBe("match");
     expect(rowByField(result.rows, "bedrooms").status).toBe("match");
-    expect(rowByField(result.rows, "totalArea").status).toBe("match");
+    expect(rowByField(result.rows, "totalArea").status).toBe("additional");
     expect(rowByField(result.rows, "listPrice").status).toBe("match");
     expect(rowByField(result.rows, "amenities").status).toBe("additional");
     expect(rowByField(result.rows, "deliveryDate").status).toBe("additional");
@@ -215,5 +215,70 @@ describe("buildProjectSourceComparison", () => {
       .toBe("review");
     expect(compareProjectSourceValues("date", "2028", "Entrega 2028"))
       .toBe("match");
+  });
+
+  it("retains lower and upper bounds instead of treating them as exact counts", () => {
+    expect(normalizeNumericRange("Hasta 2 dormitorios"))
+      .toEqual({ min: 2, max: 2, unit: "count", qualifier: "at_most" });
+    expect(normalizeNumericRange("Desde 60 m²"))
+      .toEqual({ min: 60, max: 60, unit: "m2", qualifier: "at_least" });
+    expect(compareProjectSourceValues("range", "2 dormitorios", "Hasta 2 dormitorios"))
+      .toBe("additional");
+    expect(compareProjectSourceValues("range", "3 dormitorios", "Hasta 2 dormitorios"))
+      .toBe("review");
+    expect(compareProjectSourceValues("range", "Desde 60 m²", "80 m²"))
+      .toBe("additional");
+    expect(compareProjectSourceValues("range", "Desde 60 m²", "Desde 60 m²"))
+      .toBe("match");
+  });
+
+  it("keeps published ambientes separate from bedrooms", () => {
+    const result = buildProjectSourceComparison([
+      nexo,
+      { id: "source:web:cantabria", type: "agency_website", observedData: { projectName: "Versia", roomDescription: "2 y 3 ambs", bedrooms: null } },
+    ]);
+    expect(rowByField(result.rows, "bedrooms").status).toBe("nexo_only");
+    expect(rowByField(result.rows, "bedrooms").official).toBeNull();
+    expect(rowByField(result.rows, "roomDescription").status).toBe("official_only");
+    expect(rowByField(result.rows, "roomDescription").official?.original).toBe("2 y 3 ambs");
+  });
+
+  it("accepts ISO datetimes, rejects impossible dates and respects month precision", () => {
+    expect(compareProjectSourceValues("date", "2027-03-31T00:00:00.000Z", "Entrega marzo 2027"))
+      .toBe("additional");
+    expect(compareProjectSourceValues("date", "2027-03-31T00:00:00-05:00", "2027-03-31"))
+      .toBe("match");
+    expect(compareProjectSourceValues("date", "2027-03-31T00:00:00.000Z", "Entrega abril 2027"))
+      .toBe("review");
+    expect(compareProjectSourceValues("date", "2027-02-30", "2027-03-02"))
+      .toBe("review");
+  });
+
+  it("normalizes common amenity synonyms without treating missing mentions as absence", () => {
+    expect(compareProjectSourceValues("list", ["Sala usos múltiples", "Parrillas"], ["SUM", "Zona de parrillas"]))
+      .toBe("match");
+    expect(compareProjectSourceValues("list", ["Lobby"], ["Lobby", "Gimnasio"]))
+      .toBe("additional");
+    expect(compareProjectSourceValues("list", ["Lobby"], []))
+      .toBe("nexo_only");
+  });
+
+  it("exposes every official page with URL, date and unit scope without false project conflicts", () => {
+    const pages: ProjectSourceObservation[] = [
+      { id: "source:web:magbis:801", type: "agency_website", sourceUrl: "https://example.com/duplex-801", capturedAt: "2026-09-09T12:00:00Z", scope: "unit", observedData: { totalArea: "245.47 m²", bedrooms: "3 dormitorios", listPrice: "S/ 1200000", currency: "PEN" } },
+      { id: "source:web:magbis:502", type: "agency_website", sourceUrl: "https://example.com/tipico-502", capturedAt: "2026-09-09T12:01:00Z", scope: "unit", observedData: { totalArea: "130.83 m²", bedrooms: "2 dormitorios" } },
+    ];
+    const before = JSON.stringify(pages);
+    const result = buildProjectSourceComparison([nexo, ...pages]);
+    expect(result.comparisons).toHaveLength(2);
+    expect(result.comparisons?.map((pair) => pair.sources.official?.sourceUrl))
+      .toEqual(pages.map((source) => source.sourceUrl));
+    expect(result.sources.official?.capturedAt).toBe(pages[0]?.capturedAt);
+    for (const pair of result.comparisons!) {
+      expect(rowByField(pair.rows, "totalArea").status).toBe("additional");
+      expect(rowByField(pair.rows, "bedrooms").status).toBe("additional");
+    }
+    expect(rowByField(result.rows, "listPrice").status).toBe("additional");
+    expect(JSON.stringify(pages)).toBe(before);
   });
 });

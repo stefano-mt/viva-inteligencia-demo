@@ -92,14 +92,14 @@ describe("snapshot repository", () => {
       status: "compared",
       rows: expect.arrayContaining([
         expect.objectContaining({ field: "projectName", status: "match" }),
-        expect.objectContaining({ field: "bedrooms", status: "match" }),
+        expect.objectContaining({ field: "bedrooms", status: "additional" }),
         expect.objectContaining({ field: "totalArea", status: "match" }),
-        expect.objectContaining({ field: "unitCount", status: "review" }),
+        expect.objectContaining({ field: "unitCount", status: "nexo_only" }),
       ]),
     });
   });
 
-  it("flags noisy official-web values for commercial review", async () => {
+  it("publishes only reviewed VERSIA facts without mixing rooms, prices or old text", async () => {
     const loaded = await loadAndValidateSnapshot({ snapshotPath, schemaPath });
     const repository = new InMemorySnapshotRepository(loaded);
     const detail = repository.project("3981");
@@ -107,14 +107,21 @@ describe("snapshot repository", () => {
       status: "compared",
       summary: expect.objectContaining({ review: expect.any(Number) }),
       rows: expect.arrayContaining([
-        expect.objectContaining({ field: "bedrooms", status: "review" }),
-        expect.objectContaining({ field: "address", status: "review" }),
-        expect.objectContaining({ field: "deliveryDate", status: "review" }),
+        expect.objectContaining({ field: "bedrooms", status: "nexo_only" }),
+        expect.objectContaining({ field: "address", status: "match" }),
+        expect.objectContaining({ field: "deliveryDate", status: "additional" }),
       ]),
     });
     expect((detail?.traceability.sourceComparison as {
       summary: { review: number };
-    }).summary.review).toBeGreaterThan(0);
+    }).summary.review).toBe(0);
+    const web = (detail?.traceability.sources as Array<Record<string, unknown>>).find((source) => source.type === "agency_website");
+    expect(web).toMatchObject({
+      id: "source:web:cantabriainmobiliaria.pe",
+      capturedAt: "2026-09-09T06:20:45.077Z",
+      review: { status: "demo_reviewed" },
+      observedData: { listPrice: null, bedrooms: null, roomDescription: "2 y 3 ambs", totalAreaMin: 60, totalAreaMax: 98 },
+    });
   });
 
   it("distinguishes an official project page from a published observation", async () => {
@@ -124,7 +131,7 @@ describe("snapshot repository", () => {
       web_observations?: Array<Record<string, unknown>>;
     };
     matching.web_observations = (matching.web_observations ?? []).filter((observation) =>
-      observation.source_url !== "https://cantabriainmobiliaria.pe/proyecto/versia-miraflores");
+      observation.source_url !== "https://cantabriainmobiliaria.pe/landing-versia/");
     const repository = new InMemorySnapshotRepository({ ...loaded, data });
     const detail = repository.project("3981");
     expect(detail?.traceability).toMatchObject({
@@ -137,7 +144,7 @@ describe("snapshot repository", () => {
     expect(detail?.traceability.sources).toEqual(expect.arrayContaining([
       expect.objectContaining({
         type: "agency_website",
-        sourceUrl: "https://cantabriainmobiliaria.pe/proyecto/versia-miraflores",
+        sourceUrl: "https://cantabriainmobiliaria.pe/landing-versia/",
         observedData: null,
       }),
     ]));
@@ -149,6 +156,28 @@ describe("snapshot repository", () => {
       schemaPath,
       expectedChecksum: "0".repeat(64),
     })).rejects.toBeInstanceOf(SnapshotValidationError);
+  });
+
+  it("keeps two PARQUE NU units separate and removes corrupt MONTEROSSO stock", async () => {
+    const loaded = await loadAndValidateSnapshot({ snapshotPath, schemaPath });
+    const repository = new InMemorySnapshotRepository(loaded);
+    const units = repository.project("4157")!.traceability.sourceComparison as {
+      comparisons: Array<{ sources: { official: { sourceUrl: string; scope: string } }; rows: Array<{ field: string; status: string }> }>;
+    };
+    expect(units.comparisons).toHaveLength(2);
+    expect(new Set(units.comparisons.map((pair) => pair.sources.official.sourceUrl)).size).toBe(2);
+    for (const pair of units.comparisons) {
+      expect(pair.sources.official.scope).toBe("unit");
+      expect(pair.rows.find((row) => row.field === "totalArea")?.status).toBe("additional");
+    }
+    const detail = repository.project("1940")!;
+    expect(JSON.stringify(detail)).not.toContain("6016");
+    expect(detail.traceability.sources).toEqual(expect.arrayContaining([
+      expect.objectContaining({ capturedAt: "2026-09-09T06:21:00.855Z", observedData: expect.objectContaining({
+        unitCount: null, listPrice: null, bedrooms: "Hasta 2 dormitorios",
+        amenities: ["Estacionamientos para bicicletas", "Lobby", "Terraza", "Área de parrilla"],
+      }) }),
+    ]));
   });
 
   it("fails closed on corrupt JSON", async () => {

@@ -13,11 +13,13 @@ Web: `http://localhost:5173`. API: `http://localhost:3000`. OpenAPI: `http://loc
 ## Entorno empaquetado
 
 ```powershell
+npm run auth:generate
+# En un archivo .env local: VIVA_BASIC_AUTH_FILE=./infra/docker/.htpasswd.local
 docker compose up --build
 docker compose ps
 ```
 
-Accede por `http://localhost:8080`. El navegador no debe llamar directamente al contenedor API.
+Accede por `http://localhost:8080` con el usuario y la contraseña recién generados. El navegador no debe llamar directamente al contenedor API. El endpoint `/health/live` es la única excepción pública para el health check. Si falta la configuración de credenciales, la web deniega todos los accesos. Lee [acceso a la demo](demo-access.md) antes de publicar un enlace.
 
 Para usar imágenes publicadas:
 

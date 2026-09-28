@@ -41,6 +41,7 @@ import {
   evaluateComparison,
   evaluateInspectorCase,
   evaluateWorkspace,
+  type JsonObject,
 } from "@viva/domain";
 import type { DataRepository, ProjectQuery } from "@viva/snapshot";
 import type { ApiConfig } from "./config.js";
@@ -313,15 +314,30 @@ export async function buildApp(dependencies: AppDependencies): Promise<FastifyIn
       body: ComparisonRequestSchema,
       response: { 200: ComparisonResponseSchema, default: ApiErrorSchema },
     },
-  }, async (request) => ({
-    ...versioned(),
-    comparison: evaluateComparison(
-      requireRepository(dependencies).snapshot(),
+  }, async (request) => {
+    const repository = requireRepository(dependencies);
+    const comparison = evaluateComparison(
+      repository.snapshot(),
       request.body.scenario,
       request.body.projectIds,
       request.body.includeTargetScenario ?? false,
-    ),
-  }));
+    );
+    // Use the actual eligible selection/order, not unchecked requested IDs.
+    const selected = (comparison.selected ?? []) as JsonObject[];
+    const sourceComparisons = selected.flatMap((item) => {
+      const detail = repository.project(String(item.projectId ?? ""));
+      if (!detail) return [];
+      return [{
+        projectId: item.projectId,
+        projectName: item.name,
+        agencyName: item.agencyName,
+        sources: detail.traceability.sources,
+        sourceComparison: detail.traceability.sourceComparison,
+        sourceDecision: detail.traceability.sourceDecision,
+      }];
+    });
+    return { ...versioned(), comparison: { ...comparison, sourceComparisons } };
+  });
 
   app.get<{ Querystring: ProjectQuery }>("/api/v1/history", {
     schema: {

@@ -89,7 +89,7 @@ describe("Viva API", () => {
         status: "compared",
         rows: expect.arrayContaining([
           expect.objectContaining({ field: "totalArea", status: "match" }),
-          expect.objectContaining({ field: "unitCount", status: "review" }),
+          expect.objectContaining({ field: "unitCount", status: "nexo_only" }),
         ]),
       },
     });
@@ -138,6 +138,34 @@ describe("Viva API", () => {
     expect(response.statusCode).toBe(400);
     expect(response.json()).toMatchObject({ code: "REQUEST_INVALID" });
     expect(response.json().requestId).toMatch(/^[0-9a-f-]{36}$/u);
+  });
+
+  it("carries the same reviewed web facts from each ficha into the comparator", async () => {
+    const scenario = (await app.inject({ method: "GET", url: "/api/v1/bootstrap" })).json().initialScenario;
+    for (const [districtId, ids] of [
+      ["150122", ["3981", "3391", "4146"]],
+      ["150113", ["1940", "3485", "4174"]],
+    ] as const) {
+      const response = await app.inject({
+        method: "POST", url: "/api/v1/comparisons/evaluate",
+        payload: { scenario: { ...scenario, district_id: districtId }, projectIds: ids.map((id) => `project:nexo-${id}`) },
+      });
+      expect(response.statusCode).toBe(200);
+      expect(response.json().comparison.status).toBe("ready");
+      expect(response.json().comparison.sourceComparisons).toHaveLength(3);
+      expect(Buffer.byteLength(response.body)).toBeLessThan(1_000_000);
+      for (const item of response.json().comparison.sourceComparisons) {
+        const detail = repository.project(item.projectId)!;
+        expect(item.sourceComparison).toEqual(detail.traceability.sourceComparison);
+        expect(item.sourceDecision).toEqual(detail.traceability.sourceDecision);
+        expect(item.sources).toEqual(detail.traceability.sources);
+        for (const source of item.sources.filter((source: { type: string }) => source.type === "agency_website")) {
+          expect(source.observedData.listPrice).toBeNull();
+          expect(source.observedData.unitCount).toBeNull();
+          expect(source.review.status).toMatch(/demo_reviewed|historical_sanitized/u);
+        }
+      }
+    }
   });
 
   it("keeps data refresh disabled until the private operator workflow is configured", async () => {

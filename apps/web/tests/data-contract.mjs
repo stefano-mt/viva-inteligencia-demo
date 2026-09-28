@@ -38,14 +38,15 @@ const logicalDataBytes = logicalBytes(dataBytes);
 const logicalBoundaryBytes = logicalBytes(boundaryBytes);
 
 assert.equal(data.metadata.contract_version, "2.4.0");
-assert.equal(data.metadata.dataset_id, "dataset:viva-platform-demo-2026-07-28");
-assert.equal(data.metadata.generated_at, "2026-07-28T01:24:28Z");
+assert.equal(data.metadata.dataset_id, "dataset:viva-platform-demo-2026-09-23");
+assert.equal(data.metadata.generated_at, "2026-09-23T12:00:00Z");
 assert.equal(data.metadata.cutoff_at, "2026-07-28T01:24:28Z");
-assert.equal(data.metadata.input_fingerprints.length, 52);
+assert.equal(data.matching.review_edition.latest_reviewed_web_capture_at, "2026-09-09T06:21:00.855Z");
+assert.equal(data.metadata.input_fingerprints.length, 53);
 const fingerprintPaths = data.metadata.input_fingerprints.map(
   (fingerprint) => fingerprint.path
 );
-assert.equal(new Set(fingerprintPaths).size, 52);
+assert.equal(new Set(fingerprintPaths).size, 53);
 assert.deepEqual(fingerprintPaths, [...fingerprintPaths].sort());
 assert.equal(
   fingerprintPaths.filter((logicalPath) => logicalPath.endsWith(".webp"))
@@ -226,7 +227,7 @@ assert.equal(
   coverageReport.source_artifact.sha256
 );
 assert.equal(coverageReport.source_artifact.contract_version, "2.4.0");
-assert.equal(coverageReport.derivation.input_fingerprint_count, 52);
+assert.equal(coverageReport.derivation.input_fingerprint_count, 53);
 assert.equal(
   logicalDataBytes.length,
   coverageReport.source_artifact.byte_length
